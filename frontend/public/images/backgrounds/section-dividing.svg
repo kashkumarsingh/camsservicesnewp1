@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 809 426">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#Degradado_sin_nombre_133);
+        filter: url(#drop-shadow-1);
+      }
+    </style>
+    <linearGradient id="Degradado_sin_nombre_133" data-name="Degradado sin nombre 133" x1="404.1" y1="33.42" x2="404.1" y2="144.09" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#003063"/>
+      <stop offset="1" stop-color="#000f2a"/>
+    </linearGradient>
+    <filter id="drop-shadow-1" x="0" y="0" width="809" height="426" filterUnits="userSpaceOnUse">
+      <feOffset dx="0" dy="-8"/>
+      <feGaussianBlur result="blur" stdDeviation="8"/>
+      <feFlood flood-color="#000" flood-opacity=".4"/>
+      <feComposite in2="blur" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="objects">
+    <path class="cls-1" d="M784.15,47.27c-50.91-15.64-87.22,26.92-148.37,29.49-45.66,1.92-62.56-22.78-99.24-36.64-40.48-15.3-75.29-5.13-115,8.22-39.49,13.27-72.16,27.25-116.28,22.29-39.5-4.44-73.49-28.76-113.33-28.76-94.11,0-126.69,50.63-167.87,35.35v331.8h760.1V47.27Z"/>
+  </g>
+</svg>

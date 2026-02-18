@@ -1,0 +1,199 @@
+.list {
+  padding: 1rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.dayGroup {
+  margin-bottom: 2rem;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.dayLabel {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--color-primary, #ff6b35), var(--color-primary-dark, #e85a2a));
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.dayName {
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+}
+
+.dayNumber {
+  font-size: 1.25rem;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+}
+
+.shiftsContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.shiftCard {
+  background: var(--color-surface, #ffffff);
+  border: 2px solid rgba(15, 23, 42, 0.06);
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  transition: all 0.15s ease-out;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.shiftCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--color-primary, #ff6b35), var(--color-accent, #00d9ff));
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.15s ease-out;
+}
+
+.shiftCard:hover {
+  border-color: var(--color-primary, #ff6b35);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+  transform: translateY(-2px);
+}
+
+.shiftCard:hover::before {
+  transform: scaleY(1);
+}
+
+.shiftHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  gap: 0.75rem;
+}
+
+.shiftTime {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.notesIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  background: rgba(0, 217, 255, 0.12);
+  color: #004e89;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.shiftPosition {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.3rem 0;
+}
+
+.shiftLocation {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin-bottom: 0.75rem;
+}
+
+.shiftFooter {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.shiftRate {
+  font-weight: 500;
+  color: #111827;
+}
+
+.shiftPay {
+  font-weight: 600;
+  color: var(--color-success, #06d6a0);
+}
+
+.unavailableCard {
+  background: rgba(148, 163, 184, 0.08);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 1px dashed rgba(148, 163, 184, 0.8);
+}
+
+.unavailableLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.availableCard {
+  background: rgba(34, 197, 94, 0.08);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+.availableLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #15803d;
+}
+
+.availableSubtext {
+  font-size: 0.8125rem;
+  color: #166534;
+  margin-top: 0.25rem;
+}
+
+.emptyState {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+  .shiftsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+}
+

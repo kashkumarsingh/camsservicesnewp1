@@ -1,0 +1,76 @@
+# Backend .dockerignore
+# Exclude files that should NOT be copied into Docker image
+
+# Dependencies (installed inside Docker)
+vendor/
+node_modules/
+composer.phar
+
+# Build outputs
+public/hot
+public/storage
+public/build/
+public/js/
+public/css/
+public/mix-manifest.json
+
+# Environment files (injected via env vars)
+.env
+.env.*
+.env.backup
+.env.example
+
+# Cache
+bootstrap/cache/*
+!bootstrap/cache/.gitignore
+storage/framework/cache/*
+!storage/framework/cache/.gitignore
+storage/framework/sessions/*
+!storage/framework/sessions/.gitignore
+storage/framework/views/*
+!storage/framework/views/.gitignore
+
+# Logs
+storage/logs/*
+!storage/logs/.gitignore
+*.log
+
+# Testing
+.phpunit.result.cache
+tests/.phpunit.result.cache
+coverage/
+.nyc_output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+docs/
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# CI/CD
+.github/
+.phpunit.cache
+
+# Temporary files
+*.tmp
+*.temp
+*.bak

@@ -1,0 +1,158 @@
+services:
+  # Backend Service - Laravel API (admin is Next.js at frontend /dashboard/admin)
+  - type: web
+    name: cams-backend
+    runtime: docker
+    plan: free
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    envVars:
+      # Application Configuration
+      - key: APP_NAME
+        value: CAMS Services
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        sync: false  # Generate locally: docker-compose exec backend php artisan key:generate --show
+      # APP_URL will be set dynamically using RENDER_EXTERNAL_URL in docker-entrypoint.sh
+      - key: APP_TIMEZONE
+        value: UTC
+      
+      # Database - PostgreSQL (Render Free Tier)
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: cams-database
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: cams-database
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: cams-database
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: cams-database
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: cams-database
+          property: password
+      
+      # Cache & Session (use database for free tier - no Redis on free plan)
+      - key: CACHE_STORE
+        value: database
+      - key: SESSION_DRIVER
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: SESSION_LIFETIME
+        value: 120
+      
+      # Logging
+      - key: LOG_CHANNEL
+        value: errorlog
+      - key: LOG_LEVEL
+        value: error
+      
+      # Mail Configuration (update with your SMTP provider)
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_HOST
+        sync: false  # Set in Render dashboard: smtp.mailtrap.io, smtp.sendgrid.net, etc.
+      - key: MAIL_PORT
+        sync: false  # Set in Render dashboard: 2525, 587, etc.
+      - key: MAIL_USERNAME
+        sync: false  # Set in Render dashboard
+      - key: MAIL_PASSWORD
+        sync: false  # Set in Render dashboard
+      - key: MAIL_ENCRYPTION
+        sync: false  # Set in Render dashboard: tls, ssl, or null
+      - key: MAIL_FROM_ADDRESS
+        value: noreply@camsservice.co.uk
+      - key: MAIL_FROM_NAME
+        value: CAMS Services
+      
+      # Frontend Integration
+      - key: FRONTEND_URL
+        sync: false  # Update after frontend deployment: https://your-frontend.onrender.com
+      - key: SANCTUM_STATEFUL_DOMAINS
+        sync: false  # Update after frontend deployment: your-frontend.onrender.com
+      
+      # Next.js Revalidation (for ISR cache invalidation)
+      - key: NEXT_REVALIDATE_URL
+        sync: false  # Update after frontend deployment: https://your-frontend.onrender.com/api/revalidate
+      - key: NEXT_REVALIDATE_SECRET
+        sync: false  # Generate a secure random string
+      
+      # Stripe Payment Configuration
+      - key: STRIPE_SECRET_KEY
+        sync: false  # Set in Render dashboard: sk_live_... or sk_test_...
+      - key: STRIPE_PUBLIC_KEY
+        sync: false  # Set in Render dashboard: pk_live_... or pk_test_...
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false  # Set in Render dashboard: whsec_...
+  
+  # Frontend Service - Next.js 15 (Optional - deploy separately or use Vercel)
+  - type: web
+    name: cams-frontend
+    runtime: docker
+    plan: free
+    dockerfilePath: frontend/Dockerfile
+    dockerContext: frontend
+    envVars:
+      # Environment
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      
+      # Site Configuration
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false  # Update after deployment: https://cams-frontend.onrender.com
+      - key: NEXT_PUBLIC_SITE_NAME
+        value: CAMS Services
+      
+      # API Configuration
+      - key: NEXT_PUBLIC_API_URL
+        value: https://cams-backend-1q6w.onrender.com/api/v1
+      - key: API_URL
+        value: https://cams-backend-1q6w.onrender.com/api/v1
+      
+      # Repository Configuration (all use API)
+      - key: NEXT_PUBLIC_PACKAGE_REPOSITORY
+        value: api
+      - key: NEXT_PUBLIC_SERVICE_REPOSITORY
+        value: api
+      - key: NEXT_PUBLIC_TRAINER_REPOSITORY
+        value: api
+      - key: NEXT_PUBLIC_PAGE_REPOSITORY
+        value: api
+      - key: NEXT_PUBLIC_FAQ_REPOSITORY
+        value: api
+      - key: NEXT_PUBLIC_BLOG_REPOSITORY
+        value: api
+      
+      # ISR / Revalidation
+      - key: NEXT_REVALIDATE_SECRET
+        sync: false  # Must match backend NEXT_REVALIDATE_SECRET
+      
+      # Stripe Payment Configuration (Public Key - Safe to expose)
+      - key: NEXT_PUBLIC_STRIPE_PUBLIC_KEY
+        sync: false  # Set in Render dashboard: pk_live_... or pk_test_...
+      
+      # Ideal Postcodes API (UK Address Lookup)
+      - key: NEXT_PUBLIC_IDEAL_POSTCODES_API_KEY
+        sync: false  # Set in Render dashboard: ak_...
+
+# Database Service - PostgreSQL (Render Free Tier)
+databases:
+  - name: cams-database
+    databaseName: cams_db
+    user: cams_user
+    plan: free  # PostgreSQL on Render free tier

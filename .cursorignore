@@ -1,0 +1,227 @@
+# ============================================================================
+# .cursorignore - Optimised for Token Reduction
+# ============================================================================
+# Prevents indexing files that waste tokens in @Codebase requests
+# Expected reduction: 50-80% fewer files indexed
+
+# ---------------------------------------------------------------------------
+# Dependencies (MASSIVE token waste - typically 50-70% of total files)
+# ---------------------------------------------------------------------------
+node_modules/
+vendor/
+.pnp.*
+.yarn/
+
+# ---------------------------------------------------------------------------
+# Build Outputs & Generated Files
+# ---------------------------------------------------------------------------
+dist/
+build/
+.next/
+.nuxt/
+out/
+.output/
+.cache/
+coverage/
+
+# Compiled/minified files
+*.min.js
+*.min.css
+*.map
+*.bundle.js
+
+# ---------------------------------------------------------------------------
+# Version Control
+# ---------------------------------------------------------------------------
+.git/
+.svn/
+.hg/
+
+# ---------------------------------------------------------------------------
+# Logs & Temporary Files
+# ---------------------------------------------------------------------------
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+tmp/
+temp/
+
+# ---------------------------------------------------------------------------
+# Lock Files (Large, auto-generated)
+# ---------------------------------------------------------------------------
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+composer.lock
+
+# ---------------------------------------------------------------------------
+# Documentation (HIGH TOKEN USAGE - exclude unless needed)
+# ---------------------------------------------------------------------------
+# Saves 200-500 files depending on your docs structure
+docs/
+docs/**/*.md
+
+# If you need specific docs, use: @File docs/specific-file.md
+# Uncomment below to exclude ALL markdown files (aggressive):
+# *.md
+
+# ---------------------------------------------------------------------------
+# Storage, Uploads & User-Generated Content
+# ---------------------------------------------------------------------------
+storage/
+public/storage/
+public/uploads/
+uploads/
+
+# ---------------------------------------------------------------------------
+# Large Data Files
+# ---------------------------------------------------------------------------
+*.sql
+*.dump
+*.db
+*.sqlite
+*.sqlite3
+*.csv
+
+# Large JSON datasets (uncomment if you have large data files)
+# **/data/*.json
+# **/fixtures/*.json
+# **/seeds/*.json
+
+# ---------------------------------------------------------------------------
+# Media Files (Cannot be processed, waste tokens)
+# ---------------------------------------------------------------------------
+# Images
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+*.ico
+*.bmp
+
+# Videos
+*.mp4
+*.mov
+*.avi
+*.webm
+
+# Audio
+*.mp3
+*.wav
+*.flac
+
+# Documents
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+
+# Archives
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# ---------------------------------------------------------------------------
+# IDE & Editor Files
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------------------------------------------
+# Environment & Secrets
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.cert
+
+# ---------------------------------------------------------------------------
+# Test Coverage & Reports
+# ---------------------------------------------------------------------------
+coverage/
+.nyc_output/
+test-results/
+*.lcov
+
+# ---------------------------------------------------------------------------
+# Monorepo Specific (If using Turborepo, Nx, etc.)
+# ---------------------------------------------------------------------------
+.turbo/
+.nx/
+
+# ---------------------------------------------------------------------------
+# Laravel Specific
+# ---------------------------------------------------------------------------
+bootstrap/cache/*.php
+storage/framework/cache/**
+storage/framework/sessions/**
+storage/framework/views/**
+storage/logs/**
+public/hot
+
+# Database seeders (development/test data - not needed in context)
+backend/database/seeders/
+database/seeders/
+
+# Database migrations (historical schema changes - rarely needed)
+backend/database/migrations/
+database/migrations/
+
+# Blade email templates (static templates, minimal context value)
+backend/resources/views/mail/
+resources/views/mail/
+
+# Test files (not needed for production context)
+backend/tests/
+tests/
+*Test.php
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Factory files (test data generators)
+backend/database/factories/
+database/factories/
+
+# ---------------------------------------------------------------------------
+# Scripts & Development Tools (Optional - uncomment to exclude ~40 files)
+# ---------------------------------------------------------------------------
+# Development and testing scripts (rarely needed in coding context)
+# Uncomment the line below to exclude:
+# scripts/
+
+# If you need specific scripts, use: @File scripts/specific-script.sh
+
+# ---------------------------------------------------------------------------
+# Next.js Specific
+# ---------------------------------------------------------------------------
+.next/
+out/
+.swc/
+
+# ===========================================================================
+# AFTER UPDATING THIS FILE:
+# ===========================================================================
+# 1. Save this file to your project root
+# 2. Go to Cursor → Settings → Indexing & Docs
+# 3. Click "Compute index" to reindex
+# 4. Click "View included files" to verify exclusions
+# 5. Expected result: 1,000-1,500 files (down from 1,570+)
+# ===========================================================================

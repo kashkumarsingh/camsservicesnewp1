@@ -1,0 +1,57 @@
+# Railway.app Configuration for CAMS Service Backend
+# This file configures the Docker deployment for Railway.app free tier
+# Railway auto-detects Dockerfiles, but we specify the path for monorepo structure
+
+# ============================================================================
+# DEPLOYMENT OPTIONS:
+# ============================================================================
+# 
+# OPTION 1: Docker (CURRENT - Recommended for Production)
+#   - Uses Nginx + PHP-FPM (better performance, production-ready)
+#   - No startCommand needed - Dockerfile CMD handles everything
+#   - The Dockerfile automatically handles PORT environment variable
+#
+# OPTION 2: Native PHP (Alternative - Development/Simple Setup)
+#   - Uses php artisan serve (simpler, but not recommended for production)
+#   - Requires startCommand: php artisan config:cache && php artisan serve --host=0.0.0.0 --port=$PORT
+#   - To use this, remove dockerfilePath/dockerContext and add deploy.startCommand
+#
+# ============================================================================
+
+# Docker Configuration (OPTION 1 - CURRENT)
+dockerfilePath: backend/Dockerfile
+dockerContext: backend
+
+# Deploy Configuration
+# Railway will use the CMD from Dockerfile which starts Nginx + PHP-FPM
+# The Dockerfile automatically handles PORT environment variable (Railway sets this)
+# No startCommand needed - Dockerfile CMD handles everything
+
+# Alternative: Native PHP with startCommand (OPTION 2 - Uncomment to use)
+# deploy:
+#   startCommand: cd backend && php artisan config:cache && php artisan serve --host=0.0.0.0 --port=$PORT
+
+# Environment Variables (set these in Railway Dashboard → Variables tab)
+# Required variables:
+#   - APP_KEY: Run `php artisan key:generate --show`, copy value into Railway
+#
+#   - APP_NAME: CAMS Services
+#   - APP_ENV: production
+#   - APP_DEBUG: false
+#   - APP_URL: https://${RAILWAY_PUBLIC_DOMAIN} (Railway injects domain automatically)
+#
+# Database variables (Railway PostgreSQL):
+#   - DB_CONNECTION: pgsql
+#   - DB_HOST: ${RAILWAY_PRIVATE_DOMAIN}
+#   - DB_PORT: 5432
+#   - DB_DATABASE: ${POSTGRES_DB}
+#   - DB_USERNAME: ${POSTGRES_USER}
+#   - DB_PASSWORD: ${POSTGRES_PASSWORD}
+#
+# Other required variables:
+#   - MAIL_MAILER: smtp (or your mail service)
+#   - MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_ENCRYPTION, MAIL_FROM_ADDRESS, MAIL_FROM_NAME
+#
+# Note: Railway automatically sets PORT environment variable
+# The Dockerfile uses envsubst to inject PORT into nginx.conf at runtime
+

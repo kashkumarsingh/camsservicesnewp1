@@ -1,0 +1,369 @@
+# ============================================
+# KidzRunz P1 - Monorepo .gitignore
+# ============================================
+# Next.js Frontend + Laravel Backend + Docker
+# ============================================
+
+# ============================================
+# Dependencies
+# ============================================
+node_modules/
+.pnp
+.pnp.js
+.yarn/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Composer (Laravel)
+backend/vendor/
+backend/composer.phar
+
+# ============================================
+# Build & Production
+# ============================================
+build/
+dist/
+*.tsbuildinfo
+
+# Next.js
+frontend/.next/
+frontend/out/
+.next/
+out/
+frontend/.next/
+frontend/out/
+
+# Laravel
+backend/public/hot
+backend/public/storage
+backend/storage/*.key
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+!backend/storage/framework/cache/.gitignore
+!backend/storage/framework/sessions/.gitignore
+!backend/storage/framework/views/.gitignore
+
+# ============================================
+# Environment & Configuration
+# ============================================
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.backup
+*.env
+
+# Frontend
+frontend/.env
+frontend/.env.*
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Backend
+backend/.env
+backend/.env.*
+backend/.env.backup
+backend/.env.example
+
+# CMS (future)
+cms/.env
+cms/.env.*
+
+# ============================================
+# Testing & Coverage
+# ============================================
+coverage/
+*.lcov
+.nyc_output/
+frontend/coverage/
+backend/coverage/
+.pytest_cache/
+.phpunit.result.cache
+backend/.phpunit.result.cache
+backend/tests/.phpunit.result.cache
+
+# Vitest
+frontend/vitest.config.ts.timestamp-*
+
+# ============================================
+# Logs
+# ============================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Laravel logs
+backend/storage/logs/*
+!backend/storage/logs/.gitignore
+backend/*.log
+
+# ============================================
+# Cache & Temporary Files
+# ============================================
+.cache/
+.parcel-cache/
+.turbo/
+.next/cache/
+frontend/.next/cache/
+
+# Laravel cache
+backend/bootstrap/cache/*
+!backend/bootstrap/cache/.gitignore
+backend/storage/framework/cache/data/*
+!backend/storage/framework/cache/data/.gitignore
+
+# PHP
+*.cache
+*.swp
+*.swo
+*~
+
+# ============================================
+# IDE & Editor Files
+# ============================================
+# Cursor IDE
+.cursorrules
+.cursor/
+
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# IntelliJ / PHPStorm
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# ============================================
+# OS Files
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================
+# Docker
+# ============================================
+.dockerignore
+docker-compose.override.yml
+docker-compose.local.yml
+*.dockerignore
+
+# ============================================
+# Deployment & CI/CD
+# ============================================
+# Vercel
+.vercel
+frontend/.vercel
+.vercel/
+
+# Netlify
+.netlify/
+.netlify/
+
+# GitHub Actions (if you want to ignore local test runs)
+.github/workflows/.local/
+
+# ============================================
+# TypeScript
+# ============================================
+*.tsbuildinfo
+frontend/*.tsbuildinfo
+next-env.d.ts
+frontend/next-env.d.ts
+
+# ============================================
+# Laravel Specific
+# ============================================
+backend/storage/logs/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/testing/*
+backend/storage/framework/views/*
+backend/bootstrap/cache/*
+!backend/storage/.gitignore
+!backend/storage/app/.gitignore
+!backend/storage/app/public/.gitignore
+!backend/storage/framework/.gitignore
+!backend/storage/framework/cache/.gitignore
+!backend/storage/framework/cache/data/.gitignore
+!backend/storage/framework/sessions/.gitignore
+!backend/storage/framework/testing/.gitignore
+!backend/storage/framework/views/.gitignore
+!backend/storage/logs/.gitignore
+!backend/bootstrap/cache/.gitignore
+
+# Laravel compiled
+backend/public/mix-manifest.json
+backend/public/js/
+backend/public/css/
+backend/public/build/
+
+# ============================================
+# Security & Keys
+# ============================================
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa
+id_rsa.pub
+*.pub
+.secrets/
+secrets/
+
+# ============================================
+# Database
+# ============================================
+*.sqlite
+*.sqlite3
+*.db
+backend/database/*.sqlite
+backend/database/*.sqlite-journal
+
+# ============================================
+# Miscellaneous
+# ============================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+.sass-cache/
+connect.lock
+.eslintcache
+.stylelintcache
+*.pid
+*.seed
+*.pid.lock
+.npm
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# ============================================
+# Package Manager Locks (Optional - uncomment if you want to ignore)
+# ============================================
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+# composer.lock
+
+# ============================================
+# Documentation Build (if generated)
+# ============================================
+docs/_build/
+docs/.vuepress/dist/
+docs/.vitepress/dist/
+
+# ============================================
+# Repository-Specific Exclusions
+# ============================================
+# Documentation (now tracked - removed from ignore)
+# docs/
+# DOCS/
+
+# Cursor IDE rules (STRICTLY DO NOT PUSH)
+.cursorrules
+
+# Deployment configuration files (now tracked - removed from ignore)
+
+# README files (now tracked - removed from ignore)
+# README.md
+# README.MD
+# README.txt
+# readme.md
+
+# Dev Container configuration
+.devcontainer/
+.DEVCONTAINER
+
+# Temporary files
+temp-log-from-render-com/
+contact_payload.json
+booking-response.json
+booking-create-response.json
+*.test.json
+*.debug.json
+
+# ============================================
+# End of .gitignore
+# ============================================

@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Design tokens – single source of truth for brand, typography, and spacing.
+   Change these to rebrand or adjust the whole app.
+   ========================================================================== */
+
+/* Brand colour (space-separated RGB). Update --brand-600/700 at minimum. */
+:root {
+  --brand-50: 238 242 255;
+  --brand-100: 224 231 255;
+  --brand-200: 199 210 254;
+  --brand-300: 165 180 252;
+  --brand-400: 129 140 248;
+  --brand-500: 99 102 241;
+  --brand-600: 79 70 229;
+  --brand-700: 67 56 202;
+  --brand-800: 55 48 163;
+  --brand-900: 49 46 129;
+}
+
+/* Font family – one place for all UI text. */
+:root {
+  --font-sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+}
+
+/* Type scale – semantic names used by Tailwind theme (see tailwind.config). */
+:root {
+  --text-display: 1.5rem;      /* 24px – page titles */
+  --text-title: 1.25rem;      /* 20px – section titles */
+  --text-body: 0.875rem;      /* 14px – body, default */
+  --text-ui: 0.8125rem;       /* 13px – buttons, inputs, nav */
+  --text-caption: 0.75rem;    /* 12px – captions, table cells, labels */
+  --text-micro: 0.6875rem;    /* 11px – badges, overlines */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--leading-normal);
+    @apply bg-slate-50 text-slate-900 antialiased;
+  }
+}
+

@@ -1,0 +1,325 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+/* Manual dark switch: dark: variant applies when .dark is on an ancestor (e.g. <html class="dark">). */
+@custom-variant dark (&&:where(.dark, .dark *));
+
+@theme {
+  --color-background: hsl(0 0% 100%);
+  --color-foreground: hsl(240 10% 3.9%);
+  --color-primary: hsl(207 90% 54%);
+  --color-primary-foreground: hsl(210 40% 98%);
+  --color-secondary: hsl(38 92% 50%);
+  --color-secondary-foreground: hsl(48 96% 89%);
+  --color-accent: hsl(120 50% 45%);
+  --color-accent-foreground: hsl(120 55% 95%);
+}
+
+/* Force light when user selects light (manual switch). */
+html.light body {
+  --color-background: hsl(0 0% 100%);
+  --color-foreground: hsl(240 10% 3.9%);
+  --color-primary: hsl(207 90% 54%);
+  --color-primary-foreground: hsl(210 40% 98%);
+  --color-secondary: hsl(38 92% 50%);
+  --color-secondary-foreground: hsl(48 96% 89%);
+  --color-accent: hsl(120 50% 45%);
+  --color-accent-foreground: hsl(120 55% 95%);
+}
+
+/* Dark: manual switch (html.dark) or system (prefers-color-scheme). */
+html.dark,
+html.dark body {
+  color-scheme: dark;
+  --color-background: hsl(240 10% 7%);
+  --color-foreground: hsl(0 0% 95%);
+  --color-primary: hsl(207 85% 58%);
+  --color-primary-foreground: hsl(210 40% 98%);
+  --color-secondary: hsl(38 80% 55%);
+  --color-secondary-foreground: hsl(48 30% 12%);
+  --color-accent: hsl(120 45% 45%);
+  --color-accent-foreground: hsl(120 30% 95%);
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not(.light) {
+    color-scheme: dark;
+  }
+  html:not(.light) body {
+    --color-background: hsl(240 10% 7%);
+    --color-foreground: hsl(0 0% 95%);
+    --color-primary: hsl(207 85% 58%);
+    --color-primary-foreground: hsl(210 40% 98%);
+    --color-secondary: hsl(38 80% 55%);
+    --color-secondary-foreground: hsl(48 30% 12%);
+    --color-accent: hsl(120 45% 45%);
+    --color-accent-foreground: hsl(120 30% 95%);
+  }
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-inter), sans-serif;
+}
+
+/* Parent mobile schedule dashboard typography (scoped, does not affect global brand fonts) */
+.parent-schedule-root {
+  font-family: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.parent-schedule-root h1,
+.parent-schedule-root h2,
+.parent-schedule-root h3,
+.parent-schedule-root .heading {
+  font-family: 'Urbanist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-orbital-ring {
+  animation: rotate 4s linear infinite;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-orbitron), sans-serif;
+}
+
+.hero-gradient-bg {
+  background: linear-gradient(135deg, #0080FF 0%, #00D4FF 50%, #0080FF 100%);
+  background-size: cover;
+}
+
+.card-navy-border {
+  border: 4px solid var(--color-primary); /* Thicker, colorful border */
+}
+
+.card-right-shadow {
+  box-shadow: 8px 8px 0px #7FFF00, 12px 12px 0px #FFD700; /* Two-layer shadow */
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-5px); /* Subtle lift effect */
+  box-shadow: 10px 10px 0px #7FFF00, 15px 15px 0px #FFD700; /* Slightly increased shadow on hover */
+}
+
+@keyframes bounce-fun {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-2deg); }
+  75% { transform: rotate(2deg); }
+}
+
+.hero-playful-gradient-bg {
+  background: linear-gradient(135deg, 
+    #0080FF 0%,    /* Blue */
+    #00D4FF 25%,   /* Cyan */
+    #7FFF00 50%,   /* Green */
+    #FFD700 75%,   /* Yellow */
+    #FF6B35 100%   /* Orange */
+  );
+  background-size: cover;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.heading-text-shadow {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4); /* More subtle shadow */
+}
+
+@keyframes pulse-slow {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+.header-nav-text-shadow {
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Subtle shadow */
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+  background-size: 1000px 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 3s infinite;
+}
+
+.cta-sky-nature-gradient {
+  background: linear-gradient(180deg, 
+    #87CEEB 0%,    /* Sky Blue */
+    #00D4FF 30%,   /* Bright Blue */
+    #7FFF00 70%,   /* Grass Green */
+    #FFD700 100%   /* Sun Yellow */
+  );
+  background-size: cover;
+}
+
+/* Slide up animation for schedule modals / panels */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-up {
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Pulse animation for pending status */
+@keyframes pulseWarning {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.pulse-warning {
+  animation: pulseWarning 2s ease-in-out infinite;
+}
+
+/* Session card interaction */
+.session-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.session-card:active {
+  transform: scale(0.98);
+}
+
+/* Mobile Menu Animations */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 300ms ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 300ms ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-in-out;
+}
+
+/* Custom scrollbar for activity selection */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #0080FF;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #0069cc;
+}
+
+/* Sidebar list scroll: visible scrollbar when 4+ items */
+.sidebar-list-scroll {
+  scrollbar-gutter: stable;
+}
+.sidebar-list-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-list-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+.sidebar-list-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.sidebar-list-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+@media (prefers-color-scheme: dark) {
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(240 10% 12%);
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(207 85% 58%);
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(207 85% 48%);
+  }
+  .sidebar-list-scroll::-webkit-scrollbar-track {
+    background: hsl(240 10% 14%);
+  }
+  .sidebar-list-scroll::-webkit-scrollbar-thumb {
+    background: hsl(240 10% 35%);
+  }
+  .sidebar-list-scroll::-webkit-scrollbar-thumb:hover {
+    background: hsl(240 10% 45%);
+  }
+}

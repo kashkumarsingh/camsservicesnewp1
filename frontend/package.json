@@ -1,0 +1,60 @@
+{
+  "name": "kidzrunzp1",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0 <25.0.0",
+    "npm": ">=11.0.0"
+  },
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "dev:4300": "next dev --turbopack -p 4300",
+    "dev:webpack": "next dev",
+    "dev:typecheck": "echo '⚠️  Run \"npm run dev\" in one terminal and \"npm run typecheck:watch\" in another terminal'",
+    "build": "next build",
+    "start": "next start",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "typecheck:watch": "tsc --noEmit --watch",
+    "typecheck:ci": "tsc --noEmit --pretty",
+    "postinstall": "node scripts/postinstall.js",
+    "validate": "node scripts/validate.js",
+    "prebuild": "npm install baseline-browser-mapping@latest --save-dev || true"
+  },
+"dependencies": {
+  "laravel-echo": "^1.16.0",
+  "pusher-js": "^8.4.0-rc2",
+  "@stripe/react-stripe-js": "^5.4.1",
+    "@stripe/stripe-js": "^8.5.3",
+    "@types/canvas-confetti": "^1.9.0",
+    "canvas-confetti": "^1.9.3",
+    "framer-motion": "^12.34.0",
+    "gsap": "^3.13.0",
+    "isomorphic-dompurify": "^2.32.0",
+    "lucide-react": "^0.545.0",
+    "moment": "^2.30.1",
+    "next": "^16.1.6",
+    "react": "^19.2.0",
+    "react-big-calendar": "^1.19.4",
+    "react-datepicker": "^8.8.0",
+    "react-dom": "^19.2.0",
+    "react-icons": "^5.5.0",
+    "react-markdown": "^9.0.3",
+    "@tinymce/tinymce-react": "^6.3.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/moment": "^2.11.29",
+    "@types/node": "^20.19.25",
+    "@types/react": "^19.2.4",
+    "@types/react-big-calendar": "^1.16.3",
+    "@types/react-dom": "^19.2.3",
+    "@types/webpack": "^5.28.5",
+    "baseline-browser-mapping": "^2.9.19",
+    "eslint": "^9",
+    "eslint-config-next": "^16.1.6",
+    "tailwindcss": "^4",
+    "typescript": "^5.9.3"
+  }
+}

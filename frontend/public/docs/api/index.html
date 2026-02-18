@@ -1,0 +1,3190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMS Service - Complete Developer Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0080FF;
+            --secondary: #1E3A5F;
+            --accent: #00D4FF;
+            --success: #10B981;
+            --gray-50: #F9FAFB;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-700: #374151;
+            --gray-900: #111827;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-900);
+            background: var(--gray-50);
+        }
+
+        /* Password Screen */
+        #passwordOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .password-box {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+        }
+
+        .password-box h1 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .password-box input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--gray-200);
+            border-radius: 10px;
+            font-size: 1rem;
+            margin: 20px 0;
+        }
+
+        .password-box button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .password-error {
+            color: #EF4444;
+            display: none;
+            margin-top: 10px;
+        }
+
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(30, 58, 95, 0.9);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .header .subtitle {
+            opacity: 0.95;
+            font-size: 0.95rem;
+        }
+        
+        @media (min-width: 768px) {
+            .header {
+                padding: 40px;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .header .subtitle {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Sticky Navigation */
+        .nav {
+            position: sticky;
+            top: 0;
+            background: white;
+            border-bottom: 3px solid var(--primary);
+            padding: 0;
+            z-index: 999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            padding: 15px 12px;
+            text-decoration: none;
+            color: var(--gray-700);
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            flex: 1;
+            text-align: center;
+            min-width: 0;
+        }
+
+        .nav-link:hover {
+            background: var(--gray-50);
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        @media (min-width: 640px) {
+            .nav-link {
+                padding: 18px 20px;
+                font-size: 0.95rem;
+                flex: initial;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .nav-link {
+                padding: 20px 30px;
+                font-size: 1rem;
+            }
+        }
+
+        /* Content */
+        .content {
+            padding: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .content {
+                padding: 40px;
+            }
+        }
+
+        .section {
+            margin-bottom: 60px;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .section-header p {
+            opacity: 0.95;
+            font-size: 0.95rem;
+        }
+        
+        @media (min-width: 768px) {
+            .section-header {
+                padding: 25px 30px;
+                margin-bottom: 30px;
+            }
+            
+            .section-header h2 {
+                font-size: 2rem;
+            }
+            
+            .section-header p {
+                font-size: 1.05rem;
+            }
+        }
+
+        /* Tables */
+        .table-section {
+            background: var(--gray-50);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .table-section h3 {
+            color: var(--secondary);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .table-meta-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            border: 1px solid var(--gray-200);
+        }
+
+        table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        thead {
+            background: var(--secondary);
+            color: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        th {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr:hover {
+            background: var(--gray-50);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-right: 5px;
+        }
+
+        .badge-pk { background: #8B5CF6; color: white; }
+        .badge-fk { background: #F59E0B; color: white; }
+        .badge-unique { background: #10B981; color: white; }
+        .badge-required { background: #EF4444; color: white; }
+        .badge-nullable { background: #6B7280; color: white; }
+
+        /* API Methods */
+        .method {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+
+        .method-get { background: #10B981; color: white; }
+        .method-post { background: #3B82F6; color: white; }
+        .method-put { background: #F59E0B; color: white; }
+        .method-delete { background: #EF4444; color: white; }
+
+        /* Code Blocks */
+        code {
+            background: var(--gray-100);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #EF4444;
+        }
+
+        pre {
+            background: #1F2937;
+            color: #F3F4F6;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .info-box.primary {
+            background: #EFF6FF;
+            border-color: var(--primary);
+        }
+
+        .info-box.success {
+            background: #ECFDF5;
+            border-color: var(--success);
+        }
+
+        /* ============================================ */
+        /* MOBILE-FIRST RESPONSIVE DESIGN */
+        /* ============================================ */
+        
+        /* Mobile Optimizations (default) */
+        .table-section {
+            padding: 15px !important;
+        }
+        
+        /* Horizontal scroll for tables on mobile */
+        .table-section > table {
+            display: block;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Smaller text on mobile */
+        pre code {
+            font-size: 0.75rem;
+        }
+        
+        .info-box {
+            padding: 15px !important;
+            margin-bottom: 15px;
+        }
+        
+        .badge {
+            font-size: 0.65rem !important;
+            padding: 3px 7px !important;
+        }
+        
+        .method {
+            font-size: 0.7rem !important;
+            padding: 4px 8px !important;
+        }
+        
+        /* Password box */
+        .password-box {
+            padding: 25px !important;
+            width: 92% !important;
+        }
+        
+        .password-box h1 {
+            font-size: 1.4rem !important;
+        }
+        
+        /* Watermark smaller on mobile */
+        .watermark {
+            bottom: 10px !important;
+            right: 10px !important;
+            padding: 8px 12px !important;
+            font-size: 0.65rem !important;
+        }
+        
+        /* ============================================ */
+        /* TABLET (640px+) */
+        /* ============================================ */
+        @media (min-width: 640px) {
+            .table-section {
+                padding: 20px !important;
+            }
+            
+            pre code {
+                font-size: 0.85rem;
+            }
+            
+            .info-box {
+                padding: 20px !important;
+                margin-bottom: 20px;
+            }
+            
+            .badge {
+                font-size: 0.7rem !important;
+            }
+            
+            .method {
+                font-size: 0.75rem !important;
+                padding: 5px 10px !important;
+            }
+            
+            .password-box h1 {
+                font-size: 1.75rem !important;
+            }
+            
+            .watermark {
+                padding: 10px 15px !important;
+                font-size: 0.75rem !important;
+            }
+        }
+        
+        /* ============================================ */
+        /* DESKTOP (768px+) */
+        /* ============================================ */
+        @media (min-width: 768px) {
+            .table-section {
+                padding: 25px !important;
+            }
+            
+            /* Reset table to normal */
+            .table-section > table {
+                display: table;
+                overflow-x: visible;
+            }
+            
+            pre code {
+                font-size: 0.9rem;
+            }
+            
+            .info-box {
+                padding: 25px !important;
+                margin-bottom: 30px;
+            }
+            
+            .badge {
+                font-size: 0.75rem !important;
+                padding: 4px 10px !important;
+            }
+            
+            .method {
+                font-size: 0.85rem !important;
+                padding: 6px 12px !important;
+            }
+            
+            .password-box {
+                padding: 50px !important;
+                width: 90% !important;
+            }
+            
+            .password-box h1 {
+                font-size: 2rem !important;
+            }
+            
+            .watermark {
+                bottom: 20px !important;
+                right: 20px !important;
+                padding: 12px 20px !important;
+                font-size: 0.85rem !important;
+            }
+        }
+        
+        /* OLD RESPONSIVE (keeping for compatibility) */
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            .nav-link {
+                padding: 15px 20px;
+                font-size: 0.9rem;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+        
+        /* Touch device optimizations */
+        @media (hover: none) {
+            .nav-link {
+                min-height: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Password Protection -->
+    <div id="passwordOverlay">
+        <div class="password-box">
+            <div style="font-size: 3rem; margin-bottom: 20px;">🔒</div>
+            <h1>Protected Document</h1>
+            <p style="color: #6B7280; margin-bottom: 20px;">CAMS Service - Developer Documentation</p>
+            <form onsubmit="return checkPassword(event)">
+                <input type="password" id="passwordInput" placeholder="Enter password" required>
+                <button type="submit">🔓 Unlock Document</button>
+                <div class="password-error" id="passwordError">❌ Incorrect password</div>
+            </form>
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #E5E7EB; font-size: 0.85rem; color: #6B7280;">
+                © 2025 Kash Singh - CAMS Service
+            </div>
+        </div>
+    </div>
+
+    <!-- Watermark -->
+    <div class="watermark">
+        © <strong style="color: #00D4FF;">Kash Singh</strong> - CAMS Service 2025
+    </div>
+
+    <!-- Main Content -->
+    <div class="container" id="mainContent" style="display: none;">
+        <!-- Header -->
+        <div class="header">
+            <h1>📚 Complete Developer Documentation</h1>
+            <div class="subtitle">CAMS Service Website - Database & API Reference</div>
+            <div style="margin-top: 20px; display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
+                <div>📊 17 Database Tables</div>
+                <div>🔗 34 API Endpoints</div>
+                <div>📝 Complete Examples</div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav">
+            <div class="nav-links">
+                <a href="#overview" class="nav-link">📊 Overview</a>
+                <a href="#database" class="nav-link">🗄️ Database Tables</a>
+                <a href="#api-endpoints" class="nav-link">🔗 API Endpoints</a>
+                <a href="#api-examples" class="nav-link">📝 API Examples</a>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- OVERVIEW -->
+            <div class="section" id="overview">
+                <div class="section-header">
+                    <h2>📊 Overview</h2>
+                    <p>Complete database schema and API documentation for CAMS Service (KidzRunz Program)</p>
+                </div>
+
+                <div class="info-box primary">
+                    <h3 style="margin-bottom: 15px;">📋 What's Included:</h3>
+                    <ul style="line-height: 2;">
+                        <li><strong>Database Tables (17):</strong> Complete table structures with fields, types, and constraints</li>
+                        <li><strong>API Endpoints (34):</strong> All REST API endpoints with methods and purposes</li>
+                        <li><strong>API Examples:</strong> Request/response examples for key endpoints</li>
+                        <li><strong>Relationships:</strong> Foreign keys and table relationships</li>
+                    </ul>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px;">
+                    <div style="background: linear-gradient(135deg, #0080FF, #00D4FF); color: white; padding: 30px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 3rem; font-weight: 900;">17</div>
+                        <div>Database Tables</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 30px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 3rem; font-weight: 900;">34</div>
+                        <div>API Endpoints</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #F59E0B, #D97706); color: white; padding: 30px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 3rem; font-weight: 900;">12</div>
+                        <div>Relationships</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: white; padding: 30px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 3rem; font-weight: 900;">150+</div>
+                        <div>Total Fields</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DATABASE TABLES -->
+            <div class="section" id="database">
+                <div class="section-header">
+                    <h2>🗄️ Database Tables</h2>
+                    <p>Complete database schema with all fields, types, and constraints</p>
+                </div>
+
+                <!-- SQL File Download Link -->
+                <div class="info-box success" style="margin-bottom: 30px;">
+                    <h3 style="margin-bottom: 15px;">💾 Ready-to-Use SQL Migration File</h3>
+                    <p style="margin-bottom: 15px;">Download the complete SQL file with ALL 18 CREATE TABLE statements:</p>
+                    <div style="background: white; padding: 15px; border-radius: 6px; border: 2px solid var(--success); margin-bottom: 15px;">
+                        <code style="color: var(--primary); font-weight: bold; font-size: 1.1em;">📄 ALL_TABLES_CREATE.sql</code>
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--gray-700); margin-bottom: 10px;"><strong>✅ What's included:</strong></p>
+                    <ul style="font-size: 0.9rem; color: var(--gray-700); margin-left: 20px;">
+                        <li>✅ All 18 tables with complete CREATE TABLE statements</li>
+                        <li>✅ All foreign keys, indexes, and constraints</li>
+                        <li>✅ Proper migration order (1-18)</li>
+                        <li>✅ MySQL 8.0+ / MariaDB 10.5+ compatible</li>
+                        <li>✅ Ready to import directly into your database</li>
+                    </ul>
+                    <p style="font-size: 0.85rem; color: var(--gray-600); margin-top: 15px; border-top: 1px solid var(--gray-200); padding-top: 10px;">
+                        <strong>💡 Tip:</strong> Import using: <code>mysql -u root -p your_database < ALL_TABLES_CREATE.sql</code>
+                    </p>
+                </div>
+
+                <!-- Users Table -->
+                <div class="table-section">
+                    <h3>👤 users</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Store user accounts (parents, trainers, admins)</div>
+                        <div class="table-meta-item"><strong>Engine:</strong> InnoDB</div>
+                        <div class="table-meta-item"><strong>Charset:</strong> utf8mb4</div>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">📝 SQL CREATE TABLE:</h4>
+                    <pre><code>CREATE TABLE users (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    email_verified_at TIMESTAMP NULL,
+    password VARCHAR(255) NOT NULL,
+    phone VARCHAR(15) NULL,
+    address TEXT NULL,
+    postcode VARCHAR(10) NULL,
+    role ENUM('parent', 'trainer', 'admin', 'super_admin') DEFAULT 'parent',
+    remember_token VARCHAR(100) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+    
+    INDEX idx_email (email),
+    INDEX idx_role (role),
+    INDEX idx_deleted_at (deleted_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">📊 Table Structure:</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span> <span class="badge badge-required">REQUIRED</span></td>
+                                <td>Primary key, auto-increment</td>
+                            </tr>
+                            <tr>
+                                <td><code>name</code></td>
+                                <td>VARCHAR(100)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>User's full name</td>
+                            </tr>
+                            <tr>
+                                <td><code>email</code></td>
+                                <td>VARCHAR(255)</td>
+                                <td><span class="badge badge-unique">UNIQUE</span> <span class="badge badge-required">REQUIRED</span></td>
+                                <td>Email address (unique)</td>
+                            </tr>
+                            <tr>
+                                <td><code>email_verified_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Email verification timestamp</td>
+                            </tr>
+                            <tr>
+                                <td><code>password</code></td>
+                                <td>VARCHAR(255)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Hashed password (bcrypt)</td>
+                            </tr>
+                            <tr>
+                                <td><code>phone</code></td>
+                                <td>VARCHAR(15)</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Contact phone number</td>
+                            </tr>
+                            <tr>
+                                <td><code>address</code></td>
+                                <td>TEXT</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Full address</td>
+                            </tr>
+                            <tr>
+                                <td><code>postcode</code></td>
+                                <td>VARCHAR(10)</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>UK postcode</td>
+                            </tr>
+                            <tr>
+                                <td><code>role</code></td>
+                                <td>ENUM</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>User role: parent, trainer, admin, super_admin</td>
+                            </tr>
+                            <tr>
+                                <td><code>remember_token</code></td>
+                                <td>VARCHAR(100)</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Remember me token</td>
+                            </tr>
+                            <tr>
+                                <td><code>created_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Record creation time</td>
+                            </tr>
+                            <tr>
+                                <td><code>updated_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Last update time</td>
+                            </tr>
+                            <tr>
+                                <td><code>deleted_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Soft delete timestamp</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 6px; border: 1px solid var(--gray-200);">
+                        <strong>Indexes:</strong> <code>idx_email</code>, <code>idx_role</code>, <code>idx_deleted_at</code>
+                    </div>
+                </div>
+
+                <!-- Trainers Table -->
+                <div class="table-section">
+                    <h3>👨‍🏫 trainers</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Store trainer/coach profiles and details</div>
+                        <div class="table-meta-item"><strong>Foreign Keys:</strong> user_id → users(id)</div>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">📝 SQL CREATE TABLE:</h4>
+                    <pre><code>CREATE TABLE trainers (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NULL,
+    title VARCHAR(100) NOT NULL,
+    slug VARCHAR(150) NOT NULL UNIQUE,
+    role VARCHAR(100) NOT NULL,
+    bio TEXT NOT NULL,
+    full_description TEXT NULL,
+    image VARCHAR(255) NULL,
+    rating DECIMAL(3, 2) DEFAULT 0.00,
+    total_reviews INT UNSIGNED DEFAULT 0,
+    specialties JSON NULL COMMENT 'Array of specialties',
+    certifications JSON NULL COMMENT 'Array of certifications with year',
+    experience_years TINYINT UNSIGNED DEFAULT 0,
+    availability_notes TEXT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    is_featured BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_slug (slug),
+    INDEX idx_user_id (user_id),
+    INDEX idx_is_active (is_active),
+    INDEX idx_is_featured (is_featured),
+    INDEX idx_rating (rating)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">📊 Table Structure:</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>Primary key</td>
+                            </tr>
+                            <tr>
+                                <td><code>user_id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-fk">FK</span> <span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Foreign key to users table</td>
+                            </tr>
+                            <tr>
+                                <td><code>title</code></td>
+                                <td>VARCHAR(100)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Trainer's name/title</td>
+                            </tr>
+                            <tr>
+                                <td><code>slug</code></td>
+                                <td>VARCHAR(150)</td>
+                                <td><span class="badge badge-unique">UNIQUE</span></td>
+                                <td>URL-friendly identifier</td>
+                            </tr>
+                            <tr>
+                                <td><code>role</code></td>
+                                <td>VARCHAR(100)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Job title (e.g., "Lead Activity Coach")</td>
+                            </tr>
+                            <tr>
+                                <td><code>bio</code></td>
+                                <td>TEXT</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Short biography</td>
+                            </tr>
+                            <tr>
+                                <td><code>image</code></td>
+                                <td>VARCHAR(255)</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Profile image URL/path</td>
+                            </tr>
+                            <tr>
+                                <td><code>rating</code></td>
+                                <td>DECIMAL(3,2)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Average rating (0.00 - 5.00)</td>
+                            </tr>
+                            <tr>
+                                <td><code>total_reviews</code></td>
+                                <td>INT UNSIGNED</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Count of reviews</td>
+                            </tr>
+                            <tr>
+                                <td><code>specialties</code></td>
+                                <td>JSON</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Array of specialties</td>
+                            </tr>
+                            <tr>
+                                <td><code>certifications</code></td>
+                                <td>JSON</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Array of certifications with year</td>
+                            </tr>
+                            <tr>
+                                <td><code>experience_years</code></td>
+                                <td>TINYINT UNSIGNED</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Years of experience</td>
+                            </tr>
+                            <tr>
+                                <td><code>is_active</code></td>
+                                <td>BOOLEAN</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Active status</td>
+                            </tr>
+                            <tr>
+                                <td><code>is_featured</code></td>
+                                <td>BOOLEAN</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Featured on homepage</td>
+                            </tr>
+                            <tr>
+                                <td><code>created_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Record creation time</td>
+                            </tr>
+                            <tr>
+                                <td><code>updated_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Last update time</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Packages Table -->
+                <div class="table-section">
+                    <h3>📦 packages</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Store package/program offerings</div>
+                        <div class="table-meta-item"><strong>Key Fields:</strong> name, slug, price, hours</div>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">📝 SQL CREATE TABLE:</h4>
+                    <pre><code>CREATE TABLE packages (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(150) NOT NULL UNIQUE,
+    description TEXT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    hours INT UNSIGNED NOT NULL COMMENT 'Total hours in package',
+    duration_weeks TINYINT UNSIGNED NOT NULL,
+    age_group VARCHAR(50) NULL,
+    difficulty_level ENUM('beginner', 'intermediate', 'advanced') DEFAULT 'beginner',
+    max_participants TINYINT UNSIGNED DEFAULT 12,
+    spots_remaining TINYINT UNSIGNED DEFAULT 12,
+    total_spots TINYINT UNSIGNED DEFAULT 12,
+    features JSON NULL COMMENT 'Array of package features',
+    what_to_expect TEXT NULL,
+    requirements JSON NULL COMMENT 'Array of requirements',
+    image VARCHAR(255) NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    is_popular BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_slug (slug),
+    INDEX idx_is_active (is_active),
+    INDEX idx_is_popular (is_popular),
+    INDEX idx_price (price),
+    INDEX idx_age_group (age_group)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">📊 Table Structure:</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>Primary key</td>
+                            </tr>
+                            <tr>
+                                <td><code>name</code></td>
+                                <td>VARCHAR(100)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Package name (e.g., "Earth Package")</td>
+                            </tr>
+                            <tr>
+                                <td><code>slug</code></td>
+                                <td>VARCHAR(150)</td>
+                                <td><span class="badge badge-unique">UNIQUE</span></td>
+                                <td>URL-friendly identifier</td>
+                            </tr>
+                            <tr>
+                                <td><code>description</code></td>
+                                <td>TEXT</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Package description</td>
+                            </tr>
+                            <tr>
+                                <td><code>price</code></td>
+                                <td>DECIMAL(10,2)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Package price in GBP</td>
+                            </tr>
+                            <tr>
+                                <td><code>hours</code></td>
+                                <td>INT UNSIGNED</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Total hours in package</td>
+                            </tr>
+                            <tr>
+                                <td><code>duration_weeks</code></td>
+                                <td>TINYINT UNSIGNED</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Package duration in weeks</td>
+                            </tr>
+                            <tr>
+                                <td><code>age_group</code></td>
+                                <td>VARCHAR(50)</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Target age group (e.g., "5-7 years")</td>
+                            </tr>
+                            <tr>
+                                <td><code>difficulty_level</code></td>
+                                <td>ENUM</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>beginner, intermediate, advanced</td>
+                            </tr>
+                            <tr>
+                                <td><code>max_participants</code></td>
+                                <td>TINYINT UNSIGNED</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Maximum children per session</td>
+                            </tr>
+                            <tr>
+                                <td><code>spots_remaining</code></td>
+                                <td>TINYINT UNSIGNED</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Available spots</td>
+                            </tr>
+                            <tr>
+                                <td><code>features</code></td>
+                                <td>JSON</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Array of package features</td>
+                            </tr>
+                            <tr>
+                                <td><code>is_active</code></td>
+                                <td>BOOLEAN</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Active status</td>
+                            </tr>
+                            <tr>
+                                <td><code>is_popular</code></td>
+                                <td>BOOLEAN</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Featured as popular</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Bookings Table -->
+                <div class="table-section">
+                    <h3>📅 bookings</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Store package bookings</div>
+                        <div class="table-meta-item"><strong>Foreign Keys:</strong> user_id, package_id, trainer_id</div>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">📝 SQL CREATE TABLE:</h4>
+                    <pre><code>CREATE TABLE bookings (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    package_id BIGINT UNSIGNED NOT NULL,
+    trainer_id BIGINT UNSIGNED NOT NULL,
+    booking_reference VARCHAR(20) NOT NULL UNIQUE COMMENT 'KR-YYYY-NNNNNN',
+    status ENUM('pending', 'confirmed', 'in_progress', 'completed', 'cancelled') DEFAULT 'pending',
+    payment_status ENUM('pending', 'paid', 'refunded', 'failed') DEFAULT 'pending',
+    payment_amount DECIMAL(10, 2) NOT NULL,
+    total_hours INT UNSIGNED NOT NULL,
+    booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    parent_details JSON NOT NULL COMMENT 'Parent contact information',
+    children_details JSON NOT NULL COMMENT 'Array of children information',
+    admin_notes TEXT NULL,
+    cancellation_reason TEXT NULL,
+    cancelled_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE RESTRICT,
+    FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE RESTRICT,
+    INDEX idx_booking_reference (booking_reference),
+    INDEX idx_user_id (user_id),
+    INDEX idx_status (status),
+    INDEX idx_payment_status (payment_status),
+    INDEX idx_booking_date (booking_date),
+    INDEX idx_deleted_at (deleted_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">📊 Table Structure:</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>Primary key</td>
+                            </tr>
+                            <tr>
+                                <td><code>user_id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-fk">FK</span> <span class="badge badge-required">REQUIRED</span></td>
+                                <td>Foreign key to users</td>
+                            </tr>
+                            <tr>
+                                <td><code>package_id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-fk">FK</span> <span class="badge badge-required">REQUIRED</span></td>
+                                <td>Foreign key to packages</td>
+                            </tr>
+                            <tr>
+                                <td><code>trainer_id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-fk">FK</span> <span class="badge badge-required">REQUIRED</span></td>
+                                <td>Foreign key to trainers</td>
+                            </tr>
+                            <tr>
+                                <td><code>booking_reference</code></td>
+                                <td>VARCHAR(20)</td>
+                                <td><span class="badge badge-unique">UNIQUE</span></td>
+                                <td>Unique reference (e.g., "KR-2025-001234")</td>
+                            </tr>
+                            <tr>
+                                <td><code>status</code></td>
+                                <td>ENUM</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>pending, confirmed, in_progress, completed, cancelled</td>
+                            </tr>
+                            <tr>
+                                <td><code>payment_status</code></td>
+                                <td>ENUM</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>pending, paid, refunded, failed</td>
+                            </tr>
+                            <tr>
+                                <td><code>payment_amount</code></td>
+                                <td>DECIMAL(10,2)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Total payment amount</td>
+                            </tr>
+                            <tr>
+                                <td><code>total_hours</code></td>
+                                <td>INT UNSIGNED</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Total hours booked</td>
+                            </tr>
+                            <tr>
+                                <td><code>parent_details</code></td>
+                                <td>JSON</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Parent contact information</td>
+                            </tr>
+                            <tr>
+                                <td><code>children_details</code></td>
+                                <td>JSON</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Array of children information</td>
+                            </tr>
+                            <tr>
+                                <td><code>created_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>When booking was made</td>
+                            </tr>
+                            <tr>
+                                <td><code>deleted_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Soft delete timestamp</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Activities Table -->
+                <div class="table-section">
+                    <h3>🎨 activities</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Store available activities</div>
+                        <div class="table-meta-item"><strong>Categories:</strong> physical, creative, educational, sensory</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>Primary key</td>
+                            </tr>
+                            <tr>
+                                <td><code>name</code></td>
+                                <td>VARCHAR(100)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Activity name</td>
+                            </tr>
+                            <tr>
+                                <td><code>slug</code></td>
+                                <td>VARCHAR(150)</td>
+                                <td><span class="badge badge-unique">UNIQUE</span></td>
+                                <td>URL-friendly identifier</td>
+                            </tr>
+                            <tr>
+                                <td><code>category</code></td>
+                                <td>ENUM</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>physical, creative, educational, sensory</td>
+                            </tr>
+                            <tr>
+                                <td><code>duration</code></td>
+                                <td>DECIMAL(3,1)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Typical duration in hours</td>
+                            </tr>
+                            <tr>
+                                <td><code>description</code></td>
+                                <td>TEXT</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Activity description</td>
+                            </tr>
+                            <tr>
+                                <td><code>equipment_needed</code></td>
+                                <td>TEXT</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Required equipment</td>
+                            </tr>
+                            <tr>
+                                <td><code>difficulty</code></td>
+                                <td>ENUM</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>beginner, intermediate, advanced</td>
+                            </tr>
+                            <tr>
+                                <td><code>is_active</code></td>
+                                <td>BOOLEAN</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Active status</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Reviews Table -->
+                <div class="table-section">
+                    <h3>⭐ reviews</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Store reviews and ratings</div>
+                        <div class="table-meta-item"><strong>Rating Range:</strong> 1-5 stars</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>Primary key</td>
+                            </tr>
+                            <tr>
+                                <td><code>booking_id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-fk">FK</span> <span class="badge badge-required">REQUIRED</span></td>
+                                <td>Foreign key to bookings</td>
+                            </tr>
+                            <tr>
+                                <td><code>trainer_id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-fk">FK</span> <span class="badge badge-required">REQUIRED</span></td>
+                                <td>Foreign key to trainers</td>
+                            </tr>
+                            <tr>
+                                <td><code>user_id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-fk">FK</span> <span class="badge badge-required">REQUIRED</span></td>
+                                <td>Foreign key to users</td>
+                            </tr>
+                            <tr>
+                                <td><code>rating</code></td>
+                                <td>TINYINT UNSIGNED</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>1-5 stars</td>
+                            </tr>
+                            <tr>
+                                <td><code>comment</code></td>
+                                <td>TEXT</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Review text</td>
+                            </tr>
+                            <tr>
+                                <td><code>is_approved</code></td>
+                                <td>BOOLEAN</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Moderation status</td>
+                            </tr>
+                            <tr>
+                                <td><code>is_featured</code></td>
+                                <td>BOOLEAN</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Featured on homepage</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Package-Trainers Junction Table -->
+                <div class="table-section">
+                    <h3>🔗 package_trainers</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Many-to-many relationship between packages and trainers</div>
+                        <div class="table-meta-item"><strong>Type:</strong> Junction Table</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>Primary key</td>
+                            </tr>
+                            <tr>
+                                <td><code>package_id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-fk">FK</span> <span class="badge badge-required">REQUIRED</span></td>
+                                <td>Foreign key to packages</td>
+                            </tr>
+                            <tr>
+                                <td><code>trainer_id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-fk">FK</span> <span class="badge badge-required">REQUIRED</span></td>
+                                <td>Foreign key to trainers</td>
+                            </tr>
+                            <tr>
+                                <td><code>created_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>When association was created</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 6px; border: 1px solid var(--gray-200);">
+                        <strong>Constraints:</strong> UNIQUE(package_id, trainer_id), CASCADE delete on both FKs
+                    </div>
+                </div>
+
+                <!-- Booking Days Table -->
+                <div class="table-section">
+                    <h3>📆 booking_days</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Store individual day schedules within a booking</div>
+                        <div class="table-meta-item"><strong>Foreign Keys:</strong> booking_id → bookings(id)</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>Primary key</td>
+                            </tr>
+                            <tr>
+                                <td><code>booking_id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-fk">FK</span> <span class="badge badge-required">REQUIRED</span></td>
+                                <td>Foreign key to bookings</td>
+                            </tr>
+                            <tr>
+                                <td><code>date</code></td>
+                                <td>DATE</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Session date</td>
+                            </tr>
+                            <tr>
+                                <td><code>hours</code></td>
+                                <td>DECIMAL(3,1)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Hours for this day</td>
+                            </tr>
+                            <tr>
+                                <td><code>start_time</code></td>
+                                <td>TIME</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Session start time</td>
+                            </tr>
+                            <tr>
+                                <td><code>end_time</code></td>
+                                <td>TIME</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Session end time</td>
+                            </tr>
+                            <tr>
+                                <td><code>trainer_choice</code></td>
+                                <td>BOOLEAN</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>If true, trainer decides activities</td>
+                            </tr>
+                            <tr>
+                                <td><code>trainer_notes</code></td>
+                                <td>TEXT</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Notes from parent for trainer</td>
+                            </tr>
+                            <tr>
+                                <td><code>created_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>When created</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Booking Activities Junction Table -->
+                <div class="table-section">
+                    <h3>🎯 booking_activities</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Many-to-many relationship between booking days and activities</div>
+                        <div class="table-meta-item"><strong>Type:</strong> Junction Table (supports custom activities)</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>Primary key</td>
+                            </tr>
+                            <tr>
+                                <td><code>booking_day_id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-fk">FK</span> <span class="badge badge-required">REQUIRED</span></td>
+                                <td>Foreign key to booking_days</td>
+                            </tr>
+                            <tr>
+                                <td><code>activity_id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-fk">FK</span> <span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Foreign key to activities (NULL if custom)</td>
+                            </tr>
+                            <tr>
+                                <td><code>is_custom</code></td>
+                                <td>BOOLEAN</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Whether this is a custom activity</td>
+                            </tr>
+                            <tr>
+                                <td><code>custom_name</code></td>
+                                <td>VARCHAR(100)</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Custom activity name</td>
+                            </tr>
+                            <tr>
+                                <td><code>custom_duration</code></td>
+                                <td>DECIMAL(3,1)</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Custom activity duration</td>
+                            </tr>
+                            <tr>
+                                <td><code>custom_description</code></td>
+                                <td>TEXT</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Custom activity description</td>
+                            </tr>
+                            <tr>
+                                <td><code>custom_equipment</code></td>
+                                <td>TEXT</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Custom activity equipment</td>
+                            </tr>
+                            <tr>
+                                <td><code>created_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>When created</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Blog Posts Table -->
+                <div class="table-section">
+                    <h3>📝 blog_posts</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Store blog posts</div>
+                        <div class="table-meta-item"><strong>Special:</strong> FULLTEXT search enabled</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>Primary key</td>
+                            </tr>
+                            <tr>
+                                <td><code>title</code></td>
+                                <td>VARCHAR(255)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Post title</td>
+                            </tr>
+                            <tr>
+                                <td><code>slug</code></td>
+                                <td>VARCHAR(300)</td>
+                                <td><span class="badge badge-unique">UNIQUE</span></td>
+                                <td>URL-friendly identifier</td>
+                            </tr>
+                            <tr>
+                                <td><code>excerpt</code></td>
+                                <td>TEXT</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Short summary</td>
+                            </tr>
+                            <tr>
+                                <td><code>content</code></td>
+                                <td>LONGTEXT</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Full HTML content</td>
+                            </tr>
+                            <tr>
+                                <td><code>author</code></td>
+                                <td>VARCHAR(100)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Author name</td>
+                            </tr>
+                            <tr>
+                                <td><code>category</code></td>
+                                <td>VARCHAR(50)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Post category</td>
+                            </tr>
+                            <tr>
+                                <td><code>tags</code></td>
+                                <td>JSON</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Array of tags</td>
+                            </tr>
+                            <tr>
+                                <td><code>is_published</code></td>
+                                <td>BOOLEAN</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Published status</td>
+                            </tr>
+                            <tr>
+                                <td><code>published_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Publication date</td>
+                            </tr>
+                            <tr>
+                                <td><code>views_count</code></td>
+                                <td>INT UNSIGNED</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>View counter</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- FAQs Table -->
+                <div class="table-section">
+                    <h3>❓ faqs</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Frequently asked questions</div>
+                        <div class="table-meta-item"><strong>Special:</strong> FULLTEXT search enabled</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>Primary key</td>
+                            </tr>
+                            <tr>
+                                <td><code>question</code></td>
+                                <td>VARCHAR(255)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>FAQ question</td>
+                            </tr>
+                            <tr>
+                                <td><code>slug</code></td>
+                                <td>VARCHAR(300)</td>
+                                <td><span class="badge badge-unique">UNIQUE</span></td>
+                                <td>URL-friendly identifier</td>
+                            </tr>
+                            <tr>
+                                <td><code>answer</code></td>
+                                <td>TEXT</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>FAQ answer (can be HTML)</td>
+                            </tr>
+                            <tr>
+                                <td><code>category</code></td>
+                                <td>VARCHAR(50)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>FAQ category</td>
+                            </tr>
+                            <tr>
+                                <td><code>order</code></td>
+                                <td>INT UNSIGNED</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Display order within category</td>
+                            </tr>
+                            <tr>
+                                <td><code>is_published</code></td>
+                                <td>BOOLEAN</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Published status</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Contact Submissions Table -->
+                <div class="table-section">
+                    <h3>📧 contact_submissions</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Store contact form submissions</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>Primary key</td>
+                            </tr>
+                            <tr>
+                                <td><code>name</code></td>
+                                <td>VARCHAR(100)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Sender name</td>
+                            </tr>
+                            <tr>
+                                <td><code>email</code></td>
+                                <td>VARCHAR(255)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Sender email</td>
+                            </tr>
+                            <tr>
+                                <td><code>phone</code></td>
+                                <td>VARCHAR(15)</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Sender phone (optional)</td>
+                            </tr>
+                            <tr>
+                                <td><code>message</code></td>
+                                <td>TEXT</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Message content</td>
+                            </tr>
+                            <tr>
+                                <td><code>source_page</code></td>
+                                <td>VARCHAR(255)</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Which page form was on</td>
+                            </tr>
+                            <tr>
+                                <td><code>is_read</code></td>
+                                <td>BOOLEAN</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Read status</td>
+                            </tr>
+                            <tr>
+                                <td><code>responded_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>When admin responded</td>
+                            </tr>
+                            <tr>
+                                <td><code>created_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>When submitted</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Newsletter Subscriptions Table -->
+                <div class="table-section">
+                    <h3>📬 newsletter_subscriptions</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Newsletter subscribers</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>Primary key</td>
+                            </tr>
+                            <tr>
+                                <td><code>email</code></td>
+                                <td>VARCHAR(255)</td>
+                                <td><span class="badge badge-unique">UNIQUE</span></td>
+                                <td>Subscriber email</td>
+                            </tr>
+                            <tr>
+                                <td><code>is_active</code></td>
+                                <td>BOOLEAN</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Subscription status</td>
+                            </tr>
+                            <tr>
+                                <td><code>subscribed_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>When subscribed</td>
+                            </tr>
+                            <tr>
+                                <td><code>unsubscribed_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>When unsubscribed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Settings Table -->
+                <div class="table-section">
+                    <h3>⚙️ settings</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Application settings (key-value pairs)</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>Primary key</td>
+                            </tr>
+                            <tr>
+                                <td><code>key</code></td>
+                                <td>VARCHAR(100)</td>
+                                <td><span class="badge badge-unique">UNIQUE</span></td>
+                                <td>Setting key (unique)</td>
+                            </tr>
+                            <tr>
+                                <td><code>value</code></td>
+                                <td>JSON</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Setting value (any JSON type)</td>
+                            </tr>
+                            <tr>
+                                <td><code>description</code></td>
+                                <td>TEXT</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>What this setting does</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Password Reset Tokens Table -->
+                <div class="table-section">
+                    <h3>🔑 password_reset_tokens</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Password reset tokens (Laravel default)</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>email</code></td>
+                                <td>VARCHAR(255)</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>User email (primary key)</td>
+                            </tr>
+                            <tr>
+                                <td><code>token</code></td>
+                                <td>VARCHAR(255)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Reset token (hashed)</td>
+                            </tr>
+                            <tr>
+                                <td><code>created_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>When token was created</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Personal Access Tokens Table -->
+                <div class="table-section">
+                    <h3>🎫 personal_access_tokens</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> API authentication tokens (Laravel Sanctum)</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>Primary key</td>
+                            </tr>
+                            <tr>
+                                <td><code>tokenable_type</code></td>
+                                <td>VARCHAR(255)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Model type (polymorphic)</td>
+                            </tr>
+                            <tr>
+                                <td><code>tokenable_id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Model ID (polymorphic)</td>
+                            </tr>
+                            <tr>
+                                <td><code>name</code></td>
+                                <td>VARCHAR(255)</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Token name</td>
+                            </tr>
+                            <tr>
+                                <td><code>token</code></td>
+                                <td>VARCHAR(64)</td>
+                                <td><span class="badge badge-unique">UNIQUE</span></td>
+                                <td>Hashed token value</td>
+                            </tr>
+                            <tr>
+                                <td><code>abilities</code></td>
+                                <td>TEXT</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Token permissions</td>
+                            </tr>
+                            <tr>
+                                <td><code>last_used_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Last usage timestamp</td>
+                            </tr>
+                            <tr>
+                                <td><code>expires_at</code></td>
+                                <td>TIMESTAMP</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Token expiration</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Trainer Availability Table -->
+                <div class="table-section">
+                    <h3>⏱️ trainer_availability</h3>
+                    <div class="table-meta">
+                        <div class="table-meta-item"><strong>Purpose:</strong> Store trainer availability and booked slots</div>
+                        <div class="table-meta-item"><strong>Foreign Keys:</strong> trainer_id, booking_id (optional)</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Constraints</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-pk">PK</span></td>
+                                <td>Primary key</td>
+                            </tr>
+                            <tr>
+                                <td><code>trainer_id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-fk">FK</span> <span class="badge badge-required">REQUIRED</span></td>
+                                <td>Foreign key to trainers</td>
+                            </tr>
+                            <tr>
+                                <td><code>date</code></td>
+                                <td>DATE</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Availability date</td>
+                            </tr>
+                            <tr>
+                                <td><code>start_time</code></td>
+                                <td>TIME</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Slot start time</td>
+                            </tr>
+                            <tr>
+                                <td><code>end_time</code></td>
+                                <td>TIME</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>Slot end time</td>
+                            </tr>
+                            <tr>
+                                <td><code>is_available</code></td>
+                                <td>BOOLEAN</td>
+                                <td><span class="badge badge-required">REQUIRED</span></td>
+                                <td>TRUE = available, FALSE = booked/blocked</td>
+                            </tr>
+                            <tr>
+                                <td><code>booking_id</code></td>
+                                <td>BIGINT UNSIGNED</td>
+                                <td><span class="badge badge-fk">FK</span> <span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Reference to booking if booked</td>
+                            </tr>
+                            <tr>
+                                <td><code>notes</code></td>
+                                <td>TEXT</td>
+                                <td><span class="badge badge-nullable">NULLABLE</span></td>
+                                <td>Additional notes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- API ENDPOINTS -->
+            <div class="section" id="api-endpoints">
+                <div class="section-header">
+                    <h2>🔗 API Endpoints</h2>
+                    <p>All 34 REST API endpoints - Base URL: <code>https://api.camsservice.co.uk</code></p>
+                </div>
+
+                <div class="table-section">
+                    <h3>🔐 Authentication (7 endpoints)</h3>
+                    <div class="info-box">
+                        <strong>📊 Related Tables:</strong> <code>users</code>, <code>password_reset_tokens</code>, <code>personal_access_tokens</code>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Method</th>
+                                <th>Endpoint</th>
+                                <th>Description</th>
+                                <th>Auth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="method method-post">POST</span></td>
+                                <td><code>/auth/register</code></td>
+                                <td>Register new user</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-post">POST</span></td>
+                                <td><code>/auth/login</code></td>
+                                <td>Login user</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-post">POST</span></td>
+                                <td><code>/auth/logout</code></td>
+                                <td>Logout user</td>
+                                <td>Yes</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/auth/user</code></td>
+                                <td>Get current user details</td>
+                                <td>Yes</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-post">POST</span></td>
+                                <td><code>/auth/refresh</code></td>
+                                <td>Refresh access token</td>
+                                <td>Yes</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-post">POST</span></td>
+                                <td><code>/auth/forgot-password</code></td>
+                                <td>Send password reset link</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-post">POST</span></td>
+                                <td><code>/auth/reset-password</code></td>
+                                <td>Reset password with token</td>
+                                <td>No</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-section">
+                    <h3>📦 Packages (4 endpoints)</h3>
+                    <div class="info-box">
+                        <strong>📊 Related Tables:</strong> <code>packages</code>, <code>package_trainers</code>, <code>trainers</code>, <code>reviews</code>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Method</th>
+                                <th>Endpoint</th>
+                                <th>Description</th>
+                                <th>Auth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/packages</code></td>
+                                <td>Get all packages (paginated)</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/packages/{slug}</code></td>
+                                <td>Get package by slug</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/packages/{id}/trainers</code></td>
+                                <td>Get trainers for a package</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/packages/{id}/reviews</code></td>
+                                <td>Get package reviews</td>
+                                <td>No</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-section">
+                    <h3>👨‍🏫 Trainers (4 endpoints)</h3>
+                    <div class="info-box">
+                        <strong>📊 Related Tables:</strong> <code>trainers</code>, <code>package_trainers</code>, <code>trainer_availability</code>, <code>reviews</code>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Method</th>
+                                <th>Endpoint</th>
+                                <th>Description</th>
+                                <th>Auth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/trainers</code></td>
+                                <td>Get all trainers (paginated)</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/trainers/{slug}</code></td>
+                                <td>Get trainer profile by slug</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/trainers/{id}/availability</code></td>
+                                <td>Check trainer availability</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/trainers/{id}/reviews</code></td>
+                                <td>Get trainer reviews</td>
+                                <td>No</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-section">
+                    <h3>📅 Bookings (5 endpoints)</h3>
+                    <div class="info-box">
+                        <strong>📊 Related Tables:</strong> <code>bookings</code>, <code>children_details</code>, <code>booking_days</code>, <code>booking_activities</code>, <code>users</code>, <code>packages</code>, <code>trainers</code>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Method</th>
+                                <th>Endpoint</th>
+                                <th>Description</th>
+                                <th>Auth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="method method-post">POST</span></td>
+                                <td><code>/bookings</code></td>
+                                <td>Create new booking</td>
+                                <td>Yes</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/bookings/{id}</code></td>
+                                <td>Get booking details by ID</td>
+                                <td>Yes</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/user/bookings</code></td>
+                                <td>Get current user's bookings</td>
+                                <td>Yes</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-put">PUT</span></td>
+                                <td><code>/bookings/{id}</code></td>
+                                <td>Update booking status</td>
+                                <td>Yes</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-delete">DELETE</span></td>
+                                <td><code>/bookings/{id}</code></td>
+                                <td>Cancel booking (soft delete)</td>
+                                <td>Yes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-section">
+                    <h3>🎨 Activities (3 endpoints)</h3>
+                    <div class="info-box">
+                        <strong>📊 Related Tables:</strong> <code>activities</code>, <code>booking_activities</code>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Method</th>
+                                <th>Endpoint</th>
+                                <th>Description</th>
+                                <th>Auth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/activities</code></td>
+                                <td>Get all activities (paginated)</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/activities/categories</code></td>
+                                <td>Get activity categories</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/activities/suggested</code></td>
+                                <td>Get suggested activities based on age/preferences</td>
+                                <td>No</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-section">
+                    <h3>📝 Blog (3 endpoints)</h3>
+                    <div class="info-box">
+                        <strong>📊 Related Tables:</strong> <code>blog_posts</code>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Method</th>
+                                <th>Endpoint</th>
+                                <th>Description</th>
+                                <th>Auth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/blog</code></td>
+                                <td>Get all blog posts (paginated)</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/blog/{slug}</code></td>
+                                <td>Get blog post by slug</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/blog/categories</code></td>
+                                <td>Get blog categories</td>
+                                <td>No</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-section">
+                    <h3>❓ FAQ (3 endpoints)</h3>
+                    <div class="info-box">
+                        <strong>📊 Related Tables:</strong> <code>faqs</code>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Method</th>
+                                <th>Endpoint</th>
+                                <th>Description</th>
+                                <th>Auth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/faq</code></td>
+                                <td>Get all FAQs</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/faq/{slug}</code></td>
+                                <td>Get FAQ by slug</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/faq/categories</code></td>
+                                <td>Get FAQ categories</td>
+                                <td>No</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-section">
+                    <h3>📧 Contact & Newsletter (2 endpoints)</h3>
+                    <div class="info-box">
+                        <strong>📊 Related Tables:</strong> <code>contact_submissions</code>, <code>newsletter_subscriptions</code>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Method</th>
+                                <th>Endpoint</th>
+                                <th>Description</th>
+                                <th>Auth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="method method-post">POST</span></td>
+                                <td><code>/contact</code></td>
+                                <td>Submit contact form</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-post">POST</span></td>
+                                <td><code>/newsletter</code></td>
+                                <td>Subscribe to newsletter</td>
+                                <td>No</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-section">
+                    <h3>⭐ Reviews (2 endpoints)</h3>
+                    <div class="info-box">
+                        <strong>📊 Related Tables:</strong> <code>reviews</code>, <code>users</code>, <code>bookings</code>, <code>packages</code>, <code>trainers</code>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Method</th>
+                                <th>Endpoint</th>
+                                <th>Description</th>
+                                <th>Auth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="method method-post">POST</span></td>
+                                <td><code>/reviews</code></td>
+                                <td>Submit a review</td>
+                                <td>Yes</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/reviews/featured</code></td>
+                                <td>Get featured reviews</td>
+                                <td>No</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-section">
+                    <h3>🔍 Search (1 endpoint)</h3>
+                    <div class="info-box">
+                        <strong>📊 Related Tables:</strong> <code>packages</code>, <code>blog_posts</code>, <code>trainers</code>, <code>activities</code>, <code>faqs</code>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Method</th>
+                                <th>Endpoint</th>
+                                <th>Description</th>
+                                <th>Auth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="method method-get">GET</span></td>
+                                <td><code>/search</code></td>
+                                <td>Global search across packages, trainers, blog, FAQs</td>
+                                <td>No</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- API EXAMPLES -->
+            <div class="section" id="api-examples">
+                <div class="section-header">
+                    <h2>📝 API Examples</h2>
+                    <p>Request and response examples for key endpoints</p>
+                </div>
+
+                <!-- Register Example -->
+                <div class="table-section">
+                    <h3>🔐 POST /auth/register</h3>
+                    <p style="margin-bottom: 20px;">Register a new user account</p>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Request:</h4>
+                    <pre><code>{
+  "name": "John Smith",
+  "email": "john.smith@example.com",
+  "password": "SecurePass123!",
+  "password_confirmation": "SecurePass123!",
+  "phone": "07590936662",
+  "address": "123 Main Street, London",
+  "postcode": "SW1A 1AA"
+}</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (201):</h4>
+                    <pre><code>{
+  "success": true,
+  "message": "User registered successfully",
+  "data": {
+    "user": {
+      "id": 123,
+      "name": "John Smith",
+      "email": "john.smith@example.com",
+      "role": "parent",
+      "created_at": "2025-10-30T10:30:00Z"
+    },
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+  }
+}</code></pre>
+                </div>
+
+                <!-- Login Example -->
+                <div class="table-section">
+                    <h3>🔐 POST /auth/login</h3>
+                    <p style="margin-bottom: 20px;">Login to get access token</p>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Request:</h4>
+                    <pre><code>{
+  "email": "john.smith@example.com",
+  "password": "SecurePass123!"
+}</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "user": {
+      "id": 123,
+      "name": "John Smith",
+      "email": "john.smith@example.com",
+      "role": "parent"
+    },
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+    "expires_in": 3600
+  }
+}</code></pre>
+                </div>
+
+                <!-- Get Packages Example -->
+                <div class="table-section">
+                    <h3>📦 GET /packages</h3>
+                    <p style="margin-bottom: 20px;">Get all available packages</p>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Query Parameters:</h4>
+                    <pre><code>?page=1&per_page=10&is_popular=true&age_group=5-7</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Earth Package",
+      "slug": "earth-package",
+      "description": "Perfect starter package for young children",
+      "price": "135.00",
+      "hours": 18,
+      "duration_weeks": 6,
+      "age_group": "5-7 years",
+      "difficulty_level": "beginner",
+      "is_popular": true,
+      "spots_remaining": 5,
+      "features": [
+        "18 hours total",
+        "Qualified trainers",
+        "Small groups"
+      ]
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "per_page": 10,
+    "total": 5
+  }
+}</code></pre>
+                </div>
+
+                <!-- Create Booking Example -->
+                <div class="table-section">
+                    <h3>📅 POST /bookings</h3>
+                    <p style="margin-bottom: 20px;">Create a new booking (Requires Authentication)</p>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Headers:</h4>
+                    <pre><code>Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
+Content-Type: application/json</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Request:</h4>
+                    <pre><code>{
+  "package_id": 1,
+  "trainer_id": 5,
+  "total_hours": 18,
+  "parent_details": {
+    "name": "John Smith",
+    "email": "john.smith@example.com",
+    "phone": "07590936662"
+  },
+  "children_details": [
+    {
+      "name": "Emma Smith",
+      "age": 6,
+      "medical_conditions": "None",
+      "allergies": "None"
+    }
+  ],
+  "booking_days": [
+    {
+      "date": "2025-11-01",
+      "hours": 3,
+      "start_time": "09:00",
+      "end_time": "12:00",
+      "activities": [1, 5, 8]
+    }
+  ]
+}</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (201):</h4>
+                    <pre><code>{
+  "success": true,
+  "message": "Booking created successfully",
+  "data": {
+    "booking": {
+      "id": 456,
+      "booking_reference": "KR-2025-000456",
+      "status": "pending",
+      "payment_status": "pending",
+      "payment_amount": "135.00",
+      "total_hours": 18,
+      "package": {
+        "name": "Earth Package"
+      },
+      "trainer": {
+        "name": "Coach Sarah"
+      }
+    }
+  }
+}</code></pre>
+                </div>
+
+                <!-- Get Suggested Activities Example -->
+                <div class="table-section">
+                    <h3>🎨 GET /activities/suggested</h3>
+                    <p style="margin-bottom: 20px;">Get activity suggestions based on preferences</p>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Query Parameters:</h4>
+                    <pre><code>?age=6&category=physical&duration=1.5</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 12,
+      "name": "Football Skills",
+      "category": "physical",
+      "duration": 1.5,
+      "description": "Learn basic football skills",
+      "age_appropriate": "5-8 years",
+      "difficulty": "beginner"
+    },
+    {
+      "id": 15,
+      "name": "Obstacle Course",
+      "category": "physical",
+      "duration": 1.5,
+      "description": "Fun obstacle course challenge",
+      "age_appropriate": "5-10 years",
+      "difficulty": "beginner"
+    }
+  ]
+}</code></pre>
+                </div>
+
+                <!-- Get Trainers Example -->
+                <div class="table-section">
+                    <h3>👨‍🏫 GET /trainers</h3>
+                    <p style="margin-bottom: 20px;">Get all trainers with pagination</p>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Query Parameters:</h4>
+                    <pre><code>?page=1&per_page=10&is_active=true</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 5,
+      "name": "Coach Sarah Johnson",
+      "slug": "coach-sarah-johnson",
+      "title": "Senior Sports Coach",
+      "bio": "Experienced coach specializing in youth development",
+      "specializations": ["Football", "Athletics", "Team Building"],
+      "experience_years": 8,
+      "qualifications": ["Level 3 Sports Coach", "First Aid Certified"],
+      "image": "https://api.camsservice.co.uk/storage/trainers/sarah.jpg",
+      "rating": 4.9,
+      "total_reviews": 45,
+      "is_active": true
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "per_page": 10,
+    "total": 12
+  }
+}</code></pre>
+                </div>
+
+                <!-- Trainer Availability Example -->
+                <div class="table-section">
+                    <h3>👨‍🏫 GET /trainers/{id}/availability</h3>
+                    <p style="margin-bottom: 20px;">Check trainer availability for specific dates</p>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Query Parameters:</h4>
+                    <pre><code>?date=2025-11-01&hours=3</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "data": {
+    "trainer_id": 5,
+    "trainer_name": "Coach Sarah Johnson",
+    "date": "2025-11-01",
+    "is_available": true,
+    "available_slots": [
+      {
+        "start_time": "09:00",
+        "end_time": "12:00",
+        "duration_hours": 3
+      },
+      {
+        "start_time": "14:00",
+        "end_time": "17:00",
+        "duration_hours": 3
+      }
+    ],
+    "unavailable_slots": [
+      {
+        "start_time": "12:00",
+        "end_time": "14:00",
+        "reason": "Lunch Break"
+      }
+    ]
+  }
+}</code></pre>
+                </div>
+
+                <!-- Get Package Details Example -->
+                <div class="table-section">
+                    <h3>📦 GET /packages/{slug}</h3>
+                    <p style="margin-bottom: 20px;">Get detailed package information by slug</p>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "Earth Package",
+    "slug": "earth-package",
+    "description": "Perfect starter package for young children aged 5-7",
+    "price": "135.00",
+    "hours": 18,
+    "duration_weeks": 6,
+    "age_group": "5-7 years",
+    "difficulty_level": "beginner",
+    "max_participants": 10,
+    "spots_remaining": 5,
+    "total_spots": 10,
+    "is_popular": true,
+    "is_active": true,
+    "image": "https://api.camsservice.co.uk/storage/packages/earth.jpg",
+    "features": [
+      "18 hours total training",
+      "Qualified DBS-checked trainers",
+      "Small group sizes (max 10)",
+      "Activity costs included",
+      "Healthy snacks provided",
+      "Written session reports"
+    ],
+    "created_at": "2025-01-15T10:00:00Z",
+    "updated_at": "2025-10-20T14:30:00Z"
+  }
+}</code></pre>
+                </div>
+
+                <!-- Get User Bookings Example -->
+                <div class="table-section">
+                    <h3>📅 GET /user/bookings</h3>
+                    <p style="margin-bottom: 20px;">Get current user's booking history (Requires Authentication)</p>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Headers:</h4>
+                    <pre><code>Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 456,
+      "booking_reference": "KR-2025-000456",
+      "status": "confirmed",
+      "payment_status": "paid",
+      "payment_amount": "135.00",
+      "total_hours": 18,
+      "package": {
+        "id": 1,
+        "name": "Earth Package",
+        "slug": "earth-package"
+      },
+      "trainer": {
+        "id": 5,
+        "name": "Coach Sarah Johnson"
+      },
+      "children_count": 1,
+      "booking_days_count": 6,
+      "created_at": "2025-10-25T09:00:00Z"
+    }
+  ],
+  "meta": {
+    "total": 3
+  }
+}</code></pre>
+                </div>
+
+                <!-- Get Activities Example -->
+                <div class="table-section">
+                    <h3>🎨 GET /activities</h3>
+                    <p style="margin-bottom: 20px;">Get all available activities</p>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Query Parameters:</h4>
+                    <pre><code>?category=physical&difficulty=beginner&page=1</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 12,
+      "name": "Football Skills",
+      "slug": "football-skills",
+      "category": "physical",
+      "duration": 1.5,
+      "description": "Learn fundamental football skills including dribbling, passing, and shooting",
+      "equipment_needed": "Football, cones, goal posts",
+      "age_appropriate": "5-8 years",
+      "difficulty": "beginner",
+      "image": "https://api.camsservice.co.uk/storage/activities/football.jpg",
+      "is_active": true
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "per_page": 20,
+    "total": 45
+  }
+}</code></pre>
+                </div>
+
+                <!-- Get Blog Posts Example -->
+                <div class="table-section">
+                    <h3>📝 GET /blog</h3>
+                    <p style="margin-bottom: 20px;">Get all published blog posts</p>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Query Parameters:</h4>
+                    <pre><code>?category=Tips&page=1&per_page=5</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 23,
+      "title": "10 Benefits of Outdoor Play for Children",
+      "slug": "benefits-outdoor-play-children",
+      "excerpt": "Discover why outdoor play is essential for your child's development",
+      "author": "Sarah Thompson",
+      "category": "Tips",
+      "tags": ["outdoor", "health", "development"],
+      "is_published": true,
+      "published_at": "2025-10-15T10:00:00Z",
+      "views_count": 1245,
+      "created_at": "2025-10-10T14:30:00Z"
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "per_page": 5,
+    "total": 18
+  }
+}</code></pre>
+                </div>
+
+                <!-- Get Blog Post Detail Example -->
+                <div class="table-section">
+                    <h3>📝 GET /blog/{slug}</h3>
+                    <p style="margin-bottom: 20px;">Get single blog post with full content</p>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "data": {
+    "id": 23,
+    "title": "10 Benefits of Outdoor Play for Children",
+    "slug": "benefits-outdoor-play-children",
+    "excerpt": "Discover why outdoor play is essential for your child's development",
+    "content": "&lt;h2&gt;Introduction&lt;/h2&gt;&lt;p&gt;Outdoor play is crucial...&lt;/p&gt;",
+    "author": "Sarah Thompson",
+    "category": "Tips",
+    "tags": ["outdoor", "health", "development"],
+    "is_published": true,
+    "published_at": "2025-10-15T10:00:00Z",
+    "views_count": 1246,
+    "created_at": "2025-10-10T14:30:00Z",
+    "updated_at": "2025-10-30T11:00:00Z"
+  }
+}</code></pre>
+                </div>
+
+                <!-- Get FAQs Example -->
+                <div class="table-section">
+                    <h3>❓ GET /faq</h3>
+                    <p style="margin-bottom: 20px;">Get all frequently asked questions grouped by category</p>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "data": {
+    "Booking & Payment": [
+      {
+        "id": 5,
+        "question": "How do I book a package?",
+        "slug": "how-do-i-book-a-package",
+        "answer": "You can book a package by selecting your preferred package...",
+        "category": "Booking & Payment",
+        "order": 1,
+        "is_published": true
+      }
+    ],
+    "Sessions & Activities": [
+      {
+        "id": 12,
+        "question": "What activities are included?",
+        "slug": "what-activities-are-included",
+        "answer": "Each package includes a variety of activities...",
+        "category": "Sessions & Activities",
+        "order": 1,
+        "is_published": true
+      }
+    ]
+  }
+}</code></pre>
+                </div>
+
+                <!-- Submit Contact Form Example -->
+                <div class="table-section">
+                    <h3>📧 POST /contact</h3>
+                    <p style="margin-bottom: 20px;">Submit a contact form inquiry</p>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Request:</h4>
+                    <pre><code>{
+  "name": "Jane Doe",
+  "email": "jane.doe@example.com",
+  "phone": "07590123456",
+  "message": "I would like to know more about the Mars package for my 8-year-old",
+  "source_page": "/packages/mars-package"
+}</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "message": "Thank you for contacting us! We'll get back to you within 24 hours.",
+  "data": {
+    "id": 789,
+    "created_at": "2025-10-30T11:45:00Z"
+  }
+}</code></pre>
+                </div>
+
+                <!-- Subscribe Newsletter Example -->
+                <div class="table-section">
+                    <h3>📬 POST /newsletter</h3>
+                    <p style="margin-bottom: 20px;">Subscribe to newsletter</p>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Request:</h4>
+                    <pre><code>{
+  "email": "john.smith@example.com"
+}</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "message": "Successfully subscribed to newsletter!",
+  "data": {
+    "email": "john.smith@example.com",
+    "is_active": true,
+    "subscribed_at": "2025-10-30T11:50:00Z"
+  }
+}</code></pre>
+                </div>
+
+                <!-- Submit Review Example -->
+                <div class="table-section">
+                    <h3>⭐ POST /reviews</h3>
+                    <p style="margin-bottom: 20px;">Submit a review (Requires Authentication)</p>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Headers:</h4>
+                    <pre><code>Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Request:</h4>
+                    <pre><code>{
+  "booking_id": 456,
+  "rating": 5,
+  "title": "Amazing Experience!",
+  "comment": "My daughter had a wonderful time. Coach Sarah was fantastic!",
+  "package_id": 1,
+  "trainer_id": 5
+}</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (201):</h4>
+                    <pre><code>{
+  "success": true,
+  "message": "Review submitted successfully. It will be published after moderation.",
+  "data": {
+    "id": 123,
+    "rating": 5,
+    "title": "Amazing Experience!",
+    "is_approved": false,
+    "created_at": "2025-10-30T12:00:00Z"
+  }
+}</code></pre>
+                </div>
+
+                <!-- Global Search Example -->
+                <div class="table-section">
+                    <h3>🔍 GET /search</h3>
+                    <p style="margin-bottom: 20px;">Search across packages, trainers, blog posts, and FAQs</p>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Query Parameters:</h4>
+                    <pre><code>?q=football&type=all</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "query": "football",
+  "data": {
+    "packages": [
+      {
+        "id": 2,
+        "name": "Mars Package",
+        "slug": "mars-package",
+        "type": "package"
+      }
+    ],
+    "trainers": [
+      {
+        "id": 5,
+        "name": "Coach Sarah Johnson",
+        "slug": "coach-sarah-johnson",
+        "specializations": ["Football", "Athletics"],
+        "type": "trainer"
+      }
+    ],
+    "blog": [
+      {
+        "id": 45,
+        "title": "Football Skills Every Child Should Know",
+        "slug": "football-skills-every-child-should-know",
+        "type": "blog"
+      }
+    ],
+    "faq": [
+      {
+        "id": 18,
+        "question": "Do you offer specialized football training?",
+        "slug": "specialized-football-training",
+        "type": "faq"
+      }
+    ]
+  },
+  "total_results": 4
+}</code></pre>
+                </div>
+
+                <!-- Logout Example -->
+                <div class="table-section">
+                    <h3>🔐 POST /auth/logout</h3>
+                    <p style="margin-bottom: 20px;">Logout user and invalidate token (Requires Authentication)</p>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Headers:</h4>
+                    <pre><code>Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "message": "Logged out successfully"
+}</code></pre>
+                </div>
+
+                <!-- Forgot Password Example -->
+                <div class="table-section">
+                    <h3>🔐 POST /auth/forgot-password</h3>
+                    <p style="margin-bottom: 20px;">Send password reset link to email</p>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Request:</h4>
+                    <pre><code>{
+  "email": "john.smith@example.com"
+}</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "message": "Password reset link sent to your email"
+}</code></pre>
+                </div>
+
+                <!-- Reset Password Example -->
+                <div class="table-section">
+                    <h3>🔐 POST /auth/reset-password</h3>
+                    <p style="margin-bottom: 20px;">Reset password using token from email</p>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Request:</h4>
+                    <pre><code>{
+  "email": "john.smith@example.com",
+  "token": "abc123xyz789...",
+  "password": "NewSecurePass123!",
+  "password_confirmation": "NewSecurePass123!"
+}</code></pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Success Response (200):</h4>
+                    <pre><code>{
+  "success": true,
+  "message": "Password has been reset successfully"
+}</code></pre>
+                </div>
+
+                <!-- Error Responses -->
+                <div class="info-box primary">
+                    <h3 style="margin-bottom: 15px;">⚠️ Common Error Responses:</h3>
+                    
+                    <h4 style="margin: 15px 0 10px 0;">401 Unauthorized:</h4>
+                    <pre><code>{
+  "success": false,
+  "message": "Unauthenticated. Please login."
+}</code></pre>
+
+                    <h4 style="margin: 15px 0 10px 0;">422 Validation Error:</h4>
+                    <pre><code>{
+  "success": false,
+  "message": "Validation failed",
+  "errors": {
+    "email": ["The email field is required."],
+    "password": ["The password must be at least 8 characters."]
+  }
+}</code></pre>
+
+                    <h4 style="margin: 15px 0 10px 0;">404 Not Found:</h4>
+                    <pre><code>{
+  "success": false,
+  "message": "Resource not found"
+}</code></pre>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="border-top: 2px solid var(--gray-200); padding: 30px; text-align: center; color: var(--gray-700); margin-top: 60px;">
+                <p style="margin-bottom: 10px;"><strong>CAMS Service - Developer Documentation</strong></p>
+                <p style="font-size: 0.9rem;">Project: KidzRunz Program | Version: 1.0 | Date: October 30, 2025</p>
+                <p style="margin-top: 20px; font-size: 0.85rem;">© 2025 Kash Singh - CAMS Service | Confidential Document</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password Protection
+        const CORRECT_PASSWORD = 'KashSingh2025!';
+        
+        function checkPassword(event) {
+            event.preventDefault();
+            const input = document.getElementById('passwordInput');
+            const error = document.getElementById('passwordError');
+            
+            if (input.value === CORRECT_PASSWORD) {
+                sessionStorage.setItem('docUnlocked', 'true');
+                document.getElementById('passwordOverlay').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+            } else {
+                error.style.display = 'block';
+                input.value = '';
+                setTimeout(() => { error.style.display = 'none'; }, 3000);
+            }
+            return false;
+        }
+        
+        // Check if already unlocked
+        window.addEventListener('DOMContentLoaded', function() {
+            if (sessionStorage.getItem('docUnlocked') === 'true') {
+                document.getElementById('passwordOverlay').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+            }
+            
+            // Smooth scroll
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+        });
+
+        console.log('%c© 2025 Kash Singh - CAMS Service', 'font-size: 20px; font-weight: bold; color: #0080FF;');
+        console.log('%cDeveloper Documentation - Confidential', 'font-size: 14px; color: #1E3A5F;');
+    </script>
+</body>
+</html>
+

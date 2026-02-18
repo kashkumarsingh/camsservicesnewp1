@@ -1,0 +1,220 @@
+services:
+  # Frontend - Next.js 16 (dev stage for hot-reload)
+  # Profile: only start when requested (e.g. you run frontend locally with npm run dev)
+  frontend:
+    profiles:
+      - frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: camsservice-frontend
+    ports:
+      - "4300:3000"
+    env_file:
+      - frontend/.env.local
+    environment:
+      # Only Docker-specific overrides; API_URL = backend base (no /api/v1) for rewrites
+      - NEXT_PUBLIC_API_URL=http://localhost:9080/api/v1
+      - API_URL=http://backend:80
+      - NEXT_REVALIDATE_SECRET=dev-next-revalidate
+      # Live refresh (WebSocket) – browser connects to host Reverb on port 8080
+      - NEXT_PUBLIC_LIVE_REFRESH_WEBSOCKET_ENABLED=true
+      - NEXT_PUBLIC_REVERB_APP_KEY=local-dev-key
+      - NEXT_PUBLIC_REVERB_WS_HOST=localhost
+      - NEXT_PUBLIC_REVERB_WS_PORT=8080
+      - NEXT_PUBLIC_REVERB_SCHEME=http
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - camsservice-network
+    restart: unless-stopped
+
+  # Backend - Laravel 12 LTS (API-only; universal dashboard on frontend)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: camsservice-backend
+    ports:
+      - "9080:80"
+    env_file:
+      - backend/.env
+    environment:
+      # Only Docker topology overrides; DB credentials, APP_KEY, Stripe from backend/.env
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_HOST=db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MAIL_MAILER=smtp
+      - MAIL_HOST=mailhog
+      - MAIL_PORT=1025
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=redis
+      - QUEUE_CONNECTION=sync
+      - NEXT_REVALIDATE_URL=http://frontend:3000/api/revalidate
+      - NEXT_REVALIDATE_SECRET=dev-next-revalidate
+      - APP_URL=http://localhost:9080
+      - FRONTEND_URL=http://localhost:4300
+      # Live refresh (WebSocket) – Laravel broadcasts to Reverb service
+      - BROADCAST_CONNECTION=reverb
+      - REVERB_APP_ID=1
+      - REVERB_APP_KEY=local-dev-key
+      - REVERB_APP_SECRET=local-dev-secret
+      - REVERB_HOST=reverb
+      - REVERB_PORT=8080
+      - REVERB_SCHEME=http
+    volumes:
+      - ./backend:/var/www/html
+      - ./backend/storage:/var/www/html/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - camsservice-network
+    restart: unless-stopped
+
+  # Reverb – WebSocket server for live refresh / notifications (browser connects to host:8080)
+  # Requires backend vendor (including laravel/reverb). If you see "no commands in reverb namespace", run:
+  #   docker compose exec backend composer install
+  # then: docker compose up -d reverb
+  reverb:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: camsservice-reverb
+    entrypoint: ["php", "artisan", "reverb:start"]
+    env_file:
+      - backend/.env
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_HOST=db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - BROADCAST_CONNECTION=reverb
+      - REVERB_APP_ID=1
+      - REVERB_APP_KEY=local-dev-key
+      - REVERB_APP_SECRET=local-dev-secret
+      - REVERB_HOST=0.0.0.0
+      - REVERB_PORT=8080
+      - REVERB_SCHEME=http
+    volumes:
+      - ./backend:/var/www/html
+      - ./backend/storage:/var/www/html/storage
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - camsservice-network
+    restart: unless-stopped
+
+  # Database - MySQL 8.0 LTS
+  db:
+    image: mysql:8.0
+    container_name: camsservice-db
+    ports:
+      - "33306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=cams_db
+      - MYSQL_CHARACTER_SET_SERVER=utf8mb4
+      - MYSQL_COLLATION_SERVER=utf8mb4_unicode_ci
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - camsservice-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: camsservice-phpmyadmin
+    ports:
+      - "9081:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - camsservice-network
+    restart: unless-stopped
+
+  # Redis - Caching, Sessions, Queues
+  redis:
+    image: redis:7-alpine
+    container_name: camsservice-redis
+    ports:
+      - "36379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - camsservice-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Mailhog - Email Testing (Development)
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: camsservice-mailhog
+    ports:
+      - "11025:1025"  # SMTP
+      - "18025:8025"  # Web UI
+    networks:
+      - camsservice-network
+    restart: unless-stopped
+
+  # Stripe CLI - Webhook Forwarding (Development)
+  # Note: Run manually with: docker-compose run --rm stripe-cli listen --forward-to http://backend:80/api/v1/webhooks/stripe --print-secret
+  # This will print a webhook secret - add it to backend/.env as STRIPE_WEBHOOK_SECRET
+  stripe-cli:
+    image: stripe/stripe-cli:latest
+    container_name: camsservice-stripe-cli
+    env_file:
+      - backend/.env
+    environment:
+      # Stripe CLI expects STRIPE_API_KEY; backend/.env has STRIPE_SECRET_KEY (optional: no warning if unset)
+      - STRIPE_API_KEY=${STRIPE_SECRET_KEY:-}
+    depends_on:
+      - backend
+    networks:
+      - camsservice-network
+    # Don't auto-start - run manually when needed
+    profiles:
+      - tools
+
+networks:
+  camsservice-network:
+    driver: bridge
+
+volumes:
+  db_data:
+  redis_data:
+  # Named volume for node_modules (machine-independent IDE support)
+  frontend_node_modules:
+

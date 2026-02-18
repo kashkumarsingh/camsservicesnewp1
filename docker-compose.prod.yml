@@ -1,0 +1,95 @@
+services:
+  # Production Frontend Build Test
+  frontend-prod:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: runner
+    container_name: camsservice-frontend-prod
+    ports:
+      - "4300:3000"
+    env_file:
+      - frontend/.env.local
+    environment:
+      - NODE_ENV=production
+      - HOSTNAME=0.0.0.0
+      - PORT=3000
+      - NEXT_PUBLIC_API_URL=http://localhost:9080/api/v1
+      - API_URL=http://backend-prod:80
+      - NEXT_REVALIDATE_SECRET=dev-next-revalidate
+    depends_on:
+      - backend-prod
+    networks:
+      - camsservice-network
+
+  # Production Backend Build Test
+  backend-prod:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: camsservice-backend-prod
+    ports:
+      - "9080:80"
+    env_file:
+      - backend/.env
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_HOST=db-prod
+      - REDIS_HOST=redis-prod
+      - REDIS_PORT=6379
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+      - NEXT_REVALIDATE_URL=http://frontend-prod:3000/api/revalidate
+      - NEXT_REVALIDATE_SECRET=dev-next-revalidate
+      - APP_URL=http://localhost:9080
+      - FRONTEND_URL=http://localhost:4300
+    depends_on:
+      db-prod:
+        condition: service_healthy
+      redis-prod:
+        condition: service_healthy
+    networks:
+      - camsservice-network
+
+  # Test Database (isolated from dev)
+  db-prod:
+    image: mysql:8.0
+    container_name: camsservice-db-prod
+    ports:
+      - "33307:3306"  # Different port to avoid conflict with dev DB
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=cams_db
+      - MYSQL_CHARACTER_SET_SERVER=utf8mb4
+      - MYSQL_COLLATION_SERVER=utf8mb4_unicode_ci
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - camsservice-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Redis - Production test (cache, sessions, queues)
+  redis-prod:
+    image: redis:7-alpine
+    container_name: camsservice-redis-prod
+    ports:
+      - "36380:6379"  # Different port to avoid conflict with dev Redis
+    command: redis-server --appendonly yes
+    networks:
+      - camsservice-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+networks:
+  camsservice-network:
+    driver: bridge

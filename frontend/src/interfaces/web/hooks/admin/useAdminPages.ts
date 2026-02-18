@@ -1,0 +1,294 @@
+/**
+ * useAdminPages Hook (Interface Layer)
+ *
+ * Clean Architecture: Interface Layer (Adapters)
+ * Purpose: React hook for admin public pages management
+ * Location: frontend/src/interfaces/web/hooks/admin/useAdminPages.ts
+ */
+
+import { useState, useEffect, useCallback } from 'react';
+import { apiClient } from '@/infrastructure/http/ApiClient';
+import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+import { getApiErrorMessage, getApiValidationErrors } from '@/utils/errorUtils';
+import type {
+  AdminPageDTO,
+  CreatePageDTO,
+  UpdatePageDTO,
+  TogglePublishDTO,
+  AdminPagesFilters,
+  RemotePagesListResponse,
+  RemotePageResponse,
+  mapRemotePageToAdminPageDTO,
+} from '@/core/application/admin/dto/AdminPageDTO';
+
+export interface UseAdminPagesResult {
+  pages: AdminPageDTO[];
+  loading: boolean;
+  error: string | null;
+  totalCount: number;
+  createPage: (data: CreatePageDTO) => Promise<AdminPageDTO>;
+  updatePage: (id: string, data: UpdatePageDTO) => Promise<AdminPageDTO>;
+  deletePage: (id: string) => Promise<void>;
+  togglePublish: (id: string, data: TogglePublishDTO) => Promise<AdminPageDTO>;
+  getPage: (id: string) => Promise<AdminPageDTO>;
+  exportPages: () => Promise<void>;
+  updateFilters: (filters: AdminPagesFilters) => void;
+  refetch: () => Promise<void>;
+}
+
+export function useAdminPages(initialFilters: AdminPagesFilters = {}): UseAdminPagesResult {
+  const [pages, setPages] = useState<AdminPageDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<AdminPagesFilters>(initialFilters);
+  const [totalCount, setTotalCount] = useState(0);
+
+  const { mapRemotePageToAdminPageDTO } = require('@/core/application/admin/dto/AdminPageDTO');
+
+  /**
+   * Fetch pages from API
+   */
+  const fetchPages = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const params = new URLSearchParams();
+      if (filters.type) params.append('type', filters.type);
+      if (filters.published !== undefined) params.append('published', String(filters.published));
+
+      const endpoint = params.toString()
+        ? `${API_ENDPOINTS.ADMIN_PUBLIC_PAGES}?${params.toString()}`
+        : API_ENDPOINTS.ADMIN_PUBLIC_PAGES;
+
+      const response = await apiClient.get<RemotePagesListResponse>(endpoint);
+
+      if (response.data?.data) {
+        const mapped = response.data.data.map(mapRemotePageToAdminPageDTO);
+        setPages(mapped as AdminPageDTO[]);
+        setTotalCount(mapped.length);
+      } else {
+        setPages([]);
+        setTotalCount(0);
+      }
+    } catch (err: unknown) {
+      console.error('Failed to fetch pages:', err);
+      setError(getApiErrorMessage(err, 'Failed to load pages'));
+      setPages([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [filters]);
+
+  /** Timeout for create/update (large rich-text payloads can be slow). */
+  const PAGE_SAVE_TIMEOUT_MS = 30_000;
+
+  /**
+   * Create a new page
+   */
+  const createPage = async (data: CreatePageDTO): Promise<AdminPageDTO> => {
+    try {
+      const payload = { ...data };
+      if (Array.isArray(payload.core_values) && (payload.coreValuesSectionTitle !== undefined || payload.coreValuesSectionSubtitle !== undefined)) {
+        payload.core_values = [...payload.core_values];
+        payload.core_values[0] = { ...(payload.core_values[0] || {}), sectionTitle: payload.coreValuesSectionTitle ?? '', sectionSubtitle: payload.coreValuesSectionSubtitle ?? '' } as CreatePageDTO['core_values'] extends (infer E)[] ? E : never;
+      }
+      const response = await apiClient.post<RemotePageResponse>(
+        API_ENDPOINTS.ADMIN_PUBLIC_PAGES,
+        payload,
+        { timeout: PAGE_SAVE_TIMEOUT_MS }
+      );
+
+      if (!response.data) {
+        throw new Error('Invalid response from server');
+      }
+
+      const newPage = mapRemotePageToAdminPageDTO(response.data);
+      
+      // Refetch to update list
+      await fetchPages();
+      
+      return newPage;
+    } catch (err: unknown) {
+      console.error('Failed to create page:', err);
+      throw new Error(getApiErrorMessage(err, 'Failed to create page'));
+    }
+  };
+
+  /**
+   * Update an existing page
+   */
+  const updatePage = async (id: string, data: UpdatePageDTO): Promise<AdminPageDTO> => {
+    try {
+      // Backend expects snake_case; send only defined fields
+      const payload: Record<string, unknown> = {};
+      if (data.title !== undefined) payload.title = data.title;
+      if (data.slug !== undefined) payload.slug = data.slug;
+      if (data.type !== undefined) payload.type = data.type;
+      if (data.content !== undefined) payload.content = data.content;
+      if (data.summary !== undefined) payload.summary = data.summary;
+      if (data.effective_date !== undefined) payload.effective_date = data.effective_date;
+      if (data.version !== undefined) payload.version = data.version;
+      if (data.published !== undefined) payload.published = data.published;
+      if (data.mission !== undefined) payload.mission = data.mission;
+      if (data.core_values !== undefined) {
+        const cv = Array.isArray(data.core_values) ? [...data.core_values] : [];
+        if (data.coreValuesSectionTitle !== undefined || data.coreValuesSectionSubtitle !== undefined) {
+          cv[0] = { ...(cv[0] || {}), sectionTitle: data.coreValuesSectionTitle ?? '', sectionSubtitle: data.coreValuesSectionSubtitle ?? '' } as UpdatePageDTO['core_values'] extends (infer E)[] ? E : never;
+        }
+        payload.core_values = cv;
+      }
+      if (data.safeguarding !== undefined) payload.safeguarding = data.safeguarding;
+
+      const response = await apiClient.put<RemotePageResponse>(
+        `${API_ENDPOINTS.ADMIN_PUBLIC_PAGES}/${id}`,
+        payload,
+        { timeout: PAGE_SAVE_TIMEOUT_MS }
+      );
+
+      if (!response.data) {
+        throw new Error('Invalid response from server');
+      }
+
+      const updatedPage = mapRemotePageToAdminPageDTO(response.data);
+
+      // Update local state optimistically
+      setPages((prev) => prev.map((p) => (p.id === id ? updatedPage : p)));
+
+      return updatedPage;
+    } catch (err: unknown) {
+      console.error('Failed to update page:', err);
+      const apiMessage = getApiErrorMessage(err, 'Failed to update page');
+      const validation = getApiValidationErrors(err);
+      throw new Error(validation ? `${apiMessage} ${validation}`.trim() : apiMessage);
+    }
+  };
+
+  /**
+   * Delete a page
+   */
+  const deletePage = async (id: string): Promise<void> => {
+    try {
+      await apiClient.delete(`${API_ENDPOINTS.ADMIN_PUBLIC_PAGES}/${id}`);
+      
+      // Update local state optimistically
+      setPages((prev) => prev.filter((p) => p.id !== id));
+      setTotalCount((prev) => prev - 1);
+    } catch (err: unknown) {
+      console.error('Failed to delete page:', err);
+      throw new Error(getApiErrorMessage(err, 'Failed to delete page'));
+    }
+  };
+
+  /**
+   * Toggle publish status
+   */
+  const togglePublish = async (id: string, data: TogglePublishDTO): Promise<AdminPageDTO> => {
+    try {
+      const payload = { published: data.published };
+      const response = await apiClient.put<RemotePageResponse>(
+        `${API_ENDPOINTS.ADMIN_PUBLIC_PAGES}/${id}/publish`,
+        payload
+      );
+
+      if (!response.data) {
+        throw new Error('Invalid response from server');
+      }
+
+      const updatedPage = mapRemotePageToAdminPageDTO(response.data);
+
+      setPages((prev) => prev.map((p) => (p.id === id ? updatedPage : p)));
+
+      return updatedPage;
+    } catch (err: unknown) {
+      console.error('Failed to toggle publish status:', err);
+      const apiMessage = getApiErrorMessage(err, 'Failed to update publish status');
+      const validation = getApiValidationErrors(err);
+      throw new Error(validation ? `${apiMessage} ${validation}`.trim() : apiMessage);
+    }
+  };
+
+  /**
+   * Get a single page
+   */
+  const getPage = async (id: string): Promise<AdminPageDTO> => {
+    try {
+      const response = await apiClient.get<RemotePageResponse>(
+        `${API_ENDPOINTS.ADMIN_PUBLIC_PAGES}/${id}`
+      );
+
+      if (!response.data) {
+        throw new Error('Invalid response from server');
+      }
+
+      return mapRemotePageToAdminPageDTO(response.data);
+    } catch (err: unknown) {
+      console.error('Failed to fetch page:', err);
+      throw new Error(getApiErrorMessage(err, 'Failed to load page'));
+    }
+  };
+
+  /**
+   * Export pages to CSV
+   */
+  const exportPages = async (): Promise<void> => {
+    try {
+      const response = await apiClient.get<{ filename: string; content: string[][] }>(
+        `${API_ENDPOINTS.ADMIN_PUBLIC_PAGES}/export`
+      );
+
+      if (!response.data?.filename || !response.data?.content) {
+        throw new Error('Invalid response from server');
+      }
+
+      const { filename, content } = response.data;
+      const csvContent = content.map((row) => row.join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err: unknown) {
+      console.error('Failed to export pages:', err);
+      throw new Error(getApiErrorMessage(err, 'Failed to export pages'));
+    }
+  };
+
+  /**
+   * Update filters and refetch
+   */
+  const updateFilters = (newFilters: AdminPagesFilters) => {
+    setFilters((prev) => ({ ...prev, ...newFilters }));
+  };
+
+  /**
+   * Refetch pages
+   */
+  const refetch = async () => {
+    await fetchPages();
+  };
+
+  // Fetch pages on mount and when filters change
+  useEffect(() => {
+    fetchPages();
+  }, [fetchPages]);
+
+  return {
+    pages,
+    loading,
+    error,
+    totalCount,
+    createPage,
+    updatePage,
+    deletePage,
+    togglePublish,
+    getPage,
+    exportPages,
+    updateFilters,
+    refetch,
+  };
+}

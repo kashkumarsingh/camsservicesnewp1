@@ -1,0 +1,47 @@
+# Intelligent Trainer Auto-Assignment – migrations (run manually; migrations folder may be in .cursorignore)
+
+## Fix "Table trainer_availabilities doesn't exist"
+
+Copy and run:
+
+  cp backend/migrations_trainer_workflow/2026_01_21_000001_create_trainer_availabilities_table.php backend/database/migrations/
+  docker compose exec backend php artisan migrate
+
+(Or from backend/: cp migrations_trainer_workflow/2026_01_21_000001_create_trainer_availabilities_table.php database/migrations/ then migrate.)
+
+## Fix "Gemma auto applied" (sessions created with trainer when they should be unassigned)
+
+Ensure new sessions stay unassigned:
+
+  docker compose exec backend php artisan config:clear
+
+Then set in .env (optional; default is unassigned_first):
+
+  BOOKING_SCHEDULE_FLOW=unassigned_first
+
+Bookings/sessions created before this change may already have a trainer; only new sessions will be unassigned.
+
+---
+
+If you create migrations by hand:
+
+## 1. booking_schedules
+php artisan make:migration add_trainer_confirmation_workflow_to_booking_schedules_table --table=booking_schedules
+
+up():
+Schema::table('booking_schedules', function (Blueprint $table) {
+    $table->string('trainer_assignment_status', 50)->nullable()->after('trainer_approved_by_user_id');
+    $table->timestamp('trainer_confirmation_requested_at')->nullable();
+    $table->timestamp('trainer_confirmed_at')->nullable();
+    $table->timestamp('trainer_declined_at')->nullable();
+    $table->text('trainer_decline_reason')->nullable();
+    $table->unsignedTinyInteger('assignment_attempt_count')->default(1);
+});
+
+down(): dropColumn each of the above.
+
+## 2. trainers
+php artisan make:migration add_auto_accept_sessions_to_trainers_table --table=trainers
+
+up(): $table->boolean('auto_accept_sessions')->default(false)->after('availability_preferences');
+down(): $table->dropColumn('auto_accept_sessions');

@@ -1,0 +1,56 @@
+/**
+ * Trainer Card Component
+ */
+
+'use client';
+
+import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Star } from 'lucide-react';
+import { TrainerDTO } from '@/core/application/trainers';
+
+interface TrainerCardProps {
+  trainer: TrainerDTO;
+}
+
+export default function TrainerCard({ trainer }: TrainerCardProps) {
+  return (
+    <Link href={`/trainers/${trainer.slug}`} className="group block rounded-lg border border-slate-200 overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
+      <div className="relative w-full aspect-[4/3]">
+        <Image 
+          src={trainer.image.src} 
+          alt={trainer.image.alt} 
+          fill 
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Star className="text-slate-300 fill-slate-300" size={14} />
+            <span className="text-xs text-white/90">{trainer.rating}/5</span>
+          </div>
+          <h3 className="text-lg font-semibold mb-0.5">{trainer.name}</h3>
+          <p className="text-sm text-white/80">{trainer.role}</p>
+        </div>
+      </div>
+      <div className="p-4 flex items-center justify-between border-t border-slate-100">
+        <div className="flex flex-wrap gap-1.5">
+          {trainer.certifications.length > 0 && (
+            <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700">
+              {trainer.certifications.length} certs
+            </span>
+          )}
+          {trainer.specialties.length > 0 && (
+            <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700">
+              {trainer.specialties.length} specialties
+            </span>
+          )}
+        </div>
+        <span className="text-slate-700 text-sm font-medium group-hover:text-slate-900">View profile →</span>
+      </div>
+    </Link>
+  );
+}
+

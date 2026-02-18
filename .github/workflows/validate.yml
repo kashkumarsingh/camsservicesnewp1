@@ -1,0 +1,41 @@
+name: Environment Validation
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  validate:
+    name: Validate Environment
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Validate Environment
+        run: |
+          chmod +x scripts/validate.sh
+          ./scripts/validate.sh
+      
+      - name: Check for Generated Files in Git
+        run: |
+          GENERATED=$(git ls-files | grep -E "(next-env\.d\.ts|\.next/)" || true)
+          if [ -n "$GENERATED" ]; then
+            echo "❌ Error: Generated files found in Git:"
+            echo "$GENERATED"
+            exit 1
+          fi
+          echo "✓ No generated files in Git"
+      
+      - name: Verify .gitignore
+        run: |
+          if git check-ignore -q frontend/next-env.d.ts 2>/dev/null; then
+            echo "✓ next-env.d.ts is properly ignored"
+          else
+            echo "❌ Error: next-env.d.ts is not in .gitignore"
+            exit 1
+          fi
+

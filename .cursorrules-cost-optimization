@@ -1,0 +1,160 @@
+# Cursor IDE Cost Optimization Rules
+# ====================================
+# This file contains best practices to prevent overpaying and manage Cursor usage efficiently.
+# Last Updated: 2026-01-16
+
+## 🎯 **USAGE OPTIMIZATION RULES**
+
+### **1. Chat Session Management**
+- ✅ **Start new chats for new topics** - Don't keep one massive chat session open
+- ✅ **Close old chats** - Archive or delete conversations over 10,000 lines
+- ✅ **Keep chats focused** - One topic per chat session
+- ❌ **NEVER** keep a chat with >50,000 lines open
+- ❌ **NEVER** include entire codebase in chat context
+
+### **2. File Reading Best Practices**
+- ✅ **Be specific** - Ask for specific files/sections, not entire directories
+- ✅ **Targeted searches** - Use codebase_search for specific queries
+- ✅ **Avoid repeated reads** - Don't read the same large files multiple times
+- ❌ **NEVER** read log files (console_errors.txt, render_deploy_logs.txt, etc.)
+- ❌ **NEVER** read entire node_modules or vendor directories
+- ❌ **NEVER** read large generated files repeatedly
+
+### **3. Context Window Management**
+- ✅ **Exclude unnecessary files** - Don't include:
+  - Log files (*.log, *.txt logs)
+  - Build artifacts (dist/, build/, .next/)
+  - Dependencies (node_modules/, vendor/)
+  - Large generated files
+- ✅ **Use focused queries** - Ask specific questions, not broad "read everything"
+- ❌ **NEVER** include entire project in context
+- ❌ **NEVER** include debug/console output in chat
+
+### **4. API Call Optimization**
+- ✅ **Batch questions** - Group related questions in one message
+- ✅ **Use codebase_search** - More efficient than reading files directly
+- ✅ **Be specific** - Clear, targeted questions reduce API calls
+- ❌ **NEVER** make multiple calls for the same information
+- ❌ **NEVER** ask vague questions that require multiple clarifications
+
+### **5. Monthly Budget Management**
+- ✅ **Set spending limit** - Recommended: $50-75/month
+- ✅ **Enable auto-pause** - Pause at 100% of budget
+- ✅ **Set email alerts** - At 50%, 75%, 90% of budget
+- ✅ **Review weekly** - Check usage every Monday
+- ❌ **NEVER** leave usage unlimited without monitoring
+
+## 📊 **COST MONITORING**
+
+### **Weekly Checklist**
+- [ ] Check current month usage in Cursor Settings → Account → Usage
+- [ ] Review token usage (input, output, cache reads)
+- [ ] Archive chats over 10,000 lines
+- [ ] Close unused chat sessions
+- [ ] Review spending vs. budget
+
+### **Monthly Review**
+- [ ] Analyse invoice breakdown
+- [ ] Identify top cost drivers (cache reads, API calls)
+- [ ] Adjust budget if needed
+- [ ] Consider subscription if usage consistently high
+
+## 🚨 **RED FLAGS (Stop Immediately)**
+
+If you see:
+- **Cache read tokens >100M** - You're reading files too many times
+- **API calls >2000/month** - Too many separate requests
+- **Chat transcript >50K lines** - Start a new chat immediately
+- **Monthly cost >$75** - Review usage patterns urgently
+
+## ⚠️ **AUTOMATIC COST WARNINGS (AI MUST SUGGEST NEW CHAT)**
+
+**You MUST automatically suggest starting a NEW chat tab when:**
+
+1. **Cost Threshold:**
+   - Current chat estimated cost > $5
+   - Cache read tokens > 50M in this chat
+   - API calls > 20 in this chat
+
+2. **Chat Size Threshold:**
+   - Current chat > 10,000 lines
+   - Current chat > 5MB in size
+
+3. **Feature Switch:**
+   - User switches from dashboard to booking
+   - User switches from feature work to component work
+   - User asks about unrelated feature
+
+**Use these warning templates (from `docs/AI_COST_WARNING_TEMPLATE.md`):**
+
+**Cost Warning:**
+```
+⚠️ Cost Warning: This chat has exceeded $5 in estimated costs (or 50M cache read tokens).
+
+To save costs, I recommend starting a NEW chat tab for [new feature/task].
+This will reduce cache read tokens by 60-80%.
+
+Would you like me to help you start a fresh chat?
+```
+
+**Feature Switch Warning:**
+```
+⚠️ Feature Switch Detected: You're switching from [current] to [new feature].
+
+To save costs, I recommend starting Chat [X] in a NEW chat tab.
+This prevents mixing contexts and reduces cache reads.
+
+Would you like me to help you start Chat [X] for [new feature]?
+```
+
+## 💡 **COST-SAVING TIPS**
+
+1. **Use codebase_search** instead of reading files directly
+2. **Start fresh chats** for new topics (don't accumulate context)
+3. **Exclude log files** from all chat contexts
+4. **Be specific** in questions (reduces follow-up calls)
+5. **Archive old chats** regularly (weekly cleanup)
+6. **Monitor cache read tokens** - This is usually the biggest cost driver
+
+## 📁 **FILES TO EXCLUDE FROM CHAT CONTEXT**
+
+Always exclude these from chat:
+- `*.log` files
+- `console_errors.txt`
+- `render_deploy_logs.txt`
+- `node_modules/` directory
+- `vendor/` directory
+- `dist/`, `build/`, `.next/` directories
+- Large generated files (>1MB)
+- Database dumps
+- Test output files
+
+## 🔧 **AUTOMATED CLEANUP**
+
+Run this weekly to archive old chats:
+```bash
+# Archive chats over 10MB
+find ~/.cursor/projects/*/agent-transcripts/ -type f -size +10M -exec mv {} ~/.cursor/archived-chats/ \;
+```
+
+## 📈 **TARGET METRICS**
+
+**Healthy Usage:**
+- Monthly cost: $20-50
+- Cache read tokens: <50M/month
+- API calls: <1000/month
+- Average chat length: <10,000 lines
+
+**Warning Signs:**
+- Monthly cost: $50-75 (review needed)
+- Cache read tokens: 50-100M (optimize file reads)
+- API calls: 1000-2000 (batch questions)
+
+**Critical:**
+- Monthly cost: >$75 (urgent review)
+- Cache read tokens: >100M (stop repeated reads)
+- API calls: >2000 (reduce call frequency)
+
+---
+
+**Remember:** The biggest cost driver is usually **cache read tokens** from reading large files repeatedly. Be specific, use codebase_search, and start fresh chats regularly!
