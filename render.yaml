@@ -1,3 +1,7 @@
+# CAMS Services – Render Blueprint
+# Reverb (WebSockets): Render supports WSS on web services. Client uses wss://cams-reverb.onrender.com.
+# Ping/pong: REVERB_APP_PING_INTERVAL=30 (Render recommendation). Scaling: multiple Reverb instances
+# need an external broker (e.g. Redis); single instance is fine for free/starter.
 services:
   # Backend Service - Laravel API (admin is Next.js at frontend /dashboard/admin)
   - type: web
@@ -97,6 +101,77 @@ services:
         sync: false  # Set in Render dashboard: pk_live_... or pk_test_...
       - key: STRIPE_WEBHOOK_SECRET
         sync: false  # Set in Render dashboard: whsec_...
+      
+      # Reverb WebSocket (optional): backend pushes to Reverb; set BROADCAST_CONNECTION + app credentials
+      - key: BROADCAST_CONNECTION
+        value: reverb  # Set to 'log' to disable real-time; keep 'reverb' when cams-reverb is deployed
+      - key: REVERB_APP_ID
+        value: "1"
+      - key: REVERB_APP_KEY
+        sync: false  # Set same value on cams-reverb and frontend NEXT_PUBLIC_REVERB_APP_KEY
+      - key: REVERB_APP_SECRET
+        sync: false  # Set same value on cams-reverb
+      - key: REVERB_HOST
+        fromService:
+          type: web
+          name: cams-reverb
+          property: host
+      - key: REVERB_PORT
+        fromService:
+          type: web
+          name: cams-reverb
+          property: port
+  
+  # Reverb – WebSocket server for live refresh (Render supports WSS on web services)
+  # Client connects to wss://cams-reverb.onrender.com; ping/pong every 30s for keepalive.
+  # Scaling: multiple instances need an external broker (e.g. Redis); single instance is fine.
+  - type: web
+    name: cams-reverb
+    runtime: docker
+    plan: free
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    envVars:
+      - key: RUN_MODE
+        value: reverb
+      - key: APP_KEY
+        sync: false  # Same as cams-backend
+      - key: APP_ENV
+        value: production
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: cams-database
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: cams-database
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: cams-database
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: cams-database
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: cams-database
+          property: password
+      - key: BROADCAST_CONNECTION
+        value: reverb
+      - key: REVERB_APP_ID
+        value: "1"
+      - key: REVERB_APP_KEY
+        sync: false  # Must match cams-backend and frontend NEXT_PUBLIC_REVERB_APP_KEY
+      - key: REVERB_APP_SECRET
+        sync: false  # Must match cams-backend
+      - key: REVERB_SCHEME
+        value: https
+      - key: REVERB_APP_PING_INTERVAL
+        value: "30"  # Ping/pong every 30s (Render recommendation for stale connection cleanup)
   
   # Frontend Service - Next.js 15 (Optional - deploy separately or use Vercel)
   - type: web
@@ -118,11 +193,11 @@ services:
       - key: NEXT_PUBLIC_SITE_NAME
         value: CAMS Services
       
-      # API Configuration
+      # API Configuration (set after backend deploys: use your cams-backend URL + /api/v1)
       - key: NEXT_PUBLIC_API_URL
-        value: https://cams-backend-1q6w.onrender.com/api/v1
+        sync: false  # e.g. https://cams-backend.onrender.com/api/v1
       - key: API_URL
-        value: https://cams-backend-1q6w.onrender.com/api/v1
+        sync: false  # e.g. https://cams-backend.onrender.com/api/v1
       
       # Repository Configuration (all use API)
       - key: NEXT_PUBLIC_PACKAGE_REPOSITORY
@@ -141,6 +216,18 @@ services:
       # ISR / Revalidation
       - key: NEXT_REVALIDATE_SECRET
         sync: false  # Must match backend NEXT_REVALIDATE_SECRET
+      
+      # Reverb WebSocket (optional – for real-time live refresh; omit for polling fallback)
+      - key: NEXT_PUBLIC_LIVE_REFRESH_WEBSOCKET_ENABLED
+        value: "true"  # Set to "false" to use polling only
+      - key: NEXT_PUBLIC_REVERB_APP_KEY
+        sync: false  # Same as REVERB_APP_KEY on cams-backend and cams-reverb
+      - key: NEXT_PUBLIC_REVERB_WS_HOST
+        sync: false  # Reverb service host, e.g. cams-reverb.onrender.com
+      - key: NEXT_PUBLIC_REVERB_WS_PORT
+        value: "443"
+      - key: NEXT_PUBLIC_REVERB_SCHEME
+        value: https
       
       # Stripe Payment Configuration (Public Key - Safe to expose)
       - key: NEXT_PUBLIC_STRIPE_PUBLIC_KEY

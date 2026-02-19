@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "standalone", // Required for Docker/Render (frontend Dockerfile copies .next/standalone)
   reactStrictMode: true,
 
   images: {

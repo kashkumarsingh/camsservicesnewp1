@@ -1,6 +1,14 @@
 #!/bin/sh
 set -e
 
+# Reverb-only mode (Render WebSocket service): listen on PORT, use ping for keepalive
+if [ "$RUN_MODE" = "reverb" ]; then
+    export REVERB_PORT="${PORT:-8080}"
+    export REVERB_HOST="${REVERB_HOST:-0.0.0.0}"
+    echo "Reverb mode → starting WebSocket server on port $REVERB_PORT (Render WSS)"
+    exec php artisan reverb:start
+fi
+
 # Function to run migrations with error handling
 run_migrations() {
     php artisan migrate --force --no-interaction 2>&1 || {

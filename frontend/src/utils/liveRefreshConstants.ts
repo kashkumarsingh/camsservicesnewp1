@@ -1,17 +1,25 @@
 /**
- * Centralised live-refresh via WebSocket (Reverb/Echo) only – no polling.
+ * Centralised live-refresh: WebSocket (Reverb) when available, polling fallback otherwise.
  *
- * Purpose: Parent, trainer, and admin dashboards update in real time (notification bell,
- * bookings, schedules) without the user pressing "Refresh" or reloading the page.
+ * Purpose: Parent, trainer, and admin dashboards update (notification bell, bookings,
+ * schedules) without the user pressing "Refresh" or reloading the page.
  *
- * How it works:
- * - Backend broadcasts LiveRefreshContextsUpdated to private channel live-refresh.{userId}
- *   (and live-refresh.admin for admins) with { contexts: ['notifications', 'bookings', ...] }.
- * - Frontend Echo subscribes to those channels; on event it calls notifyContext(ctx) so
- *   only refetches for that context run (e.g. notifications → bell refetch).
- * - Manual invalidate(context) after a user action still triggers immediate refetch.
+ * Strategy (works locally with Reverb and on Render without Reverb):
+ * - When Reverb is configured (NEXT_PUBLIC_LIVE_REFRESH_WEBSOCKET_ENABLED + key + wsHost):
+ *   Echo subscribes to live-refresh.{userId} / live-refresh.admin; backend broadcasts
+ *   trigger refetch per context (real-time).
+ * - When Reverb is NOT configured (e.g. Render without a Reverb service):
+ *   Polling fallback runs: all live-refresh contexts are invalidated on an interval
+ *   while the tab is visible, so notification bell and dashboards still update.
+ * - Manual invalidate(context) and refreshAll() always work.
  */
 export const LIVE_REFRESH_ENABLED = true;
+
+/**
+ * Polling fallback interval (ms) when WebSocket/Reverb is not available (e.g. Render).
+ * Only runs while the tab is visible. Same order as LIVE_UPDATE_POLL_INTERVAL_MS.
+ */
+export const LIVE_REFRESH_POLL_FALLBACK_INTERVAL_MS = 45_000;
 
 /** Context keys returned by the backend; must match LiveRefreshController. */
 export const LIVE_REFRESH_CONTEXTS = [
@@ -38,3 +46,9 @@ export const LIVE_REFRESH_WEBSOCKET_CONFIG = {
   wssPort: (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_REVERB_WS_PORT) || '443',
   scheme: (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_REVERB_SCHEME) || 'http',
 };
+
+/** True when WebSocket live refresh is configured and will be used (no polling fallback). */
+export const LIVE_REFRESH_HAS_WEBSOCKET_CONFIG =
+  LIVE_REFRESH_WEBSOCKET_ENABLED &&
+  !!LIVE_REFRESH_WEBSOCKET_CONFIG.key &&
+  !!LIVE_REFRESH_WEBSOCKET_CONFIG.wsHost;

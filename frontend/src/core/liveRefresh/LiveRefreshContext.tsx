@@ -10,6 +10,8 @@ import React, {
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 import {
   LIVE_REFRESH_CONTEXTS,
+  LIVE_REFRESH_HAS_WEBSOCKET_CONFIG,
+  LIVE_REFRESH_POLL_FALLBACK_INTERVAL_MS,
   LIVE_REFRESH_WEBSOCKET_CONFIG,
   LIVE_REFRESH_WEBSOCKET_ENABLED,
   type LiveRefreshContextType,
@@ -67,14 +69,9 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
     LIVE_REFRESH_CONTEXTS.forEach((ctx) => notifyContext(ctx));
   }, []);
 
-  // WebSocket (Echo) only – real-time live refresh; no polling
+  // WebSocket (Echo) when Reverb is configured – real-time live refresh
   useEffect(() => {
-    if (
-      !LIVE_REFRESH_WEBSOCKET_ENABLED ||
-      !user?.id ||
-      !LIVE_REFRESH_WEBSOCKET_CONFIG.key ||
-      !LIVE_REFRESH_WEBSOCKET_CONFIG.wsHost
-    ) {
+    if (!LIVE_REFRESH_HAS_WEBSOCKET_CONFIG || !user?.id) {
       if (typeof window !== 'undefined' && user?.id && process.env.NODE_ENV === 'development') {
         const missing = [
           !LIVE_REFRESH_WEBSOCKET_ENABLED && 'NEXT_PUBLIC_LIVE_REFRESH_WEBSOCKET_ENABLED=true',
@@ -83,7 +80,7 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
         ].filter(Boolean);
         if (missing.length > 0) {
           console.info(
-            '[Live refresh] WebSocket disabled – no connection to Reverb. Add to frontend/.env.local:',
+            '[Live refresh] WebSocket not configured – using polling fallback. For real-time, add:',
             missing.join(', ')
           );
         }
@@ -166,6 +163,43 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
       }
     };
   }, [user?.id, user?.role]);
+
+  // Polling fallback when WebSocket/Reverb is not available (e.g. Render) – same refetch behaviour
+  const refreshAllRef = useRef(refreshAll);
+  refreshAllRef.current = refreshAll;
+  useEffect(() => {
+    if (!user?.id || LIVE_REFRESH_HAS_WEBSOCKET_CONFIG) return;
+
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    const tick = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        refreshAllRef.current();
+      }
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        tick();
+        intervalId = setInterval(tick, LIVE_REFRESH_POLL_FALLBACK_INTERVAL_MS);
+      } else {
+        if (intervalId !== null) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+      }
+    };
+
+    if (document.visibilityState === 'visible') {
+      intervalId = setInterval(tick, LIVE_REFRESH_POLL_FALLBACK_INTERVAL_MS);
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      if (intervalId !== null) clearInterval(intervalId);
+    };
+  }, [user?.id]);
 
   const value: LiveRefreshContextValue = { subscribe, invalidate, refreshAll };
 
