@@ -153,13 +153,25 @@ export class ApiClient {
     const clientApiUrl = getEnvVar('NEXT_PUBLIC_API_URL', '');
     const serverApiUrl = getEnvVar('API_URL', '');
     
+    // Ensure base URL always ends with /api/v1 (Laravel API prefix). If env is origin-only (e.g. http://localhost:9080), append it.
+    const ensureApiV1Base = (url: string): string => {
+      if (!url || !url.startsWith('http')) {
+        return url;
+      }
+      const trimmed = url.replace(/\/$/, '');
+      if (trimmed.endsWith('/api/v1')) {
+        return trimmed;
+      }
+      return `${trimmed}/api/v1`;
+    };
+
     // Use runtime fallback if env vars are not set
     const runtimeFallback = getRuntimeFallback();
     // Default: Docker service name for server-side in Docker, localhost for client-side
     const defaultServerUrl = runtimeFallback || 'http://backend:80/api/v1'; // Docker service name
     const defaultClientUrl = runtimeFallback || 'http://localhost:9080/api/v1'; // Browser uses localhost
-    let finalClientUrl = clientApiUrl || runtimeFallback || defaultClientUrl;
-    const finalServerUrl = serverApiUrl || runtimeFallback || defaultServerUrl;
+    let finalClientUrl = ensureApiV1Base(clientApiUrl || runtimeFallback || defaultClientUrl);
+    const finalServerUrl = ensureApiV1Base(serverApiUrl || runtimeFallback || defaultServerUrl);
 
     // In the browser in development, use same-origin /api/v1 so Next.js rewrites proxy to the backend (avoids CORS)
     const nodeEnvForProxy = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV) || 'production';
@@ -167,7 +179,7 @@ export class ApiClient {
       finalClientUrl = `${window.location.origin}/api/v1`;
     }
 
-    this.baseURL = config.baseURL || (isServerSide ? finalServerUrl : finalClientUrl);
+    this.baseURL = config.baseURL ? ensureApiV1Base(config.baseURL) : (isServerSide ? finalServerUrl : finalClientUrl);
     
     // Log the resolved baseURL for debugging (only in development)
     // Safely check process.env to avoid TypeScript errors

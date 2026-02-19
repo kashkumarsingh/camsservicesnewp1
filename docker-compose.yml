@@ -8,7 +8,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: dev
-    container_name: camsservice-frontend
+    container_name: camsnew-frontend
     ports:
       - "4300:3000"
     env_file:
@@ -30,7 +30,7 @@ services:
     depends_on:
       - backend
     networks:
-      - camsservice-network
+      - camsnew-network
     restart: unless-stopped
 
   # Backend - Laravel 12 LTS (API-only; universal dashboard on frontend)
@@ -38,7 +38,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: camsservice-backend
+    container_name: camsnew-backend
     ports:
       - "9080:80"
     env_file:
@@ -77,7 +77,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - camsservice-network
+      - camsnew-network
     restart: unless-stopped
 
   # Reverb – WebSocket server for live refresh / notifications (browser connects to host:8080)
@@ -88,7 +88,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: camsservice-reverb
+    container_name: camsnew-reverb
     entrypoint: ["php", "artisan", "reverb:start"]
     env_file:
       - backend/.env
@@ -116,13 +116,13 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - camsservice-network
+      - camsnew-network
     restart: unless-stopped
 
   # Database - MySQL 8.0 LTS
   db:
     image: mysql:8.0
-    container_name: camsservice-db
+    container_name: camsnew-db
     ports:
       - "33306:3306"
     environment:
@@ -134,7 +134,7 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     networks:
-      - camsservice-network
+      - camsnew-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
@@ -146,7 +146,7 @@ services:
   # phpMyAdmin
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: camsservice-phpmyadmin
+    container_name: camsnew-phpmyadmin
     ports:
       - "9081:80"
     environment:
@@ -157,19 +157,19 @@ services:
       db:
         condition: service_healthy
     networks:
-      - camsservice-network
+      - camsnew-network
     restart: unless-stopped
 
   # Redis - Caching, Sessions, Queues
   redis:
     image: redis:7-alpine
-    container_name: camsservice-redis
+    container_name: camsnew-redis
     ports:
       - "36379:6379"
     volumes:
       - redis_data:/data
     networks:
-      - camsservice-network
+      - camsnew-network
     restart: unless-stopped
     command: redis-server --appendonly yes
     healthcheck:
@@ -181,12 +181,12 @@ services:
   # Mailhog - Email Testing (Development)
   mailhog:
     image: mailhog/mailhog:latest
-    container_name: camsservice-mailhog
+    container_name: camsnew-mailhog
     ports:
       - "11025:1025"  # SMTP
       - "18025:8025"  # Web UI
     networks:
-      - camsservice-network
+      - camsnew-network
     restart: unless-stopped
 
   # Stripe CLI - Webhook Forwarding (Development)
@@ -194,7 +194,7 @@ services:
   # This will print a webhook secret - add it to backend/.env as STRIPE_WEBHOOK_SECRET
   stripe-cli:
     image: stripe/stripe-cli:latest
-    container_name: camsservice-stripe-cli
+    container_name: camsnew-stripe-cli
     env_file:
       - backend/.env
     environment:
@@ -203,13 +203,13 @@ services:
     depends_on:
       - backend
     networks:
-      - camsservice-network
+      - camsnew-network
     # Don't auto-start - run manually when needed
     profiles:
       - tools
 
 networks:
-  camsservice-network:
+  camsnew-network:
     driver: bridge
 
 volumes:
