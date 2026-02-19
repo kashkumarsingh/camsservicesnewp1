@@ -61,13 +61,8 @@ const nextConfig = {
     optimizePackageImports: ["lucide-react", "framer-motion"],
   },
 
-  webpack: (config, { webpack }) => {
-    config.plugins = config.plugins || [];
-    config.plugins.push(
-      new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /en-gb|en/)
-    );
-    return config;
-  },
+  // Turbopack-only: moment locales trimmed via src/utils/moment-locales.ts (en-gb + en).
+  turbopack: {},
 };
 
 module.exports = nextConfig;

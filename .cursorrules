@@ -1,17 +1,7 @@
 # === CURSOR RULES: Senior Full-Stack Engineer Monorepo (LTS Edition) ===
-# Updated: 2025-02-14
+# Updated: 2025-01-16
 # Author: Senior Full-Stack Engineer (FAANG-level)
-# Optimised: 95k tokens (includes API token optimization)
-
-# ---------------------------------------------------------------------------
-# QUICK TOKEN OPTIMIZATION REFERENCE
-# ---------------------------------------------------------------------------
-**CRITICAL: REDUCE API COSTS**
-- Simple tasks → Haiku (80% cheaper than Sonnet)
-- Static content first → Enable caching (90% savings)
-- Set max_tokens → Prevent over-generation
-- Batch related requests → 50% discount
-- Trim conversation history → Keep last 3-5 exchanges only
+# Optimised: 90k tokens (53% reduction from 190k)
 
 # ---------------------------------------------------------------------------
 # COMMUNICATION & LANGUAGE POLICY (CRITICAL)
@@ -181,20 +171,6 @@ project-root/src/
 - CORS limited to frontend origin
 - Strict PSR-12 compliance
 - API-first design (REST or GraphQL)
-
-# ---------------------------------------------------------------------------
-# BACKEND RUNS IN DOCKER (MANDATORY)
-# ---------------------------------------------------------------------------
-**The backend is always run via Docker.** Never instruct to run `php artisan` or `composer` on the host.
-
-- **Service name:** `backend` (see docker-compose.yml)
-- **All backend CLI commands MUST be run inside the container:**
-  - Migrations:   `docker compose exec backend php artisan migrate`
-  - New migration: `docker compose exec backend php artisan make:migration create_foo_table`
-  - Composer:     `docker compose exec backend composer install`
-  - Tinker:      `docker compose exec backend php artisan tinker`
-  - Cache clear: `docker compose exec backend php artisan cache:clear`
-- When giving migration or artisan instructions, **always** prefix with `docker compose exec backend`.
 
 # ---------------------------------------------------------------------------
 # DATABASE DESIGN & DATA MODELING
@@ -492,7 +468,7 @@ For ANY feature/component/functionality:
 ```
 
 # ---------------------------------------------------------------------------
-# COST OPTIMIZATION & USAGE MANAGEMENT (CURSOR IDE)
+# COST OPTIMIZATION & USAGE MANAGEMENT
 # ---------------------------------------------------------------------------
 **CRITICAL: PREVENT OVERPAYING FOR CURSOR IDE**
 
@@ -505,11 +481,10 @@ For ANY feature/component/functionality:
 - ✅ ALWAYS archive chats over 10MB weekly
 
 **AUTOMATIC COST WARNINGS (MANDATORY):**
-Suggest NEW chat tab OR switch to Haiku when:
+Suggest NEW chat tab when:
 - Current chat estimated cost > $5
 - Cache read tokens > 50M
-- API calls > 20 (consider batch API)
-- Using Sonnet for simple tasks
+- API calls > 20
 - Chat > 10,000 lines or 5MB
 - Feature switch detected
 
@@ -521,194 +496,11 @@ Suggest NEW chat tab OR switch to Haiku when:
 
 **NEVER mix features in same chat tab!**
 
-# ---------------------------------------------------------------------------
-# API TOKEN OPTIMIZATION (CLAUDE API USAGE)
-# ---------------------------------------------------------------------------
-**CRITICAL: REDUCE TOKEN CONSUMPTION IN API CALLS**
-
-**Model Selection Strategy:**
-- ✅ Use **Claude Haiku 4.5** (`claude-haiku-4-5-20251001`) for:
-  - Simple CRUD operations
-  - Data validation/formatting
-  - Classification tasks
-  - Straightforward queries
-  - Content extraction
-  - Basic code generation
-  - Simple refactoring
-- ✅ Use **Claude Sonnet 4.5** (`claude-sonnet-4-5-20250929`) ONLY for:
-  - Complex architectural decisions
-  - Multi-step reasoning
-  - Large-scale code generation requiring context
-  - Strategic planning
-  - Debugging complex issues
-  - Performance optimization analysis
-- ❌ NEVER use Sonnet for simple tasks (saves 80-90% cost)
-
-**Prompt Optimization:**
-1. **Prompt Caching (90% savings on repeated content):**
-   - Place static content FIRST (system prompts, documentation, schemas)
-   - Place dynamic content LAST (user queries, request data)
-   - Cache threshold: 1024+ tokens (4 paragraphs)
-   - Example structure:
-     ```
-     [Static system instructions - cacheable]
-     [Static API documentation - cacheable]
-     [Static code context - cacheable]
-     [Dynamic user request - not cached]
-     ```
-   - Cache invalidation: Update cached content only when necessary
-
-2. **Context Management:**
-   - ❌ NEVER send full conversation history (trim to last 3-5 exchanges)
-   - ❌ NEVER include unchanged file contents repeatedly
-   - ❌ NEVER attach entire log files or large datasets
-   - ✅ Reference file changes only: "Update line 42 in UserRepository.ts"
-   - ✅ Use diff format for code changes instead of full files
-   - ✅ Summarise previous context instead of repeating it
-   - ✅ Remove redundant information between requests
-
-3. **Output Control:**
-   - ✅ Set `max_tokens` appropriately:
-     - Simple responses: 500-1000 tokens
-     - Code generation: 2000-4000 tokens
-     - Documentation: 1000-2000 tokens
-     - Complex features: 4000-8000 tokens
-   - ✅ Request concise responses: "Provide implementation only, no explanations"
-   - ✅ Use structured output formats (JSON, YAML) when possible
-   - ❌ NEVER request verbose explanations unless debugging
-   - ❌ NEVER ask for "detailed step-by-step" unless necessary
-
-4. **Batch Operations:**
-   - ✅ Use Batch API (50% discount) for:
-     - Code reviews
-     - Multiple file generations
-     - Bulk data processing
-     - Test generation
-     - Documentation updates
-   - ✅ Combine related requests: "Generate User, Post, and Comment repositories" (not 3 separate calls)
-   - ✅ Process multiple items in single request when logically related
-
-**Token Budget Per Task Type:**
-| Task Type | Recommended Model | Max Tokens | Estimated Cost |
-|-----------|------------------|------------|----------------|
-| Simple query | Haiku | 500 | $0.0004 |
-| Code generation (single file) | Haiku | 2000 | $0.002 |
-| Code generation (multiple files) | Sonnet | 4000 | $0.012 |
-| Architecture review | Sonnet | 4000 | $0.012 |
-| Full feature implementation | Sonnet | 8000 | $0.024 |
-| Complex debugging | Sonnet | 6000 | $0.018 |
-| Refactoring | Haiku | 3000 | $0.003 |
-| Documentation | Haiku | 2000 | $0.002 |
-
-**Auto + Composer Usage:**
-- ❌ NEVER enable extended thinking mode for routine tasks
-- ❌ NEVER use Composer for simple CRUD operations
-- ✅ Use standard mode unless explicitly debugging complex logic
-- ✅ Reserve Composer for architectural decisions or multi-file refactoring
-- Your current usage (404.7M tokens) suggests over-reliance on Composer
-
-**Monitoring:**
-- Track token usage per feature/PR
-- Alert if single conversation exceeds 10M tokens
-- Review monthly: Should stay under 50M tokens for typical projects
-- Weekly audit: Check cache hit rate (target: >80%)
-
-**Cost Calculation Reference:**
-- Haiku Input: $0.80 per 1M tokens
-- Haiku Output: $4.00 per 1M tokens
-- Sonnet Input: $3.00 per 1M tokens
-- Sonnet Output: $15.00 per 1M tokens
-- Cache Read: 90% discount on input pricing
-- Cache Write: Same as regular input
-
-**Implementation Checklist:**
-- [ ] Audit all API calls for correct model selection
-- [ ] Structure prompts with static content first (enable caching)
-- [ ] Set max_tokens limits on all requests
-- [ ] Trim conversation context to last 3-5 exchanges
-- [ ] Use Batch API for bulk operations
-- [ ] Remove redundant file contents from context
-- [ ] Monitor weekly token consumption
-- [ ] Review cache hit rate monthly
-- [ ] Switch simple tasks from Sonnet to Haiku
-
-**Example Prompt Structure (Optimised for Caching):**
-```
-[STATIC - CACHED] System: You are a senior engineer...
-[STATIC - CACHED] Architecture: Clean Architecture principles...
-[STATIC - CACHED] Code standards: FAANG-level quality...
-[STATIC - CACHED] Current file content: UserRepository.ts...
-[DYNAMIC - NOT CACHED] User request: Add email validation to line 42
-```
-
-**Red Flags (Stop and Optimize):**
-- 🚨 Single conversation >50M tokens
-- 🚨 Using Sonnet for CRUD operations
-- 🚨 Sending full file contents every request
-- 🚨 Cache read tokens <50% of total input
-- 🚨 Average output >5000 tokens per request
-- 🚨 More than 20 API calls for single feature
-# ---------------------------------------------------------------------------
-# CODEBASE INDEXING & CONTEXT CONTROL
-# ---------------------------------------------------------------------------
-**CRITICAL: CODEBASE INDEXING IS THE #1 TOKEN KILLER**
-
-**Rules:**
-- ❌ NEVER use `@Codebase` for simple queries
-- ❌ NEVER enable "Always include codebase" setting
-- ❌ NEVER ask broad questions that trigger full codebase scan
-- ✅ Use `@File` for specific files only (10x cheaper)
-- ✅ Use `@Folder` for limited scope (5x cheaper than @Codebase)
-- ✅ Be specific: "Update UserRepository.ts" not "Update user code"
-
-**When Codebase Indexing is Acceptable:**
-- Initial architecture review (once per project)
-- Major refactoring across multiple files
-- Finding all usages of a deprecated pattern
-- **Limit to 1-2 times per feature maximum**
-
-**Better Alternatives:**
-| Instead of | Use |
-|-----------|-----|
-| @Codebase "fix user auth" | @File src/auth/UserAuth.ts "fix this" |
-| @Codebase "update API calls" | @Folder src/infrastructure/http "update these" |
-| @Codebase "how does X work" | Search docs first, then ask specific file |
-
-**Token Impact Comparison:**
-- Simple query: 500-2k tokens
-- @File (1 file): 2k-5k tokens
-- @Folder (5-10 files): 10k-30k tokens
-- @Codebase (50+ files): 50k-500k tokens
-
-**Red Flags:**
-- 🚨 Using @Codebase more than twice per feature
-- 🚨 "Always include codebase" setting enabled
-- 🚨 Broad questions without file/folder specificity
-- 🚨 Repeated @Codebase for same context
-```
-
-## Your Current Usage Analysis
-
-Looking at your 404.7M tokens:
-- If using @Codebase frequently: **This is likely 70-80% of your usage**
-- Each @Codebase request: ~100-200k tokens
-- If you made 2000+ requests: That's 200-400M tokens just from codebase inclusion
-
-## Immediate Actions
-
-**1. Check Cursor Settings:**
-```
-Cursor Settings → Features → 
-☐ Always include codebase context (UNCHECK THIS!)
-```
-
-**2. Change Your Workflow:**
-```
-❌ Bad:  "@Codebase create new booking feature"
-✅ Good: "@Folder src/core/booking create new use case"
-
-❌ Bad:  "@Codebase why is auth failing"
-✅ Good: "@File src/auth/UserAuth.ts debug line 42"
+**After each chat (token/size reminder):**
+- At the end of a substantive or multi-turn conversation, add one short line so the user can check usage.
+- The model cannot see actual token count or transcript file size; only the user can by running the project script.
+- Remind once: *"To see transcript size (KB) and estimated token usage for this project, run: `bash scripts/cleanup-cursor-chats.sh`"* (or point to `docs/cursorcontext/CURSOR_CHAT_TRANSCRIPTS.md` for trim/reset options).
+- Keep it to one line; do not repeat in every message.
 
 # ---------------------------------------------------------------------------
 # OUTPUT STYLE
@@ -734,5 +526,5 @@ For detailed guides, see:
 - **Glossary:** `docs/cursorcontext/GLOSSARY.md`
 
 # ---------------------------------------------------------------------------
-# END OF OPTIMISED RULES (95k tokens with API optimization)
+# END OF OPTIMISED RULES (90k tokens - 53% reduction from 190k)
 # ---------------------------------------------------------------------------

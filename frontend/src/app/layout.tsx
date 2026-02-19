@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fredoka, Baloo_2 } from "next/font/google";
 import "./globals.css";
+import '@/utils/moment-locales';
 import ConditionalPublicLayout from '@/components/layout/ConditionalPublicLayout';
 import { ThemeProvider, ThemeScript } from '@/components/theme';
 import PerformanceFix from '@/utils/performanceFix';
