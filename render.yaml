@@ -14,7 +14,7 @@ services:
     runtime: docker
     plan: free
     region: oregon  # Same region as frontend and Reverb to minimise latency
-    healthCheckPath: /health  # Lightweight route (no DB); grace period 120s in Render dashboard
+    healthCheckPath: /health  # Lightweight route (no DB); must respond within 5s (Render fixed timeout)
     dockerfilePath: backend/Dockerfile
     dockerContext: backend
     envVars:

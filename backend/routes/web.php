@@ -3,11 +3,13 @@
 use Illuminate\Support\Facades\Route;
 
 /**
- * Render health check — no DB, no auth, responds in <100ms.
- * Used by Render's internal health check; do not add middleware or heavy logic.
+ * Render health check (Laravel fallback; Nginx serves /health directly so this may not be hit).
+ * Plain text is faster than JSON. No DB, no auth, no middleware.
  * Full health (with DB) remains at GET /api/v1/health for monitoring.
  */
-Route::get('/health', fn () => response()->json(['status' => 'ok']));
+Route::get('/health', function () {
+    return response('OK', 200)->header('Content-Type', 'text/plain');
+});
 
 // Admin is the Next.js dashboard at FRONTEND_URL/dashboard/admin
 Route::get('/', function () {

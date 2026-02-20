@@ -10,38 +10,33 @@ This document covers deploying the CAMS backend, frontend, and Reverb services t
 
 | Service   | Endpoint             | Purpose |
 |-----------|----------------------|---------|
-| Backend   | `GET /health`        | Render internal health check. No DB, no auth; responds in <100ms. |
+| Backend   | `GET /health`        | Render internal health check. **Served by Nginx only** (no PHP/Laravel/DB) so it responds as soon as Nginx is up, before migrations complete. |
 | Backend   | `GET /api/v1/health` | Full health (checks DB, cache). Use for monitoring/uptime. |
 | Frontend  | `GET /api/health`    | Next.js health; use for Render or external monitoring. |
 
-The lightweight `/health` route lives in `backend/routes/web.php` and must stay fast and middleware-light so Render’s check can pass as soon as the app is listening.
+### How we avoid Render health check timeout (no grace period on free plan)
 
-### Grace period (set in Render dashboard, not in code)
+Render does **not** offer a configurable “health check grace period” on the free plan. Each health check has a **5-second response timeout**; if the new instance fails all checks for **15 consecutive minutes**, the deploy is cancelled.
 
-Render runs its health check shortly after the container starts. Laravel runs migrations and then starts Nginx, so the app may not be ready for tens of seconds.
+To pass the health check without a grace period we:
 
-**Required step after deploy:**
+1. **Nginx serves `/health` directly** — In `backend/nginx.conf`, `location = /health` returns `200 OK` with `text/plain`. No PHP or Laravel is involved, so the response is immediate once Nginx is listening.
+2. **Web mode: Nginx starts first, migrations in background** — In `backend/docker-entrypoint.sh`, for web mode we start PHP-FPM and Nginx **before** waiting for the database or running migrations. DB wait, migrations, config cache, and scheduler/queue run in a background subshell. So `/health` is reachable within seconds; the rest of the app bootstraps in parallel.
+3. **`render.yaml`** — `cams-backend` has `healthCheckPath: /health` so Render hits that Nginx-served endpoint.
 
-1. Open **Render Dashboard** → **cams-backend** → **Settings** → **Health & Alerts**.
-2. Set **Health Check Grace Period** to **120 seconds**.
+### UptimeRobot to prevent spin-down (free tier)
 
-This prevents the deploy from failing due to health check timeouts during migrations and startup. This value cannot be set in `render.yaml`; it must be configured in the dashboard.
+Render removes the grace period option from the UI on free plans. After deploy, use UptimeRobot so services are pinged **before** the ~15-minute spin-down and stay warm (avoids the ~50s cold start):
 
-### Free tier cold start workaround (UptimeRobot)
-
-On the free plan, Render spins down services after about 15 minutes of inactivity. The first request after spin-down can take 30–60 seconds (cold start).
-
-A common workaround is to ping the service **before** the 15-minute threshold so it stays warm:
-
-1. Sign up at [uptimerobot.com](https://uptimerobot.com) (free account).
+1. Go to [uptimerobot.com](https://uptimerobot.com) and create a free account.
 2. Add an **HTTP(s)** monitor:
    - **URL:** `https://cams-backend-oj5x.onrender.com/health` (or your backend’s Render URL + `/health`).
-   - **Monitoring interval:** 14 minutes (so the service is pinged before Render’s ~15 min sleep).
+   - **Monitoring interval:** 14 minutes.
 3. Add a second monitor for the frontend:
    - **URL:** `https://cams-frontend.onrender.com/api/health` (or your frontend URL + `/api/health`).
    - **Interval:** 14 minutes.
 
-This can keep the backend and frontend warm on the free tier. **Note:** Render may change behaviour or discourage this; it is not guaranteed. For production, prefer the permanent fix below.
+This keeps backend and frontend warm on the free tier. **Note:** Render may change behaviour or discourage this; it is not guaranteed. For production, prefer the permanent fix below.
 
 ### Permanent fix (no cold start)
 
@@ -51,7 +46,6 @@ Upgrade **cams-backend** to the Render **Starter** plan ($7/month). The service 
 
 ## Summary checklist
 
-- [ ] Deploy via Render blueprint (from `render.yaml`).
-- [ ] Set **Health Check Grace Period** to **120 seconds** for cams-backend in the Render dashboard.
-- [ ] (Optional) Add UptimeRobot monitors for `/health` (backend) and `/api/health` (frontend) at 14-minute intervals.
+- [ ] Deploy via Render blueprint (from `render.yaml`). Health check at `/health` should pass as soon as Nginx is up (migrations run in background).
+- [ ] After deploy confirms healthy: add UptimeRobot monitors for backend `/health` and frontend `/api/health` at 14-minute intervals to avoid free-tier spin-down.
 - [ ] (Recommended for production) Upgrade cams-backend to Starter plan for always-on behaviour.

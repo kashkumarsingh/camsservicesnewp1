@@ -100,111 +100,88 @@ NGINX_TMP=$(mktemp)
 envsubst '$PORT' < /etc/nginx/http.d/default.conf > "$NGINX_TMP"
 mv "$NGINX_TMP" /etc/nginx/http.d/default.conf
 
-# Wait for PostgreSQL
-echo "Waiting for database..."
-MAX_RETRIES=40
-COUNT=0
-until php artisan db:monitor >/dev/null 2>&1; do
-    COUNT=$((COUNT + 1))
-    if [ $COUNT -ge $MAX_RETRIES ]; then
-        echo "Database connection failed!"
-        exit 1
-    fi
-    echo "Database not ready yet... ($COUNT/$MAX_RETRIES)"
-    sleep 2
-done
-echo "Database connected!"
-
-# Run migrations FIRST (before any Laravel operations that use database)
-# This ensures cache, sessions, and jobs tables exist before they're used
-echo "Running database migrations..."
-set +e
-php artisan migrate --force --no-interaction 2>&1
-MIGRATION_EXIT=$?
-set -e
-
-# If migrations failed, try running them again (some migrations may have dependencies)
-if [ $MIGRATION_EXIT -ne 0 ]; then
-    echo "⚠️  First migration attempt had issues, retrying..."
-    sleep 2
-    set +e
-    php artisan migrate --force --no-interaction 2>&1
-    MIGRATION_EXIT=$?
-    set -e
-fi
-
-if [ $MIGRATION_EXIT -eq 0 ]; then
-    echo "✓ Migrations completed successfully"
-else
-    echo "⚠️  Migrations had issues, but continuing (tables may already exist)"
-fi
-
-# Laravel production setup (after migrations - all tables should now exist)
-# Use || true to handle gracefully if tables don't exist yet
-php artisan config:clear || true
-php artisan cache:clear || true  # Handle gracefully if cache table doesn't exist
-php artisan route:clear || true
-php artisan view:clear || true
-
-# Only seed if migrations succeeded (tables must exist)
-if [ $MIGRATION_EXIT -eq 0 ]; then
-    php artisan db:seed --force --no-interaction || echo "Seeding failed (non-fatal)"
-else
-    echo "⚠️  Skipping seeding (migrations had issues)"
-fi
-
-# Create storage symlink only if it does not exist (idempotent; avoids "link already exists" error)
-if [ ! -L public/storage ] && [ ! -d public/storage ]; then
-    php artisan storage:link || true
-else
-    echo "✓ [public/storage] link already exists, skipping."
-fi
-# Admin is Next.js at FRONTEND_URL/dashboard/admin
-php artisan config:cache
-php artisan route:cache || true
-php artisan view:cache || true
-
-# Permissions
-chown -R www-data:www-data storage bootstrap/cache
-chmod -R 775 storage bootstrap/cache
-
-# Start background services (scheduler + queue worker) unless disabled (e.g. when using Render worker/cron services)
-if [ "${RUN_SCHEDULER_IN_CONTAINER:-true}" = "true" ]; then
-    echo "Starting Laravel Scheduler (cron)..."
-    (while true; do
-        php artisan schedule:run --verbose --no-interaction >> /var/log/scheduler.log 2>&1
-        sleep 60
-    done) &
-fi
-
-if [ "${RUN_QUEUE_IN_CONTAINER:-true}" = "true" ]; then
-    echo "Starting Queue Worker..."
-    (while true; do
-        php artisan queue:work database --sleep=3 --tries=3 --max-time=3600 --verbose --no-interaction >> /var/log/queue.log 2>&1
-        echo "Queue worker stopped. Restarting in 5 seconds..."
-        sleep 5
-    done) &
-fi
-
-# Wait a moment for background services to initialize
-sleep 2
-
-# Worker-only mode (Render queue worker service): run after DB and migrations
+# Worker-only mode (Render): needs DB and migrations before running queue:work
 if [ "$RUN_MODE" = "worker" ]; then
+    echo "Waiting for database..."
+    MAX_RETRIES=40
+    COUNT=0
+    until php artisan db:monitor >/dev/null 2>&1; do
+        COUNT=$((COUNT + 1))
+        if [ $COUNT -ge $MAX_RETRIES ]; then echo "Database connection failed!"; exit 1; fi
+        echo "Database not ready yet... ($COUNT/$MAX_RETRIES)"
+        sleep 2
+    done
+    echo "Database connected!"
+    php artisan migrate --force --no-interaction 2>&1 || true
     echo "Worker mode → starting queue:work (database)"
     exec php artisan queue:work database --sleep=3 --tries=3 --timeout=90 --verbose --no-interaction
 fi
 
-# Scheduler-only mode (Render cron service): run once and exit
+# Scheduler-only mode (Render cron): needs DB, then run schedule:run once
 if [ "$RUN_MODE" = "scheduler" ]; then
+    echo "Waiting for database..."
+    MAX_RETRIES=40
+    COUNT=0
+    until php artisan db:monitor >/dev/null 2>&1; do
+        COUNT=$((COUNT + 1))
+        if [ $COUNT -ge $MAX_RETRIES ]; then echo "Database connection failed!"; exit 1; fi
+        echo "Database not ready yet... ($COUNT/$MAX_RETRIES)"
+        sleep 2
+    done
+    echo "Database connected!"
+    php artisan migrate --force --no-interaction 2>&1 || true
     echo "Scheduler mode → running schedule:run"
     exec php artisan schedule:run --verbose --no-interaction
 fi
 
-# Start web services (foreground)
+# Web mode (default): start Nginx + PHP-FPM first so /health responds immediately (Render health check).
+# Run DB wait, migrations, and bootstrap in background so deploy does not time out.
+echo "Web mode → starting Nginx first so /health passes; migrations run in background."
 php-fpm -D
-echo "Starting Nginx on port $PORT..."
-[ "${RUN_SCHEDULER_IN_CONTAINER:-true}" = "true" ] && echo "✓ Scheduler running (every minute)"
-[ "${RUN_QUEUE_IN_CONTAINER:-true}" = "true" ] && echo "✓ Queue worker running (database queue)"
-echo "✓ Web server starting..."
-exec nginx -g 'daemon off;'
+nginx &
+NGINX_PID=$!
+
+(
+    echo "[background] Waiting for database..."
+    MAX_RETRIES=40
+    COUNT=0
+    until php artisan db:monitor >/dev/null 2>&1; do
+        COUNT=$((COUNT + 1))
+        if [ $COUNT -ge $MAX_RETRIES ]; then echo "[background] Database connection failed!"; exit 1; fi
+        sleep 2
+    done
+    echo "[background] Database connected. Running migrations..."
+    set +e
+    php artisan migrate --force --no-interaction 2>&1
+    MIGRATION_EXIT=$?
+    set -e
+    if [ $MIGRATION_EXIT -ne 0 ]; then
+        sleep 2
+        php artisan migrate --force --no-interaction 2>&1 || true
+    fi
+    php artisan config:clear || true
+    php artisan cache:clear || true
+    php artisan route:clear || true
+    php artisan view:clear || true
+    if [ $MIGRATION_EXIT -eq 0 ]; then
+        php artisan db:seed --force --no-interaction || true
+    fi
+    if [ ! -L public/storage ] && [ ! -d public/storage ]; then
+        php artisan storage:link || true
+    fi
+    php artisan config:cache
+    php artisan route:cache || true
+    php artisan view:cache || true
+    chown -R www-data:www-data storage bootstrap/cache
+    chmod -R 775 storage bootstrap/cache
+    if [ "${RUN_SCHEDULER_IN_CONTAINER:-true}" = "true" ]; then
+        (while true; do php artisan schedule:run --verbose --no-interaction >> /var/log/scheduler.log 2>&1; sleep 60; done) &
+    fi
+    if [ "${RUN_QUEUE_IN_CONTAINER:-true}" = "true" ]; then
+        (while true; do php artisan queue:work database --sleep=3 --tries=3 --max-time=3600 --verbose --no-interaction >> /var/log/queue.log 2>&1; sleep 5; done) &
+    fi
+    echo "[background] Bootstrap complete."
+) &
+
+echo "✓ Nginx and PHP-FPM running; /health responds immediately. Bootstrap continuing in background."
+wait $NGINX_PID
