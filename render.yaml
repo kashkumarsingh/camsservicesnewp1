@@ -14,7 +14,6 @@ services:
     runtime: docker
     plan: free
     region: oregon  # Same region as frontend and Reverb to minimise latency
-    healthCheckPath: /api/v1/health
     dockerfilePath: backend/Dockerfile
     dockerContext: backend
     envVars:
