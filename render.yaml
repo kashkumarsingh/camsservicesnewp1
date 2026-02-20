@@ -65,9 +65,9 @@ services:
       # When using dedicated cams-queue-worker, set to false so only the worker runs jobs
       - key: RUN_QUEUE_IN_CONTAINER
         value: "false"
-      # When using dedicated cams-scheduler cron, set to false so only cron runs schedule
+      # Scheduler runs in-container (Render cron does not support plan: free; use starter+ if you add a cron service)
       - key: RUN_SCHEDULER_IN_CONTAINER
-        value: "false"
+        value: "true"
       - key: SESSION_LIFETIME
         value: 120
       
@@ -326,44 +326,9 @@ services:
           name: cams-reverb
           property: port
 
-  # Scheduler – runs Laravel schedule:run every minute (backend has RUN_SCHEDULER_IN_CONTAINER=false)
-  - type: cron
-    name: cams-scheduler
-    runtime: docker
-    plan: free
-    region: oregon
-    dockerfilePath: backend/Dockerfile
-    dockerContext: backend
-    schedule: "* * * * *"
-    envVars:
-      - key: RUN_MODE
-        value: scheduler
-      - key: APP_KEY
-        sync: false
-      - key: APP_ENV
-        value: production
-      - key: DB_CONNECTION
-        value: pgsql
-      - key: DB_HOST
-        fromDatabase:
-          name: cams-database
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: cams-database
-          property: port
-      - key: DB_DATABASE
-        fromDatabase:
-          name: cams-database
-          property: database
-      - key: DB_USERNAME
-        fromDatabase:
-          name: cams-database
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: cams-database
-          property: password
+  # Scheduler: not defined as a separate cron service (Render cron does not support plan: free).
+  # Laravel schedule:run runs in-container on cams-backend (RUN_SCHEDULER_IN_CONTAINER=true).
+  # To use a dedicated cron job, add a cron service with plan: starter (or higher) and set RUN_SCHEDULER_IN_CONTAINER=false on backend.
 
 # Database Service - PostgreSQL (Render Free Tier)
 # Free tier: database is deleted after 90 days of inactivity. Upgrade to paid or back up before expiry.
