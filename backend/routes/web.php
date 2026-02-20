@@ -2,6 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 
+/**
+ * Render health check — no DB, no auth, responds in <100ms.
+ * Used by Render's internal health check; do not add middleware or heavy logic.
+ * Full health (with DB) remains at GET /api/v1/health for monitoring.
+ */
+Route::get('/health', fn () => response()->json(['status' => 'ok']));
+
 // Admin is the Next.js dashboard at FRONTEND_URL/dashboard/admin
 Route::get('/', function () {
     $frontend = config('services.frontend.url', 'http://localhost:4300');
