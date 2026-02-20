@@ -14,7 +14,7 @@ services:
     runtime: docker
     plan: free
     region: oregon  # Same region as frontend and Reverb to minimise latency
-    healthCheckPath: /health  # Lightweight route (no DB); must respond within 5s (Render fixed timeout)
+    # no healthCheckPath — Render uses TCP port check instead (passes as soon as Nginx listens; forgiving on startup)
     dockerfilePath: backend/Dockerfile
     dockerContext: backend
     envVars:

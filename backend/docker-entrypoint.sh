@@ -1,6 +1,13 @@
 #!/bin/sh
 set -e
 
+# Fail fast with clear message if APP_KEY is missing (Laravel will crash on first request otherwise)
+if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:..." ]; then
+    echo "FATAL: APP_KEY is not set. Set it in Render Dashboard → cams-backend → Environment."
+    echo "Generate with: php artisan key:generate --show"
+    exit 1
+fi
+
 # Reverb-only mode (Render WebSocket service): listen on PORT, use ping for keepalive
 if [ "$RUN_MODE" = "reverb" ]; then
     export REVERB_PORT="${PORT:-8080}"
@@ -134,36 +141,43 @@ if [ "$RUN_MODE" = "scheduler" ]; then
     exec php artisan schedule:run --verbose --no-interaction
 fi
 
-# Web mode (default): start Nginx + PHP-FPM first so /health responds immediately (Render health check).
-# Run DB wait, migrations, and bootstrap in background so deploy does not time out.
-echo "Web mode → starting Nginx first so /health passes; migrations run in background."
-php-fpm -D
-nginx &
-NGINX_PID=$!
-
+# Web mode (default): start bootstrap in background, then Nginx in foreground so /health responds and container stays alive.
+# Nginx must run in foreground (daemon off) or the container would exit; nginx & daemonizes and the PID we wait for exits.
+echo "Web mode → starting bootstrap in background, then Nginx in foreground (daemon off)."
 (
+    set +e
     echo "[background] Waiting for database..."
     MAX_RETRIES=40
     COUNT=0
+    DB_READY=0
     until php artisan db:monitor >/dev/null 2>&1; do
         COUNT=$((COUNT + 1))
-        if [ $COUNT -ge $MAX_RETRIES ]; then echo "[background] Database connection failed!"; exit 1; fi
+        if [ $COUNT -ge $MAX_RETRIES ]; then
+            echo "[background] DB not ready after ${MAX_RETRIES} attempts — continuing anyway (migrations skipped). Set DB_* in Render if this persists."
+            DB_READY=0
+            break
+        fi
         sleep 2
     done
-    echo "[background] Database connected. Running migrations..."
-    set +e
-    php artisan migrate --force --no-interaction 2>&1
-    MIGRATION_EXIT=$?
-    set -e
-    if [ $MIGRATION_EXIT -ne 0 ]; then
-        sleep 2
-        php artisan migrate --force --no-interaction 2>&1 || true
+    if [ $COUNT -lt $MAX_RETRIES ]; then
+        DB_READY=1
+    fi
+    if [ "$DB_READY" = "1" ]; then
+        echo "[background] Database connected. Running migrations..."
+        set +e
+        php artisan migrate --force --no-interaction 2>&1
+        MIGRATION_EXIT=$?
+        set -e
+        if [ $MIGRATION_EXIT -ne 0 ]; then
+            sleep 2
+            php artisan migrate --force --no-interaction 2>&1 || true
+        fi
     fi
     php artisan config:clear || true
     php artisan cache:clear || true
     php artisan route:clear || true
     php artisan view:clear || true
-    if [ $MIGRATION_EXIT -eq 0 ]; then
+    if [ "$DB_READY" = "1" ] && [ "${MIGRATION_EXIT:-1}" = "0" ]; then
         php artisan db:seed --force --no-interaction || true
     fi
     if [ ! -L public/storage ] && [ ! -d public/storage ]; then
@@ -183,5 +197,6 @@ NGINX_PID=$!
     echo "[background] Bootstrap complete."
 ) &
 
-echo "✓ Nginx and PHP-FPM running; /health responds immediately. Bootstrap continuing in background."
-wait $NGINX_PID
+php-fpm -D
+echo "✓ Nginx starting in foreground; /health will respond immediately. Bootstrap running in background."
+exec nginx -g 'daemon off;'
