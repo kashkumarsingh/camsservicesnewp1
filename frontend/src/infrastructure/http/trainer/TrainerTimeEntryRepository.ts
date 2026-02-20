@@ -34,12 +34,12 @@ export class TrainerTimeEntryRepository {
       : API_ENDPOINTS.TRAINER_TIME_ENTRIES;
 
     const response = await apiClient.get<{
-      time_entries: TimeEntry[];
+      timeEntries: TimeEntry[];
       meta?: { pagination?: TimeEntriesResponse['pagination'] };
     }>(url);
 
     return {
-      time_entries: response.data.time_entries || [],
+      timeEntries: response.data.timeEntries ?? [],
       pagination: response.data.meta?.pagination,
     };
   }
@@ -57,22 +57,22 @@ export class TrainerTimeEntryRepository {
       longitude?: number;
     }
   ): Promise<TimeEntry> {
-    const response = await apiClient.post<{ time_entry: TimeEntry }>(
+    const response = await apiClient.post<{ timeEntry: TimeEntry }>(
       API_ENDPOINTS.TRAINER_SCHEDULE_CLOCK_IN(scheduleId),
       data ?? {}
     );
-    return response.data.time_entry;
+    return response.data.timeEntry;
   }
 
   /**
    * Clock out for a schedule.
    */
   async clockOut(scheduleId: number, data?: { recorded_at?: string; source?: string; notes?: string }): Promise<TimeEntry> {
-    const response = await apiClient.post<{ time_entry: TimeEntry }>(
+    const response = await apiClient.post<{ timeEntry: TimeEntry }>(
       API_ENDPOINTS.TRAINER_SCHEDULE_CLOCK_OUT(scheduleId),
       data ?? {}
     );
-    return response.data.time_entry;
+    return response.data.timeEntry;
   }
 }
 

@@ -15,16 +15,13 @@ export type PackageRepositoryType = 'static' | 'api';
  * Create package repository based on type
  */
 export function createPackageRepository(type?: PackageRepositoryType): IPackageRepository {
-  // Check environment variable for repository type
-  const repoType = type || (process.env.NEXT_PUBLIC_PACKAGE_REPOSITORY as PackageRepositoryType) || 'api';
+  const envRepo = process.env.NEXT_PUBLIC_PACKAGE_REPOSITORY as PackageRepositoryType | undefined;
+  const repoType = type ?? (envRepo === 'static' ? 'static' : 'api');
 
-  switch (repoType) {
-    case 'api':
-      return new ApiPackageRepository();
-    case 'static':
-    default:
-      return new StaticPackageRepository();
+  if (repoType === 'static') {
+    return new StaticPackageRepository();
   }
+  return new ApiPackageRepository();
 }
 
 /**

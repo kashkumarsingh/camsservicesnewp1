@@ -11,6 +11,8 @@ import type {
 import { Plus, X, CheckCircle, Clock, AlertCircle, Settings } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import ActivityOverrideModal from './ActivityOverrideModal';
+import { EmptyState } from '@/components/dashboard/universal/EmptyState';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface SessionActivityPlannerProps {
   scheduleId: number;
@@ -174,7 +176,7 @@ export default function SessionActivityPlanner({
     return (
       <div className="bg-white rounded-lg shadow p-6">
         <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0080FF] mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-blue mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading activities...</p>
         </div>
       </div>
@@ -288,10 +290,11 @@ export default function SessionActivityPlanner({
         </div>
 
         {activities.length === 0 ? (
-          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
-            <p className="text-gray-600 mb-2">No activities assigned yet</p>
-            <p className="text-sm text-gray-500">Click "Add Activity" to assign an activity to this session</p>
-          </div>
+          <EmptyState
+            title={EMPTY_STATE.NO_ACTIVITIES_ASSIGNED_YET.title}
+            message={EMPTY_STATE.NO_ACTIVITIES_ASSIGNED_YET.message}
+            className="py-8 border-2 border-dashed border-gray-300 rounded-lg"
+          />
         ) : (
           <div className="space-y-3">
             {activities.map((activity) => (
@@ -347,7 +350,7 @@ export default function SessionActivityPlanner({
                   onChange={(e) => setSelectedActivityId(parseInt(e.target.value) || '')}
                   required
                   disabled={assigning}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-[#0080FF] disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-primary-blue disabled:bg-gray-100 disabled:cursor-not-allowed"
                 >
                   <option value="">Choose an activity...</option>
                   {availableActivities.map((activity) => (
@@ -370,7 +373,7 @@ export default function SessionActivityPlanner({
                   maxLength={1000}
                   disabled={assigning}
                   placeholder="Add any notes about this activity for this session..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-[#0080FF] disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-primary-blue disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
               </div>
 

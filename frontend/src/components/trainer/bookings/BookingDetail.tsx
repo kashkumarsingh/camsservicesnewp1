@@ -64,17 +64,17 @@ export default function BookingDetail({ booking }: BookingDetailProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           <div className="flex items-center gap-3 text-gray-600">
-            <Package className="h-5 w-5 text-[#0080FF]" />
+            <Package className="h-5 w-5 text-primary-blue" />
             <span>Reference: {booking.reference}</span>
           </div>
           <div className="flex items-center gap-3 text-gray-600">
-            <Users className="h-5 w-5 text-[#0080FF]" />
+            <Users className="h-5 w-5 text-primary-blue" />
             <span>Parent: {booking.parent.name}</span>
           </div>
         </div>
         {(booking.parent?.address || booking.parent?.postcode) && (
           <div className="flex items-start gap-3 mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-            <MapPin className="h-5 w-5 text-[#0080FF] flex-shrink-0 mt-0.5" aria-hidden />
+            <MapPin className="h-5 w-5 text-primary-blue flex-shrink-0 mt-0.5" aria-hidden />
             <div>
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Pickup / session address</p>
               <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -151,7 +151,7 @@ function ScheduleItem({ schedule, bookingId, participants }: ScheduleItemProps) 
     <div className="border border-gray-200 rounded-lg p-4">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
-          <Calendar className="h-5 w-5 text-[#0080FF]" />
+          <Calendar className="h-5 w-5 text-primary-blue" />
           <div>
             <p className="font-semibold text-gray-900">
               {new Date(schedule.date).toLocaleDateString('en-GB', {

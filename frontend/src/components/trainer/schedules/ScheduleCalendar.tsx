@@ -5,6 +5,7 @@ import moment, { Moment } from 'moment';
 import type { TrainerSchedule } from '@/core/application/trainer/types';
 import BaseMonthCalendar from '@/components/ui/Calendar/BaseMonthCalendar';
 import { calendarUtils } from '@/components/ui/Calendar/useCalendarGrid';
+import { themeColors } from '@/utils/themeColors';
 
 interface ScheduleCalendarProps {
   schedules: TrainerSchedule[];
@@ -102,8 +103,8 @@ export default function ScheduleCalendar({
                         ${onScheduleClick ? 'cursor-pointer hover:opacity-80' : 'cursor-default'}
                       `}
                       style={{
-                        backgroundColor: '#0080FF20',
-                        borderLeft: '3px solid #0080FF',
+                        backgroundColor: themeColors.primaryBlueAlpha20,
+                        borderLeft: `3px solid ${themeColors.primaryBlue}`,
                         color: '#1f2937',
                       }}
                       title={`${schedule.start_time.substring(0, 5)} - ${schedule.end_time.substring(0, 5)} session`}

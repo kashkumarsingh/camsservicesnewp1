@@ -1,11 +1,12 @@
 'use client';
 
 import React from 'react';
-import { ChevronLeft, ChevronRight, ArrowUpDown, Search } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { EmptyState } from './EmptyState';
 import { ListRowsSkeleton, TableRowsSkeleton } from '@/components/ui/Skeleton';
 import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 /**
  * Generic data table with search, sort, pagination, empty state.
@@ -28,7 +29,14 @@ export interface DataTableProps<TData> {
   description?: string;
   columns: Column<TData>[];
   data: TData[];
+  /** @deprecated Use isLoading. Kept for backward compatibility. */
   loading?: boolean;
+  /** Preferred: loading state for the table. Takes precedence over loading. */
+  isLoading?: boolean;
+  /** Error message to show with a retry button; when set, table body is replaced by error UI. */
+  error?: string | null;
+  /** Called when user clicks retry after an error. */
+  onRetry?: () => void;
   emptyMessage?: string;
   emptyTitle?: string;
   pageSize?: number;
@@ -42,11 +50,18 @@ export interface DataTableProps<TData> {
   sortable?: boolean;
   sortKey?: string | null;
   sortDirection?: SortDirection;
-  onSortChange?: (columnId: string) => void;
+  /** Called with (key, direction). direction is null when column is unsorted. For paginated tables, parent should refetch with sort params. */
+  onSortChange?: (columnId: string | null, direction: 'asc' | 'desc' | null) => void;
   renderFilters?: () => React.ReactNode;
   renderRowActions?: (row: TData) => React.ReactNode;
   /** When true, render as stacked cards on viewports &lt; md, table on md+. */
   responsive?: boolean;
+  /** Server-side pagination: when set, data is the current page only, no slicing. Footer uses totalCount and onPageChange. */
+  totalCount?: number;
+  /** Current page (1-based). Required when totalCount is set. */
+  currentPage?: number;
+  /** Called when user clicks prev/next. Required when totalCount is set. */
+  onPageChange?: (page: number) => void;
 }
 
 function alignClass(align?: 'left' | 'centre' | 'right'): string {
@@ -65,9 +80,12 @@ export function DataTable<TData>({
   description,
   columns,
   data,
-  loading = false,
-  emptyMessage = 'No results found. Try adjusting your filters or add a new item.',
-  emptyTitle = 'No results found',
+  loading: loadingProp = false,
+  isLoading,
+  error,
+  onRetry,
+  emptyMessage = EMPTY_STATE.NO_RESULTS.message,
+  emptyTitle = EMPTY_STATE.NO_RESULTS.title,
   pageSize = 10,
   onRowClick,
   onAddClick,
@@ -83,18 +101,37 @@ export function DataTable<TData>({
   renderFilters,
   renderRowActions,
   responsive = false,
+  totalCount: totalCountProp,
+  currentPage: currentPageProp,
+  onPageChange,
 }: DataTableProps<TData>) {
-  const [page, setPage] = React.useState(1);
+  const loading = isLoading ?? loadingProp;
+  const [internalPage, setInternalPage] = React.useState(1);
+  const hasError = Boolean(error);
 
-  const total = data.length;
+  const isServerPagination = totalCountProp != null && currentPageProp != null && onPageChange;
+  const total = isServerPagination ? totalCountProp! : data.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const page = isServerPagination ? currentPageProp! : internalPage;
   const start = (page - 1) * pageSize;
-  const end = start + pageSize;
-  const pageItems = data.slice(start, end);
+  const end = isServerPagination ? start + data.length : start + pageSize;
+  const pageItems = isServerPagination ? data : data.slice(start, end);
 
   const handleSortClick = (columnId: string, sortableColumn?: boolean) => {
     if (!sortableColumn || !sortable || !onSortChange) return;
-    onSortChange(columnId);
+    const nextKey =
+      sortKey !== columnId
+        ? columnId
+        : sortDirection === 'asc'
+          ? columnId
+          : null;
+    const nextDir: 'asc' | 'desc' | null =
+      sortKey !== columnId
+        ? 'asc'
+        : sortDirection === 'asc'
+          ? 'desc'
+          : null;
+    onSortChange(nextKey, nextDir);
   };
 
   return (
@@ -127,31 +164,22 @@ export function DataTable<TData>({
         </header>
       )}
 
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          {searchable && (
-            <div className="flex min-w-0 flex-1 items-center rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-              <Search className="mr-1.5 h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500" />
-              <input
-                type="search"
-                value={searchQuery ?? ''}
-                onChange={(e) => onSearchQueryChange?.(e.target.value)}
-                placeholder={searchPlaceholder}
-                className="h-6 min-w-0 bg-transparent outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                aria-label="Search"
-              />
-            </div>
-          )}
-          {renderFilters && (
-            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-              {renderFilters()}
-            </div>
+      {/* Search and filters live in FilterBar above DataTable — not in table toolbar. */}
+
+      {/* Error state: inline message + retry (replaces table when error is set) */}
+      {hasError && (
+        <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200">
+          <p className="mb-2">{error}</p>
+          {onRetry && (
+            <Button type="button" size="sm" variant="bordered" onClick={onRetry}>
+              Retry
+            </Button>
           )}
         </div>
-      </div>
+      )}
 
       {/* Responsive: card stack on small screens */}
-      {responsive && (
+      {responsive && !hasError && (
         <div className="space-y-3 md:hidden">
           {loading ? (
             <div className="py-4" aria-busy="true" aria-label="Loading">
@@ -191,7 +219,7 @@ export function DataTable<TData>({
                   <dl className="grid grid-cols-1 gap-2">
                     {columns.map((col) => (
                       <div key={col.id} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between">
-                        <dt className="text-[11px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        <dt className="text-2xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                           {col.header}
                         </dt>
                         <dd className="min-w-0 text-slate-900 dark:text-slate-100">
@@ -216,47 +244,55 @@ export function DataTable<TData>({
       )}
 
       {/* Table: hidden on small when responsive, always visible otherwise */}
+      {!hasError && (
       <div className={responsive ? 'hidden md:block' : ''}>
         <div className="overflow-x-auto">
           <table className="min-w-full border-separate border-spacing-0 text-xs">
           <thead>
-            <tr className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            <tr className="text-2xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
               {columns.map((column) => {
+                const isSortable = Boolean(column.sortable && sortable);
                 const isSorted = sortKey === column.id && sortDirection;
                 return (
                   <th
                     key={column.id}
                     scope="col"
-                    className={`border-b border-slate-200 bg-slate-50 px-3 py-2 font-semibold dark:border-slate-700 dark:bg-slate-900/60 ${alignClass(column.align)}`}
+                    className={`border-b border-slate-200 bg-slate-50 px-3 py-2 font-semibold dark:border-slate-700 dark:bg-slate-900/60 ${alignClass(column.align)} ${isSortable ? 'select-none' : ''}`}
                     style={column.width ? { width: column.width } : undefined}
                   >
-                    <button
-                      type="button"
-                      className={`inline-flex items-center gap-1 ${
-                        column.sortable && sortable
-                          ? 'cursor-pointer hover:text-slate-900 dark:hover:text-slate-50'
-                          : 'cursor-default'
-                      }`}
-                      onClick={() =>
-                        handleSortClick(column.id, column.sortable)
-                      }
-                    >
+                    {isSortable ? (
+                      <button
+                        type="button"
+                        className="inline-flex cursor-pointer items-center gap-1 hover:text-slate-900 dark:hover:text-slate-50"
+                        onClick={() => handleSortClick(column.id, column.sortable)}
+                        aria-sort={
+                          isSorted
+                            ? sortDirection === 'asc'
+                              ? 'ascending'
+                              : 'descending'
+                            : undefined
+                        }
+                        title={isSorted ? `Sorted ${sortDirection === 'asc' ? 'A–Z' : 'Z–A'}. Click to change.` : 'Click to sort'}
+                      >
+                        <span>{column.header}</span>
+                        {isSorted ? (
+                          sortDirection === 'asc' ? (
+                            <ArrowUp className="h-3 w-3 text-slate-900 dark:text-slate-50" aria-hidden />
+                          ) : (
+                            <ArrowDown className="h-3 w-3 text-slate-900 dark:text-slate-50" aria-hidden />
+                          )
+                        ) : (
+                          <ArrowUpDown className="h-3 w-3 text-slate-400 dark:text-slate-500" aria-hidden />
+                        )}
+                      </button>
+                    ) : (
                       <span>{column.header}</span>
-                      {column.sortable && sortable && (
-                        <ArrowUpDown
-                          className={`h-3 w-3 ${
-                            isSorted
-                              ? 'text-slate-900 dark:text-slate-50'
-                              : 'text-slate-400 dark:text-slate-500'
-                          }`}
-                        />
-                      )}
-                    </button>
+                    )}
                   </th>
                 );
               })}
               {renderRowActions && (
-                <th className="border-b border-slate-200 bg-slate-50 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-400">
+                <th className="border-b border-slate-200 bg-slate-50 px-3 py-2 text-right text-2xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-400">
                   Actions
                 </th>
               )}
@@ -330,14 +366,15 @@ export function DataTable<TData>({
         </table>
         </div>
       </div>
+      )}
 
-      {!loading && total > 0 && (
-        <footer className="flex flex-col items-center justify-between gap-2 border-t border-slate-100 pt-3 text-[11px] text-slate-600 dark:border-slate-800 dark:text-slate-400 md:flex-row">
+      {!hasError && !loading && total > 0 && (
+        <footer className="flex flex-col items-center justify-between gap-2 border-t border-slate-100 pt-3 text-2xs text-slate-600 dark:border-slate-800 dark:text-slate-400 md:flex-row">
           <div>
             <span>
               Showing{' '}
               <span className="font-medium">
-                {start + 1}-{Math.min(end, total)}
+                {start + 1}-{start + pageItems.length}
               </span>{' '}
               of <span className="font-medium">{total}</span> items
             </span>
@@ -348,7 +385,11 @@ export function DataTable<TData>({
               size="xs"
               variant="bordered"
               disabled={page === 1}
-              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+              onClick={() => {
+                const next = Math.max(1, page - 1);
+                if (isServerPagination) onPageChange!(next);
+                else setInternalPage(next);
+              }}
               className="h-7 px-2"
               aria-label="Previous page"
             >
@@ -363,9 +404,11 @@ export function DataTable<TData>({
               size="xs"
               variant="bordered"
               disabled={page === totalPages}
-              onClick={() =>
-                setPage((prev) => Math.min(totalPages, prev + 1))
-              }
+              onClick={() => {
+                const next = Math.min(totalPages, page + 1);
+                if (isServerPagination) onPageChange!(next);
+                else setInternalPage(next);
+              }}
               className="h-7 px-2"
               aria-label="Next page"
             >

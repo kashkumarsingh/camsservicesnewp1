@@ -109,7 +109,7 @@ export default function SettingsPageClient() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <SettingsIcon className="h-8 w-8 text-[#0080FF]" />
+            <SettingsIcon className="h-8 w-8 text-primary-blue" />
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Settings</h1>
           </div>
           <p className="text-gray-600 dark:text-gray-300">Manage your trainer profile and qualifications</p>
@@ -135,7 +135,7 @@ export default function SettingsPageClient() {
                       flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors
                       ${
                         activeTab === tab.id
-                          ? 'border-[#0080FF] text-[#0080FF]'
+                          ? 'border-primary-blue text-primary-blue'
                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                       }
                     `}

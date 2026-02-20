@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
+use App\Http\Controllers\Api\ErrorCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\LiveRefreshController;
 use App\Models\ActivityLog;
@@ -22,6 +24,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class TrainerActivityLogController extends Controller
 {
+    use BaseApiController;
     /**
      * Get all activity logs for the authenticated trainer
      */
@@ -33,11 +36,8 @@ class TrainerActivityLogController extends Controller
         // Get trainer model linked to this user
         $trainerModel = \App\Models\Trainer::where('user_id', $trainer->id)->first();
         
-        if (!$trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         $query = ActivityLog::where('trainer_id', $trainer->id)
@@ -74,24 +74,20 @@ class TrainerActivityLogController extends Controller
 
         $logs = $query->paginate($request->get('per_page', 15));
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'activity_logs' => $logs->items(),
-            ],
-            'meta' => [
+        return $this->successResponse(
+            ['activity_logs' => $logs->items()],
+            null,
+            [
                 'pagination' => [
-                    'current_page' => $logs->currentPage(),
-                    'per_page' => $logs->perPage(),
+                    'currentPage' => $logs->currentPage(),
+                    'perPage' => $logs->perPage(),
                     'total' => $logs->total(),
-                    'last_page' => $logs->lastPage(),
+                    'lastPage' => $logs->lastPage(),
                     'from' => $logs->firstItem(),
                     'to' => $logs->lastItem(),
                 ],
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            ]
+        );
     }
 
     /**
@@ -104,22 +100,21 @@ class TrainerActivityLogController extends Controller
         $user = Auth::user();
 
         $trainerModel = \App\Models\Trainer::where('user_id', $user->id)->first();
-        if (!$trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         $schedule = \App\Models\BookingSchedule::where('id', $scheduleId)
             ->where('trainer_id', $trainerModel->id)
             ->first();
 
-        if (!$schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or not assigned to you.',
-            ], 404);
+        if (! $schedule) {
+            return $this->errorResponse(
+                'Schedule not found or not assigned to you.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
         $logs = ActivityLog::where('booking_schedule_id', $scheduleId)
@@ -133,16 +128,7 @@ class TrainerActivityLogController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'activity_logs' => $logs,
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse(['activity_logs' => $logs]);
     }
 
     /**
@@ -155,21 +141,15 @@ class TrainerActivityLogController extends Controller
 
         // Verify child exists and trainer has access (through bookings)
         $child = Child::find($childId);
-        if (!$child) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Child not found.',
-            ], 404);
+        if (! $child) {
+            return $this->notFoundResponse('Child');
         }
 
         // Get trainer model
         $trainerModel = \App\Models\Trainer::where('user_id', $trainer->id)->first();
-        
-        if (!$trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         // Verify trainer has access to this child (through bookings)
@@ -179,11 +159,8 @@ class TrainerActivityLogController extends Controller
             })
             ->exists();
 
-        if (!$hasAccess) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You do not have access to this child\'s activity logs.',
-            ], 403);
+        if (! $hasAccess) {
+            return $this->forbiddenResponse('You do not have access to this child\'s activity logs.');
         }
 
         $query = ActivityLog::where('trainer_id', $trainer->id)
@@ -197,9 +174,8 @@ class TrainerActivityLogController extends Controller
 
         $logs = $query->paginate($request->get('per_page', 15));
 
-        return response()->json([
-            'success' => true,
-            'data' => [
+        return $this->successResponse(
+            [
                 'child' => [
                     'id' => $child->id,
                     'name' => $child->name,
@@ -207,19 +183,18 @@ class TrainerActivityLogController extends Controller
                 ],
                 'activity_logs' => $logs->items(),
             ],
-            'meta' => [
+            null,
+            [
                 'pagination' => [
-                    'current_page' => $logs->currentPage(),
-                    'per_page' => $logs->perPage(),
+                    'currentPage' => $logs->currentPage(),
+                    'perPage' => $logs->perPage(),
                     'total' => $logs->total(),
-                    'last_page' => $logs->lastPage(),
+                    'lastPage' => $logs->lastPage(),
                     'from' => $logs->firstItem(),
                     'to' => $logs->lastItem(),
                 ],
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            ]
+        );
     }
 
     /**
@@ -240,23 +215,16 @@ class TrainerActivityLogController extends Controller
             ])
             ->first();
 
-        if (!$log) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Activity log not found or you do not have access.',
-            ], 404);
+        if (! $log) {
+            return $this->errorResponse(
+                'Activity log not found or you do not have access.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'activity_log' => $log,
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse(['activity_log' => $log]);
     }
 
     /**
@@ -293,30 +261,20 @@ class TrainerActivityLogController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         // Verify trainer has access to this child
         $child = Child::find($request->child_id);
-        if (!$child) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Child not found.',
-            ], 404);
+        if (! $child) {
+            return $this->notFoundResponse('Child');
         }
 
         // Get trainer model
         $trainerModel = \App\Models\Trainer::where('user_id', $trainer->id)->first();
-        
-        if (!$trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         // Verify access through bookings
@@ -326,11 +284,8 @@ class TrainerActivityLogController extends Controller
             })
             ->exists();
 
-        if (!$hasAccess) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You do not have access to create activity logs for this child.',
-            ], 403);
+        if (! $hasAccess) {
+            return $this->forbiddenResponse('You do not have access to create activity logs for this child.');
         }
 
         // Do not allow activity logs for sessions that have not started yet
@@ -341,10 +296,12 @@ class TrainerActivityLogController extends Controller
             if ($schedule && $schedule->date && $schedule->start_time) {
                 $sessionStart = \Carbon\Carbon::parse($schedule->date->format('Y-m-d') . ' ' . $schedule->start_time);
                 if ($sessionStart->isFuture()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'You cannot add activity logs until the session has started.',
-                    ], 422);
+                    return $this->errorResponse(
+                        'You cannot add activity logs until the session has started.',
+                        ErrorCodes::INVALID_STATE,
+                        [],
+                        422
+                    );
                 }
             }
         }
@@ -390,17 +347,12 @@ class TrainerActivityLogController extends Controller
             }
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Activity log created successfully',
-            'data' => [
-                'activity_log' => $log->load('child:id,name,age'),
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 201);
+        return $this->successResponse(
+            ['activity_log' => $log->load('child:id,name,age')],
+            'Activity log created successfully',
+            [],
+            201
+        );
     }
 
     /**
@@ -415,18 +367,19 @@ class TrainerActivityLogController extends Controller
             ->where('trainer_id', $trainer->id)
             ->first();
 
-        if (!$log) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Activity log not found or you do not have access.',
-            ], 404);
+        if (! $log) {
+            return $this->errorResponse(
+                'Activity log not found or you do not have access.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
-        if (!$log->canBeEdited()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'This activity log can no longer be edited. The 24-hour editing window has expired.',
-            ], 403);
+        if (! $log->canBeEdited()) {
+            return $this->forbiddenResponse(
+                'This activity log can no longer be edited. The 24-hour editing window has expired.'
+            );
         }
 
         $validator = Validator::make($request->all(), [
@@ -452,11 +405,7 @@ class TrainerActivityLogController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         $log->update($validator->validated());
@@ -478,17 +427,10 @@ class TrainerActivityLogController extends Controller
             }
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Activity log updated successfully',
-            'data' => [
-                'activity_log' => $log->fresh(['child:id,name,age']),
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse(
+            ['activity_log' => $log->fresh(['child:id,name,age'])],
+            'Activity log updated successfully'
+        );
     }
 
     /**
@@ -503,11 +445,13 @@ class TrainerActivityLogController extends Controller
             ->where('trainer_id', $trainer->id)
             ->first();
 
-        if (!$log) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Activity log not found or you do not have access.',
-            ], 404);
+        if (! $log) {
+            return $this->errorResponse(
+                'Activity log not found or you do not have access.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
         $validator = Validator::make($request->all(), [
@@ -515,11 +459,7 @@ class TrainerActivityLogController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         // Store photo
@@ -531,18 +471,13 @@ class TrainerActivityLogController extends Controller
         $photos[] = $url;
         $log->update(['photos' => $photos]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Photo uploaded successfully',
-            'data' => [
+        return $this->successResponse(
+            [
                 'photo_url' => $url,
                 'activity_log' => $log->fresh(),
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            'Photo uploaded successfully'
+        );
     }
 }
 

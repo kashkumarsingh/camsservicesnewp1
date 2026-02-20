@@ -1,12 +1,22 @@
 'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import SideCanvas from "@/components/ui/SideCanvas";
 import { useAdminUsers, type AdminUserRow } from "@/interfaces/web/hooks/dashboard/useAdminUsers";
 import type { CreateUserDTO, UpdateUserDTO } from "@/core/application/admin/dto/AdminUserDTO";
-import { Download, Filter } from "lucide-react";
+import {
+  FilterPanel,
+  FilterSection,
+  FilterSelect,
+  FilterTriggerButton,
+  SearchInput,
+} from "@/components/dashboard/universal";
+import { RowActions, EditAction, DeleteAction, ApproveAction, RejectAction } from "@/components/dashboard/universal/RowActions";
+import Button from "@/components/ui/Button";
+import { Download, Users } from "lucide-react";
 import { toastManager } from "@/utils/toast";
+import { EMPTY_STATE } from "@/utils/emptyStateConstants";
 
 type ParentFormData = CreateUserDTO | UpdateUserDTO;
 
@@ -29,7 +39,9 @@ export const AdminParentsPageClient: React.FC = () => {
   // Filters
   const [search, setSearch] = useState("");
   const [approvalStatusFilter, setApprovalStatusFilter] = useState<string>("");
-  const [showFilters, setShowFilters] = useState(false);
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const filterTriggerRef = useRef<HTMLButtonElement>(null);
+  const [stagedApprovalStatus, setStagedApprovalStatus] = useState<string>("");
 
   // Selection / form state
   const [selectedParent, setSelectedParent] = useState<AdminUserRow | null>(null);
@@ -69,6 +81,31 @@ export const AdminParentsPageClient: React.FC = () => {
       setApprovalStatusFilter(status);
     }
   }, [searchParams]);
+
+  const hasActiveFilters = approvalStatusFilter !== "";
+  const activeFilterCount = approvalStatusFilter ? 1 : 0;
+  const hasStagedFilters = stagedApprovalStatus !== "";
+  const stagedFilterCount = stagedApprovalStatus ? 1 : 0;
+
+  useEffect(() => {
+    if (filterPanelOpen) {
+      setStagedApprovalStatus(approvalStatusFilter);
+    }
+  }, [filterPanelOpen, approvalStatusFilter]);
+
+  const handleApplyFilters = useCallback(() => {
+    setApprovalStatusFilter(stagedApprovalStatus);
+    setFilterPanelOpen(false);
+  }, [stagedApprovalStatus]);
+
+  const handleResetAllStaged = useCallback(() => {
+    setStagedApprovalStatus("");
+  }, []);
+
+  const handleClearFilters = () => {
+    setApprovalStatusFilter("");
+    setSearch("");
+  };
 
   const handleExport = () => {
     const csvData = parentUsers.map((user) => ({
@@ -169,8 +206,8 @@ export const AdminParentsPageClient: React.FC = () => {
     }
   };
 
-  const handleApprove = async (id: string, event: React.MouseEvent) => {
-    event.stopPropagation();
+  const handleApprove = async (id: string, event?: React.MouseEvent) => {
+    event?.stopPropagation();
     try {
       await approveUser(id);
       toastManager.success("Parent approved.");
@@ -179,8 +216,8 @@ export const AdminParentsPageClient: React.FC = () => {
     }
   };
 
-  const handleReject = async (id: string, event: React.MouseEvent) => {
-    event.stopPropagation();
+  const handleReject = async (id: string, event?: React.MouseEvent) => {
+    event?.stopPropagation();
     const reason = prompt("Rejection reason (optional):");
     if (reason === null) return;
     try {
@@ -208,67 +245,58 @@ export const AdminParentsPageClient: React.FC = () => {
         </div>
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-1 items-center gap-2">
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search parents by name or email..."
-            className="h-9 w-full max-w-md rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search parents by name or email…"
+          className="min-w-[160px] max-w-[320px] w-full md:w-auto flex-1"
+        />
+        <div className="flex flex-shrink-0 items-center gap-2">
+          <FilterTriggerButton
+            ref={filterTriggerRef}
+            hasActiveFilters={hasActiveFilters}
+            activeFilterCount={activeFilterCount}
+            onClick={() => setFilterPanelOpen(true)}
           />
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setShowFilters(!showFilters)}
-            className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            <Filter size={14} />
-            Filters
-          </button>
-          <button
-            type="button"
-            onClick={handleExport}
-            disabled={users.length === 0}
-            className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            <Download size={14} />
-            Export
-          </button>
-          <button
-            type="button"
-            onClick={handleCreateClick}
-            className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700"
-          >
+          <Button type="button" size="sm" variant="bordered" onClick={handleExport} disabled={users.length === 0} icon={<Download className="h-3.5 w-3.5" />}>
+            Export CSV
+          </Button>
+          <Button type="button" size="sm" variant="primary" onClick={handleCreateClick}>
             New parent
-          </button>
+          </Button>
         </div>
       </div>
 
-      {showFilters && (
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/50">
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              value={approvalStatusFilter}
-              onChange={(e) => setApprovalStatusFilter(e.target.value)}
-              className="h-8 rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-            >
-              <option value="">All approval statuses</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-            </select>
-            <button
-              type="button"
-              onClick={() => setApprovalStatusFilter("")}
-              className="text-xs text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
-            >
-              Clear filters
-            </button>
-          </div>
-        </div>
-      )}
+      <FilterPanel
+        isOpen={filterPanelOpen}
+        onClose={() => setFilterPanelOpen(false)}
+        onApply={handleApplyFilters}
+        onResetAll={handleResetAllStaged}
+        hasActiveFilters={hasStagedFilters}
+        activeFilterCount={stagedFilterCount}
+        title="Filter"
+        triggerRef={filterTriggerRef}
+      >
+        <FilterSection
+          title="Approval Status"
+          onReset={() => setStagedApprovalStatus("")}
+          isActive={stagedApprovalStatus !== ""}
+        >
+          <FilterSelect
+            label=""
+            value={stagedApprovalStatus}
+            onChange={setStagedApprovalStatus}
+            options={[
+              { label: "All approval statuses", value: "" },
+              { label: "Pending", value: "pending" },
+              { label: "Approved", value: "approved" },
+              { label: "Rejected", value: "rejected" },
+            ]}
+            size="panel"
+          />
+        </FilterSection>
+      </FilterPanel>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="max-h-[420px] overflow-x-auto overflow-y-auto text-sm">
@@ -308,7 +336,7 @@ export const AdminParentsPageClient: React.FC = () => {
                     colSpan={5}
                     className="px-3 py-4 text-center text-xs text-slate-500 dark:text-slate-400"
                   >
-                    No parents found.
+                    {EMPTY_STATE.NO_PARENTS_FOUND.title}
                   </td>
                 </tr>
               ) : (
@@ -329,7 +357,7 @@ export const AdminParentsPageClient: React.FC = () => {
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-xs">
                       <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${getApprovalBadgeClasses(
+                        className={`inline-flex rounded-full px-2 py-0.5 text-2xs font-medium ${getApprovalBadgeClasses(
                           parent.approvalStatus,
                         )}`}
                       >
@@ -337,54 +365,34 @@ export const AdminParentsPageClient: React.FC = () => {
                       </span>
                     </td>
                     <td
-                      className="whitespace-nowrap px-3 py-2 text-right text-xs space-x-1"
+                      className="whitespace-nowrap px-3 py-2 text-right text-xs"
                       onClick={(event) => event.stopPropagation()}
                     >
-                      {parent.approvalStatus === "pending" && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={(e) => handleApprove(parent.id, e)}
-                            className="inline-flex items-center rounded-md border border-emerald-300 px-2 py-1 text-[11px] font-medium text-emerald-600 shadow-sm hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => handleReject(parent.id, e)}
-                            className="inline-flex items-center rounded-md border border-rose-300 px-2 py-1 text-[11px] font-medium text-rose-600 shadow-sm hover:bg-rose-50 dark:border-rose-700 dark:text-rose-400 dark:hover:bg-rose-950/40"
-                          >
-                            Reject
-                          </button>
-                        </>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => handleEditClick(parent)}
-                        className="inline-flex items-center rounded-md border border-slate-300 px-2 py-1 text-[11px] font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          router.push(
-                            `/dashboard/admin/children?parentId=${encodeURIComponent(
-                              parent.id,
-                            )}`,
-                          )
-                        }
-                        className="inline-flex items-center rounded-md border border-slate-300 px-2 py-1 text-[11px] font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                      >
-                        View children
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(parent.id)}
-                        className="inline-flex items-center rounded-md border border-rose-300 px-2 py-1 text-[11px] font-medium text-rose-600 shadow-sm hover:bg-rose-50 dark:border-rose-700 dark:text-rose-400 dark:hover:bg-rose-950/40"
-                      >
-                        Delete
-                      </button>
+                      <RowActions>
+                        {parent.approvalStatus === "pending" && (
+                          <>
+                            <ApproveAction onClick={() => handleApprove(parent.id)} aria-label="Approve" />
+                            <RejectAction onClick={() => handleReject(parent.id)} aria-label="Reject" />
+                          </>
+                        )}
+                        <EditAction onClick={() => handleEditClick(parent)} aria-label="Edit" />
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() =>
+                            router.push(
+                              `/dashboard/admin/children?parentId=${encodeURIComponent(parent.id)}`,
+                            )
+                          }
+                          aria-label="View children"
+                          title="View children"
+                          className="min-w-0 p-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                        >
+                          <Users className="h-3 w-3" aria-hidden />
+                        </Button>
+                        <DeleteAction onClick={() => handleDelete(parent.id)} aria-label="Delete" />
+                      </RowActions>
                     </td>
                   </tr>
                 ))

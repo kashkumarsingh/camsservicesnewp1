@@ -12,8 +12,10 @@ import { useActivities } from '@/interfaces/web/hooks/activities/useActivities';
 import { MIN_DURATION_HOURS } from '@/utils/bookingConstants';
 import { ListRowsSkeleton } from '@/components/ui/Skeleton';
 import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 import { parseCustomActivityFromNotes, parseAllCustomActivitiesFromNotes, removeCustomActivityFromNotes } from '@/utils/activitySelectionUtils';
 import { toastManager } from '@/utils/toast';
+import { ROUTES } from '@/utils/routes';
 import type { FC } from 'react';
 
 const CustomActivityInlineEditor: FC<{
@@ -63,11 +65,11 @@ const CustomActivityInlineEditor: FC<{
       </div>
       <div className="flex justify-between items-center">
         {hasRemainingCapacity ? (
-          <p className="text-[11px] text-gray-600">
+          <p className="text-2xs text-gray-600">
             You can still add more custom activities within the remaining session time.
           </p>
         ) : (
-          <p className="text-[11px] text-amber-600">
+          <p className="text-2xs text-amber-600">
             No remaining time available for additional custom activities in this session.
           </p>
         )}
@@ -98,7 +100,10 @@ interface ChildDTO {
 interface ParentBookingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (bookingData: ParentBookingFormData) => Promise<void>;
+  /** Form submit handler. Required — modal cannot function without it. */
+  onSubmit: (bookingData: ParentBookingFormData) => Promise<void>;
+  /** @deprecated Use onSubmit. Kept for backward compatibility. */
+  onSave?: (bookingData: ParentBookingFormData) => Promise<void>;
   preSelectedDate?: string; // YYYY-MM-DD format
   preSelectedTime?: string; // HH:mm format - from day view time slot
   preSelectedChildId?: number;
@@ -111,13 +116,14 @@ interface ParentBookingModalProps {
     childId: number;
     activities?: string[]; // Activity names from the existing session
     notes?: string;
+    location?: string;
   };
   clickPosition?: { x: number; y: number }; // Optional: Position where user clicked (for smart positioning)
   /** When provided, shows "Buy hours" when child has no package so parent can open Buy Hours modal */
   onBuyMoreHours?: (childId: number) => void;
   /** When provided, shows "Top up" when child has a package but 0h left so parent can open Top-up flow */
   onTopUp?: (childId: number) => void;
-  /** When provided and there are no approved children, "Add child" opens this (e.g. dashboard Add Child modal) instead of navigating to /children/add */
+  /** When provided and there are no approved children, "Add child" opens this (e.g. dashboard Add Child modal). When not provided, we link to dashboard to add a child there. */
   onAddChild?: () => void;
   /** When true, render as a right-side slide-over panel instead of a modal (dashboard sidebar pattern) */
   renderAsPanel?: boolean;
@@ -133,6 +139,7 @@ export interface ParentBookingFormData {
   customActivities?: { name: string; duration: number }[]; // New: multiple custom activities with durations
   duration?: number; // Duration in hours (for trainer_choice and custom - allows 3-24 hours)
   notes?: string;
+  location?: string;
 }
 
 /**
@@ -157,7 +164,8 @@ export interface ParentBookingFormData {
 export default function ParentBookingModal({
   isOpen,
   onClose,
-  onSave,
+  onSubmit: onSubmitProp,
+  onSave: onSaveLegacy,
   preSelectedDate,
   preSelectedTime,
   preSelectedChildId,
@@ -169,6 +177,8 @@ export default function ParentBookingModal({
   onAddChild,
   renderAsPanel = false,
 }: ParentBookingModalProps) {
+  /** Submit handler: required onSubmit takes precedence; fallback to deprecated onSave for backward compat. */
+  const handleSubmitCallback = onSubmitProp ?? onSaveLegacy;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [activitySearch, setActivitySearch] = useState('');
@@ -717,7 +727,7 @@ export default function ParentBookingModal({
 
     setIsSubmitting(true);
     
-    // Debug: Log formData being sent to onSave
+    // Debug: Log formData being sent to submit handler
     console.log('[ParentBookingModal] formData:', {
       date: formData.date,
       startTime: formData.startTime,
@@ -729,7 +739,8 @@ export default function ParentBookingModal({
     });
     
     try {
-      await onSave(formData);
+      if (!handleSubmitCallback) return;
+      await handleSubmitCallback(formData);
       onClose();
       // Reset form
       const resetDate = moment().add(1, 'day').format('YYYY-MM-DD');
@@ -890,8 +901,8 @@ export default function ParentBookingModal({
                     Add child
                   </button>
                 ) : (
-                  <Link href="/children/add" className="text-blue-600 hover:underline font-medium">
-                    Add child
+                  <Link href={ROUTES.DASHBOARD_PARENT} className="text-blue-600 hover:underline font-medium">
+                    Go to dashboard to add a child
                   </Link>
                 )}{' '}
                 to create a child profile before booking a session.
@@ -1216,7 +1227,7 @@ export default function ParentBookingModal({
                         <div className="border border-gray-300 rounded-lg h-48 overflow-y-auto p-2 space-y-1">
                           {filteredActivities.length === 0 && (
                             <p className="text-sm text-gray-500 text-center py-4">
-                              No activities found
+                              {EMPTY_STATE.NO_ACTIVITIES_FOUND_DROPDOWN.title}
                             </p>
                           )}
                           {filteredActivities.map(activity => {
@@ -1291,7 +1302,7 @@ export default function ParentBookingModal({
                       <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                         <p className="text-xs text-amber-700 font-medium">
                           <AlertTriangle className="inline w-4 h-4 mr-1" />
-                          No activities found in database
+                          {EMPTY_STATE.NO_ACTIVITIES_FOUND_IN_DATABASE.title}
                         </p>
                         <p className="text-xs text-amber-600 mt-1">
                           Please contact support if this issue persists.
@@ -1400,11 +1411,11 @@ export default function ParentBookingModal({
                       </button>
                     </div>
                     {sessionDuration > maxAvailableDuration ? (
-                      <p className="text-[11px] text-red-700">
+                      <p className="text-2xs text-red-700">
                         Adding more package hours won&apos;t extend the session past 11:59 PM. Remove activities or pick an earlier start time.
                       </p>
                     ) : maxAvailableDuration > sessionDuration && (
-                      <p className="text-[11px] text-gray-600">
+                      <p className="text-2xs text-gray-600">
                         Available: {formatDurationDisplay(maxAvailableDuration - sessionDuration)} remaining for this session
                       </p>
                     )}

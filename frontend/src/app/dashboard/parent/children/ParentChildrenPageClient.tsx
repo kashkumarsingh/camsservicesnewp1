@@ -8,6 +8,7 @@ import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 import { useMyBookings } from '@/interfaces/web/hooks/booking/useMyBookings';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
 import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 import { UserPlus, CheckCircle, Clock, XCircle, Trash2, Calendar, Package, TrendingUp, ClipboardCheck, PlusCircle } from 'lucide-react';
 import AddChildModal from '@/components/dashboard/modals/AddChildModal';
 import CompleteChecklistModal, { type ChecklistFormData } from '@/components/dashboard/modals/CompleteChecklistModal';
@@ -390,8 +391,8 @@ export default function ParentChildrenPageClient() {
 
       {children.length === 0 ? (
         <EmptyState
-          title="No children linked yet"
-          message="Add your first child to get started with booking packages and services."
+          title={EMPTY_STATE.NO_CHILDREN_LINKED_YET.title}
+          message={EMPTY_STATE.NO_CHILDREN_LINKED_YET.message}
           action={
             <Button
               size="sm"

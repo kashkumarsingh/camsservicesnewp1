@@ -9,6 +9,7 @@ import TrainerCard from './TrainerCard';
 import { TrainerFilterOptions } from '@/core/application/trainers';
 import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
 import { TrainerSkeleton } from '@/components/ui/Skeleton';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface TrainerListProps {
   filterOptions?: TrainerFilterOptions;
@@ -36,7 +37,7 @@ export default function TrainerList({ filterOptions }: TrainerListProps) {
   if (trainers.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">No trainers found.</p>
+        <p className="text-gray-600">{EMPTY_STATE.NO_TRAINERS_FOUND.title}</p>
       </div>
     );
   }

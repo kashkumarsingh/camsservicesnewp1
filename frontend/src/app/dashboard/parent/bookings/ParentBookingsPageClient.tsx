@@ -12,10 +12,14 @@ import {
   type Column,
   type SortDirection,
 } from '@/components/dashboard/universal';
+import { RowActions, ViewAction } from '@/components/dashboard/universal/RowActions';
 import Button from '@/components/ui/Button';
 import BookedSessionsModal from '@/components/dashboard/modals/BookedSessionsModal';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
 import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
+import { getStatusBadgeClasses } from '@/utils/statusBadgeHelpers';
+import { BOOKING_STATUS } from '@/utils/dashboardConstants';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 /** Next upcoming session for a booking (by date then start time). */
 function getNextSession(schedules: BookingScheduleDTO[] | undefined): string {
@@ -24,7 +28,7 @@ function getNextSession(schedules: BookingScheduleDTO[] | undefined): string {
   const upcoming = schedules
     .filter((s) => {
       const d = s.date && s.startTime ? new Date(`${s.date}T${s.startTime}`) : null;
-      return d && d >= now && s.status !== 'cancelled';
+      return d && d >= now && s.status !== BOOKING_STATUS.CANCELLED;
     })
     .sort((a, b) => {
       const da = a.date && a.startTime ? `${a.date}T${a.startTime}` : '';
@@ -43,17 +47,9 @@ function getChildName(booking: BookingDTO): string {
   return [first.firstName, first.lastName].filter(Boolean).join(' ') || '—';
 }
 
-function statusBadgeClass(status: string): string {
-  const lower = status?.toLowerCase() ?? '';
-  if (lower === 'confirmed') return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300';
-  if (lower === 'draft') return 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300';
-  if (lower === 'cancelled') return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
-  return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
-}
-
 export default function ParentBookingsPageClient() {
   const router = useRouter();
-  const { bookings, loading, refetch } = useMyBookings();
+  const { bookings, loading, error, refetch } = useMyBookings();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortKey, setSortKey] = useState<string | null>('createdAt');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -75,30 +71,30 @@ export default function ParentBookingsPageClient() {
           getChildName(b).toLowerCase().includes(q)
       );
     }
-    if (sortKey) {
-      list.sort((a, b) => {
-        let aVal: string | number = '';
-        let bVal: string | number = '';
-        if (sortKey === 'reference') {
-          aVal = a.reference ?? '';
-          bVal = b.reference ?? '';
-        } else if (sortKey === 'child') {
-          aVal = getChildName(a);
-          bVal = getChildName(b);
-        } else if (sortKey === 'package') {
-          aVal = a.package?.name ?? '';
-          bVal = b.package?.name ?? '';
-        } else if (sortKey === 'status') {
-          aVal = a.status ?? '';
-          bVal = b.status ?? '';
-        } else {
-          aVal = a.createdAt ?? '';
-          bVal = b.createdAt ?? '';
-        }
-        const cmp = String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
-        return sortDirection === 'asc' ? cmp : -cmp;
-      });
-    }
+    const key = sortKey ?? 'createdAt';
+    const dir = sortDirection ?? 'desc';
+    list.sort((a, b) => {
+      let aVal: string | number = '';
+      let bVal: string | number = '';
+      if (key === 'reference') {
+        aVal = a.reference ?? '';
+        bVal = b.reference ?? '';
+      } else if (key === 'child') {
+        aVal = getChildName(a);
+        bVal = getChildName(b);
+      } else if (key === 'package') {
+        aVal = a.package?.name ?? '';
+        bVal = b.package?.name ?? '';
+      } else if (key === 'status') {
+        aVal = a.status ?? '';
+        bVal = b.status ?? '';
+      } else {
+        aVal = a.createdAt ?? '';
+        bVal = b.createdAt ?? '';
+      }
+      const cmp = String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
+      return dir === 'asc' ? cmp : -cmp;
+    });
     return list;
   }, [bookings, searchQuery, sortKey, sortDirection]);
 
@@ -133,8 +129,8 @@ export default function ParentBookingsPageClient() {
         accessor: (row) => (
           <span
             className={
-              'inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ' +
-              statusBadgeClass(row.status ?? '')
+              'inline-flex rounded-full px-2 py-0.5 ' +
+              getStatusBadgeClasses(row.status ?? '')
             }
           >
             {row.status ?? '—'}
@@ -151,13 +147,9 @@ export default function ParentBookingsPageClient() {
     []
   );
 
-  const handleSortChange = (columnId: string) => {
-    if (sortKey === columnId) {
-      setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortKey(columnId);
-      setSortDirection('asc');
-    }
+  const handleSortChange = (key: string | null, dir: 'asc' | 'desc' | null) => {
+    setSortKey(key);
+    setSortDirection(dir ?? 'desc');
   };
 
   const handleOpenSessionsModal = (booking: BookingDTO) => {
@@ -188,8 +180,10 @@ export default function ParentBookingsPageClient() {
         columns={columns}
         data={filtered}
         loading={loading}
-        emptyTitle="No bookings yet"
-        emptyMessage="When you purchase a package or create a booking, it will appear here. You can then schedule sessions from the dashboard."
+        error={error}
+        onRetry={() => refetch()}
+        emptyTitle={EMPTY_STATE.NO_BOOKINGS_YET.title}
+        emptyMessage={EMPTY_STATE.NO_BOOKINGS_YET.message}
         searchable
         searchPlaceholder="Search by reference, child or package…"
         searchQuery={searchQuery}
@@ -202,18 +196,13 @@ export default function ParentBookingsPageClient() {
         addLabel="New booking"
         responsive
         renderRowActions={(row) => (
-          <div className="inline-flex items-center gap-1">
-            <button
-              type="button"
-              className="inline-flex rounded-md border border-slate-200 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleOpenSessionsModal(row);
-              }}
-            >
-              View
-            </button>
-          </div>
+          <RowActions>
+            <ViewAction
+              onClick={() => handleOpenSessionsModal(row)}
+              aria-label="View sessions"
+              title="View sessions"
+            />
+          </RowActions>
         )}
         onRowClick={(row) => handleOpenSessionsModal(row)}
       />

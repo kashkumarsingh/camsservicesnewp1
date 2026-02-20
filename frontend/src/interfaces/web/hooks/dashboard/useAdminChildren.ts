@@ -5,6 +5,7 @@ import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 import { getApiErrorMessage } from '@/utils/errorUtils';
+import { isAdminRole } from '@/utils/dashboardConstants';
 import {
   type AdminChildDTO,
   type CreateChildDTO,
@@ -51,7 +52,7 @@ export function useAdminChildren(options: UseAdminChildrenOptions = {}) {
       }
 
       // Only admins and super_admins should use this hook
-      if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
+      if (!user || !isAdminRole(user.role)) {
         setLoading(false);
         setChildren([]);
         setError(null);

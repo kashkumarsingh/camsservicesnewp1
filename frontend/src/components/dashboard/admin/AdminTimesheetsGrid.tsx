@@ -22,6 +22,7 @@ import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { adminTrainerAbsenceRequestRepository } from '@/infrastructure/http/admin/AdminTrainerAbsenceRequestRepository';
 import type { AdminAbsenceRequestItem } from '@/infrastructure/http/admin/AdminTrainerAbsenceRequestRepository';
 import { SideCanvas } from '@/components/ui/SideCanvas';
+import { TIMESHEET_CELL_STATUS } from '@/utils/dashboardConstants';
 
 /** Period: 1 day, 1 week, or 1 month. */
 type TimesheetsPeriod = '1_day' | '1_week' | '1_month';
@@ -169,8 +170,7 @@ export function AdminTimesheetsGrid() {
         const res = await apiClient.get<{
           trainers: { id: string; name: string; slots: { date: string; startTime: string; endTime: string; isAvailable: boolean }[] }[];
         }>(`${API_ENDPOINTS.ADMIN_TRAINERS_AVAILABILITY}?date_from=${dateFrom}&date_to=${dateTo}`, { timeout: 15000 });
-        const data = res?.data;
-        const trainersList = (data as { trainers?: typeof trainerAvailability.trainers })?.trainers;
+        const trainersList = res?.data?.trainers;
         if (!cancelled && Array.isArray(trainersList)) {
           setTrainerAvailability({ trainers: trainersList });
         }
@@ -188,8 +188,7 @@ export function AdminTimesheetsGrid() {
         const res = await apiClient.get<{
           trainers: { id: string; name: string; approved_dates: string[]; pending_dates: string[] }[];
         }>(`${API_ENDPOINTS.ADMIN_TRAINERS_ABSENCE_DATES}?date_from=${dateFrom}&date_to=${dateTo}`, { timeout: 10000 });
-        const data = res?.data;
-        const trainersList = (data as { trainers?: typeof trainerAbsence.trainers })?.trainers;
+        const trainersList = res?.data?.trainers;
         if (!cancelled && Array.isArray(trainersList)) {
           setTrainerAbsence({ trainers: trainersList });
         }
@@ -457,16 +456,16 @@ export function AdminTimesheetsGrid() {
                   </th>
                   {displayDates.map((dateStr) => {
                     const status = getDayStatus(row.id, dateStr);
-                    const request = status === 'pending_absence' ? getRequestForCell(row.id, dateStr) : null;
+                    const request = status === TIMESHEET_CELL_STATUS.PENDING_ABSENCE ? getRequestForCell(row.id, dateStr) : null;
                     const isClickable = request !== null;
                     const cellBg =
-                      status === 'approved_absence'
+                      status === TIMESHEET_CELL_STATUS.APPROVED_ABSENCE
                         ? 'bg-rose-100/80 dark:bg-rose-950/40'
-                        : status === 'pending_absence'
+                        : status === TIMESHEET_CELL_STATUS.PENDING_ABSENCE
                           ? 'bg-amber-50/80 dark:bg-amber-950/30'
-                          : status === 'available'
+                          : status === TIMESHEET_CELL_STATUS.AVAILABLE
                             ? 'bg-emerald-50/70 dark:bg-emerald-950/20'
-                            : status === 'unavailable'
+                            : status === TIMESHEET_CELL_STATUS.UNAVAILABLE
                               ? 'bg-rose-50/70 dark:bg-rose-950/20'
                               : 'bg-slate-50/50 dark:bg-slate-800/30';
                     return (
@@ -485,39 +484,39 @@ export function AdminTimesheetsGrid() {
                           }
                         }}
                         title={
-                          status === 'approved_absence'
+                          status === TIMESHEET_CELL_STATUS.APPROVED_ABSENCE
                             ? 'Absence / holiday'
-                            : status === 'pending_absence'
+                            : status === TIMESHEET_CELL_STATUS.PENDING_ABSENCE
                               ? 'Pending absence – click to approve or reject'
-                              : status === 'available'
+                              : status === TIMESHEET_CELL_STATUS.AVAILABLE
                                 ? 'Available'
-                                : status === 'unavailable'
+                                : status === TIMESHEET_CELL_STATUS.UNAVAILABLE
                                   ? 'Unavailable'
                                   : 'Not set'
                         }
                         aria-label={`${row.name}, ${dateStr}: ${status.replace('_', ' ')}${isClickable ? ', click to open' : ''}`}
                       >
-                        {status === 'approved_absence' && (
+                        {status === TIMESHEET_CELL_STATUS.APPROVED_ABSENCE && (
                           <span className="block text-center text-[10px] font-medium text-rose-700 dark:text-rose-300">
                             Absence
                           </span>
                         )}
-                        {status === 'pending_absence' && (
+                        {status === TIMESHEET_CELL_STATUS.PENDING_ABSENCE && (
                           <span className="block text-center text-[10px] font-medium text-amber-700 dark:text-amber-300">
                             Pending
                           </span>
                         )}
-                        {status === 'available' && (
+                        {status === TIMESHEET_CELL_STATUS.AVAILABLE && (
                           <span className="block text-center text-[10px] font-medium text-emerald-700 dark:text-emerald-400">
                             Available
                           </span>
                         )}
-                        {status === 'unavailable' && (
+                        {status === TIMESHEET_CELL_STATUS.UNAVAILABLE && (
                           <span className="block text-center text-[10px] font-medium text-rose-700 dark:text-rose-400">
                             Unavailable
                           </span>
                         )}
-                        {status === 'none' && (
+                        {status === TIMESHEET_CELL_STATUS.NONE && (
                           <span className="block text-center text-[10px] italic text-slate-400 dark:text-slate-500">
                             –
                           </span>

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Actions\Child\RemoveChildAction;
+use App\Http\Controllers\Api\Concerns\BaseApiController;
+use App\Http\Controllers\Api\ErrorCodes;
 use App\Http\Controllers\Controller;
 use App\Models\Child;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +20,7 @@ use Illuminate\Support\Facades\Validator;
  */
 class ChildController extends Controller
 {
+    use BaseApiController;
     /**
      * Get all children for authenticated user
      * 
@@ -33,38 +36,34 @@ class ChildController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'children' => $children->map(function ($child) use ($user) {
-                    return [
-                        'id' => $child->id,
-                        'name' => $child->name,
-                        'age' => $child->age,
-                        'date_of_birth' => $child->date_of_birth?->format('Y-m-d'),
-                        'gender' => $child->gender,
-                        'address' => $child->address,
-                        'postcode' => $child->postcode,
-                        'city' => $child->city,
-                        'region' => $child->region,
-                        'approval_status' => $child->approval_status,
-                        'approved_at' => $child->approved_at?->toIso8601String(),
-                        'rejected_at' => $child->rejected_at?->toIso8601String(),
-                        'rejection_reason' => $child->rejection_reason,
-                        'has_checklist' => $child->checklist !== null,
-                        'checklist_completed' => $child->checklist?->checklist_completed ?? false,
-                        'created_at' => $child->created_at->toIso8601String(),
-                        'can_archive' => $user->can('archive', $child),
-                        'can_delete' => $user->can('delete', $child),
-                    ];
-                }),
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-                'count' => $children->count(),
-            ],
-        ], 200);
+        $childrenData = $children->map(function ($child) use ($user) {
+            return [
+                'id' => $child->id,
+                'name' => $child->name,
+                'age' => $child->age,
+                'date_of_birth' => $child->date_of_birth?->format('Y-m-d'),
+                'gender' => $child->gender,
+                'address' => $child->address,
+                'postcode' => $child->postcode,
+                'city' => $child->city,
+                'region' => $child->region,
+                'approval_status' => $child->approval_status,
+                'approved_at' => $child->approved_at?->toIso8601String(),
+                'rejected_at' => $child->rejected_at?->toIso8601String(),
+                'rejection_reason' => $child->rejection_reason,
+                'has_checklist' => $child->checklist !== null,
+                'checklist_completed' => $child->checklist?->checklist_completed ?? false,
+                'created_at' => $child->created_at->toIso8601String(),
+                'can_archive' => $user->can('archive', $child),
+                'can_delete' => $user->can('delete', $child),
+            ];
+        })->values()->all();
+
+        return $this->successResponse(
+            ['children' => $childrenData],
+            null,
+            ['count' => $children->count()]
+        );
     }
 
     /**
@@ -80,44 +79,34 @@ class ChildController extends Controller
         
         $child = $user->children()->with('checklist')->find($id);
 
-        if (!$child) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Child not found',
-            ], 404);
+        if (! $child) {
+            return $this->notFoundResponse('Child');
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'child' => [
-                    'id' => $child->id,
-                    'name' => $child->name,
-                    'age' => $child->age,
-                    'date_of_birth' => $child->date_of_birth?->format('Y-m-d'),
-                    'gender' => $child->gender,
-                    'address' => $child->address,
-                    'postcode' => $child->postcode,
-                    'city' => $child->city,
-                    'region' => $child->region,
-                    'latitude' => $child->latitude,
-                    'longitude' => $child->longitude,
-                    'approval_status' => $child->approval_status,
-                    'approved_at' => $child->approved_at?->toIso8601String(),
-                    'rejected_at' => $child->rejected_at?->toIso8601String(),
-                    'rejection_reason' => $child->rejection_reason,
-                    'has_checklist' => $child->checklist !== null,
-                    'checklist_completed' => $child->checklist?->checklist_completed ?? false,
-                    'created_at' => $child->created_at->toIso8601String(),
-                    'can_archive' => $user->can('archive', $child),
-                    'can_delete' => $user->can('delete', $child),
-                ],
+        return $this->successResponse([
+            'child' => [
+                'id' => $child->id,
+                'name' => $child->name,
+                'age' => $child->age,
+                'date_of_birth' => $child->date_of_birth?->format('Y-m-d'),
+                'gender' => $child->gender,
+                'address' => $child->address,
+                'postcode' => $child->postcode,
+                'city' => $child->city,
+                'region' => $child->region,
+                'latitude' => $child->latitude,
+                'longitude' => $child->longitude,
+                'approval_status' => $child->approval_status,
+                'approved_at' => $child->approved_at?->toIso8601String(),
+                'rejected_at' => $child->rejected_at?->toIso8601String(),
+                'rejection_reason' => $child->rejection_reason,
+                'has_checklist' => $child->checklist !== null,
+                'checklist_completed' => $child->checklist?->checklist_completed ?? false,
+                'created_at' => $child->created_at->toIso8601String(),
+                'can_archive' => $user->can('archive', $child),
+                'can_delete' => $user->can('delete', $child),
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        ]);
     }
 
     /**
@@ -144,18 +133,14 @@ class ChildController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         $user = $request->user();
 
         // Calculate age from DOB if not provided
         $age = $request->age;
-        if (!$age && $request->date_of_birth) {
+        if (! $age && $request->date_of_birth) {
             $dob = new \DateTime($request->date_of_birth);
             $today = new \DateTime();
             $age = $today->diff($dob)->y;
@@ -179,10 +164,8 @@ class ChildController extends Controller
         // Do not notify admins here: "Child approval required" / "checklist has been submitted"
         // is sent only when the parent submits the checklist (ChildChecklistController).
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Child added successfully. Pending admin approval.',
-            'data' => [
+        return $this->successResponse(
+            [
                 'child' => [
                     'id' => $child->id,
                     'name' => $child->name,
@@ -191,11 +174,10 @@ class ChildController extends Controller
                     'created_at' => $child->created_at->toIso8601String(),
                 ],
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 201);
+            'Child added successfully. Pending admin approval.',
+            [],
+            201
+        );
     }
 
     /**
@@ -211,11 +193,8 @@ class ChildController extends Controller
         
         $child = $user->children()->find($id);
 
-        if (!$child) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Child not found',
-            ], 404);
+        if (! $child) {
+            return $this->notFoundResponse('Child');
         }
 
         // If child is approved, only allow certain fields to be updated
@@ -240,19 +219,13 @@ class ChildController extends Controller
         }
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         $child->update($validator->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Child updated successfully',
-            'data' => [
+        return $this->successResponse(
+            [
                 'child' => [
                     'id' => $child->id,
                     'name' => $child->name,
@@ -261,11 +234,8 @@ class ChildController extends Controller
                     'updated_at' => $child->updated_at->toIso8601String(),
                 ],
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            'Child updated successfully'
+        );
     }
 
     /**
@@ -282,19 +252,18 @@ class ChildController extends Controller
 
         $this->authorize('archive', $child);
 
-        if (!$child->isArchivalEligible()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Child cannot be archived at this time.',
-            ], 422);
+        if (! $child->isArchivalEligible()) {
+            return $this->errorResponse(
+                'Child cannot be archived at this time.',
+                ErrorCodes::INVALID_STATE,
+                [],
+                422
+            );
         }
 
         $child->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Child archived successfully',
-        ]);
+        return $this->successResponse([], 'Child archived successfully');
     }
 
     /**
@@ -310,32 +279,20 @@ class ChildController extends Controller
         $user = $request->user();
         
         $child = $user->children()->find($id);
-        if (!$child) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Child not found',
-            ], 404);
+        if (! $child) {
+            return $this->notFoundResponse('Child');
         }
 
         $this->authorize('delete', $child);
 
-        if (!$child->isDeletionAllowed()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'This child cannot be deleted because they have booking, payment, or attendance history. Please archive them instead so records are preserved.',
-                'action' => 'archive',
-            ], 403);
+        if (! $child->isDeletionAllowed()) {
+            return $this->forbiddenResponse(
+                'This child cannot be deleted because they have booking, payment, or attendance history. Please archive them instead so records are preserved.'
+            );
         }
 
         $removeChildAction->execute($child);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Child deleted successfully',
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse([], 'Child deleted successfully');
     }
 }

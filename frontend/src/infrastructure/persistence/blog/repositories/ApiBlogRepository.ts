@@ -11,6 +11,8 @@ import { BlogSlug } from '@/core/domain/blog/valueObjects/BlogSlug';
 import { BlogAuthor, BlogCategory, BlogTag } from '@/core/domain/blog/entities/BlogPost';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+import { extractList } from '@/infrastructure/http/responseHelpers';
+import { CACHE_TAGS, REVALIDATION_TIMES } from '@/utils/revalidationConstants';
 
 /**
  * Remote API Response Format (CMS-agnostic)
@@ -134,8 +136,8 @@ export class ApiBlogRepository implements IBlogRepository {
     const requestOptions: RequestInit | undefined = isServerSide
       ? {
           next: {
-            revalidate: 1800, // 30 minutes
-            tags: ['blog-posts', `blog-post:${slug}`],
+            revalidate: REVALIDATION_TIMES.CONTENT_PAGE,
+            tags: [CACHE_TAGS.BLOG_POSTS, CACHE_TAGS.BLOG_POST_SLUG(slug)],
           },
         }
       : {
@@ -167,8 +169,8 @@ export class ApiBlogRepository implements IBlogRepository {
     const requestOptions: RequestInit | undefined = isServerSide
       ? {
           next: {
-            revalidate: 1800, // 30 minutes
-            tags: ['blog-posts'],
+            revalidate: REVALIDATION_TIMES.CONTENT_PAGE,
+            tags: [CACHE_TAGS.BLOG_POSTS],
           },
         }
       : {
@@ -176,14 +178,11 @@ export class ApiBlogRepository implements IBlogRepository {
         };
 
     try {
-      // ApiClient unwraps { success: true, data: [...] } to { data: [...] }
-      // So response.data is already the array of posts
-      const response = await apiClient.get<RemoteBlogPostResponse[]>(
+      const response = await apiClient.get<RemoteBlogPostResponse[] | { data: RemoteBlogPostResponse[]; meta?: unknown }>(
         API_ENDPOINTS.BLOG_POSTS,
         requestOptions
       );
-      
-      const posts = Array.isArray(response.data) ? response.data : [];
+      const posts = extractList(response);
       return posts.map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to fetch blog posts: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -195,8 +194,8 @@ export class ApiBlogRepository implements IBlogRepository {
     const requestOptions: RequestInit | undefined = isServerSide
       ? {
           next: {
-            revalidate: 1800,
-            tags: ['blog-posts'],
+            revalidate: REVALIDATION_TIMES.CONTENT_PAGE,
+            tags: [CACHE_TAGS.BLOG_POSTS],
           },
         }
       : {
@@ -204,13 +203,11 @@ export class ApiBlogRepository implements IBlogRepository {
         };
 
     try {
-      // ApiClient unwraps { success: true, data: [...] } to { data: [...] }
-      const response = await apiClient.get<RemoteBlogPostResponse[]>(
+      const response = await apiClient.get<RemoteBlogPostResponse[] | { data: RemoteBlogPostResponse[]; meta?: unknown }>(
         `${API_ENDPOINTS.BLOG_POSTS}?published=true`,
         requestOptions
       );
-      
-      const posts = Array.isArray(response.data) ? response.data : [];
+      const posts = extractList(response);
       return posts.map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to fetch published posts: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -219,12 +216,10 @@ export class ApiBlogRepository implements IBlogRepository {
 
   async findByCategory(categoryId: string): Promise<BlogPost[]> {
     try {
-      // ApiClient unwraps { success: true, data: [...] } to { data: [...] }
-      const response = await apiClient.get<RemoteBlogPostResponse[]>(
+      const response = await apiClient.get<RemoteBlogPostResponse[] | { data: RemoteBlogPostResponse[]; meta?: unknown }>(
         `${API_ENDPOINTS.BLOG_POSTS}?category_slug=${encodeURIComponent(categoryId)}`
       );
-      
-      const posts = Array.isArray(response.data) ? response.data : [];
+      const posts = extractList(response);
       return posts.map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to find posts by category: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -233,12 +228,10 @@ export class ApiBlogRepository implements IBlogRepository {
 
   async findByTag(tagId: string): Promise<BlogPost[]> {
     try {
-      // ApiClient unwraps { success: true, data: [...] } to { data: [...] }
-      const response = await apiClient.get<RemoteBlogPostResponse[]>(
+      const response = await apiClient.get<RemoteBlogPostResponse[] | { data: RemoteBlogPostResponse[]; meta?: unknown }>(
         `${API_ENDPOINTS.BLOG_POSTS}?tag_slug=${encodeURIComponent(tagId)}`
       );
-      
-      const posts = Array.isArray(response.data) ? response.data : [];
+      const posts = extractList(response);
       return posts.map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to find posts by tag: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -247,12 +240,10 @@ export class ApiBlogRepository implements IBlogRepository {
 
   async findByAuthor(authorId: string): Promise<BlogPost[]> {
     try {
-      // ApiClient unwraps { success: true, data: [...] } to { data: [...] }
-      const response = await apiClient.get<RemoteBlogPostResponse[]>(
+      const response = await apiClient.get<RemoteBlogPostResponse[] | { data: RemoteBlogPostResponse[]; meta?: unknown }>(
         `${API_ENDPOINTS.BLOG_POSTS}?author_id=${encodeURIComponent(authorId)}`
       );
-      
-      const posts = Array.isArray(response.data) ? response.data : [];
+      const posts = extractList(response);
       return posts.map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to find posts by author: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -261,12 +252,10 @@ export class ApiBlogRepository implements IBlogRepository {
 
   async search(query: string): Promise<BlogPost[]> {
     try {
-      // ApiClient unwraps { success: true, data: [...] } to { data: [...] }
-      const response = await apiClient.get<RemoteBlogPostResponse[]>(
+      const response = await apiClient.get<RemoteBlogPostResponse[] | { data: RemoteBlogPostResponse[]; meta?: unknown }>(
         `${API_ENDPOINTS.BLOG_POSTS}?search=${encodeURIComponent(query)}`
       );
-      
-      const posts = Array.isArray(response.data) ? response.data : [];
+      const posts = extractList(response);
       return posts.map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to search posts: ${error instanceof Error ? error.message : 'Unknown error'}`);

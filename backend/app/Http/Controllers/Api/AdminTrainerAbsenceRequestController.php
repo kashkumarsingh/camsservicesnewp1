@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
+use App\Http\Controllers\Api\ErrorCodes;
 use App\Http\Controllers\Controller;
 use App\Models\TrainerAbsenceRequest;
 use Illuminate\Http\JsonResponse;
@@ -14,6 +16,8 @@ use Illuminate\Support\Facades\Validator;
  */
 class AdminTrainerAbsenceRequestController extends Controller
 {
+    use BaseApiController;
+
     public function index(Request $request): JsonResponse
     {
         $query = TrainerAbsenceRequest::with(['trainer:id,user_id', 'trainer.user:id,name,email'])
@@ -26,30 +30,32 @@ class AdminTrainerAbsenceRequestController extends Controller
 
         $requests = $query->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'requests' => $requests->map(fn ($r) => [
-                    'id' => $r->id,
-                    'trainer_id' => $r->trainer_id,
-                    'trainer_name' => $r->trainer?->user?->name,
-                    'date_from' => $r->date_from->format('Y-m-d'),
-                    'date_to' => $r->date_to->format('Y-m-d'),
-                    'reason' => $r->reason,
-                    'created_at' => $r->created_at->toIso8601String(),
-                ]),
-            ],
-        ], 200);
+        $data = $requests->map(fn ($r) => [
+            'id' => $r->id,
+            'trainer_id' => $r->trainer_id,
+            'trainer_name' => $r->trainer?->user?->name,
+            'date_from' => $r->date_from->format('Y-m-d'),
+            'date_to' => $r->date_to->format('Y-m-d'),
+            'reason' => $r->reason,
+            'created_at' => $r->created_at->toIso8601String(),
+        ])->values()->all();
+
+        return $this->successResponse(['requests' => $data]);
     }
 
     public function approve(Request $request, int $id): JsonResponse
     {
         $absence = TrainerAbsenceRequest::find($id);
         if (! $absence) {
-            return response()->json(['success' => false, 'message' => 'Absence request not found.'], 404);
+            return $this->notFoundResponse('Absence request');
         }
         if ($absence->status !== TrainerAbsenceRequest::STATUS_PENDING) {
-            return response()->json(['success' => false, 'message' => 'Request is not pending.'], 422);
+            return $this->errorResponse(
+                'Request is not pending.',
+                ErrorCodes::INVALID_STATE,
+                [],
+                422
+            );
         }
 
         $absence->update([
@@ -58,16 +64,15 @@ class AdminTrainerAbsenceRequestController extends Controller
             'approved_by' => Auth::id(),
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Absence approved.',
-            'data' => [
+        return $this->successResponse(
+            [
                 'id' => $absence->id,
                 'status' => $absence->status,
                 'date_from' => $absence->date_from->format('Y-m-d'),
                 'date_to' => $absence->date_to->format('Y-m-d'),
             ],
-        ], 200);
+            'Absence approved.'
+        );
     }
 
     public function reject(Request $request, int $id): JsonResponse
@@ -76,15 +81,20 @@ class AdminTrainerAbsenceRequestController extends Controller
             'reason' => ['nullable', 'string', 'max:500'],
         ]);
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         $absence = TrainerAbsenceRequest::find($id);
         if (! $absence) {
-            return response()->json(['success' => false, 'message' => 'Absence request not found.'], 404);
+            return $this->notFoundResponse('Absence request');
         }
         if ($absence->status !== TrainerAbsenceRequest::STATUS_PENDING) {
-            return response()->json(['success' => false, 'message' => 'Request is not pending.'], 422);
+            return $this->errorResponse(
+                'Request is not pending.',
+                ErrorCodes::INVALID_STATE,
+                [],
+                422
+            );
         }
 
         $absence->update([
@@ -94,10 +104,9 @@ class AdminTrainerAbsenceRequestController extends Controller
             'reason' => $request->input('reason', $absence->reason),
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Absence rejected.',
-            'data' => ['id' => $absence->id, 'status' => $absence->status],
-        ], 200);
+        return $this->successResponse(
+            ['id' => $absence->id, 'status' => $absence->status],
+            'Absence rejected.'
+        );
     }
 }

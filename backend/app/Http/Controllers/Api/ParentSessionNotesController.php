@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use App\Models\BookingSchedule;
 use Illuminate\Http\JsonResponse;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
  */
 class ParentSessionNotesController extends Controller
 {
+    use BaseApiController;
     /**
      * Maximum length for note snippet in list view.
      */
@@ -39,8 +41,8 @@ class ParentSessionNotesController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = Auth::user();
-        if (!$user) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
+        if (! $user) {
+            return $this->unauthorizedResponse();
         }
 
         $schedules = BookingSchedule::query()
@@ -110,7 +112,7 @@ class ParentSessionNotesController extends Controller
             }
         }
 
-        return response()->json([
+        return $this->successResponse([
             'sessionNotes' => array_slice($items, 0, self::MAX_ITEMS),
         ]);
     }

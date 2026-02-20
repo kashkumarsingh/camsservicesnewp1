@@ -20,7 +20,7 @@ export default function PackageBookingCard({ pkg }: PackageBookingCardProps) {
     : `/dashboard/parent?package=${encodeURIComponent(pkg.slug)}`;
 
   return (
-    <div className="bg-gradient-to-br from-[#0080FF] to-[#00D4FF] rounded-2xl p-5 border-2 border-[#0080FF] shadow-xl text-white">
+    <div className="bg-gradient-to-br from-primary-blue to-light-blue-cyan rounded-2xl p-5 border-2 border-primary-blue shadow-xl text-white">
       <div className="text-center mb-4">
         {/* Conditionally show price only for approved parents */}
         {!loading && isApproved ? (

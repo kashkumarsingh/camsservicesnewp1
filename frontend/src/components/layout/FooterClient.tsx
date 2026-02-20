@@ -32,6 +32,7 @@ import { useServices } from '@/interfaces/web/hooks/services/useServices';
 import { usePolicies } from '@/interfaces/web/hooks/policies/usePolicies';
 import { FooterSkeleton } from '@/components/ui/Skeleton';
 import { SiteSettingsDTO } from '@/core/application/siteSettings/dto/SiteSettingsDTO';
+import { ROUTES } from '@/utils/routes';
 
 /**
  * Social Media Icon Resolver
@@ -148,7 +149,7 @@ function getLogoUrl(logoPath: string | undefined): string {
       
       // Render.com production
       if (origin.includes('onrender.com')) {
-        return 'https://cams-backend-1q6w.onrender.com';
+        return 'https://cams-backend-oj5x.onrender.com';
       }
     }
     
@@ -172,7 +173,7 @@ function getLogoUrl(logoPath: string | undefined): string {
     return defaultLogo;
   }
   
-  // Construct URL: https://cams-backend-1q6w.onrender.com/storage/logos/{filename}
+  // Construct URL: https://cams-backend-oj5x.onrender.com/storage/logos/{filename}
   const fullUrl = `${backendUrl}/storage/logos/${filename}`;
   
   // Validate URL format
@@ -303,7 +304,7 @@ const FooterClient: React.FC<FooterClientProps> = ({ settings }) => {
                 footerServices.slice(0, 4).map((service) => (
                   <li key={service.id}>
                     <Link 
-                      href={`/services/${service.slug}`} 
+                      href={ROUTES.SERVICE_BY_SLUG(service.slug)} 
                       className="text-gray-300 hover:text-white text-sm transition-colors"
                     >
                       {service.title}
@@ -313,8 +314,8 @@ const FooterClient: React.FC<FooterClientProps> = ({ settings }) => {
               )}
               <li>
                 <Link 
-                  href="/services" 
-                  className="text-sm font-semibold text-white hover:text-[#00D4FF] transition-colors inline-flex items-center gap-1 group"
+                  href={ROUTES.SERVICES} 
+                  className="text-sm font-semibold text-white hover:text-light-blue-cyan transition-colors inline-flex items-center gap-1 group"
                 >
                   View All
                   <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
@@ -333,7 +334,7 @@ const FooterClient: React.FC<FooterClientProps> = ({ settings }) => {
                     href={`tel:${contact.phone}`} 
                     className="flex items-center gap-3 group"
                   >
-                    <Phone size={18} className="text-gray-400 group-hover:text-[#00D4FF] transition-colors" />
+                    <Phone size={18} className="text-gray-400 group-hover:text-light-blue-cyan transition-colors" />
                     <span className="text-sm text-gray-300 group-hover:text-white transition-colors">{contact.phone}</span>
                   </a>
                 </li>
@@ -344,7 +345,7 @@ const FooterClient: React.FC<FooterClientProps> = ({ settings }) => {
                     href={`mailto:${contact.email}`} 
                     className="flex items-center gap-3 group"
                   >
-                    <Mail size={18} className="text-gray-400 group-hover:text-[#00D4FF] transition-colors" />
+                    <Mail size={18} className="text-gray-400 group-hover:text-light-blue-cyan transition-colors" />
                     <span className="text-sm text-gray-300 group-hover:text-white transition-colors break-all">{contact.email}</span>
                   </a>
                 </li>
@@ -361,8 +362,8 @@ const FooterClient: React.FC<FooterClientProps> = ({ settings }) => {
              {/* CTA Buttons */}
             <div className="mt-6 flex flex-col gap-3">
               <Link 
-                href="/contact" 
-                className="w-full text-center px-4 py-3 bg-gradient-to-r from-[#0080FF] to-[#00D4FF] text-white font-bold rounded-lg hover:from-[#0066CC] hover:to-[#00B8E6] transition-all text-sm"
+                href={ROUTES.CONTACT} 
+                className="w-full text-center px-4 py-3 bg-gradient-to-r from-primary-blue to-light-blue-cyan text-white font-bold rounded-lg hover:from-primary-blue/90 hover:to-light-blue-cyan/90 transition-all text-sm"
               >
                 Book a FREE Call
               </Link>

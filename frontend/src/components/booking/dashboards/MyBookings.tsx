@@ -16,6 +16,8 @@
 
 import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { ROUTES } from '@/utils/routes';
 import {
   Calendar,
   Package,
@@ -194,9 +196,9 @@ const MyBookings: React.FC<MyBookingsProps> = ({ bookings, loading, error }) => 
 
   if (loading) {
     return (
-      <div className="bg-white rounded-[20px] p-8 shadow-lg border border-gray-200">
+      <div className="bg-white rounded-card p-8 shadow-lg border border-gray-200">
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 text-[#0080FF] animate-spin" />
+          <Loader2 className="w-8 h-8 text-primary-blue animate-spin" />
           <span className="ml-3 text-gray-600">Loading your bookings...</span>
         </div>
       </div>
@@ -207,7 +209,7 @@ const MyBookings: React.FC<MyBookingsProps> = ({ bookings, loading, error }) => 
   // If bookings exist despite an error, show them with a warning
   if (error && bookings.length === 0) {
     return (
-      <div className="bg-white rounded-[20px] p-8 shadow-lg border border-gray-200">
+      <div className="bg-white rounded-card p-8 shadow-lg border border-gray-200">
         <div className="text-center py-12">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Bookings</h3>
@@ -220,17 +222,17 @@ const MyBookings: React.FC<MyBookingsProps> = ({ bookings, loading, error }) => 
 
   if (bookings.length === 0 && !error) {
     return (
-      <div className="bg-white rounded-[20px] p-8 shadow-lg border border-gray-200">
+      <div className="bg-white rounded-card p-8 shadow-lg border border-gray-200">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-heading font-bold text-[#1E3A5F]">My Bookings</h2>
+          <h2 className="text-2xl font-heading font-bold text-navy-blue">My Bookings</h2>
         </div>
         <div className="text-center py-12">
           <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Bookings Yet</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{EMPTY_STATE.NO_BOOKINGS_YET_HEADING.title}</h3>
           <p className="text-gray-600 mb-6">
-            You haven't made any bookings yet. Browse our packages to get started!
+            {EMPTY_STATE.NO_BOOKINGS_YET.message}
           </p>
-          <Link href="/packages">
+          <Link href={ROUTES.PACKAGES}>
             <Button>Browse Packages</Button>
           </Link>
         </div>
@@ -239,10 +241,10 @@ const MyBookings: React.FC<MyBookingsProps> = ({ bookings, loading, error }) => 
   }
 
   return (
-    <div className="bg-white rounded-[20px] p-8 shadow-lg border border-gray-200">
+    <div className="bg-white rounded-card p-8 shadow-lg border border-gray-200">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-heading font-bold text-[#1E3A5F]">My Bookings</h2>
-        <Link href="/packages">
+        <h2 className="text-2xl font-heading font-bold text-navy-blue">My Bookings</h2>
+        <Link href={ROUTES.PACKAGES}>
           <Button variant="outline" size="sm">
             Book Another Package
           </Button>
@@ -298,7 +300,7 @@ const MyBookings: React.FC<MyBookingsProps> = ({ bookings, loading, error }) => 
               className={`border-2 rounded-lg p-6 transition-colors ${
                 isDeleted 
                   ? 'border-red-300 bg-red-50 opacity-75' 
-                  : 'border-gray-200 hover:border-[#0080FF]/50'
+                  : 'border-gray-200 hover:border-primary-blue/50'
               }`}
             >
               {isDeleted && (
@@ -314,8 +316,8 @@ const MyBookings: React.FC<MyBookingsProps> = ({ bookings, loading, error }) => 
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-3">
-                    <Package className="w-5 h-5 text-[#0080FF] flex-shrink-0" />
-                    <h3 className="text-xl font-semibold text-[#1E3A5F] truncate">
+                    <Package className="w-5 h-5 text-primary-blue flex-shrink-0" />
+                    <h3 className="text-xl font-semibold text-navy-blue truncate">
                       {packageName}
                     </h3>
                   </div>
@@ -520,7 +522,7 @@ const MyBookings: React.FC<MyBookingsProps> = ({ bookings, loading, error }) => 
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-gradient-to-r from-[#0080FF] to-[#00D4FF] h-2 rounded-full transition-all duration-300"
+                          className="bg-gradient-to-r from-primary-blue to-light-blue-cyan h-2 rounded-full transition-all duration-300"
                           style={{
                             width: `${booking.totalHours > 0 ? (bookedHours / booking.totalHours) * 100 : 0}%`,
                           }}
@@ -541,7 +543,7 @@ const MyBookings: React.FC<MyBookingsProps> = ({ bookings, loading, error }) => 
                     <Link href="/dashboard/parent">
                       <Button
                         size="sm"
-                        className="flex items-center gap-2 bg-gradient-to-r from-[#0080FF] to-[#00D4FF] hover:from-[#0069cc] hover:to-[#00b8e6]"
+                        className="flex items-center gap-2 bg-gradient-to-r from-primary-blue to-light-blue-cyan hover:from-primary-blue/90 hover:to-light-blue-cyan/90"
                       >
                         <Calendar className="w-4 h-4" />
                         {booking.schedules && booking.schedules.length > 0
@@ -564,7 +566,7 @@ const MyBookings: React.FC<MyBookingsProps> = ({ bookings, loading, error }) => 
                       <Button 
                         size="sm" 
                         variant="outline"
-                        className="flex items-center gap-2 border-[#0080FF] text-[#0080FF] hover:bg-[#0080FF] hover:text-white"
+                        className="flex items-center gap-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white"
                       >
                         <Repeat className="w-4 h-4" />
                         Buy Again

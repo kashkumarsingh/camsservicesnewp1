@@ -19,13 +19,13 @@ const ReviewSchedule: React.FC<ReviewScheduleProps> = ({ sessions }) => (
       .map((session, index) => (
         <div
           key={`${session.date}-${session.startTime}-${index}`}
-          className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-[#0080FF] rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow"
+          className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-primary-blue rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow"
         >
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-3">
-                <Calendar className="w-5 h-5 text-[#0080FF]" />
-                <h4 className="font-bold text-[#1E3A5F] text-base">
+                <Calendar className="w-5 h-5 text-primary-blue" />
+                <h4 className="font-bold text-navy-blue text-base">
                   {moment(session.date).format('dddd, MMMM D, YYYY')}
                 </h4>
               </div>

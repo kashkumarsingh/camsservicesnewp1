@@ -12,6 +12,8 @@ import { Service } from '@/core/domain/services/entities/Service';
 import { ServiceSlug } from '@/core/domain/services/valueObjects/ServiceSlug';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+import { extractList } from '@/infrastructure/http/responseHelpers';
+import { CACHE_TAGS, REVALIDATION_TIMES } from '@/utils/revalidationConstants';
 
 /**
  * Remote API Response Format
@@ -127,9 +129,14 @@ export class ApiServiceRepository implements IServiceRepository {
   }
 
   async findBySlug(slug: string): Promise<Service | null> {
+    const isServerSide = typeof window === 'undefined';
+    const requestOptions: RequestInit | undefined = isServerSide
+      ? { next: { revalidate: REVALIDATION_TIMES.CONTENT_PAGE, tags: [CACHE_TAGS.SERVICES, CACHE_TAGS.SERVICE_SLUG(slug)] } }
+      : undefined;
     try {
       const response = await apiClient.get<RemoteServiceResponse>(
-        API_ENDPOINTS.SERVICE_BY_SLUG(slug)
+        API_ENDPOINTS.SERVICE_BY_SLUG(slug),
+        requestOptions
       );
       // ApiClient already unwraps { success: true, data: {...} } to { data: {...} }
       return this.toDomain(response.data);
@@ -142,12 +149,16 @@ export class ApiServiceRepository implements IServiceRepository {
   }
 
   async findAll(): Promise<Service[]> {
+    const isServerSide = typeof window === 'undefined';
+    const requestOptions: RequestInit | undefined = isServerSide
+      ? { next: { revalidate: REVALIDATION_TIMES.CONTENT_PAGE, tags: [CACHE_TAGS.SERVICES] } }
+      : undefined;
     try {
-      const response = await apiClient.get<RemoteServiceResponse[]>(
-        API_ENDPOINTS.SERVICES
+      const response = await apiClient.get<RemoteServiceResponse[] | { data: RemoteServiceResponse[]; meta?: unknown }>(
+        API_ENDPOINTS.SERVICES,
+        requestOptions
       );
-      // ApiClient already unwraps { success: true, data: [...] } to { data: [...] }
-      const services = Array.isArray(response.data) ? response.data : [];
+      const services = extractList(response);
       return services.map(service => this.toDomain(service));
     } catch (error: unknown) {
       // Graceful degradation: return empty list so contact/landing pages still render
@@ -161,11 +172,10 @@ export class ApiServiceRepository implements IServiceRepository {
 
   async search(query: string): Promise<Service[]> {
     try {
-      const response = await apiClient.get<RemoteServiceResponse[]>(
+      const response = await apiClient.get<RemoteServiceResponse[] | { data: RemoteServiceResponse[]; meta?: unknown }>(
         `${API_ENDPOINTS.SERVICES}?search=${encodeURIComponent(query)}`
       );
-      // ApiClient already unwraps { success: true, data: [...] } to { data: [...] }
-      const services = Array.isArray(response.data) ? response.data : [];
+      const services = extractList(response);
       return services.map(service => this.toDomain(service));
     } catch (error) {
       throw new Error(`Failed to search services: ${error instanceof Error ? error.message : 'Unknown error'}`);

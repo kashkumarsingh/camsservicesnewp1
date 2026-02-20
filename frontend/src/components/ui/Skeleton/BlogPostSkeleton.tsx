@@ -14,7 +14,7 @@ export default function BlogPostSkeleton({ count = 1 }: BlogPostSkeletonProps) {
   return (
     <>
       {Array.from({ length: count }, (_, i) => (
-        <div key={`blog-skeleton-${i}`} className="bg-white rounded-[30px] border-2 border-gray-200 shadow-md overflow-hidden h-full flex flex-col">
+        <div key={`blog-skeleton-${i}`} className="bg-white rounded-card border-2 border-gray-200 shadow-md overflow-hidden h-full flex flex-col">
           {/* Image Skeleton */}
           <div className="relative w-full h-48 bg-gray-200 animate-pulse" />
           {/* Content Skeleton */}

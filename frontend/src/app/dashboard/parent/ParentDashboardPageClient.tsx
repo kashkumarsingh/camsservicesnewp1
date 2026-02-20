@@ -36,6 +36,8 @@ import { useParentSessionNotes } from '@/interfaces/web/hooks/dashboard/useParen
 import { useSubmitSafeguardingConcern } from '@/interfaces/web/hooks/dashboard/useSubmitSafeguardingConcern';
 import { getDateBookingStatus } from '@/utils/bookingCutoffRules';
 import { getChildChecklistFlags, childNeedsChecklistCta, childNeedsChecklistToComplete, childAwaitingChecklistReview } from '@/core/application/auth/types';
+import { USER_ROLE, APPROVAL_STATUS, BOOKING_STATUS, PAYMENT_STATUS } from '@/utils/dashboardConstants';
+import { ROUTES } from '@/utils/routes';
 import { getMessageForDateReason } from '@/utils/bookingValidationMessages';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
 import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
@@ -176,7 +178,7 @@ export default function ParentDashboardPageClient() {
   const approvedChildIdsWithBookings = useMemo(() => {
     const ids = new Set<number>();
     bookings.forEach(booking => {
-      if (booking.status === 'confirmed' && booking.paymentStatus === 'paid') {
+      if (booking.status === BOOKING_STATUS.CONFIRMED && booking.paymentStatus === PAYMENT_STATUS.PAID) {
         booking.participants?.forEach(participant => {
           if (participant.childId) {
             ids.add(participant.childId);
@@ -193,7 +195,7 @@ export default function ParentDashboardPageClient() {
 
   /** New children (0 hours, never had a package) and expired (ran out) for filter options. */
   const { newChildIds, expiredChildIds } = useMemo(() => {
-    const confirmedPaid = bookings.filter((b) => b.status === 'confirmed' && b.paymentStatus === 'paid');
+    const confirmedPaid = bookings.filter((b) => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID);
     const newIds: number[] = [];
     const expiredIds: number[] = [];
     approvedChildren.forEach((child) => {
@@ -327,7 +329,7 @@ export default function ParentDashboardPageClient() {
         childrenWithBookings: childrenWithBookings.map(c => ({ id: c.id, name: c.name })),
         visibleChildIds,
         totalBookings: bookings.length,
-        confirmedPaidBookings: bookings.filter(b => b.status === 'confirmed' && b.paymentStatus === 'paid').length,
+        confirmedPaidBookings: bookings.filter(b => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID).length,
         bookingsWithSchedules: bookings.filter(b => b.schedules && b.schedules.length > 0).map(b => ({
           id: b.id,
           reference: b.reference,
@@ -561,7 +563,7 @@ export default function ParentDashboardPageClient() {
   // Get active booking for a child
   const getActiveBookingForChild = useCallback((childId: number): BookingDTO | null => {
     const confirmedPaidBookings = bookings.filter(
-      b => b.status === 'confirmed' && b.paymentStatus === 'paid'
+      b => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID
     );
     const childBookings = confirmedPaidBookings.filter(b => {
       if (!b.participants) return false;
@@ -582,7 +584,7 @@ export default function ParentDashboardPageClient() {
     }
 
     // ✅ NEW: Determine activities array based on activity selection type (MULTIPLE ACTIVITIES SUPPORT)
-    let activities: Array<{ activity_id: number; duration_hours?: number; order?: number }> = [];
+    const activities: Array<{ activity_id: number; duration_hours?: number; order?: number }> = [];
     
     if (bookingData.activitySelectionType === 'package_activity' && bookingData.selectedActivityIds && bookingData.selectedActivityIds.length > 0) {
       // ✅ Multiple activities selected - send all of them
@@ -1287,7 +1289,7 @@ export default function ParentDashboardPageClient() {
       if (!['draft', 'pending', 'confirmed'].includes(b.status)) return false;
       
       // Payment status check
-      if (b.paymentStatus === 'refunded') return false;
+      if (b.paymentStatus === PAYMENT_STATUS.REFUNDED) return false;
       
       // Soft delete check
       if (b.deletedAt) return false;
@@ -1333,18 +1335,18 @@ export default function ParentDashboardPageClient() {
   const hasDraftOrUnpaidActivePackage = useMemo(() => {
     const activeBookings = bookings.filter(b => {
       if (!['draft', 'pending', 'confirmed'].includes(b.status)) return false;
-      if (b.paymentStatus === 'refunded' || b.deletedAt) return false;
+      if (b.paymentStatus === PAYMENT_STATUS.REFUNDED || b.deletedAt) return false;
       if (b.packageExpiresAt && new Date(b.packageExpiresAt) <= new Date()) return false;
       return true;
     });
-    return activeBookings.some(b => b.status === 'draft' || b.paymentStatus !== 'paid');
+    return activeBookings.some(b => b.status === BOOKING_STATUS.DRAFT || b.paymentStatus !== PAYMENT_STATUS.PAID);
   }, [bookings]);
 
   // First unpaid booking (for "Complete payment" / Pay now from alerts).
   const firstUnpaidBooking = useMemo(() => {
     return bookings.find(b => {
       if (!['draft', 'pending', 'confirmed'].includes(b.status ?? '')) return false;
-      if (b.paymentStatus === 'paid' || b.paymentStatus === 'refunded' || b.deletedAt) return false;
+      if (b.paymentStatus === PAYMENT_STATUS.PAID || b.paymentStatus === PAYMENT_STATUS.REFUNDED || b.deletedAt) return false;
       if (b.packageExpiresAt && new Date(b.packageExpiresAt) <= new Date()) return false;
       return true;
     }) ?? null;
@@ -1470,7 +1472,7 @@ export default function ParentDashboardPageClient() {
       packageName?: string | null;
     }> = [];
     const confirmedPaid = bookings.filter(
-      (b) => b.status === 'confirmed' && b.paymentStatus === 'paid',
+      (b) => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID,
     );
     confirmedPaid.forEach((booking) => {
       const participant = booking.participants?.[0];
@@ -1479,7 +1481,7 @@ export default function ParentDashboardPageClient() {
         : 'Child';
       const childId = participant?.childId ?? 0;
       (booking.schedules ?? []).forEach((schedule) => {
-        if (schedule.status === 'cancelled') return;
+        if (schedule.status === BOOKING_STATUS.CANCELLED) return;
         const dateStr =
           typeof schedule.date === 'string'
             ? schedule.date
@@ -1525,11 +1527,11 @@ export default function ParentDashboardPageClient() {
     const end = moment().endOf('week');
     let count = 0;
     const confirmedPaid = bookings.filter(
-      (b) => b.status === 'confirmed' && b.paymentStatus === 'paid',
+      (b) => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID,
     );
     confirmedPaid.forEach((booking) => {
       (booking.schedules ?? []).forEach((schedule) => {
-        if (schedule.status === 'cancelled') return;
+        if (schedule.status === BOOKING_STATUS.CANCELLED) return;
         const dateStr =
           typeof schedule.date === 'string'
             ? schedule.date
@@ -1544,7 +1546,7 @@ export default function ParentDashboardPageClient() {
   // Total remaining hours across approved children (for empty-state: only show "book one?" when they have hours)
   const totalRemainingHoursForBanner = useMemo(() => {
     const confirmedPaid = bookings.filter(
-      (b) => b.status === 'confirmed' && b.paymentStatus === 'paid',
+      (b) => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID,
     );
     let total = 0;
     approvedChildren.forEach((child) => {
@@ -1596,7 +1598,7 @@ export default function ParentDashboardPageClient() {
     }
 
     // Redirect trainers to their dashboard
-    if (!loading && user && user.role === 'trainer') {
+    if (!loading && user && user.role === USER_ROLE.TRAINER) {
       router.push('/dashboard/trainer');
       return;
     }
@@ -1640,7 +1642,7 @@ export default function ParentDashboardPageClient() {
               <Button onClick={() => window.location.reload()} variant="primary">
                 Reload Page
               </Button>
-              <Button onClick={() => router.push('/login')} variant="secondary">
+              <Button onClick={() => router.push(ROUTES.LOGIN)} variant="secondary">
                 Go to Login
               </Button>
             </div>
@@ -1660,8 +1662,8 @@ export default function ParentDashboardPageClient() {
   }
 
   const getStatusBanner = () => {
-    if (user.approval_status === 'pending') {
-      return {
+if (user.approval_status === APPROVAL_STATUS.PENDING) {
+        return {
         type: 'warning',
         icon: AlertCircle,
         title: 'Account Pending Approval',
@@ -1669,7 +1671,7 @@ export default function ParentDashboardPageClient() {
       };
     }
     
-    if (user.approval_status === 'rejected') {
+    if (user.approval_status === APPROVAL_STATUS.REJECTED) {
       return {
         type: 'error',
         icon: XCircle,
@@ -1678,7 +1680,7 @@ export default function ParentDashboardPageClient() {
       };
     }
     
-    if (user.approval_status === 'approved' && !hasApprovedChildren) {
+    if (user.approval_status === APPROVAL_STATUS.APPROVED && !hasApprovedChildren) {
       return {
         type: 'info',
         icon: Users,
@@ -1976,8 +1978,8 @@ export default function ParentDashboardPageClient() {
                       <p className="text-xs text-slate-500 dark:text-slate-400">{(stats?.totalHoursBooked ?? 0).toFixed(1)}h used · {(totalRemainingHoursForBanner + (stats?.totalHoursBooked ?? 0)).toFixed(1)}h total</p>
                       <div className="space-y-2">
                         {approvedChildren.map((c) => {
-                          const rem = bookings.filter(b => b.status === 'confirmed' && b.paymentStatus === 'paid' && b.participants?.some(p => p.childId === c.id)).reduce((sum, b) => sum + (b.remainingHours ?? 0), 0);
-                          const total = bookings.filter(b => b.status === 'confirmed' && b.paymentStatus === 'paid' && b.participants?.some(p => p.childId === c.id)).reduce((sum, b) => sum + (b.totalHours ?? 0), 0) || rem;
+                          const rem = bookings.filter(b => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID && b.participants?.some(p => p.childId === c.id)).reduce((sum, b) => sum + (b.remainingHours ?? 0), 0);
+                          const total = bookings.filter(b => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID && b.participants?.some(p => p.childId === c.id)).reduce((sum, b) => sum + (b.totalHours ?? 0), 0) || rem;
                           const hasActivePackage = childIdsWithActivePackage?.has(c.id);
                           const needsTopUp = hasActivePackage && rem <= 0;
                           const needsBuyHours = !hasActivePackage;
@@ -2207,7 +2209,7 @@ export default function ParentDashboardPageClient() {
           setBookingModalChildId(undefined);
           setEditingSession(null);
         }}
-        onSave={handleBookingSave}
+        onSubmit={handleBookingSave}
         preSelectedDate={bookingModalDate}
         preSelectedTime={bookingModalTime}
         preSelectedChildId={bookingModalChildId}

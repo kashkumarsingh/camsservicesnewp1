@@ -143,14 +143,14 @@ export default function AvailabilityCalendar({ profile, onUpdate, onError }: Ava
                             type="time"
                             value={slot.start}
                             onChange={(e) => updateTimeSlot(day, index, 'start', e.target.value)}
-                            className="px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+                            className="px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-primary-blue focus:border-transparent"
                           />
                           <span className="text-gray-500">to</span>
                           <input
                             type="time"
                             value={slot.end}
                             onChange={(e) => updateTimeSlot(day, index, 'end', e.target.value)}
-                            className="px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+                            className="px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-primary-blue focus:border-transparent"
                           />
                         </div>
                         <button
@@ -180,7 +180,7 @@ export default function AvailabilityCalendar({ profile, onUpdate, onError }: Ava
           onChange={(e) => setAvailabilityNotes(e.target.value)}
           rows={4}
           placeholder="Any additional notes about your availability (e.g., 'Available for emergency sessions', 'Prefer morning sessions')"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
         />
       </div>
 

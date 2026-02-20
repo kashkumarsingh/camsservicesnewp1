@@ -20,6 +20,7 @@ import { useActivities } from "@/interfaces/web/hooks/activities/useActivities";
 import { apiClient } from "@/infrastructure/http/ApiClient";
 import { API_ENDPOINTS } from "@/infrastructure/http/apiEndpoints";
 import { toastManager, type Toast } from "@/utils/toast";
+import { EMPTY_STATE } from "@/utils/emptyStateConstants";
 import { useRouter } from "next/navigation";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
 import ToastContainer from "@/components/ui/Toast/ToastContainer";
@@ -44,6 +45,7 @@ import SessionNotesModal from "@/components/dashboard/modals/SessionNotesModal";
 import SafeguardingConcernModal, { type SafeguardingConcernFormData } from "@/components/dashboard/modals/SafeguardingConcernModal";
 import { useLiveRefresh } from "@/core/liveRefresh/LiveRefreshContext";
 import { LIVE_REFRESH_ENABLED } from "@/utils/liveRefreshConstants";
+import { ACTIVE_BOOKING_STATUSES, BOOKING_STATUS, PAYMENT_STATUS } from "@/utils/dashboardConstants";
 
 const MIN_DURATION_HOURS = 3;
 
@@ -135,7 +137,7 @@ export default function ParentOverviewPageClient() {
 
   const getActiveBookingForChild = useCallback(
     (childId: number): BookingDTO | null => {
-      const confirmedPaid = bookings.filter((b) => b.status === "confirmed" && b.paymentStatus === "paid");
+      const confirmedPaid = bookings.filter((b) => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID);
       const childBookings = confirmedPaid.filter((b) => (b.participants ?? []).some((p) => p.childId === childId));
       if (childBookings.length === 0) return null;
       return [...childBookings].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
@@ -145,8 +147,8 @@ export default function ParentOverviewPageClient() {
 
   const childrenWithActivePackagesForBuyHours = useMemo(() => {
     const activeBookings = bookings.filter((b) => {
-      if (!["draft", "pending", "confirmed"].includes(b.status ?? "")) return false;
-      if (b.paymentStatus === "refunded" || b.deletedAt) return false;
+      if (!ACTIVE_BOOKING_STATUSES.includes(b.status ?? "")) return false;
+      if (b.paymentStatus === PAYMENT_STATUS.REFUNDED || b.deletedAt) return false;
       if (b.packageExpiresAt && new Date(b.packageExpiresAt) <= new Date()) return false;
       return true;
     });
@@ -169,18 +171,18 @@ export default function ParentOverviewPageClient() {
   );
   const hasDraftOrUnpaidActivePackage = useMemo(() => {
     const active = bookings.filter((b) => {
-      if (!["draft", "pending", "confirmed"].includes(b.status ?? "")) return false;
-      if (b.paymentStatus === "refunded" || b.deletedAt) return false;
+      if (!ACTIVE_BOOKING_STATUSES.includes(b.status ?? "")) return false;
+      if (b.paymentStatus === PAYMENT_STATUS.REFUNDED || b.deletedAt) return false;
       if (b.packageExpiresAt && new Date(b.packageExpiresAt) <= new Date()) return false;
       return true;
     });
-    return active.some((b) => b.status === "draft" || b.paymentStatus !== "paid");
+    return active.some((b) => b.status === BOOKING_STATUS.DRAFT || b.paymentStatus !== PAYMENT_STATUS.PAID);
   }, [bookings]);
   const firstUnpaidBooking = useMemo(
     () =>
       bookings.find((b) => {
-        if (!["draft", "pending", "confirmed"].includes(b.status ?? "")) return false;
-        if (b.paymentStatus === "paid" || b.paymentStatus === "refunded" || b.deletedAt) return false;
+        if (!ACTIVE_BOOKING_STATUSES.includes(b.status ?? "")) return false;
+        if (b.paymentStatus === PAYMENT_STATUS.PAID || b.paymentStatus === PAYMENT_STATUS.REFUNDED || b.deletedAt) return false;
         if (b.packageExpiresAt && new Date(b.packageExpiresAt) <= new Date()) return false;
         return true;
       }) ?? null,
@@ -207,13 +209,13 @@ export default function ParentOverviewPageClient() {
       activities?: string[];
       packageName?: string | null;
     }> = [];
-    const confirmedPaid = bookings.filter((b) => b.status === "confirmed" && b.paymentStatus === "paid");
+    const confirmedPaid = bookings.filter((b) => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID);
     confirmedPaid.forEach((booking) => {
       const participant = booking.participants?.[0];
       const childName = participant ? `${participant.firstName ?? ""} ${participant.lastName ?? ""}`.trim() || "Child" : "Child";
       const childId = participant?.childId ?? 0;
       (booking.schedules ?? []).forEach((schedule) => {
-        if (schedule.status === "cancelled") return;
+        if (schedule.status === BOOKING_STATUS.CANCELLED) return;
         const dateStr = typeof schedule.date === "string" ? schedule.date : moment(schedule.date).format("YYYY-MM-DD");
         if (dateStr < today) return;
         const startTime = (schedule as { startTime?: string }).startTime ?? (schedule as { start_time?: string }).start_time ?? "";
@@ -253,15 +255,15 @@ export default function ParentOverviewPageClient() {
       trainerName?: string;
       status?: string;
     }> = [];
-    const confirmedPaid = bookings.filter((b) => b.status === "confirmed" && b.paymentStatus === "paid");
+    const confirmedPaid = bookings.filter((b) => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID);
     confirmedPaid.forEach((booking) => {
       const participant = booking.participants?.[0];
       const childName = participant ? `${participant.firstName ?? ""} ${participant.lastName ?? ""}`.trim() || "Child" : "Child";
       const childId = participant?.childId ?? 0;
       (booking.schedules ?? []).forEach((schedule) => {
-        if (schedule.status === "cancelled") return;
+        if (schedule.status === BOOKING_STATUS.CANCELLED) return;
         const dateStr = typeof schedule.date === "string" ? schedule.date : moment(schedule.date).format("YYYY-MM-DD");
-        const isPast = dateStr < today || schedule.status === "completed";
+        const isPast = dateStr < today || schedule.status === BOOKING_STATUS.COMPLETED;
         if (!isPast) return;
         const startTime = (schedule as { startTime?: string }).startTime ?? (schedule as { start_time?: string }).start_time ?? "";
         const endTime = (schedule as { endTime?: string }).endTime ?? (schedule as { end_time?: string }).end_time ?? "";
@@ -299,13 +301,13 @@ export default function ParentOverviewPageClient() {
       trainerName?: string;
       status?: string;
     }> = [];
-    const confirmedPaid = bookings.filter((b) => b.status === "confirmed" && b.paymentStatus === "paid");
+    const confirmedPaid = bookings.filter((b) => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID);
     confirmedPaid.forEach((booking) => {
       const participant = booking.participants?.[0];
       const childName = participant ? `${participant.firstName ?? ""} ${participant.lastName ?? ""}`.trim() || "Child" : "Child";
       const childId = participant?.childId ?? 0;
       (booking.schedules ?? []).forEach((schedule) => {
-        if (schedule.status === "cancelled" || schedule.status === "completed") return;
+        if (schedule.status === BOOKING_STATUS.CANCELLED || schedule.status === BOOKING_STATUS.COMPLETED) return;
         const dateStr = typeof schedule.date === "string" ? schedule.date : moment(schedule.date).format("YYYY-MM-DD");
         if (dateStr !== today) return;
         const startTime = (schedule as { startTime?: string }).startTime ?? (schedule as { start_time?: string }).start_time ?? "";
@@ -354,7 +356,7 @@ export default function ParentOverviewPageClient() {
   }, [upcomingSessionsForSidebar]);
 
   const totalRemainingHours = useMemo(() => {
-    const confirmedPaid = bookings.filter((b) => b.status === "confirmed" && b.paymentStatus === "paid");
+    const confirmedPaid = bookings.filter((b) => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID);
     return confirmedPaid.reduce((sum, b) => sum + (b.remainingHours ?? 0), 0);
   }, [bookings]);
 
@@ -456,7 +458,7 @@ export default function ParentOverviewPageClient() {
   }, [children, approvedChildren, childrenSummary]);
 
   const hoursSummaryStats = useMemo(() => {
-    const confirmedPaid = bookings.filter((b) => b.status === "confirmed" && b.paymentStatus === "paid");
+    const confirmedPaid = bookings.filter((b) => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID);
     const totalRemaining = confirmedPaid.reduce((sum, b) => sum + (b.remainingHours ?? 0), 0);
     const totalUsed = confirmedPaid.reduce((sum, b) => sum + (b.bookedHours ?? 0), 0);
     const totalPurchased = confirmedPaid.reduce((sum, b) => sum + (b.totalHours ?? 0), 0);
@@ -648,7 +650,7 @@ export default function ParentOverviewPageClient() {
     async (bookingData: ParentBookingFormData) => {
       const activeBooking = getActiveBookingForChild(bookingData.childId);
       if (!activeBooking) throw new Error("No active package found for this child. Please buy a package first.");
-      let activities: Array<{ activity_id: number; duration_hours?: number; order?: number }> = [];
+      const activities: Array<{ activity_id: number; duration_hours?: number; order?: number }> = [];
       if (bookingData.activitySelectionType === "package_activity" && bookingData.selectedActivityIds?.length) {
         bookingData.selectedActivityIds.forEach((id, idx) => {
           activities.push({ activity_id: id, order: idx });
@@ -1140,7 +1142,7 @@ export default function ParentOverviewPageClient() {
           </p>
           {latestActivitySessions.length === 0 ? (
             <div className="mt-3 rounded-lg border border-dashed border-slate-200 bg-slate-50 px-3 py-4 text-center dark:border-slate-700 dark:bg-slate-800/50">
-              <p className="text-xs text-slate-600 dark:text-slate-400">No sessions yet.</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400">{EMPTY_STATE.NO_SESSIONS_YET.title}</p>
               {approvedChildren.length > 0 && totalRemainingHours > 0 && (
                 <Link
                   href={`/dashboard/parent/schedule?open=booking&childId=${approvedChildren[0].id}`}
@@ -1267,7 +1269,7 @@ export default function ParentOverviewPageClient() {
 
             {children.length === 0 ? (
               <div className="mt-6 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 px-4 py-8 text-center">
-                <p className="text-sm text-slate-600 dark:text-slate-400">No children added yet.</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400">{EMPTY_STATE.NO_CHILDREN_ADDED_YET.title}</p>
                 <Button
                   variant="outline"
                   size="sm"
@@ -1489,7 +1491,7 @@ export default function ParentOverviewPageClient() {
           setShowBookingModal(false);
           setBookingModalChildId(undefined);
         }}
-        onSave={handleBookingSave}
+        onSubmit={handleBookingSave}
         preSelectedChildId={bookingModalChildId}
         children={childrenForBookingModal}
         renderAsPanel

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
+import { isAdminRole } from '@/utils/dashboardConstants';
 import { ListBookingsUseCase } from '@/core/application/booking/useCases/ListBookingsUseCase';
 import { bookingRepository } from '@/infrastructure/persistence/booking';
 import type { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
@@ -34,7 +35,7 @@ export function useAllBookings() {
     }
 
     // Only admins and super_admins should use this hook
-    if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
+    if (!user || !isAdminRole(user.role)) {
       setLoading(false);
       setBookings([]);
       return;

@@ -18,6 +18,7 @@ import {
   } from 'lucide-react';
 import type { IconComponent } from '@/types/icons';
 import Image from 'next/image';
+import { themeColors } from '@/utils/themeColors';
 
 // Icon mapping for string-based icon names
 const iconMap: Record<string, IconComponent> = {
@@ -108,8 +109,8 @@ const ProductHero: React.FC<ProductHeroProps> = ({
   trustBadges,
   backgroundType = 'gradient',
   backgroundSrc,
-  gradientFrom = '#0080FF',
-  gradientTo = '#1E3A5F',
+  gradientFrom = themeColors.primaryBlue,
+  gradientTo = themeColors.navyBlue,
   spotsRemaining,
 }) => {
   const savings = pricing.originalPrice ? pricing.originalPrice - pricing.price : 0;
@@ -176,9 +177,9 @@ const ProductHero: React.FC<ProductHeroProps> = ({
             {badge && (
               <div className={`
                 inline-flex items-center gap-2 px-5 py-2 rounded-full mb-6 font-bold text-sm
-                ${badge.variant === 'gold' ? 'bg-[#FFD700] text-[#1E3A5F]' : ''}
-                ${badge.variant === 'blue' ? 'bg-[#0080FF] text-white' : ''}
-                ${badge.variant === 'gradient' ? 'bg-gradient-to-r from-[#0080FF] to-[#00D4FF] text-white' : ''}
+                ${badge.variant === 'gold' ? 'bg-[#FFD700] text-navy-blue' : ''}
+                ${badge.variant === 'blue' ? 'bg-primary-blue text-white' : ''}
+                ${badge.variant === 'gradient' ? 'bg-gradient-to-r from-primary-blue to-light-blue-cyan text-white' : ''}
               `}>
                 {BadgeIcon && <BadgeIcon size={18} />}
                 {badge.text}
@@ -219,11 +220,11 @@ const ProductHero: React.FC<ProductHeroProps> = ({
                         }
                       `}
                     >
-                      <Icon className={stat.variant === 'gold' ? 'text-[#1E3A5F] mb-2' : 'text-[#00D4FF] mb-2'} size={28} />
-                      <div className={`text-4xl font-extrabold ${stat.variant === 'gold' ? 'text-[#1E3A5F]' : 'text-white'}`}>
+                      <Icon className={stat.variant === 'gold' ? 'text-navy-blue mb-2' : 'text-light-blue-cyan mb-2'} size={28} />
+                      <div className={`text-4xl font-extrabold ${stat.variant === 'gold' ? 'text-navy-blue' : 'text-white'}`}>
                         {stat.value}
                       </div>
-                      <div className={`text-sm ${stat.variant === 'gold' ? 'font-bold text-[#1E3A5F] uppercase tracking-wide' : 'opacity-90'}`}>
+                      <div className={`text-sm ${stat.variant === 'gold' ? 'font-bold text-navy-blue uppercase tracking-wide' : 'opacity-90'}`}>
                         {stat.label}
                       </div>
                     </div>
@@ -248,7 +249,7 @@ const ProductHero: React.FC<ProductHeroProps> = ({
 
           {/* Right Column - Pricing Card */}
           <div className="lg:flex lg:justify-end">
-            <div className="bg-white rounded-3xl p-8 shadow-2xl max-w-md w-full border-4 border-[#00D4FF] relative">
+            <div className="bg-white rounded-3xl p-8 shadow-2xl max-w-md w-full border-4 border-light-blue-cyan relative">
               {/* Spots Remaining (if provided) - Subtle & Elegant */}
               {spotsRemaining && spotsRemaining <= 10 && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
@@ -261,14 +262,14 @@ const ProductHero: React.FC<ProductHeroProps> = ({
 
               {/* Savings Badge */}
               {savings > 0 && (
-                <div className="bg-gradient-to-r from-[#0080FF] to-[#00D4FF] text-white text-center py-2 px-4 rounded-full mb-6 font-bold text-sm shadow-lg">
+                <div className="bg-gradient-to-r from-primary-blue to-light-blue-cyan text-white text-center py-2 px-4 rounded-full mb-6 font-bold text-sm shadow-lg">
                   🔥 SAVE £{savings} - Limited Time Offer!
                 </div>
               )}
 
               {/* Highlight Value (e.g., Total Hours) */}
               {pricing.highlightValue && (
-                <div className="bg-gradient-to-r from-[#0080FF] to-[#00D4FF] rounded-2xl p-6 mb-6 text-white text-center shadow-lg">
+                <div className="bg-gradient-to-r from-primary-blue to-light-blue-cyan rounded-2xl p-6 mb-6 text-white text-center shadow-lg">
                   <div className="text-5xl font-extrabold mb-1">{pricing.highlightValue}</div>
                   <div className="text-sm font-bold uppercase tracking-wide">{pricing.highlightLabel || 'Total Hours'}</div>
                 </div>
@@ -279,26 +280,26 @@ const ProductHero: React.FC<ProductHeroProps> = ({
                   {pricing.originalPrice && (
                     <div className="text-gray-400 line-through text-xl mb-2">£{pricing.originalPrice}</div>
                   )}
-                  <div className="text-5xl font-extrabold text-[#1E3A5F] mb-2">£{pricing.price}</div>
+                  <div className="text-5xl font-extrabold text-navy-blue mb-2">£{pricing.price}</div>
                   <div className="text-gray-600 font-medium text-sm">{pricing.priceLabel || 'Complete Package'}</div>
                 </div>
               )}
 
               {/* Features Preview */}
               <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 mb-6">
-                <h3 className="font-bold text-[#1E3A5F] mb-4 flex items-center gap-2">
-                  <CheckCircle2 className="text-[#0080FF]" size={20} />
+                <h3 className="font-bold text-navy-blue mb-4 flex items-center gap-2">
+                  <CheckCircle2 className="text-primary-blue" size={20} />
                   What&apos;s Included:
                 </h3>
                 <ul className="space-y-3">
                   {features.slice(0, 4).map((feature, index) => (
                     <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                      <CheckCircle2 className="text-[#0080FF] flex-shrink-0 mt-0.5" size={16} />
+                      <CheckCircle2 className="text-primary-blue flex-shrink-0 mt-0.5" size={16} />
                       <span>{feature}</span>
                     </li>
                   ))}
                   {features.length > 4 && (
-                    <li className="text-sm text-[#0080FF] font-semibold">
+                    <li className="text-sm text-primary-blue font-semibold">
                       + {features.length - 4} more benefits
                     </li>
                   )}
@@ -318,7 +319,7 @@ const ProductHero: React.FC<ProductHeroProps> = ({
                     if (!Icon) return null;
                     return (
                       <div key={index} className="flex items-center gap-1">
-                        <Icon size={14} className="text-[#0080FF]" />
+                        <Icon size={14} className="text-primary-blue" />
                         <span>{badge.text}</span>
                       </div>
                     );

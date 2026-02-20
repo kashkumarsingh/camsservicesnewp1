@@ -4,6 +4,8 @@ import React from 'react';
 import type { ActivityLog } from '@/core/application/trainer/types';
 import { Calendar, Clock, User, CheckCircle, AlertCircle, Image as ImageIcon, Award } from 'lucide-react';
 import { getTrainerChildDisplayName } from '@/utils/trainerPrivacy';
+import { EmptyState } from '@/components/dashboard/universal/EmptyState';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface ActivityLogListProps {
   logs: ActivityLog[];
@@ -20,10 +22,11 @@ export default function ActivityLogList({
 }: ActivityLogListProps) {
   if (logs.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-12 text-center">
-        <Calendar className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activity Logs</h3>
-        <p className="text-gray-600">No activity logs found for this period.</p>
+      <div className="bg-white rounded-lg shadow p-12">
+        <EmptyState
+          title={EMPTY_STATE.NO_ACTIVITY_LOGS_FOR_PERIOD.title}
+          message={EMPTY_STATE.NO_ACTIVITY_LOGS_FOR_PERIOD.message}
+        />
       </div>
     );
   }
@@ -178,7 +181,7 @@ export default function ActivityLogList({
               )}
             </div>
             {onLogClick && (
-              <span className={`font-medium text-[#0080FF] hover:text-[#00D4FF] transition-colors ${isCompact ? 'text-xs' : 'text-sm'}`}>
+              <span className={`font-medium text-primary-blue hover:text-light-blue-cyan transition-colors ${isCompact ? 'text-xs' : 'text-sm'}`}>
                 View Details →
               </span>
             )}

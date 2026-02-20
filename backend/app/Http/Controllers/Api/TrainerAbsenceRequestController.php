@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use App\Models\Trainer;
 use App\Models\TrainerAbsenceRequest;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
  */
 class TrainerAbsenceRequestController extends Controller
 {
+    use BaseApiController;
     public function index(Request $request): JsonResponse
     {
         $trainer = $this->resolveTrainer();
@@ -29,11 +31,7 @@ class TrainerAbsenceRequestController extends Controller
             'date_to' => ['required', 'date', 'after_or_equal:date_from'],
         ]);
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         $dateFrom = Carbon::parse($request->date_from)->startOfDay();
@@ -69,18 +67,14 @@ class TrainerAbsenceRequestController extends Controller
             }
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'requests' => $requests->toArray(),
-                'approved_dates' => array_values(array_unique($approvedDates)),
-                'pending_dates' => array_values(array_unique($pendingDates)),
-            ],
-            'meta' => [
-                'date_from' => $dateFrom->format('Y-m-d'),
-                'date_to' => $dateTo->format('Y-m-d'),
-            ],
-        ], 200);
+        return $this->successResponse([
+            'requests' => $requests->toArray(),
+            'approved_dates' => array_values(array_unique($approvedDates)),
+            'pending_dates' => array_values(array_unique($pendingDates)),
+        ], null, [
+            'date_from' => $dateFrom->format('Y-m-d'),
+            'date_to' => $dateTo->format('Y-m-d'),
+        ]);
     }
 
     public function store(Request $request): JsonResponse
@@ -96,11 +90,7 @@ class TrainerAbsenceRequestController extends Controller
             'reason' => ['nullable', 'string', 'max:1000'],
         ]);
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         $dateFrom = Carbon::parse($request->date_from)->startOfDay();
@@ -108,10 +98,7 @@ class TrainerAbsenceRequestController extends Controller
 
         $maxDays = 93;
         if ($dateFrom->diffInDays($dateTo, false) > $maxDays) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Absence range must not exceed 93 days.',
-            ], 422);
+            return $this->errorResponse('Absence range must not exceed 93 days.', null, [], 422);
         }
 
         $absence = TrainerAbsenceRequest::create([
@@ -134,16 +121,12 @@ class TrainerAbsenceRequestController extends Controller
             )
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Absence request submitted. Pending admin approval.',
-            'data' => [
-                'id' => $absence->id,
-                'date_from' => $absence->date_from->format('Y-m-d'),
-                'date_to' => $absence->date_to->format('Y-m-d'),
-                'status' => $absence->status,
-            ],
-        ], 201);
+        return $this->successResponse([
+            'id' => $absence->id,
+            'date_from' => $absence->date_from->format('Y-m-d'),
+            'date_to' => $absence->date_to->format('Y-m-d'),
+            'status' => $absence->status,
+        ], 'Absence request submitted. Pending admin approval.', [], 201);
     }
 
     /** @return Trainer|JsonResponse */
@@ -151,15 +134,12 @@ class TrainerAbsenceRequestController extends Controller
     {
         $user = Auth::user();
         if (! $user) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
+            return $this->unauthorizedResponse();
         }
 
         $trainer = Trainer::where('user_id', $user->id)->first();
         if (! $trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found.',
-            ], 404);
+            return $this->notFoundResponse('Trainer profile');
         }
 
         return $trainer;

@@ -227,7 +227,7 @@ export default function TodaysActivities({ bookings }: TodaysActivitiesProps) {
             <Calendar className="w-6 h-6 text-blue-600" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-[#1E3A5F]">Today's Activities</h2>
+            <h2 className="text-2xl font-bold text-navy-blue">Today's Activities</h2>
             <p className="text-sm text-gray-600">
               {moment(today).format('dddd, MMMM Do YYYY')} • {visibleSessionCount} {visibleSessionCount === 1 ? 'session' : 'sessions'} scheduled
               {ongoingSessions.length > 0 && (

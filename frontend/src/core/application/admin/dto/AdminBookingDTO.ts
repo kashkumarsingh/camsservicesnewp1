@@ -238,6 +238,10 @@ export interface AdminBookingsFilters {
   session_date_from?: string;
   session_date_to?: string;
   search?: string;
+  /** Sort column: created_at, reference, updated_at */
+  sort_by?: string;
+  /** asc | desc */
+  order?: string;
   limit?: number;
   offset?: number;
 }

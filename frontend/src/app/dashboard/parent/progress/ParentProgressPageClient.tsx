@@ -7,6 +7,7 @@ import ParentProgressTimeline from '@/components/dashboard/ParentProgressTimelin
 import { EmptyState } from '@/components/dashboard/universal';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
 import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 export default function ParentProgressPageClient() {
   const { sessionNotesItems, loading: notesLoading, error: notesError, refetch: refetchSessionNotes } = useParentSessionNotes();
@@ -46,8 +47,8 @@ export default function ParentProgressPageClient() {
   if (!hasData) {
     return (
       <EmptyState
-        title="No progress data yet"
-        message="Session notes and activity logs from your children's sessions will appear here once trainers add notes and log activities."
+        title={EMPTY_STATE.NO_PROGRESS_DATA_YET.title}
+        message={EMPTY_STATE.NO_PROGRESS_DATA_YET.message}
       />
     );
   }

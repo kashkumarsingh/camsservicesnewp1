@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\ApiResponseHelper;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -100,7 +101,7 @@ class StoreBookingRequest extends FormRequest
 
     /**
      * Handle a failed validation attempt.
-     * Override to return standard API error format instead of Laravel's default.
+     * Return standard API error envelope (camelCase, meta) via ApiResponseHelper.
      *
      * @param \Illuminate\Contracts\Validation\Validator $validator
      * @return void
@@ -109,25 +110,9 @@ class StoreBookingRequest extends FormRequest
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator): void
     {
         $errors = $validator->errors()->toArray();
-        
-        // Generate request ID for tracing
-        $requestId = $this->header('X-Request-ID') ?? (string) \Illuminate\Support\Str::uuid();
-        
-        // Return standard API error format
+
         throw new \Illuminate\Http\Exceptions\HttpResponseException(
-            response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $errors,
-                'meta' => [
-                    'timestamp' => now()->toIso8601String(),
-                    'version' => 'v1',
-                    'requestId' => $requestId,
-                    'errorCode' => \App\Http\Controllers\Api\ErrorCodes::VALIDATION_ERROR,
-                ],
-            ], 422)
-                ->header('X-Request-ID', $requestId)
-                ->header('API-Version', 'v1')
+            ApiResponseHelper::validationErrorResponse($errors, 'Validation failed', $this)
         );
     }
 }

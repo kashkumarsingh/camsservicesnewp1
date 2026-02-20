@@ -28,7 +28,7 @@ export default function ConditionalPriceText({
 
   return (
     <div className={className}>
-      <div className="text-3xl md:text-4xl font-bold text-[#1E3A5F]">{currency}{price}</div>
+      <div className="text-3xl md:text-4xl font-bold text-navy-blue">{currency}{price}</div>
       {label && <div className="text-xs text-gray-500">{label}</div>}
     </div>
   );

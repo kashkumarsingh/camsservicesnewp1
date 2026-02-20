@@ -5,6 +5,8 @@ import { trainerScheduleRepository } from '@/infrastructure/http/trainer/Trainer
 import type { TrainerNote, CreateNoteRequest } from '@/core/application/trainer/types';
 import { Plus, FileText, AlertCircle, MessageSquare, CheckCircle, Lock } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import { EmptyState } from '@/components/dashboard/universal/EmptyState';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface NotesSectionProps {
   scheduleId: number;
@@ -138,7 +140,7 @@ export default function NotesSection({ scheduleId }: NotesSectionProps) {
             <select
               value={newNote.type}
               onChange={(e) => setNewNote(prev => ({ ...prev, type: e.target.value as any }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
             >
               <option value="general">General</option>
               <option value="incident">Incident</option>
@@ -154,7 +156,7 @@ export default function NotesSection({ scheduleId }: NotesSectionProps) {
               value={newNote.note}
               onChange={(e) => setNewNote(prev => ({ ...prev, note: e.target.value }))}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
               placeholder="Enter your note here..."
             />
           </div>
@@ -164,7 +166,7 @@ export default function NotesSection({ scheduleId }: NotesSectionProps) {
               id="is_private"
               checked={newNote.is_private}
               onChange={(e) => setNewNote(prev => ({ ...prev, is_private: e.target.checked }))}
-              className="w-4 h-4 text-[#0080FF] border-gray-300 rounded focus:ring-[#0080FF]"
+              className="w-4 h-4 text-primary-blue border-gray-300 rounded focus:ring-primary-blue"
             />
             <label htmlFor="is_private" className="text-sm text-gray-700 flex items-center gap-1">
               <Lock className="h-3 w-3" />
@@ -186,7 +188,7 @@ export default function NotesSection({ scheduleId }: NotesSectionProps) {
       )}
 
       {notes.length === 0 ? (
-        <p className="text-gray-600 text-center py-4">No notes yet. Add a note to get started.</p>
+        <EmptyState title={EMPTY_STATE.NO_NOTES_YET.title} message={EMPTY_STATE.NO_NOTES_YET.message} className="py-4" />
       ) : (
         <div className="space-y-3">
           {notes.map((note) => (

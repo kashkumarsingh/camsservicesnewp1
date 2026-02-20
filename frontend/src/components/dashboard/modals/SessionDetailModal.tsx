@@ -14,6 +14,8 @@ import { getGoogleMapsSearchUrl } from '@/utils/locationUtils';
 import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
 import ActivityLogTimeline from '@/components/trainer/activities/ActivityLogTimeline';
 import type { ActivityLog } from '@/core/application/trainer/types';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { ROUTES } from '@/utils/routes';
 
 interface SessionDetailModalProps {
   isOpen: boolean;
@@ -459,7 +461,7 @@ export default function SessionDetailModal({
               <p className="text-xs text-amber-800 dark:text-amber-200 mt-1.5">
                 For exceptional circumstances, please{' '}
                 <a
-                  href="/contact"
+                  href={ROUTES.CONTACT}
                   className="font-medium underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-amber-500 rounded"
                 >
                   contact us
@@ -565,7 +567,7 @@ export default function SessionDetailModal({
                   className="max-h-52 overflow-y-auto"
                 />
               ) : (
-                <p className="text-[11px] text-gray-500 py-2">No activity logs yet for this session.</p>
+                <p className="text-2xs text-gray-500 py-2">{EMPTY_STATE.NO_ACTIVITY_LOGS_YET.message}</p>
               )}
             </div>
           )}
@@ -651,8 +653,8 @@ export default function SessionDetailModal({
                     );
                   })()}
                   {!sessionDetail?.schedule?.current_activity_name && !sessionDetail?.schedule?.location && (!sessionDetail?.schedule?.current_activity_updates?.length) && !sessionDetailLoading && (
-                    <p className="text-[11px] text-gray-500 py-2">
-                      {hasEnded ? 'No session activity recorded for this session.' : 'No live updates yet for this session.'}
+                    <p className="text-2xs text-gray-500 py-2">
+                      {hasEnded ? EMPTY_STATE.NO_ACTIVITY_RECORDED.message : EMPTY_STATE.NO_LIVE_UPDATES_YET.message}
                     </p>
                   )}
                 </div>

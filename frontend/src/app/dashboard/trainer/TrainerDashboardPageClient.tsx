@@ -47,6 +47,7 @@ import { DashboardSkeleton } from '@/components/ui/Skeleton';
 import { useSmartResponsive } from '@/interfaces/web/hooks/responsive/useSmartResponsive';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
 import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
+import { ROUTES } from '@/utils/routes';
 import { useDashboardSyncEnabled } from '@/core/dashboardSync/DashboardSyncContext';
 import { dashboardSyncStore } from '@/core/dashboardSync/dashboardSyncStore';
 import SideCanvas from '@/components/ui/SideCanvas';
@@ -795,7 +796,7 @@ export default function TrainerDashboardPageClient() {
     trainerTimeEntryRepository
       .list({ booking_schedule_id: heroScheduleId })
       .then((res) => {
-        setTimeEntriesForHero(res.time_entries ?? []);
+        setTimeEntriesForHero(res.timeEntries ?? []);
       })
       .catch(() => {
         setTimeEntriesForHero(null);
@@ -806,7 +807,7 @@ export default function TrainerDashboardPageClient() {
     if (!heroScheduleId) return;
     trainerTimeEntryRepository
       .list({ booking_schedule_id: heroScheduleId })
-      .then((res) => setTimeEntriesForHero(res.time_entries ?? []))
+      .then((res) => setTimeEntriesForHero(res.timeEntries ?? []))
       .catch(() => setTimeEntriesForHero(null));
   }, [heroScheduleId]);
 
@@ -1306,7 +1307,7 @@ export default function TrainerDashboardPageClient() {
                                 <span className="text-slate-400">|</span>
                                 <span className="text-slate-600 dark:text-slate-400">{sessionType}</span>
                                 <span
-                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${pillClass}`}
+                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide ${pillClass}`}
                               aria-label={`Session status: ${timing.statusLabel}`}
                             >
                               {timing.statusVariant === 'live' && (
@@ -1433,7 +1434,7 @@ export default function TrainerDashboardPageClient() {
             </li>
             <li>
               <Link
-                href="/contact"
+                href={ROUTES.CONTACT}
                 className="flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
               >
                 <Mail size={20} className="shrink-0 text-slate-600 dark:text-slate-400" aria-hidden />
@@ -1443,7 +1444,7 @@ export default function TrainerDashboardPageClient() {
             </li>
             <li>
               <Link
-                href="/faq"
+                href={ROUTES.FAQ}
                 className="flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
               >
                 <HelpCircle size={20} className="shrink-0 text-slate-600 dark:text-slate-400" aria-hidden />
@@ -1618,7 +1619,7 @@ export default function TrainerDashboardPageClient() {
                         {session.childName}
                       </p>
                       <span
-                        className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${pillClass}`}
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide ${pillClass}`}
                         aria-label={`Status: ${timing.statusLabel}`}
                       >
                         {timing.statusVariant === 'live' && (

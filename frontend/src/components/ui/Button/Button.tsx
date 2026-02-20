@@ -6,7 +6,7 @@ interface ButtonProps {
   href?: string;
   onClick?: (e?: React.MouseEvent<HTMLButtonElement>) => void;
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'bordered' | 'ghost' | 'outline' | 'outlineWhite' | 'purple' | 'yellow' | 'superPlayful';
+  variant?: 'primary' | 'secondary' | 'bordered' | 'ghost' | 'outline' | 'outlineWhite' | 'purple' | 'yellow' | 'superPlayful' | 'destructive' | 'destructive-outline';
   size?: 'xs' | 'sm' | 'md' | 'lg';
   className?: string;
   type?: 'button' | 'submit' | 'reset';
@@ -43,6 +43,10 @@ const Button: React.FC<ButtonProps> = ({ href, onClick, children, variant = 'pri
           return 'bg-[var(--color-primary)] text-white border-2 border-white/50 shadow-md';
         case 'yellow':
           return 'bg-amber-300 text-slate-900 border-2 border-amber-400 shadow-md';
+        case 'destructive':
+          return 'bg-rose-600 text-white ring-rose-500/30';
+        case 'destructive-outline':
+          return 'border border-rose-300 text-rose-600 bg-white';
         default:
           return 'bg-[var(--color-primary)] text-white';
       }
@@ -66,6 +70,10 @@ const Button: React.FC<ButtonProps> = ({ href, onClick, children, variant = 'pri
         return 'bg-[var(--color-primary)] text-white border-2 border-white/50 shadow-md hover:brightness-110 hover:shadow-lg hover:border-white';
       case 'yellow':
         return 'bg-amber-300 text-slate-900 border-2 border-amber-500 shadow-md hover:bg-amber-400 hover:shadow-lg';
+      case 'destructive':
+        return 'bg-rose-600 text-white border border-rose-600 shadow-sm hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2';
+      case 'destructive-outline':
+        return 'bg-white text-rose-600 border border-rose-300 shadow-sm hover:bg-rose-50 hover:text-rose-700 hover:border-rose-400 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2';
       default:
         return 'bg-[var(--color-primary)] text-white shadow-md hover:brightness-110 hover:shadow-lg';
     }
@@ -103,13 +111,17 @@ const Button: React.FC<ButtonProps> = ({ href, onClick, children, variant = 'pri
       case 'outlineWhite':
         return 'ml-2 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/40 hover:text-[var(--color-primary)] transition-colors duration-200';
       case 'purple':
-        return 'ml-2 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 hover:text-[#0080FF] transition-colors duration-300';
+        return 'ml-2 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 hover:text-primary-blue transition-colors duration-300';
       case 'yellow':
-        return 'ml-2 w-6 h-6 rounded-full bg-[#1E3A5F]/10 flex items-center justify-center text-[#1E3A5F] hover:bg-[#1E3A5F] hover:text-white transition-colors duration-300';
+        return 'ml-2 w-6 h-6 rounded-full bg-navy-blue/10 flex items-center justify-center text-navy-blue hover:bg-navy-blue hover:text-white transition-colors duration-300';
       case 'superPlayful':
-        return 'ml-2 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 hover:text-[#0080FF] transition-colors duration-300';
+        return 'ml-2 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 hover:text-primary-blue transition-colors duration-300';
+      case 'destructive':
+        return 'ml-2 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors duration-200';
+      case 'destructive-outline':
+        return 'ml-2 w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 hover:bg-rose-200 transition-colors duration-200';
       default:
-        return 'ml-2 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 hover:text-[#0080FF] transition-colors duration-300';
+        return 'ml-2 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 hover:text-primary-blue transition-colors duration-300';
     }
   };
 

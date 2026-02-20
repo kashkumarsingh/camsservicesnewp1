@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { FileText, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import moment from 'moment';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 /** Number of session notes shown initially before "Show more". */
 const INITIAL_VISIBLE_COUNT = 5;
@@ -83,7 +84,7 @@ export default function SessionNotesCard({
         {!hasItems ? (
           <div className="py-3 px-3 rounded-lg bg-[#f8f9fa] dark:bg-gray-700/50">
             <p className="text-xs text-[#5f6368] dark:text-gray-400">
-              No trainer notes yet. Summary notes from your child&rsquo;s trainer will appear here after completed sessions.
+              {EMPTY_STATE.NO_TRAINER_NOTES_YET.message}
             </p>
           </div>
         ) : (

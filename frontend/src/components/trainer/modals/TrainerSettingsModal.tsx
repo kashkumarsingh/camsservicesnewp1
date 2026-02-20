@@ -83,7 +83,7 @@ export default function TrainerSettingsModal({
                     className={`
                       whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors
                       ${activeTab === tab.id
-                        ? 'border-[#0080FF] text-[#0080FF]'
+                        ? 'border-primary-blue text-primary-blue'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                       }
                     `}

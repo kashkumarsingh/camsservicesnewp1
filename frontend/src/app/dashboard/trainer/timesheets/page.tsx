@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { format, parseISO } from "date-fns";
 import { Calendar, PoundSterling, Clock } from "lucide-react";
 import { mockTimesheetEntries, mockPayPeriods } from "@/mock/trainerData";
+import { EMPTY_STATE } from "@/utils/emptyStateConstants";
 
 export const metadata: Metadata = {
   title: "Trainer Dashboard - Timesheets",
@@ -152,7 +153,7 @@ export default function TrainerTimesheetsPage() {
 
         {uniqueDates.length === 0 && (
           <p className="text-sm text-gray-600 dark:text-gray-300">
-            No timesheet entries available yet.
+            {EMPTY_STATE.NO_TIMESHEET_ENTRIES_YET.title}
           </p>
         )}
       </div>

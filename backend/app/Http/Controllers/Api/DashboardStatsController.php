@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardStatsController extends Controller
 {
+    use BaseApiController;
     public function __invoke(Request $request)
     {
         $user = Auth::user();
@@ -85,26 +87,23 @@ class DashboardStatsController extends Controller
 
         $totalActivePackages = $activePackagesPerChild->sum('activePackagesCount');
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'approvedChildrenCount' => $approvedChildren->count(),
-                'totalChildren' => $children->count(),
-                'pendingChildren' => $pendingChildren,
-                'rejectedChildren' => $rejectedChildren,
-                'childrenNeedingChecklist' => $childrenNeedingChecklist,
-                'childrenWithPendingChecklist' => $childrenWithPendingChecklist,
-                'totalBookings' => $bookings->count(),
-                'pendingBookings' => $pendingBookings,
-                'confirmedBookings' => $confirmedBookings,
-                'totalBookedSessions' => $totalBookedSessions,
-                'totalOutstanding' => $totalOutstanding,
-                'totalHoursPurchased' => $totalHoursPurchased,
-                'totalHoursBooked' => $totalHoursBooked,
-                'activePackageNames' => $activePackageNames,
-                'activePackagesPerChild' => $activePackagesPerChild,
-                'totalActivePackages' => $totalActivePackages,
-            ],
+        return $this->successResponse([
+            'approvedChildrenCount' => $approvedChildren->count(),
+            'totalChildren' => $children->count(),
+            'pendingChildren' => $pendingChildren,
+            'rejectedChildren' => $rejectedChildren,
+            'childrenNeedingChecklist' => $childrenNeedingChecklist,
+            'childrenWithPendingChecklist' => $childrenWithPendingChecklist,
+            'totalBookings' => $bookings->count(),
+            'pendingBookings' => $pendingBookings,
+            'confirmedBookings' => $confirmedBookings,
+            'totalBookedSessions' => $totalBookedSessions,
+            'totalOutstanding' => $totalOutstanding,
+            'totalHoursPurchased' => $totalHoursPurchased,
+            'totalHoursBooked' => $totalHoursBooked,
+            'activePackageNames' => $activePackageNames,
+            'activePackagesPerChild' => $activePackagesPerChild,
+            'totalActivePackages' => $totalActivePackages,
         ]);
     }
 }

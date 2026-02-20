@@ -71,18 +71,18 @@ export function BookingSummary({ booking, packageName, totalHours }: BookingSumm
         {/* Booking Reference */}
         <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border-2 border-blue-200">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-[#0080FF] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-primary-blue flex items-center justify-center">
               <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-[#1E3A5F]">Your Booking Reference</h3>
+              <h3 className="text-lg font-bold text-navy-blue">Your Booking Reference</h3>
               <p className="text-xs text-gray-600">Save this number for your records</p>
             </div>
           </div>
           <div className="bg-white rounded-lg p-4 border-2 border-blue-300">
-            <div className="text-2xl md:text-3xl font-extrabold text-[#0080FF] font-mono tracking-wider text-center">
+            <div className="text-2xl md:text-3xl font-extrabold text-primary-blue font-mono tracking-wider text-center">
               {booking.reference}
             </div>
           </div>
@@ -90,7 +90,7 @@ export function BookingSummary({ booking, packageName, totalHours }: BookingSumm
 
         {/* Booking Summary */}
         <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
-          <h3 className="text-lg font-bold text-[#1E3A5F] mb-4">Booking Summary</h3>
+          <h3 className="text-lg font-bold text-navy-blue mb-4">Booking Summary</h3>
           
           <div className="space-y-4">
             {/* Child & Date */}
@@ -134,7 +134,7 @@ export function BookingSummary({ booking, packageName, totalHours }: BookingSumm
               <div className="text-xs text-gray-600 mb-3">Package Hours</div>
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <div className="text-2xl font-extrabold text-[#0080FF] mb-1">
+                  <div className="text-2xl font-extrabold text-primary-blue mb-1">
                     {formatHours(usedHours)}
                   </div>
                   <div className="text-xs text-gray-600 font-medium">Used</div>
@@ -164,7 +164,7 @@ export function BookingSummary({ booking, packageName, totalHours }: BookingSumm
                 <CheckCircle className="text-white" size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-[#1E3A5F]">Payment Confirmed</h3>
+                <h3 className="text-lg font-bold text-navy-blue">Payment Confirmed</h3>
                 <p className="text-xs text-gray-600">Your payment has been successfully processed</p>
               </div>
             </div>
@@ -183,19 +183,19 @@ export function BookingSummary({ booking, packageName, totalHours }: BookingSumm
         {remainingHours > 0 && (
           <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-300 rounded-xl p-6">
             <div className="flex items-start gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-[#0080FF] flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-full bg-primary-blue flex items-center justify-center flex-shrink-0">
                 <Package className="text-white" size={24} />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-[#1E3A5F] mb-1">You Have Remaining Hours!</h3>
+                <h3 className="text-xl font-bold text-navy-blue mb-1">You Have Remaining Hours!</h3>
                 <p className="text-sm text-gray-700">
-                  You&apos;ve used <strong className="text-[#0080FF]">{formatHours(usedHours)}</strong> of your <strong>{formatHours(calculatedTotalHours)}</strong> package.
+                  You&apos;ve used <strong className="text-primary-blue">{formatHours(usedHours)}</strong> of your <strong>{formatHours(calculatedTotalHours)}</strong> package.
                 </p>
               </div>
             </div>
             <div className="bg-white rounded-xl p-5 border-2 border-blue-200">
               <div className="text-center">
-                <div className="text-4xl font-extrabold text-[#0080FF] mb-2">{formatHours(remainingHours)}</div>
+                <div className="text-4xl font-extrabold text-primary-blue mb-2">{formatHours(remainingHours)}</div>
                 <div className="text-base font-semibold text-gray-700">remaining hours available</div>
                 <div className="text-xs text-gray-600 mt-1">You can book these hours now or later</div>
               </div>

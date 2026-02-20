@@ -39,12 +39,12 @@ export interface ActivitySelectionInfo {
  * 3. Otherwise -> 'trainer_choice'
  * 
  * @param activities - Array of activity names/objects
- * @param notes - Session notes (itinerary notes)
+ * @param notes - Session notes
  * @param durationHours - Duration in hours (for display)
  * @returns ActivitySelectionInfo with type, display text, and icon
  */
 export function detectActivitySelection(
-  activities: Array<string | { name: string; [key: string]: any }> | undefined,
+  activities: Array<string | { name: string; [key: string]: unknown }> | undefined,
   notes: string | undefined,
   durationHours?: number
 ): ActivitySelectionInfo {
@@ -89,7 +89,7 @@ export function detectActivitySelection(
  * Handles both string arrays and object arrays with 'name' property
  */
 export function normaliseActivitiesToNames(
-  activities: Array<string | { name: string; [key: string]: any }> | undefined
+  activities: Array<string | { name: string; [key: string]: unknown }> | undefined
 ): string[] {
   if (!activities || activities.length === 0) {
     return [];
@@ -281,13 +281,11 @@ export function calculateDurationFromTimes(startTime: string, endTime: string): 
   const [startHour, startMin] = startTime.split(':').map(Number);
   const [endHour, endMin] = endTime.split(':').map(Number);
   
-  let startMinutes = startHour * 60 + startMin;
+  const startMinutes = startHour * 60 + startMin;
   let endMinutes = endHour * 60 + endMin;
-  
   // Handle sessions that span to next day
   if (endMinutes <= startMinutes) {
     endMinutes += 24 * 60;
   }
-  
   return (endMinutes - startMinutes) / 60;
 }

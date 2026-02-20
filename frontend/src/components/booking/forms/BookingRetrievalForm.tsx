@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Search, AlertCircle, CheckCircle2, Calendar, Clock, Package, Users } from 'lucide-react';
 import Button from '@/components/ui/Button/Button';
 import { formatHours } from '@/utils/formatHours';
 import { useBooking } from '@/interfaces/web/hooks/booking/useBooking';
 import { bookingDTOToVisitorBooking } from '@/interfaces/web/utils/bookingRetrievalAdapter';
+import { ROUTES } from '@/utils/routes';
 
 interface VisitorBooking {
   reference: string;
@@ -180,10 +182,10 @@ const BookingRetrievalForm: React.FC<BookingRetrievalFormProps> = ({ onBookingRe
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-xl border-2 border-gray-200 p-6 md:p-8 shadow-lg">
       <div className="text-center mb-8">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#0080FF] to-[#00D4FF] flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-blue to-light-blue-cyan flex items-center justify-center mx-auto mb-4">
           <Search className="text-white" size={32} />
         </div>
-        <h2 className="text-2xl md:text-3xl font-bold text-[#1E3A5F] mb-2">
+        <h2 className="text-2xl md:text-3xl font-bold text-navy-blue mb-2">
           Retrieve Your Booking
         </h2>
         <p className="text-gray-600">
@@ -213,14 +215,14 @@ const BookingRetrievalForm: React.FC<BookingRetrievalFormProps> = ({ onBookingRe
                 }
               }}
               placeholder="CAMS-XXXXXX-XXX-XXXX"
-              className="w-full px-4 py-3 text-lg font-mono border-2 border-gray-300 rounded-lg focus:border-[#0080FF] focus:outline-none focus:ring-2 focus:ring-[#0080FF]/20 transition-all"
+              className="w-full px-4 py-3 text-lg font-mono border-2 border-gray-300 rounded-lg focus:border-primary-blue focus:outline-none focus:ring-2 focus:ring-primary-blue/20 transition-all"
             />
           </div>
           <div className="flex items-end">
             <Button
               onClick={handleSearch}
               disabled={searching || apiLoading || !reference.trim()}
-              className="px-6 py-3 bg-[#0080FF] hover:bg-[#0069cc] text-white font-semibold"
+              className="px-6 py-3 bg-primary-blue hover:bg-primary-blue text-white font-semibold"
             >
               {searching || apiLoading ? 'Searching...' : 'Search'}
             </Button>
@@ -236,7 +238,7 @@ const BookingRetrievalForm: React.FC<BookingRetrievalFormProps> = ({ onBookingRe
             <p className="text-sm font-semibold text-red-900 mb-1">Booking Not Found</p>
             <p className="text-sm text-red-800">{error}</p>
             <p className="text-xs text-red-700 mt-2">
-              Need help? <a href="/contact" className="underline font-semibold">Contact us</a> with your booking reference.
+              Need help? <Link href={ROUTES.CONTACT} className="underline font-semibold">Contact us</Link> with your booking reference.
             </p>
           </div>
         </div>
@@ -260,10 +262,10 @@ const BookingRetrievalForm: React.FC<BookingRetrievalFormProps> = ({ onBookingRe
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div className="bg-white rounded-lg p-4 border border-gray-200">
               <div className="flex items-center gap-2 mb-2">
-                <Package className="text-[#0080FF]" size={18} />
+                <Package className="text-primary-blue" size={18} />
                 <span className="text-xs font-semibold text-gray-600 uppercase">Package Hours</span>
               </div>
-              <div className="text-2xl font-bold text-[#1E3A5F]">
+              <div className="text-2xl font-bold text-navy-blue">
                 {formatHours(foundBooking.totalHours)}
               </div>
             </div>
@@ -293,7 +295,7 @@ const BookingRetrievalForm: React.FC<BookingRetrievalFormProps> = ({ onBookingRe
                 <Users className="text-purple-600" size={18} />
                 <span className="text-xs font-semibold text-gray-600 uppercase">Contact</span>
               </div>
-              <div className="text-sm font-semibold text-[#1E3A5F]">
+              <div className="text-sm font-semibold text-navy-blue">
                 {foundBooking.email}
               </div>
             </div>
@@ -303,7 +305,7 @@ const BookingRetrievalForm: React.FC<BookingRetrievalFormProps> = ({ onBookingRe
             <div className="mt-4">
               <Button
                 onClick={handleContinueBooking}
-                className="w-full bg-gradient-to-r from-[#0080FF] to-[#00D4FF] hover:from-[#0069cc] hover:to-[#00b8e6] text-white font-bold py-3 shadow-lg"
+                className="w-full bg-gradient-to-r from-primary-blue to-light-blue-cyan hover:from-primary-blue hover:to-light-blue-cyan text-white font-bold py-3 shadow-lg"
               >
                 Continue Booking with {formatHours(foundBooking.remainingHours)} Remaining
               </Button>
@@ -313,7 +315,7 @@ const BookingRetrievalForm: React.FC<BookingRetrievalFormProps> = ({ onBookingRe
           {foundBooking.remainingHours <= 0 && (
             <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-sm text-amber-900">
-                All hours have been used. <a href="/packages" className="underline font-semibold">Book a new package</a> to continue.
+                All hours have been used. <Link href={ROUTES.PACKAGES} className="underline font-semibold">Book a new package</Link> to continue.
               </p>
             </div>
           )}
@@ -323,7 +325,7 @@ const BookingRetrievalForm: React.FC<BookingRetrievalFormProps> = ({ onBookingRe
       {/* Recent Bookings (if any) */}
       {allBookings.length > 0 && (
         <div className="mt-8 pt-6 border-t border-gray-200">
-          <h3 className="text-lg font-bold text-[#1E3A5F] mb-4">Recent Bookings</h3>
+          <h3 className="text-lg font-bold text-navy-blue mb-4">Recent Bookings</h3>
           <div className="space-y-2">
             {allBookings.slice(0, 5).map((booking) => (
               <button
@@ -333,7 +335,7 @@ const BookingRetrievalForm: React.FC<BookingRetrievalFormProps> = ({ onBookingRe
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-mono font-semibold text-[#0080FF]">{booking.reference}</div>
+                    <div className="font-mono font-semibold text-primary-blue">{booking.reference}</div>
                     <div className="text-xs text-gray-600 mt-1">
                       {formatHours(booking.usedHours)} used • {formatHours(booking.remainingHours)} remaining
                     </div>

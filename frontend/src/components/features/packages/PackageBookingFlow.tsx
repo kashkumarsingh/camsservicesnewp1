@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import PackageCheckout from '@/components/features/packages/PackageCheckout';
+import { ROUTES } from '@/utils/routes';
 
 // Import types for compatibility
 import { Package, OriginalTrainer } from '@/components/features/booking/types';
@@ -39,7 +41,7 @@ const PackageBookingFlow: React.FC<PackageBookingFlowProps> = ({
     return (
       <div className="min-h-screen bg-gray-50 py-8 px-4">
         <div className="max-w-4xl mx-auto bg-white rounded-xl border-2 border-gray-200 p-6">
-          <p className="text-center text-gray-600">Package not found. Please <a href="/packages" className="text-[#0080FF] underline">select a package</a> to continue.</p>
+          <p className="text-center text-gray-600">Package not found. Please <Link href={ROUTES.PACKAGES} className="text-primary-blue underline">select a package</Link> to continue.</p>
         </div>
       </div>
     );
@@ -54,7 +56,7 @@ const PackageBookingFlow: React.FC<PackageBookingFlowProps> = ({
     return (
       <div className="min-h-screen bg-gray-50 py-8 px-4">
         <div className="max-w-4xl mx-auto bg-white rounded-xl border-2 border-gray-200 p-6">
-          <p className="text-center text-gray-600">Invalid package. Please <a href="/packages" className="text-[#0080FF] underline">select a package</a> to continue.</p>
+          <p className="text-center text-gray-600">Invalid package. Please <Link href={ROUTES.PACKAGES} className="text-primary-blue underline">select a package</Link> to continue.</p>
         </div>
       </div>
     );

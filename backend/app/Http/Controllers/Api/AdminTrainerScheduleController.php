@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
+use App\Http\Controllers\Api\ErrorCodes;
 use App\Http\Controllers\Controller;
 use App\Models\BookingSchedule;
 use App\Models\Trainer;
@@ -17,6 +19,7 @@ use Illuminate\Http\Request;
  */
 class AdminTrainerScheduleController extends Controller
 {
+    use BaseApiController;
     /**
      * List all booking schedules assigned to a trainer (admin view).
      *
@@ -29,10 +32,7 @@ class AdminTrainerScheduleController extends Controller
         $trainer = Trainer::find($id);
 
         if (! $trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer not found.',
-            ], 404);
+            return $this->notFoundResponse('Trainer');
         }
 
         $query = BookingSchedule::where('trainer_id', $trainer->id)
@@ -71,22 +71,20 @@ class AdminTrainerScheduleController extends Controller
             return $this->formatSchedule($schedule);
         });
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'schedules' => $items->values()->all(),
-            ],
-            'meta' => [
+        return $this->successResponse(
+            ['schedules' => $items->values()->all()],
+            null,
+            [
                 'pagination' => [
-                    'current_page' => $schedules->currentPage(),
-                    'per_page' => $schedules->perPage(),
+                    'currentPage' => $schedules->currentPage(),
+                    'perPage' => $schedules->perPage(),
                     'total' => $schedules->total(),
-                    'last_page' => $schedules->lastPage(),
+                    'lastPage' => $schedules->lastPage(),
                     'from' => $schedules->firstItem(),
                     'to' => $schedules->lastItem(),
                 ],
-            ],
-        ], 200);
+            ]
+        );
     }
 
     /**
@@ -99,10 +97,7 @@ class AdminTrainerScheduleController extends Controller
         $trainer = Trainer::find($id);
 
         if (! $trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer not found.',
-            ], 404);
+            return $this->notFoundResponse('Trainer');
         }
 
         $schedule = BookingSchedule::where('id', $scheduleId)
@@ -121,18 +116,10 @@ class AdminTrainerScheduleController extends Controller
             ->first();
 
         if (! $schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found.',
-            ], 404);
+            return $this->notFoundResponse('Schedule');
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'schedule' => $this->formatScheduleDetail($schedule),
-            ],
-        ], 200);
+        return $this->successResponse(['schedule' => $this->formatScheduleDetail($schedule)]);
     }
 
     /**

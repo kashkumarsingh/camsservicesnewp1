@@ -20,15 +20,15 @@ const QuickSummaryCard: React.FC<QuickSummaryCardProps> = ({ pkg }) => {
         className="w-full flex items-center justify-between p-5 hover:bg-blue-100/50 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#0080FF] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-primary-blue flex items-center justify-center">
             <CheckCircle2 className="text-white" size={20} />
           </div>
           <div className="text-left">
-            <h3 className="text-lg font-bold text-[#1E3A5F]">Quick Package Summary</h3>
+            <h3 className="text-lg font-bold text-navy-blue">Quick Package Summary</h3>
             <p className="text-xs text-gray-600">Click to see full details</p>
           </div>
         </div>
-        {isExpanded ? <ChevronUp className="text-[#0080FF]" size={24} /> : <ChevronDown className="text-[#0080FF]" size={24} />}
+        {isExpanded ? <ChevronUp className="text-primary-blue" size={24} /> : <ChevronDown className="text-primary-blue" size={24} />}
       </button>
       {isExpanded && (
         <div className="px-5 pb-5 space-y-4">
@@ -41,7 +41,7 @@ const QuickSummaryCard: React.FC<QuickSummaryCardProps> = ({ pkg }) => {
               <ul className="space-y-2">
                 {pkg.features.map((feature, index) => (
                   <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#0080FF] mt-1.5 flex-shrink-0"></div>
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary-blue mt-1.5 flex-shrink-0"></div>
                     <span>{feature}</span>
                   </li>
                 ))}

@@ -42,7 +42,7 @@ export QUEUE_CONNECTION=${QUEUE_CONNECTION:-database}
 
 # Auto-configure session domain for Render.com (fixes 419 CSRF errors)
 if [ -n "$RENDER_EXTERNAL_URL" ]; then
-    # Extract domain from Render URL (e.g., https://cams-backend-1q6w.onrender.com)
+    # Extract domain from Render URL (e.g., https://cams-backend-oj5x.onrender.com)
     RENDER_DOMAIN=$(echo "$RENDER_EXTERNAL_URL" | sed 's|https\?://||' | sed 's|/.*||')
     # Use EXACT domain (not .onrender.com) for better browser cookie compatibility
     # Some browsers reject cookies with wildcard domains like .onrender.com
@@ -168,29 +168,43 @@ php artisan view:cache || true
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
-# Start background services (scheduler + queue worker)
-echo "Starting Laravel Scheduler (cron)..."
-# Run scheduler every minute in background
-(while true; do
-    php artisan schedule:run --verbose --no-interaction >> /var/log/scheduler.log 2>&1
-    sleep 60
-done) &
+# Start background services (scheduler + queue worker) unless disabled (e.g. when using Render worker/cron services)
+if [ "${RUN_SCHEDULER_IN_CONTAINER:-true}" = "true" ]; then
+    echo "Starting Laravel Scheduler (cron)..."
+    (while true; do
+        php artisan schedule:run --verbose --no-interaction >> /var/log/scheduler.log 2>&1
+        sleep 60
+    done) &
+fi
 
-echo "Starting Queue Worker..."
-# Start queue worker in background (auto-restart on failure)
-(while true; do
-    php artisan queue:work database --sleep=3 --tries=3 --max-time=3600 --verbose --no-interaction >> /var/log/queue.log 2>&1
-    echo "Queue worker stopped. Restarting in 5 seconds..."
-    sleep 5
-done) &
+if [ "${RUN_QUEUE_IN_CONTAINER:-true}" = "true" ]; then
+    echo "Starting Queue Worker..."
+    (while true; do
+        php artisan queue:work database --sleep=3 --tries=3 --max-time=3600 --verbose --no-interaction >> /var/log/queue.log 2>&1
+        echo "Queue worker stopped. Restarting in 5 seconds..."
+        sleep 5
+    done) &
+fi
 
 # Wait a moment for background services to initialize
 sleep 2
 
+# Worker-only mode (Render queue worker service): run after DB and migrations
+if [ "$RUN_MODE" = "worker" ]; then
+    echo "Worker mode → starting queue:work (database)"
+    exec php artisan queue:work database --sleep=3 --tries=3 --timeout=90 --verbose --no-interaction
+fi
+
+# Scheduler-only mode (Render cron service): run once and exit
+if [ "$RUN_MODE" = "scheduler" ]; then
+    echo "Scheduler mode → running schedule:run"
+    exec php artisan schedule:run --verbose --no-interaction
+fi
+
 # Start web services (foreground)
 php-fpm -D
 echo "Starting Nginx on port $PORT..."
-echo "✓ Scheduler running (every minute)"
-echo "✓ Queue worker running (database queue)"
+[ "${RUN_SCHEDULER_IN_CONTAINER:-true}" = "true" ] && echo "✓ Scheduler running (every minute)"
+[ "${RUN_QUEUE_IN_CONTAINER:-true}" = "true" ] && echo "✓ Queue worker running (database queue)"
 echo "✓ Web server starting..."
 exec nginx -g 'daemon off;'

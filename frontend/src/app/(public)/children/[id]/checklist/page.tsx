@@ -1,14 +1,8 @@
-import { Metadata } from 'next';
-import ChildChecklistPageClient from './ChildChecklistPageClient';
+import { notFound } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: 'Child Checklist - CAMS Services',
-  description: 'Complete checklist for your child',
-};
-
-export const dynamic = 'force-dynamic';
-
+/**
+ * Stub: Child checklist page was removed. Route kept for validator/build compatibility.
+ */
 export default function ChildChecklistPage() {
-  return <ChildChecklistPageClient />;
+  notFound();
 }
-

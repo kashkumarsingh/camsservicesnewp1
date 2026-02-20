@@ -63,7 +63,7 @@ export async function withTimeoutFallback<T>(
       timeoutPromise.then(() => fallback),
     ]);
     return result;
-  } catch (error) {
+  } catch {
     // If promise rejects, return fallback
     return fallback;
   }
@@ -107,11 +107,10 @@ export async function fetchWithTimeout(
     
     clearTimeout(timeoutId);
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     clearTimeout(timeoutId);
-    
-    // Handle abort errors specifically
-    if (error?.name === 'AbortError') {
+    const err = error as { name?: string };
+    if (err?.name === 'AbortError') {
       throw new Error(`Request to ${url} timed out after ${timeoutMs}ms`);
     }
     

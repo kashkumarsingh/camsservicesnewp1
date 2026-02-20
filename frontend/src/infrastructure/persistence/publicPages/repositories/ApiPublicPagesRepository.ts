@@ -11,6 +11,7 @@ import type {
 import type { PublicPageDTO } from "@/core/application/publicPages/dto/PublicPageDTO";
 import { apiClient } from "@/infrastructure/http/ApiClient";
 import { API_ENDPOINTS } from "@/infrastructure/http/apiEndpoints";
+import { extractList } from "@/infrastructure/http/responseHelpers";
 
 interface LaravelAdminPublicPageResponse {
   id: string;
@@ -40,10 +41,8 @@ export class ApiPublicPagesRepository implements IPublicPagesRepository {
       ? `${API_ENDPOINTS.ADMIN_PUBLIC_PAGES}?${query}`
       : API_ENDPOINTS.ADMIN_PUBLIC_PAGES;
 
-    const response = await apiClient.get<LaravelAdminPublicPageResponse[]>(url);
-
-    const data = Array.isArray(response.data) ? response.data : [];
-
+    const response = await apiClient.get<LaravelAdminPublicPageResponse[] | { data: LaravelAdminPublicPageResponse[]; meta?: unknown }>(url);
+    const data = extractList(response);
     return data.map((page) => ({
       id: page.id,
       title: page.title,

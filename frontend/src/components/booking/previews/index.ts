@@ -1,2 +1,5 @@
-export { default as SessionPreview } from './SessionPreview';
+/**
+ * Booking previews — legacy SessionPreview (itinerary strategies) removed.
+ */
 
+export {};

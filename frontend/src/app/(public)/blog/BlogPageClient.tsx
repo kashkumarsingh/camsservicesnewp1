@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import Section from '@/components/layout/Section';
 import Button from '@/components/ui/Button';
 import CTASection from '@/components/shared/CTASection';
@@ -9,6 +9,15 @@ import Link from 'next/link';
 import { Calendar, User } from 'lucide-react';
 import { BlogList } from '@/interfaces/web/components/blog';
 import { BlogPostDTO } from '@/core/application/blog';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { ROUTES } from '@/utils/routes';
+import {
+  BLOG_HERO,
+  BLOG_STATS,
+  BLOG_FEATURED,
+  BLOG_LIST,
+  BLOG_CTA,
+} from '@/components/blog/blogPageConstants';
 import BlogCategoryFilter from './BlogCategoryFilter';
 
 interface BlogPageClientProps {
@@ -17,11 +26,6 @@ interface BlogPageClientProps {
 
 export default function BlogPageClient({ posts }: BlogPageClientProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-
-  // Debug: Log posts received from server
-  useEffect(() => {
-    console.log('[BlogPageClient] Received posts:', posts.length, posts);
-  }, [posts]);
 
   // Extract unique categories
   const categories = useMemo(() => {
@@ -44,17 +48,17 @@ export default function BlogPageClient({ posts }: BlogPageClientProps) {
       <Section className="border-b border-slate-200 bg-slate-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">
-            Blog
+            {BLOG_HERO.TITLE}
           </h1>
           <p className="mt-4 text-base md:text-lg text-slate-600 max-w-2xl mx-auto">
-            Expert insights, tips, and stories from our team supporting families and children with SEN.
+            {BLOG_HERO.SUBTITLE}
           </p>
           <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
-            <Button href="/contact" variant="primary" size="lg" withArrow>
-              Get in touch
+            <Button href={ROUTES.CONTACT} variant="primary" size="lg" withArrow>
+              {BLOG_HERO.CTA_GET_IN_TOUCH}
             </Button>
             <Button href="#featured" variant="outline" size="lg" withArrow>
-              Latest articles
+              {BLOG_HERO.CTA_LATEST_ARTICLES}
             </Button>
           </div>
         </div>
@@ -65,12 +69,12 @@ export default function BlogPageClient({ posts }: BlogPageClientProps) {
           <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8 text-center text-slate-900">
             <div>
               <p className="text-2xl font-bold">{posts.length}+</p>
-              <p className="text-sm text-slate-600">Articles</p>
+              <p className="text-sm text-slate-600">{BLOG_STATS.ARTICLES_LABEL}</p>
             </div>
             <div className="hidden sm:block w-px h-10 bg-slate-200" />
             <div>
               <p className="text-2xl font-bold">100%</p>
-              <p className="text-sm text-slate-600">Free resources</p>
+              <p className="text-sm text-slate-600">{BLOG_STATS.FREE_RESOURCES_LABEL}</p>
             </div>
           </div>
         </div>
@@ -80,7 +84,7 @@ export default function BlogPageClient({ posts }: BlogPageClientProps) {
         <div className="py-16 bg-slate-50" id="featured">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-xl font-semibold text-slate-900 mb-6">Featured article</h2>
+              <h2 className="text-xl font-semibold text-slate-900 mb-6">{BLOG_FEATURED.HEADING}</h2>
               <Link href={`/blog/${featuredPost.slug}`}>
                 <div className="grid lg:grid-cols-2 gap-6 bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md border border-slate-200 transition-shadow">
                   {featuredPost.featuredImage && (
@@ -92,7 +96,7 @@ export default function BlogPageClient({ posts }: BlogPageClientProps) {
                         className="object-cover"
                       />
                       <div className="absolute top-3 left-3 bg-slate-900 text-white px-3 py-1 rounded text-xs font-semibold">
-                        Featured
+                        {BLOG_FEATURED.BADGE}
                       </div>
                     </div>
                   )}
@@ -121,7 +125,7 @@ export default function BlogPageClient({ posts }: BlogPageClientProps) {
                       )}
                     </div>
                     <Button variant="bordered" size="md" withArrow>
-                      Read article
+                      {BLOG_FEATURED.CTA}
                     </Button>
                   </div>
                 </div>
@@ -141,13 +145,13 @@ export default function BlogPageClient({ posts }: BlogPageClientProps) {
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
             <h2 className="text-xl font-semibold text-slate-900 mb-8 text-center">
-              {selectedCategory === 'all' ? 'All articles' : `${selectedCategory}`}
+              {selectedCategory === 'all' ? BLOG_LIST.ALL_ARTICLES : selectedCategory}
             </h2>
             {filteredPosts.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-slate-600 mb-4">No articles found</p>
+                <p className="text-slate-600 mb-4">{EMPTY_STATE.NO_ARTICLES_FOUND.title}</p>
                 <Button onClick={() => setSelectedCategory('all')} variant="bordered">
-                  Clear filters
+                  {BLOG_LIST.CLEAR_FILTERS}
                 </Button>
               </div>
             ) : (
@@ -158,10 +162,10 @@ export default function BlogPageClient({ posts }: BlogPageClientProps) {
       </div>
 
       <CTASection
-        title="Ready to take action?"
-        subtitle="Book a consultation to discuss how we can support your child."
-        primaryCTA={{ text: "Book a consultation", href: "/contact" }}
-        secondaryCTA={{ text: "View packages", href: "/packages" }}
+        title={BLOG_CTA.TITLE}
+        subtitle={BLOG_CTA.SUBTITLE}
+        primaryCTA={{ text: BLOG_CTA.PRIMARY, href: ROUTES.CONTACT }}
+        secondaryCTA={{ text: BLOG_CTA.SECONDARY, href: ROUTES.PACKAGES }}
         variant="default"
       />
     </div>

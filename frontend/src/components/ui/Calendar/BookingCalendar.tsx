@@ -358,7 +358,7 @@ export default function BookingCalendar({
           <button
             type="button"
             onClick={handleToday}
-            className="text-sm sm:text-base md:text-xl lg:text-2xl font-bold text-[#1E3A5F] dark:text-gray-100 px-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+            className="text-sm sm:text-base md:text-xl lg:text-2xl font-bold text-navy-blue dark:text-gray-100 px-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
             aria-label="Go to current month"
           >
             {currentMonth.format('MMMM YYYY')}
@@ -419,7 +419,7 @@ export default function BookingCalendar({
         <button
           type="button"
           onClick={handleToday}
-          className="text-sm sm:text-base md:text-xl lg:text-2xl font-bold text-[#1E3A5F] dark:text-gray-100 px-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+          className="text-sm sm:text-base md:text-xl lg:text-2xl font-bold text-navy-blue dark:text-gray-100 px-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
           aria-label="Go to current month"
         >
           {currentMonth.format('MMMM YYYY')}

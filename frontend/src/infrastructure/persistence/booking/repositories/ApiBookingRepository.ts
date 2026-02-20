@@ -15,6 +15,14 @@ function getStatus(error: unknown): number | undefined {
 }
 
 type BookingsPayload = BookingDTO[] | { data?: BookingDTO[] };
+
+/**
+ * Booking-specific list extraction. We do not use extractList() from responseHelpers here
+ * because: (1) this repository works with response.data directly (payload) and may receive
+ * slightly different envelope shapes from the bookings API; (2) toBookingList is used
+ * in multiple list methods with consistent 404 → [] handling and optional dev warnings.
+ * Do not replace with extractList without verifying all call sites and backend contract.
+ */
 function toBookingList(payload: unknown): BookingDTO[] {
   if (Array.isArray(payload)) return payload;
   if (payload && typeof payload === 'object' && 'data' in payload && Array.isArray((payload as { data?: unknown }).data)) {
@@ -69,7 +77,7 @@ export class ApiBookingRepository implements IBookingRepository {
       const response = await apiClient.get<BookingsPayload>(API_ENDPOINTS.BOOKINGS);
       const bookings = toBookingList(response.data);
       if (bookings.length === 0 && response.data && !Array.isArray(response.data) && typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
+         
         console.warn('[ApiBookingRepository] Unexpected bookings payload shape in findAll:', response.data);
       }
       return bookings;

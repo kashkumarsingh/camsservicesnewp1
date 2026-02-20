@@ -5,7 +5,6 @@
  */
 
 import { getBlogPosts } from './getBlogPosts';
-import { BlogPostDTO } from '@/core/application/blog';
 
 export interface BlogCategory {
   id: string;

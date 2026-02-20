@@ -4,6 +4,9 @@ import BlogPageClient from './BlogPageClient';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://camsservice.co.uk';
 
+/** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
+export const revalidate = 1800;
+
 export const metadata: Metadata = {
   title: 'Blog | Expert Insights & Practical Advice for SEN Support',
   description: 'Evidence-based strategies, expert tips, and real stories from our team of specialists helping families thrive.',

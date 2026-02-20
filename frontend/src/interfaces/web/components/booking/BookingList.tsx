@@ -3,6 +3,7 @@
 import React from 'react';
 import { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
 import { BookingCard } from './BookingCard';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface BookingListProps {
   bookings: BookingDTO[];
@@ -34,7 +35,7 @@ export function BookingList({ bookings, loading, error }: BookingListProps) {
   if (bookings.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">No bookings found.</p>
+        <p className="text-gray-500">{EMPTY_STATE.NO_BOOKINGS_FOUND.title}</p>
       </div>
     );
   }

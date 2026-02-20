@@ -2,12 +2,19 @@
 # Reverb (WebSockets): Render supports WSS on web services. Client uses wss://cams-reverb.onrender.com.
 # Ping/pong: REVERB_APP_PING_INTERVAL=30 (Render recommendation). Scaling: multiple Reverb instances
 # need an external broker (e.g. Redis); single instance is fine for free/starter.
+#
+# Free tier: services spin down after ~15 min inactivity (first request 30–60s). Reverb and
+# in-container queue/scheduler stop when the service sleeps. Consider backend starter ($7/mo) for always-on.
+#
+# PostgreSQL free tier: database is deleted after 90 days of inactivity. Upgrade to paid or back up before expiry.
 services:
   # Backend Service - Laravel API (admin is Next.js at frontend /dashboard/admin)
   - type: web
     name: cams-backend
     runtime: docker
     plan: free
+    region: oregon  # Same region as frontend and Reverb to minimise latency
+    healthCheckPath: /api/v1/health
     dockerfilePath: backend/Dockerfile
     dockerContext: backend
     envVars:
@@ -55,6 +62,12 @@ services:
         value: database
       - key: QUEUE_CONNECTION
         value: database
+      # When using dedicated cams-queue-worker, set to false so only the worker runs jobs
+      - key: RUN_QUEUE_IN_CONTAINER
+        value: "false"
+      # When using dedicated cams-scheduler cron, set to false so only cron runs schedule
+      - key: RUN_SCHEDULER_IN_CONTAINER
+        value: "false"
       - key: SESSION_LIFETIME
         value: 120
       
@@ -84,9 +97,13 @@ services:
       
       # Frontend Integration
       - key: FRONTEND_URL
-        sync: false  # Update after frontend deployment: https://your-frontend.onrender.com
+        sync: false  # Update after frontend deployment: https://cams-frontend.onrender.com
       - key: SANCTUM_STATEFUL_DOMAINS
-        sync: false  # Update after frontend deployment: your-frontend.onrender.com
+        sync: false  # e.g. cams-frontend.onrender.com (same as frontend origin host)
+      - key: SESSION_DOMAIN
+        sync: false  # Optional: e.g. .onrender.com for cross-subdomain cookies; entrypoint can set from RENDER_EXTERNAL_URL
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false  # e.g. https://cams-frontend.onrender.com
       
       # Next.js Revalidation (for ISR cache invalidation)
       - key: NEXT_REVALIDATE_URL
@@ -124,11 +141,14 @@ services:
   
   # Reverb – WebSocket server for live refresh (Render supports WSS on web services)
   # Client connects to wss://cams-reverb.onrender.com; ping/pong every 30s for keepalive.
+  # Free tier: Reverb spins down with inactivity; WebSockets drop. Prefer NEXT_PUBLIC_LIVE_REFRESH_WEBSOCKET_ENABLED=false until paid.
   # Scaling: multiple instances need an external broker (e.g. Redis); single instance is fine.
   - type: web
     name: cams-reverb
     runtime: docker
     plan: free
+    region: oregon
+    # Reverb container runs only reverb:start (no HTTP stack). Omit healthCheckPath if Render reports unhealthy; Render may use TCP.
     dockerfilePath: backend/Dockerfile
     dockerContext: backend
     envVars:
@@ -138,6 +158,8 @@ services:
         sync: false  # Same as cams-backend
       - key: APP_ENV
         value: production
+      - key: APP_URL
+        sync: false  # Set to https://cams-reverb.onrender.com after first deploy (Laravel bootstrap)
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_HOST
@@ -168,6 +190,10 @@ services:
         sync: false  # Must match cams-backend and frontend NEXT_PUBLIC_REVERB_APP_KEY
       - key: REVERB_APP_SECRET
         sync: false  # Must match cams-backend
+      - key: REVERB_HOST
+        value: "0.0.0.0"  # Bind to all interfaces on Render
+      - key: REVERB_PORT
+        value: "8080"  # Internal port; entrypoint uses PORT from Render when set
       - key: REVERB_SCHEME
         value: https
       - key: REVERB_APP_PING_INTERVAL
@@ -178,6 +204,8 @@ services:
     name: cams-frontend
     runtime: docker
     plan: free
+    region: oregon
+    healthCheckPath: /api/health
     dockerfilePath: frontend/Dockerfile
     dockerContext: frontend
     envVars:
@@ -217,9 +245,9 @@ services:
       - key: NEXT_REVALIDATE_SECRET
         sync: false  # Must match backend NEXT_REVALIDATE_SECRET
       
-      # Reverb WebSocket (optional – for real-time live refresh; omit for polling fallback)
+      # Reverb WebSocket: disabled on free tier (Reverb sleeps, connections drop). Set "true" when Reverb is on paid plan.
       - key: NEXT_PUBLIC_LIVE_REFRESH_WEBSOCKET_ENABLED
-        value: "true"  # Set to "false" to use polling only
+        value: "false"
       - key: NEXT_PUBLIC_REVERB_APP_KEY
         sync: false  # Same as REVERB_APP_KEY on cams-backend and cams-reverb
       - key: NEXT_PUBLIC_REVERB_WS_HOST
@@ -236,8 +264,109 @@ services:
       # Ideal Postcodes API (UK Address Lookup)
       - key: NEXT_PUBLIC_IDEAL_POSTCODES_API_KEY
         sync: false  # Set in Render dashboard: ak_...
+      # Google Maps (if implementing geolocation/maps)
+      - key: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+        sync: false
+
+  # Queue worker – processes database queue (required for jobs; backend has RUN_QUEUE_IN_CONTAINER=false)
+  - type: worker
+    name: cams-queue-worker
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    envVars:
+      - key: RUN_MODE
+        value: worker
+      - key: APP_KEY
+        sync: false
+      - key: APP_ENV
+        value: production
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: cams-database
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: cams-database
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: cams-database
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: cams-database
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: cams-database
+          property: password
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: BROADCAST_CONNECTION
+        value: reverb
+      - key: REVERB_APP_ID
+        value: "1"
+      - key: REVERB_APP_KEY
+        sync: false
+      - key: REVERB_APP_SECRET
+        sync: false
+      - key: REVERB_HOST
+        fromService:
+          type: web
+          name: cams-reverb
+          property: host
+      - key: REVERB_PORT
+        fromService:
+          type: web
+          name: cams-reverb
+          property: port
+
+  # Scheduler – runs Laravel schedule:run every minute (backend has RUN_SCHEDULER_IN_CONTAINER=false)
+  - type: cron
+    name: cams-scheduler
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    schedule: "* * * * *"
+    envVars:
+      - key: RUN_MODE
+        value: scheduler
+      - key: APP_KEY
+        sync: false
+      - key: APP_ENV
+        value: production
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: cams-database
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: cams-database
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: cams-database
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: cams-database
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: cams-database
+          property: password
 
 # Database Service - PostgreSQL (Render Free Tier)
+# Free tier: database is deleted after 90 days of inactivity. Upgrade to paid or back up before expiry.
 databases:
   - name: cams-database
     databaseName: cams_db

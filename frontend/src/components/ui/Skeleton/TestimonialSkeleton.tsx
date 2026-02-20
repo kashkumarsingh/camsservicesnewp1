@@ -14,7 +14,7 @@ export default function TestimonialSkeleton({ count = 3 }: TestimonialSkeletonPr
       {Array.from({ length: count }, (_, index) => (
         <div
           key={`testimonial-skeleton-${index}`}
-          className="relative flex flex-col rounded-[30px] border-2 border-gray-200 shadow-md p-6 sm:p-8 bg-white h-full animate-pulse"
+          className="relative flex flex-col rounded-card border-2 border-gray-200 shadow-md p-6 sm:p-8 bg-white h-full animate-pulse"
         >
           <div className="flex items-center gap-1 mb-4">
             {Array.from({ length: 5 }).map((_, starIndex) => (

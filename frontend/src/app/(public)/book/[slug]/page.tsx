@@ -239,7 +239,7 @@ export default async function BookPackagePage({ params }: Props) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       {/* Hero Section - Compact (≈40% shorter) */}
-      <Section className="relative pt-6 pb-4 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-br from-[#0080FF] via-[#00A3FF] to-[#00D4FF]">
+      <Section className="relative pt-6 pb-4 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-br from-primary-blue via-primary-blue/90 to-light-blue-cyan">
         <div className="relative z-10 max-w-7xl mx-auto">
           {/* Breadcrumb */}
           <div className="mb-4 flex items-center gap-2 text-white/90 text-sm">
@@ -300,7 +300,7 @@ export default async function BookPackagePage({ params }: Props) {
                 {/* Primary CTA - Navigate to checkout */}
                 <a 
                   href={`/checkout?package=${legacyPackage.slug}`}
-                  className="block w-full bg-gradient-to-r from-[#0080FF] to-[#00D4FF] text-white text-center py-3 px-5 rounded-lg font-bold text-sm shadow-md hover:shadow-lg transition-all mb-3"
+                  className="block w-full bg-gradient-to-r from-primary-blue to-light-blue-cyan text-white text-center py-3 px-5 rounded-lg font-bold text-sm shadow-md hover:shadow-lg transition-all mb-3"
                 >
                   Secure Your Spot Now
                 </a>
@@ -320,7 +320,7 @@ export default async function BookPackagePage({ params }: Props) {
                     </span>
                   ))}
                   {legacyPackage.features.length > 3 && (
-                    <span className="text-[11px] text-[#0080FF] font-semibold">+{legacyPackage.features.length - 3} more</span>
+                    <span className="text-[11px] text-primary-blue font-semibold">+{legacyPackage.features.length - 3} more</span>
                   )}
                 </div>
               </div>

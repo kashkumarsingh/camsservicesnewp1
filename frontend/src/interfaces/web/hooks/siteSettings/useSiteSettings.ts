@@ -40,7 +40,7 @@ const getApiBase = (): string => {
     
     // Render.com production
     if (origin.includes('onrender.com')) {
-      return 'https://cams-backend-1q6w.onrender.com/api/v1';
+      return 'https://cams-backend-oj5x.onrender.com/api/v1';
     }
   }
   

@@ -1,20 +1,23 @@
 <?php
 
+use App\Http\Controllers\Api\ErrorCodes;
+use App\Support\ApiResponseHelper;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
-/** Add CORS headers to an API response so the browser allows the frontend to read it (e.g. 401). */
-if (!function_exists('apiJsonResponseWithCors')) {
-    function apiJsonResponseWithCors(Request $request, array $data, int $status = 200): Response
+/** Add CORS headers to an existing JsonResponse for API routes. */
+if (! function_exists('apiResponseWithCors')) {
+    function apiResponseWithCors(Request $request, JsonResponse $response): Response
     {
-        $response = response()->json($data, $status);
         $origin = $request->header('Origin');
-        if (!$origin) {
+        if (! $origin) {
             return $response;
         }
         $allowed = config('cors.allowed_origins', []);
@@ -22,7 +25,7 @@ if (!function_exists('apiJsonResponseWithCors')) {
         $defaultOrigins = ['http://localhost:4300', 'http://localhost:3000', 'http://127.0.0.1:4300', 'http://127.0.0.1:3000'];
         $allowed = array_filter(array_merge($allowed ?: [], $defaultOrigins));
         $allowOrigin = in_array($origin, $allowed, true) ? $origin : null;
-        if (!$allowOrigin && !empty($patterns)) {
+        if (! $allowOrigin && ! empty($patterns)) {
             foreach ($patterns as $pattern) {
                 if (preg_match($pattern, $origin)) {
                     $allowOrigin = $origin;
@@ -34,6 +37,7 @@ if (!function_exists('apiJsonResponseWithCors')) {
             $response->header('Access-Control-Allow-Origin', $allowOrigin);
             $response->header('Access-Control-Allow-Credentials', 'true');
         }
+
         return $response;
     }
 }
@@ -80,33 +84,58 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // API routes: return JSON 401 for unauthenticated requests instead of redirecting to missing 'login' route
+        // API routes: return standard envelope (success, message, meta) for unauthenticated
         $exceptions->render(function (AuthenticationException $e, Request $request) {
             if ($request->is('api/*')) {
-                return apiJsonResponseWithCors($request, ['message' => 'Unauthenticated.'], 401);
+                $message = $e->getMessage() ?: 'Unauthenticated.';
+                return apiResponseWithCors($request, ApiResponseHelper::unauthorizedResponse($message, $request));
             }
         });
 
         // When auth middleware redirects to route('login') and login route does not exist (API-only app),
-        // Laravel throws RouteNotFoundException. Return 401 JSON for api/* so clients without Accept: application/json still get JSON.
+        // Laravel throws RouteNotFoundException. Return 401 with standard envelope.
         $exceptions->render(function (RouteNotFoundException $e, Request $request) {
             if ($request->is('api/*') && str_contains($e->getMessage(), 'login')) {
-                return apiJsonResponseWithCors($request, ['message' => 'Unauthenticated.'], 401);
+                return apiResponseWithCors($request, ApiResponseHelper::unauthorizedResponse('Unauthenticated.', $request));
             }
         });
 
-        // API 500: when APP_DEBUG is true, return JSON with exception details so the cause is visible in Network tab / frontend logs
+        // API HttpException (4xx/5xx from actions or kernel): standard envelope
+        $exceptions->render(function (HttpException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return apiResponseWithCors($request, ApiResponseHelper::errorResponse(
+                    $e->getMessage() ?: 'Request failed.',
+                    $e->getStatusCode(),
+                    null,
+                    [],
+                    $request
+                ));
+            }
+        });
+
+        // API 500: standard envelope; in debug add exception/file/line to meta
         $exceptions->render(function (\Throwable $e, Request $request) {
-            if (!$request->is('api/*') || !config('app.debug')) {
+            if (! $request->is('api/*')) {
                 return null;
             }
-            $payload = [
-                'message' => $e->getMessage(),
+            // HttpException already handled above
+            if ($e instanceof HttpException) {
+                return null;
+            }
+            $extraMeta = config('app.debug') ? [
                 'exception' => get_class($e),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-            ];
-            return apiJsonResponseWithCors($request, $payload, 500);
+            ] : [];
+
+            return apiResponseWithCors($request, ApiResponseHelper::errorResponse(
+                $e->getMessage() ?: 'An unexpected error occurred.',
+                500,
+                ErrorCodes::INTERNAL_SERVER_ERROR,
+                [],
+                $request,
+                $extraMeta
+            ));
         });
     })->create();
 

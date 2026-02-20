@@ -6,6 +6,8 @@ import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 import { parentProfileRepository } from '@/infrastructure/http/parent/ParentProfileRepository';
 import Button from '@/components/ui/Button';
 import { AlertCircle, CheckCircle, User } from 'lucide-react';
+import { ROUTES } from '@/utils/routes';
+import { ACCOUNT_PAGE } from '@/app/(public)/constants/accountPageConstants';
 
 export default function AccountPage() {
   const router = useRouter();
@@ -23,7 +25,7 @@ export default function AccountPage() {
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      router.push('/login?redirect=/account');
+      router.push(`${ROUTES.LOGIN}?redirect=${ROUTES.ACCOUNT}`);
       return;
     }
 
@@ -82,10 +84,10 @@ export default function AccountPage() {
       
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(false), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       const message =
-        err?.response?.data?.message ||
-        'Failed to update profile. Please try again.';
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        ACCOUNT_PAGE.ERROR_DEFAULT;
       setError(message);
     } finally {
       setSaving(false);
@@ -96,8 +98,8 @@ export default function AccountPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0080FF] mx-auto" />
-          <p className="mt-4 text-gray-600">Loading your profile...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-blue mx-auto" />
+          <p className="mt-4 text-gray-600">{ACCOUNT_PAGE.LOADING_MESSAGE}</p>
         </div>
       </div>
     );
@@ -106,17 +108,17 @@ export default function AccountPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white py-12 px-4">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-[30px] p-8 shadow-2xl border border-gray-200">
+        <div className="bg-white rounded-card p-8 shadow-2xl border border-gray-200">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
-              <User className="text-[#0080FF]" size={24} />
+              <User className="text-primary-blue" size={24} />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-heading font-bold text-[#1E3A5F]">
-                Your Profile
+              <h1 className="text-2xl md:text-3xl font-heading font-bold text-navy-blue">
+                {ACCOUNT_PAGE.TITLE}
               </h1>
               <p className="text-sm text-gray-600">
-                Update your contact details. Email changes are handled by admin for security.
+                {ACCOUNT_PAGE.SUBTITLE}
               </p>
             </div>
           </div>
@@ -131,27 +133,27 @@ export default function AccountPage() {
           {success && (
             <div className="mb-4 p-3 rounded-lg bg-green-50 border border-green-200 text-sm text-green-800 flex items-center gap-2">
               <CheckCircle size={16} />
-              <span>Profile updated successfully.</span>
+              <span>{ACCOUNT_PAGE.SUCCESS_MESSAGE}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-[#1E3A5F] mb-2">
-                Full Name *
+              <label className="block text-sm font-semibold text-navy-blue mb-2">
+                {ACCOUNT_PAGE.LABEL_FULL_NAME}
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full px-4 py-3 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:border-[#0080FF] focus:ring-[#0080FF] text-gray-900"
+                className="w-full px-4 py-3 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:border-primary-blue focus:ring-primary-blue text-gray-900"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#1E3A5F] mb-1">
-                Email
+              <label className="block text-sm font-semibold text-navy-blue mb-1">
+                {ACCOUNT_PAGE.LABEL_EMAIL}
               </label>
               <input
                 type="email"
@@ -160,46 +162,46 @@ export default function AccountPage() {
                 className="w-full px-4 py-3 border-2 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
               />
               <p className="mt-1 text-xs text-gray-500">
-                To change email, please contact support.
+                {ACCOUNT_PAGE.EMAIL_CHANGE_NOTE}
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#1E3A5F] mb-2">
-                Phone
+              <label className="block text-sm font-semibold text-navy-blue mb-2">
+                {ACCOUNT_PAGE.LABEL_PHONE}
               </label>
               <input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-4 py-3 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:border-[#0080FF] focus:ring-[#0080FF] text-gray-900"
-                placeholder="07123 456789"
+                className="w-full px-4 py-3 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:border-primary-blue focus:ring-primary-blue text-gray-900"
+                placeholder={ACCOUNT_PAGE.PLACEHOLDER_PHONE}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#1E3A5F] mb-2">
-                Address
+              <label className="block text-sm font-semibold text-navy-blue mb-2">
+                {ACCOUNT_PAGE.LABEL_ADDRESS}
               </label>
               <input
                 type="text"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="w-full px-4 py-3 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:border-[#0080FF] focus:ring-[#0080FF] text-gray-900"
-                placeholder="123 High Street, London"
+                className="w-full px-4 py-3 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:border-primary-blue focus:ring-primary-blue text-gray-900"
+                placeholder={ACCOUNT_PAGE.PLACEHOLDER_ADDRESS}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#1E3A5F] mb-2">
-                Postcode
+              <label className="block text-sm font-semibold text-navy-blue mb-2">
+                {ACCOUNT_PAGE.LABEL_POSTCODE}
               </label>
               <input
                 type="text"
                 value={postcode}
                 onChange={(e) => setPostcode(e.target.value)}
-                className="w-full px-4 py-3 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:border-[#0080FF] focus:ring-[#0080FF] text-gray-900"
-                placeholder="SW1A 1AA"
+                className="w-full px-4 py-3 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:border-primary-blue focus:ring-primary-blue text-gray-900"
+                placeholder={ACCOUNT_PAGE.PLACEHOLDER_POSTCODE}
               />
             </div>
 
@@ -209,14 +211,14 @@ export default function AccountPage() {
                 variant="outline"
                 onClick={() => router.push('/dashboard/parent')}
               >
-                Back to Dashboard
+                {ACCOUNT_PAGE.BACK_TO_DASHBOARD}
               </Button>
               <Button
                 type="submit"
                 disabled={saving}
                 aria-busy={saving}
               >
-                {saving ? 'Saving...' : 'Save Changes'}
+                {saving ? ACCOUNT_PAGE.SAVING : ACCOUNT_PAGE.SAVE}
               </Button>
             </div>
           </form>

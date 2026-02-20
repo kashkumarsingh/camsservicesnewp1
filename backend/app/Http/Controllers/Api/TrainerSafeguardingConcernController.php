@@ -56,7 +56,7 @@ class TrainerSafeguardingConcernController extends Controller
     {
         $user = $request->user();
         if (! $user) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
+            return $this->unauthorizedResponse();
         }
 
         $trainer = Trainer::where('user_id', $user->id)->first();
@@ -88,7 +88,7 @@ class TrainerSafeguardingConcernController extends Controller
     {
         $user = $request->user();
         if (! $user) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
+            return $this->unauthorizedResponse();
         }
 
         $childIds = $this->trainerChildIds($request);
@@ -98,7 +98,7 @@ class TrainerSafeguardingConcernController extends Controller
 
         $concern = SafeguardingConcern::where('id', $id)->whereIn('child_id', $childIds)->first();
         if (! $concern) {
-            return response()->json(['message' => 'Concern not found or you do not have access.'], 404);
+            return $this->notFoundResponse('Concern');
         }
 
         if ($request->boolean('acknowledged')) {

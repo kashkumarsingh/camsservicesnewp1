@@ -137,7 +137,7 @@ export class BlogService {
    * @returns Array of blog posts
    */
   async getPosts(options: BlogFilterOptions = {}): Promise<BlogPost[]> {
-    let domainPosts = await this.repository.findAll();
+    const domainPosts = await this.repository.findAll();
     let posts = domainPosts.map(p => this.domainToApp(p));
 
     // Filter by status (default to published)

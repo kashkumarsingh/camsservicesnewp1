@@ -17,6 +17,8 @@ import type { User, Child, RegisterRequest, LoginRequest } from '@/core/applicat
 import { getChildChecklistFlags } from '@/core/application/auth/types';
 import { getDashboardRoute, getPostAuthRedirect } from '@/utils/navigation';
 import { getApiErrorMessage } from '@/utils/errorUtils';
+import { USER_ROLE, APPROVAL_STATUS } from '@/utils/dashboardConstants';
+import { ROUTES } from '@/utils/routes';
 
 /** Set when getCurrentUser failed with 5xx or network error (so UI can show Retry instead of redirecting to login). */
 export interface AuthLoadError {
@@ -74,7 +76,7 @@ export function useAuth(): UseAuthReturn {
       setUser(userData);
 
       // Load children only if user is a parent
-      if (userData.role === 'parent') {
+      if (userData.role === USER_ROLE.PARENT) {
         try {
           const childrenData = await childrenRepository.list();
           setChildren(childrenData);
@@ -153,7 +155,7 @@ export function useAuth(): UseAuthReturn {
       setUser(authData.user);
       
       // Load children after login (only for parents)
-      if (authData.user.role === 'parent') {
+      if (authData.user.role === USER_ROLE.PARENT) {
         try {
           const childrenData = await childrenRepository.list();
           setChildren(childrenData);
@@ -205,7 +207,7 @@ export function useAuth(): UseAuthReturn {
       setLoading(false);
       // Use window.location for full page reload to ensure clean state
       // This stops all React effects, polling, and ensures fresh start
-      window.location.href = '/login';
+      window.location.href = ROUTES.LOGIN;
     }
   }, []);
 
@@ -217,7 +219,7 @@ export function useAuth(): UseAuthReturn {
   const isAuthenticated = !!user;
   // Check parent approval status (case-insensitive for robustness)
   // Only show prices if parent is explicitly approved
-  const isApproved = user?.approval_status?.toLowerCase() === 'approved';
+  const isApproved = user?.approval_status?.toLowerCase() === APPROVAL_STATUS.APPROVED;
   // Only consider children approved AND with completed checklist as "approved" for booking
   const approvedChildren = children.filter(c => {
     const { approvalStatus, hasChecklist, checklistCompleted } = getChildChecklistFlags(c);

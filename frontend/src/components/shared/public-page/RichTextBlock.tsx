@@ -21,7 +21,7 @@ export interface RichTextBlockProps {
 export default function RichTextBlock({
   content,
   className = '',
-  proseClassName = 'prose prose-lg md:prose-xl max-w-4xl mx-auto text-[#1E3A5F]',
+  proseClassName = 'prose prose-lg md:prose-xl max-w-4xl mx-auto text-navy-blue',
 }: RichTextBlockProps) {
   if (!content?.trim()) return null;
 

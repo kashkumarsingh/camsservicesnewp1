@@ -40,6 +40,8 @@ class AdminBookingsController extends Controller
      * - session_date_from: filter bookings that have at least one schedule on or after this date (YYYY-MM-DD)
      * - session_date_to: filter bookings that have at least one schedule on or before this date (YYYY-MM-DD)
      * - search: search by reference, parent name, or parent email
+     * - sort_by: order column — created_at (default), reference, updated_at
+     * - order: asc or desc (default: desc)
      * - limit: max number of records to return (default: 100, max: 200)
      * - offset: offset for pagination (default: 0)
      */
@@ -119,10 +121,17 @@ class AdminBookingsController extends Controller
             $limit = max(1, min($request->integer('limit', 100), 200));
             $offset = max(0, $request->integer('offset', 0));
 
+            $sortBy = $request->query('sort_by', 'created_at');
+            $allowedSort = ['created_at', 'reference', 'updated_at'];
+            if (! in_array($sortBy, $allowedSort, true)) {
+                $sortBy = 'created_at';
+            }
+            $order = strtolower($request->query('order', 'desc')) === 'asc' ? 'asc' : 'desc';
+
             $totalCount = (clone $query)->count();
 
             $bookings = $query
-                ->orderByDesc('created_at')
+                ->orderBy($sortBy, $order)
                 ->skip($offset)
                 ->take($limit)
                 ->get();
@@ -898,10 +907,7 @@ class AdminBookingsController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to export bookings.',
-            ], 500);
+            return $this->serverErrorResponse('Failed to export bookings.');
         }
     }
 

@@ -294,11 +294,9 @@ class AdminPublicPagesController extends Controller
 
         $filename = 'pages-export-' . now()->format('Y-m-d') . '.csv';
 
-        return response()->json([
-            'data' => [
-                'filename' => $filename,
-                'content' => $csv,
-            ],
+        return $this->successResponse([
+            'filename' => $filename,
+            'content' => $csv,
         ]);
     }
 }

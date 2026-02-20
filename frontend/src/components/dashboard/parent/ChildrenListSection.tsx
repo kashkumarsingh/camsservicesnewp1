@@ -3,6 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
+import { EmptyState } from '@/components/dashboard/universal/EmptyState';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 export interface ChildrenListItem {
   id: number;
@@ -42,16 +44,19 @@ export default function ChildrenListSection({
           </h2>
         </div>
 
-        <div className="text-center py-8">
-          <p className="text-gray-600 mb-4">No children added yet</p>
-          <Button
-            variant="primary"
-            onClick={onAddChildClick}
-            className="px-6 py-2 text-sm font-semibold"
-          >
-            + Add your first child
-          </Button>
-        </div>
+        <EmptyState
+          title={EMPTY_STATE.NO_CHILDREN_ADDED_YET.title}
+          message={EMPTY_STATE.NO_CHILDREN_ADDED_YET.message}
+          action={
+            <Button
+              variant="primary"
+              onClick={onAddChildClick}
+              className="px-6 py-2 text-sm font-semibold"
+            >
+              + Add your first child
+            </Button>
+          }
+        />
       </section>
     );
   }

@@ -9,6 +9,7 @@ import BlogPostCard from './BlogPostCard';
 import { BlogPostDTO } from '@/core/application/blog';
 import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
 import { BlogPostSkeleton } from '@/components/ui/Skeleton';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface BlogListProps {
   posts: BlogPostDTO[];
@@ -36,7 +37,7 @@ export default function BlogList({ posts, loading = false, error = null }: BlogL
   if (posts.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">No blog posts found.</p>
+        <p className="text-gray-600">{EMPTY_STATE.NO_BLOG_POSTS_FOUND.title}</p>
       </div>
     );
   }

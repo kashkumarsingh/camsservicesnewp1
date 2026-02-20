@@ -1,12 +1,15 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import Image from 'next/image';
 import { BlogPost } from '@/core/application/blog/types';
 import { BlogFormatter } from '@/core/application/blog/formatters';
 import { Calendar, Clock, User, Eye, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { IncrementViewsUseCase } from '@/core/application/blog/useCases/IncrementViewsUseCase';
 import { blogRepository } from '@/infrastructure/persistence/blog';
+import { RichTextBlock } from '@/components/shared/public-page';
+import { ROUTES } from '@/utils/routes';
 
 interface BlogPostProps {
   post: BlogPost;
@@ -23,7 +26,7 @@ const BlogPostComponent: React.FC<BlogPostProps> = ({ post }) => {
     <article className="max-w-4xl mx-auto">
       {/* Back Button */}
       <Link
-        href="/blog"
+        href={ROUTES.BLOG}
         className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6 transition-colors"
       >
         <ArrowLeft size={20} />
@@ -70,20 +73,24 @@ const BlogPostComponent: React.FC<BlogPostProps> = ({ post }) => {
         
         {post.featuredImage && (
           <div className="relative w-full h-96 rounded-lg overflow-hidden mb-8">
-            <img
+            <Image
               src={post.featuredImage}
               alt={post.title}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 896px) 100vw, 896px"
             />
           </div>
         )}
       </header>
 
       {/* Content */}
-      <div
-        className="prose prose-lg max-w-none mb-8"
-        dangerouslySetInnerHTML={{ __html: post.content }}
-      />
+      <div className="mb-8">
+        <RichTextBlock
+          content={post.content}
+          proseClassName="prose prose-lg max-w-none"
+        />
+      </div>
 
       {/* Tags */}
       {post.tags && post.tags.length > 0 && (
@@ -107,10 +114,12 @@ const BlogPostComponent: React.FC<BlogPostProps> = ({ post }) => {
         <div className="border-t pt-6 mt-8">
           <div className="flex items-start gap-4">
             {post.author.avatar && (
-              <img
+              <Image
                 src={post.author.avatar}
                 alt={post.author.name}
-                className="w-16 h-16 rounded-full"
+                width={64}
+                height={64}
+                className="rounded-full object-cover"
               />
             )}
             <div>

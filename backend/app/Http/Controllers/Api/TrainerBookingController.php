@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\Concerns\BaseApiController;
+use App\Http\Controllers\Api\ErrorCodes;
 use App\Models\Booking;
 use App\Models\BookingSchedule;
 use App\Models\TimeEntry;
@@ -43,13 +44,10 @@ class TrainerBookingController extends Controller
         // Get trainer model linked to this user
         $trainer = \App\Models\Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainer) {
+            return $this->notFoundResponse('Trainer profile');
         }
-        
+
         // Get all schedules assigned to this trainer
         $query = BookingSchedule::where('trainer_id', $trainer->id)
             ->with([
@@ -132,27 +130,23 @@ class TrainerBookingController extends Controller
             ];
         }
         
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'bookings' => array_values($bookingsMap),
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
+        return $this->successResponse(
+            ['bookings' => array_values($bookingsMap)],
+            null,
+            [
                 'pagination' => [
-                    'current_page' => $schedules->currentPage(),
-                    'per_page' => $schedules->perPage(),
+                    'currentPage' => $schedules->currentPage(),
+                    'perPage' => $schedules->perPage(),
                     'total' => $schedules->total(),
-                    'last_page' => $schedules->lastPage(),
-                    'has_more' => $schedules->hasMorePages(),
-                    'prev_page' => $schedules->currentPage() > 1 ? $schedules->currentPage() - 1 : null,
-                    'next_page' => $schedules->hasMorePages() ? $schedules->currentPage() + 1 : null,
+                    'lastPage' => $schedules->lastPage(),
+                    'hasMore' => $schedules->hasMorePages(),
+                    'prevPage' => $schedules->currentPage() > 1 ? $schedules->currentPage() - 1 : null,
+                    'nextPage' => $schedules->hasMorePages() ? $schedules->currentPage() + 1 : null,
                 ],
-            ],
-        ], 200);
+            ]
+        );
     }
-    
+
     /**
      * Get detailed booking information
      * 
@@ -167,13 +161,10 @@ class TrainerBookingController extends Controller
         // Get trainer model
         $trainer = \App\Models\Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found.',
-            ], 404);
+        if (! $trainer) {
+            return $this->notFoundResponse('Trainer profile');
         }
-        
+
         // Verify trainer is assigned to this booking
         $booking = Booking::with([
             'package',
@@ -185,28 +176,20 @@ class TrainerBookingController extends Controller
             },
         ])->find($id);
         
-        if (!$booking) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Booking not found.',
-            ], 404);
+        if (! $booking) {
+            return $this->notFoundResponse('Booking');
         }
-        
+
         // Check if trainer has any schedules for this booking
         $hasSchedule = $booking->schedules->where('trainer_id', $trainer->id)->count() > 0;
         
-        if (!$hasSchedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You are not assigned to this booking.',
-            ], 403);
+        if (! $hasSchedule) {
+            return $this->forbiddenResponse('You are not assigned to this booking.');
         }
-        
+
         // Format response with limited participant information
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'booking' => [
+        return $this->successResponse([
+            'booking' => [
                     'id' => $booking->id,
                     'reference' => $booking->reference,
                     'package' => [
@@ -265,14 +248,9 @@ class TrainerBookingController extends Controller
                     'status' => $booking->status,
                     'created_at' => $booking->created_at->toIso8601String(),
                 ],
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        ]);
     }
-    
+
     /**
      * Update schedule status
      * 
@@ -288,37 +266,32 @@ class TrainerBookingController extends Controller
         // Get trainer model
         $trainer = \App\Models\Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found.',
-            ], 404);
+        if (! $trainer) {
+            return $this->notFoundResponse('Trainer profile');
         }
-        
+
         $validator = Validator::make($request->all(), [
             'status' => ['required', 'string', 'in:scheduled,completed,cancelled,no_show,rescheduled'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
-        
+
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
-        
+
         // Find schedule and verify trainer ownership
         $schedule = BookingSchedule::where('id', $scheduleId)
             ->where('booking_id', $bookingId)
             ->where('trainer_id', $trainer->id)
             ->first();
-        
-        if (!$schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or you are not assigned to this schedule.',
-            ], 404);
+
+        if (! $schedule) {
+            return $this->errorResponse(
+                'Schedule not found or you are not assigned to this schedule.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
         
         // Update status
@@ -364,10 +337,8 @@ class TrainerBookingController extends Controller
             );
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Schedule status updated successfully',
-            'data' => [
+        return $this->successResponse(
+            [
                 'schedule' => [
                     'id' => $schedule->id,
                     'status' => $schedule->status,
@@ -376,13 +347,10 @@ class TrainerBookingController extends Controller
                     'completed_at' => $schedule->completed_at?->toIso8601String(),
                 ],
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            'Schedule status updated successfully'
+        );
     }
-    
+
     /**
      * Get trainer dashboard statistics
      * 
@@ -396,13 +364,10 @@ class TrainerBookingController extends Controller
         // Get trainer model linked to this user
         $trainer = \App\Models\Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainer) {
+            return $this->notFoundResponse('Trainer profile');
         }
-        
+
         $today = now()->format('Y-m-d');
         
         // Upcoming Sessions: Count of schedules with date >= today and status = 'scheduled'
@@ -461,21 +426,14 @@ class TrainerBookingController extends Controller
                 ];
             });
         
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'stats' => [
-                    'upcoming_sessions' => $upcomingSessions,
-                    'total_bookings' => $totalBookings,
-                    'today_schedule' => $todaySchedule,
-                ],
-                'recent_bookings' => $recentBookings,
+        return $this->successResponse([
+            'stats' => [
+                'upcoming_sessions' => $upcomingSessions,
+                'total_bookings' => $totalBookings,
+                'today_schedule' => $todaySchedule,
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            'recent_bookings' => $recentBookings,
+        ]);
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
+use App\Http\Controllers\Api\ErrorCodes;
 use App\Http\Controllers\Controller;
 use App\Models\Child;
 use App\Models\User;
@@ -20,6 +22,7 @@ use Illuminate\Support\Facades\Validator;
  */
 class ApprovalController extends Controller
 {
+    use BaseApiController;
     /**
      * Approve a user
      * 
@@ -31,29 +34,20 @@ class ApprovalController extends Controller
     {
         $admin = $request->user();
         
-        if (!in_array($admin->role, ['admin', 'super_admin'])) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized. Admin access required.',
-            ], 403);
+        if (! in_array($admin->role, ['admin', 'super_admin'])) {
+            return $this->forbiddenResponse('Unauthorized. Admin access required.');
         }
 
         $user = User::find($userId);
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found',
-            ], 404);
+        if (! $user) {
+            return $this->notFoundResponse('User');
         }
 
         // Security: Only super_admins can approve super_admins
         // Admins can approve parents and trainers, but NOT super_admins
         if ($user->role === 'super_admin' && $admin->role !== 'super_admin') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Permission denied. Only super admins can approve super admin users.',
-            ], 403);
+            return $this->forbiddenResponse('Permission denied. Only super admins can approve super admin users.');
         }
 
         $user->update([
@@ -67,10 +61,8 @@ class ApprovalController extends Controller
         app(\App\Contracts\Notifications\INotificationDispatcher::class)
             ->dispatch(\App\Services\Notifications\NotificationIntentFactory::userApproved($user));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'User approved successfully',
-            'data' => [
+        return $this->successResponse(
+            [
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -80,11 +72,8 @@ class ApprovalController extends Controller
                     'approved_by' => $admin->id,
                 ],
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            'User approved successfully'
+        );
     }
 
     /**
@@ -98,11 +87,8 @@ class ApprovalController extends Controller
     {
         $admin = $request->user();
         
-        if (!in_array($admin->role, ['admin', 'super_admin'])) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized. Admin access required.',
-            ], 403);
+        if (! in_array($admin->role, ['admin', 'super_admin'])) {
+            return $this->forbiddenResponse('Unauthorized. Admin access required.');
         }
 
         $validator = Validator::make($request->all(), [
@@ -110,29 +96,19 @@ class ApprovalController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         $user = User::find($userId);
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found',
-            ], 404);
+        if (! $user) {
+            return $this->notFoundResponse('User');
         }
 
         // Security: Only super_admins can reject super_admins
         // Admins can reject parents and trainers, but NOT super_admins
         if ($user->role === 'super_admin' && $admin->role !== 'super_admin') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Permission denied. Only super admins can reject super admin users.',
-            ], 403);
+            return $this->forbiddenResponse('Permission denied. Only super admins can reject super admin users.');
         }
 
         $rejectionReason = $request->rejection_reason;
@@ -148,10 +124,8 @@ class ApprovalController extends Controller
         app(\App\Contracts\Notifications\INotificationDispatcher::class)
             ->dispatch(\App\Services\Notifications\NotificationIntentFactory::userRejected($user, $rejectionReason));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'User rejected successfully',
-            'data' => [
+        return $this->successResponse(
+            [
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -161,11 +135,8 @@ class ApprovalController extends Controller
                     'rejection_reason' => $user->rejection_reason,
                 ],
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            'User rejected successfully'
+        );
     }
 
     /**
@@ -179,36 +150,34 @@ class ApprovalController extends Controller
     {
         $admin = $request->user();
         
-        if (!in_array($admin->role, ['admin', 'super_admin'])) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized. Admin access required.',
-            ], 403);
+        if (! in_array($admin->role, ['admin', 'super_admin'])) {
+            return $this->forbiddenResponse('Unauthorized. Admin access required.');
         }
 
         $child = Child::with('checklist')->find($childId);
 
-        if (!$child) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Child not found',
-            ], 404);
+        if (! $child) {
+            return $this->notFoundResponse('Child');
         }
 
         // Validate checklist exists
-        if (!$child->checklist) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot approve child: Checklist has not been submitted yet. Parent must complete the checklist first.',
-            ], 422);
+        if (! $child->checklist) {
+            return $this->errorResponse(
+                'Cannot approve child: Checklist has not been submitted yet. Parent must complete the checklist first.',
+                ErrorCodes::VALIDATION_ERROR,
+                [],
+                422
+            );
         }
 
         // Validate checklist is completed
-        if (!$child->checklist->checklist_completed) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot approve child: Checklist has been submitted but not yet reviewed and marked as completed. Please review the checklist first.',
-            ], 422);
+        if (! $child->checklist->checklist_completed) {
+            return $this->errorResponse(
+                'Cannot approve child: Checklist has been submitted but not yet reviewed and marked as completed. Please review the checklist first.',
+                ErrorCodes::VALIDATION_ERROR,
+                [],
+                422
+            );
         }
 
         $child->update([
@@ -222,10 +191,8 @@ class ApprovalController extends Controller
         app(\App\Contracts\Notifications\INotificationDispatcher::class)
             ->dispatch(\App\Services\Notifications\NotificationIntentFactory::childApproved($child));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Child approved successfully',
-            'data' => [
+        return $this->successResponse(
+            [
                 'child' => [
                     'id' => $child->id,
                     'name' => $child->name,
@@ -234,11 +201,8 @@ class ApprovalController extends Controller
                     'approved_by' => $admin->id,
                 ],
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            'Child approved successfully'
+        );
     }
 
     /**
@@ -252,11 +216,8 @@ class ApprovalController extends Controller
     {
         $admin = $request->user();
         
-        if (!in_array($admin->role, ['admin', 'super_admin'])) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized. Admin access required.',
-            ], 403);
+        if (! in_array($admin->role, ['admin', 'super_admin'])) {
+            return $this->forbiddenResponse('Unauthorized. Admin access required.');
         }
 
         $validator = Validator::make($request->all(), [
@@ -264,24 +225,17 @@ class ApprovalController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         $child = Child::find($childId);
 
-        if (!$child) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Child not found',
-            ], 404);
+        if (! $child) {
+            return $this->notFoundResponse('Child');
         }
 
         $rejectionReason = $request->rejection_reason;
-        
+
         $child->update([
             'approval_status' => Child::STATUS_REJECTED,
             'rejected_at' => now(),
@@ -293,10 +247,8 @@ class ApprovalController extends Controller
         app(\App\Contracts\Notifications\INotificationDispatcher::class)
             ->dispatch(\App\Services\Notifications\NotificationIntentFactory::childRejected($child, $rejectionReason));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Child rejected successfully',
-            'data' => [
+        return $this->successResponse(
+            [
                 'child' => [
                     'id' => $child->id,
                     'name' => $child->name,
@@ -305,31 +257,7 @@ class ApprovalController extends Controller
                     'rejection_reason' => $child->rejection_reason,
                 ],
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            'Child rejected successfully'
+        );
     }
 }
-
-response()->json([
-            'success' => true,
-            'message' => 'Child rejected successfully',
-            'data' => [
-                'child' => [
-                    'id' => $child->id,
-                    'name' => $child->name,
-                    'approval_status' => $child->approval_status,
-                    'rejected_at' => $child->rejected_at->toIso8601String(),
-                    'rejection_reason' => $child->rejection_reason,
-                ],
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
-    }
-}
-

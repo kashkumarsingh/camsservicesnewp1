@@ -1,6 +1,6 @@
 // WebSocket (Reverb) subscription for live-refresh – see REALTIME_LIVE_DATA_ARCHITECTURE.md
 
-import { LIVE_REFRESH_CONTEXTS, type LiveRefreshContextType } from '@/utils/liveRefreshConstants';
+import { LIVE_REFRESH_CONTEXTS_LIST, type LiveRefreshContextType } from '@/utils/liveRefreshConstants';
 
 export interface LiveRefreshEchoOptions {
   userId: number;
@@ -20,10 +20,11 @@ export async function subscribeLiveRefreshEcho(opts: LiveRefreshEchoOptions): Pr
     import('pusher-js'),
   ]);
   const Echo = EchoModule.default;
-  const Pusher = (PusherModule as { default: unknown }).default;
+  const PusherConstructor =
+    (PusherModule as unknown as { default: typeof import('pusher-js') }).default ?? PusherModule;
 
   if (typeof window !== 'undefined') {
-    (window as unknown as { Pusher: unknown }).Pusher = Pusher;
+    (window as unknown as { Pusher: typeof PusherConstructor }).Pusher = PusherConstructor;
   }
 
   const echo = new Echo({
@@ -45,7 +46,7 @@ export async function subscribeLiveRefreshEcho(opts: LiveRefreshEchoOptions): Pr
 
   const handle = (payload: { contexts?: string[] }) => {
     const list = (payload?.contexts ?? []).filter((c) =>
-      LIVE_REFRESH_CONTEXTS.includes(c as LiveRefreshContextType)
+      LIVE_REFRESH_CONTEXTS_LIST.includes(c)
     ) as LiveRefreshContextType[];
     if (list.length) onContexts(list);
   };

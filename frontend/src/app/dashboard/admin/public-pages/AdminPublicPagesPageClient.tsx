@@ -1,15 +1,29 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import SideCanvas from '@/components/ui/SideCanvas';
-import { TableRowsSkeleton } from '@/components/ui/Skeleton';
-import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
+import {
+  DataTable,
+  FilterPanel,
+  FilterSection,
+  FilterSelect,
+  FilterTriggerButton,
+  SearchInput,
+  type Column,
+  type SortDirection,
+} from '@/components/dashboard/universal';
+import { RowActions, ViewAction, EditAction, DeleteAction } from '@/components/dashboard/universal/RowActions';
+import Button from '@/components/ui/Button';
+import { Switch } from '@/components/ui/Switch';
 import { useAdminPages } from '@/interfaces/web/hooks/admin/useAdminPages';
 import type { AdminPageDTO, CreatePageDTO } from '@/core/application/admin/dto/AdminPageDTO';
 import { PAGE_TYPE_LABELS } from '@/core/application/admin/dto/AdminPageDTO';
 import { PageForm } from './PageForm';
-import { Download, Filter, Eye, Edit, Trash2, Globe, FileWarning } from 'lucide-react';
+import { Download, Globe, FileWarning } from 'lucide-react';
 import { toastManager } from '@/utils/toast';
+import { getPublishedBadgeClasses } from '@/utils/statusBadgeHelpers';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { DEFAULT_TABLE_SORT_BY_TITLE } from '@/utils/dashboardConstants';
 
 /** Page type slugs shown under public /policies (must match ListPoliciesUseCase). */
 const POLICY_PAGE_TYPES = [
@@ -22,12 +36,6 @@ const POLICY_PAGE_TYPES = [
 ];
 /** Alias for POLICY_PAGE_TYPES (used in filter below). */
 const POLICY_TYPES = POLICY_PAGE_TYPES;
-
-function getPublishedBadgeClasses(published: boolean) {
-  return published
-    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
-    : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200';
-}
 
 function formatDateTime(value: string | undefined) {
   if (!value) return '—';
@@ -45,15 +53,20 @@ function formatDateTime(value: string | undefined) {
 export const AdminPublicPagesPageClient: React.FC = () => {
   // Filter state
   const [search, setSearch] = useState('');
+  const [sortKey, setSortKey] = useState<string | null>(DEFAULT_TABLE_SORT_BY_TITLE.sortKey);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(DEFAULT_TABLE_SORT_BY_TITLE.sortDirection);
   const [typeFilter, setTypeFilter] = useState<string>('');
   const [publishedFilter, setPublishedFilter] = useState<string>('');
-  
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const filterTriggerRef = useRef<HTMLButtonElement>(null);
+  const [stagedType, setStagedType] = useState<string>('');
+  const [stagedPublished, setStagedPublished] = useState<string>('');
+
   // UI state
   const [selectedPage, setSelectedPage] = useState<AdminPageDTO | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isViewingDetails, setIsViewingDetails] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
 
   // Data hooks – when "Policy pages" is selected, fetch all and filter client-side
@@ -73,6 +86,40 @@ export const AdminPublicPagesPageClient: React.FC = () => {
     published: publishedFilter === '' ? undefined : publishedFilter === 'true',
   });
 
+  const hasActiveFilters = typeFilter !== '' || publishedFilter !== '';
+  const activeFilterCount = (typeFilter ? 1 : 0) + (publishedFilter ? 1 : 0);
+  const hasStagedFilters = stagedType !== '' || stagedPublished !== '';
+  const stagedFilterCount = (stagedType ? 1 : 0) + (stagedPublished ? 1 : 0);
+
+  useEffect(() => {
+    if (filterPanelOpen) {
+      setStagedType(typeFilter);
+      setStagedPublished(publishedFilter);
+    }
+  }, [filterPanelOpen, typeFilter, publishedFilter]);
+
+  const handleApplyFilters = useCallback(() => {
+    setTypeFilter(stagedType);
+    setPublishedFilter(stagedPublished);
+    updateFilters({
+      type: stagedType === 'policy-pages' ? undefined : stagedType || undefined,
+      published: stagedPublished === '' ? undefined : stagedPublished === 'true',
+    });
+    setFilterPanelOpen(false);
+  }, [stagedType, stagedPublished, updateFilters]);
+
+  const handleResetAllStaged = useCallback(() => {
+    setStagedType('');
+    setStagedPublished('');
+  }, []);
+
+  const handleClearFilters = () => {
+    setTypeFilter('');
+    setPublishedFilter('');
+    setSearch('');
+    updateFilters({});
+  };
+
   // Filter pages by search and by "Policy pages" when that filter is active
   const filteredPages = useMemo(() => {
     let list = pages;
@@ -89,6 +136,68 @@ export const AdminPublicPagesPageClient: React.FC = () => {
       );
     });
   }, [pages, search, typeFilter]);
+
+  const sortedPages = useMemo(() => {
+    const list = [...filteredPages];
+    const key = sortKey ?? DEFAULT_TABLE_SORT_BY_TITLE.sortKey;
+    const dir = sortDirection ?? DEFAULT_TABLE_SORT_BY_TITLE.sortDirection;
+    list.sort((a, b) => {
+      let aVal: string | number = '';
+      let bVal: string | number = '';
+      if (key === 'title') {
+        aVal = a.title ?? '';
+        bVal = b.title ?? '';
+      } else if (key === 'slug') {
+        aVal = a.slug ?? '';
+        bVal = b.slug ?? '';
+      } else if (key === 'type') {
+        aVal = a.type ?? '';
+        bVal = b.type ?? '';
+      } else if (key === 'views') {
+        aVal = a.views ?? 0;
+        bVal = b.views ?? 0;
+      } else if (key === 'lastUpdated') {
+        aVal = a.lastUpdated ?? '';
+        bVal = b.lastUpdated ?? '';
+      } else {
+        aVal = a.title ?? '';
+        bVal = b.title ?? '';
+      }
+      const cmp =
+        typeof aVal === 'number' && typeof bVal === 'number'
+          ? aVal - bVal
+          : String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
+      return dir === 'asc' ? cmp : -cmp;
+    });
+    return list;
+  }, [filteredPages, sortKey, sortDirection]);
+
+  const handleSortChange = (key: string | null, dir: 'asc' | 'desc' | null) => {
+    setSortKey(key);
+    setSortDirection(dir ?? 'asc');
+  };
+
+  const pageColumns: Column<AdminPageDTO>[] = useMemo(
+    () => [
+      { id: 'title', header: 'Title', sortable: true, accessor: (row) => <span className="font-medium text-slate-900 dark:text-slate-50">{row.title}</span> },
+      { id: 'slug', header: 'Slug', sortable: true, accessor: (row) => row.slug },
+      { id: 'type', header: 'Type', sortable: true, accessor: (row) => PAGE_TYPE_LABELS[row.type] || row.type },
+      {
+        id: 'status',
+        header: 'Status',
+        sortable: false,
+        accessor: (row) => (
+          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 ${getPublishedBadgeClasses(row.published)}`}>
+            {row.published ? <Globe className="h-3 w-3" /> : <FileWarning className="h-3 w-3" />}
+            {row.published ? 'Published' : 'Draft'}
+          </span>
+        ),
+      },
+      { id: 'views', header: 'Views', sortable: true, align: 'right', accessor: (row) => row.views.toLocaleString() },
+      { id: 'lastUpdated', header: 'Last Updated', sortable: true, accessor: (row) => formatDateTime(row.lastUpdated) },
+    ],
+    []
+  );
 
   /**
    * Export to CSV
@@ -158,101 +267,85 @@ export const AdminPublicPagesPageClient: React.FC = () => {
     <section className="space-y-4">
       {/* Header */}
       <header className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
-              Public Pages Management
-            </h1>
-            <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-              Manage public website pages with rich text editing
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              <Filter className="h-3 w-3" />
-              {showFilters ? 'Hide' : 'Show'} Filters
-            </button>
-            <button
-              onClick={handleExport}
-              className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              <Download className="h-3 w-3" />
-              Export CSV
-            </button>
-            <button
-              onClick={() => setIsCreating(true)}
-              className="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700"
-            >
-              + New Page
-            </button>
-          </div>
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+            Public Pages Management
+          </h1>
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+            Manage public website pages with rich text editing
+          </p>
         </div>
-
-        {/* Filters */}
-        {showFilters && (
-          <div className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40 sm:grid-cols-3">
-            <div>
-              <label htmlFor="search" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-                Search
-              </label>
-              <input
-                id="search"
-                type="text"
-                placeholder="Title, slug, type..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-              />
-            </div>
-            <div>
-              <label htmlFor="typeFilter" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-                Page Type
-              </label>
-              <select
-                id="typeFilter"
-                value={typeFilter}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setTypeFilter(v);
-                  updateFilters({ type: v === 'policy-pages' ? undefined : v || undefined });
-                }}
-                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-              >
-                <option value="">All Types</option>
-                <option value="policy-pages">Policy pages (all)</option>
-                {Object.entries(PAGE_TYPE_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="publishedFilter" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-                Status
-              </label>
-              <select
-                id="publishedFilter"
-                value={publishedFilter}
-                onChange={(e) => {
-                  setPublishedFilter(e.target.value);
-                  updateFilters({
-                    published: e.target.value === '' ? undefined : e.target.value === 'true',
-                  });
-                }}
-                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-              >
-                <option value="">All</option>
-                <option value="true">Published</option>
-                <option value="false">Draft</option>
-              </select>
-            </div>
-          </div>
-        )}
       </header>
+
+      {/* Toolbar: Search (left) + Filter + Export + New Page (right) */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Title, slug, type…"
+          className="min-w-[160px] max-w-[320px] w-full md:w-auto flex-1"
+        />
+        <div className="flex flex-shrink-0 items-center gap-2">
+          <FilterTriggerButton
+              ref={filterTriggerRef}
+              hasActiveFilters={hasActiveFilters}
+              activeFilterCount={activeFilterCount}
+              onClick={() => setFilterPanelOpen(true)}
+            />
+            <Button type="button" size="sm" variant="bordered" onClick={handleExport} icon={<Download className="h-3.5 w-3.5" />}>
+              Export CSV
+            </Button>
+            <Button size="sm" variant="primary" onClick={() => setIsCreating(true)}>
+              + New Page
+            </Button>
+        </div>
+      </div>
+
+      <FilterPanel
+        isOpen={filterPanelOpen}
+        onClose={() => setFilterPanelOpen(false)}
+        onApply={handleApplyFilters}
+        onResetAll={handleResetAllStaged}
+        hasActiveFilters={hasStagedFilters}
+        activeFilterCount={stagedFilterCount}
+        title="Filter"
+        triggerRef={filterTriggerRef}
+      >
+        <FilterSection
+          title="Page Type"
+          onReset={() => setStagedType('')}
+          isActive={stagedType !== ''}
+        >
+          <FilterSelect
+            label=""
+            value={stagedType}
+            onChange={setStagedType}
+            options={[
+              { label: 'All Types', value: '' },
+              { label: 'Policy pages (all)', value: 'policy-pages' },
+              ...Object.entries(PAGE_TYPE_LABELS).map(([value, label]) => ({ label, value })),
+            ]}
+            size="panel"
+          />
+        </FilterSection>
+        <FilterSection
+          title="Status"
+          onReset={() => setStagedPublished('')}
+          isActive={stagedPublished !== ''}
+        >
+          <FilterSelect
+            label=""
+            value={stagedPublished}
+            onChange={setStagedPublished}
+            options={[
+              { label: 'All', value: '' },
+              { label: 'Published', value: 'true' },
+              { label: 'Draft', value: 'false' },
+            ]}
+            size="panel"
+          />
+        </FilterSection>
+      </FilterPanel>
 
       {/* Error display */}
       {error && (
@@ -262,127 +355,39 @@ export const AdminPublicPagesPageClient: React.FC = () => {
       )}
 
       {/* Pages table */}
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="overflow-x-auto text-sm">
-          <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-            <thead className="bg-slate-50 dark:bg-slate-950/40">
-              <tr>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Title
-                </th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Slug
-                </th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Type
-                </th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Status
-                </th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Views
-                </th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Last Updated
-                </th>
-                <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-800 dark:bg-slate-900">
-              {loading ? (
-                <TableRowsSkeleton rowCount={SKELETON_COUNTS.TABLE_ROWS} colCount={7} />
-              ) : filteredPages.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={7}
-                    className="px-3 py-8 text-center text-xs text-slate-500 dark:text-slate-400"
-                  >
-                    No pages found.
-                  </td>
-                </tr>
-              ) : (
-                filteredPages.map((page) => (
-                  <tr
-                    key={page.id}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => handleEdit(page)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleEdit(page);
-                      }
-                    }}
-                    className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-950/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500"
-                  >
-                    <td className="whitespace-nowrap px-3 py-3 text-xs font-medium text-slate-900 dark:text-slate-50">
-                      {page.title}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-xs text-slate-700 dark:text-slate-200">
-                      {page.slug}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-xs text-slate-700 dark:text-slate-200">
-                      {PAGE_TYPE_LABELS[page.type] || page.type}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-xs">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTogglePublish(page);
-                        }}
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${getPublishedBadgeClasses(
-                          page.published
-                        )}`}
-                        title="Click to toggle"
-                      >
-                        {page.published ? <Globe className="h-3 w-3" /> : <FileWarning className="h-3 w-3" />}
-                        {page.published ? 'Published' : 'Draft'}
-                      </button>
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-xs text-slate-700 dark:text-slate-200">
-                      {page.views.toLocaleString()}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-xs text-slate-700 dark:text-slate-200">
-                      {formatDateTime(page.lastUpdated)}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-right text-xs" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          type="button"
-                          onClick={() => handleViewDetails(page)}
-                          className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                          title="View Details"
-                        >
-                          <Eye className="h-3 w-3" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleEdit(page)}
-                          className="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2 py-1 text-[11px] font-medium text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:text-indigo-300 dark:hover:bg-indigo-950/60"
-                          title="Edit"
-                        >
-                          <Edit className="h-3 w-3" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(page)}
-                          className="inline-flex items-center gap-1 rounded-md bg-rose-50 px-2 py-1 text-[11px] font-medium text-rose-700 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-950/60"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DataTable<AdminPageDTO>
+        columns={pageColumns}
+        data={sortedPages}
+        isLoading={loading}
+        error={error}
+        onRetry={() => updateFilters({})}
+        emptyTitle={EMPTY_STATE.NO_PAGES_FOUND.title}
+        emptyMessage={EMPTY_STATE.NO_PAGES_FOUND.message}
+        searchable
+        searchPlaceholder="Title, slug, type…"
+        searchQuery={search}
+        onSearchQueryChange={setSearch}
+        sortable
+        sortKey={sortKey}
+        sortDirection={sortDirection}
+        onSortChange={handleSortChange}
+        renderRowActions={(page) => (
+          <RowActions>
+            <Switch
+              size="sm"
+              checked={!!page.published}
+              onCheckedChange={() => handleTogglePublish(page)}
+              aria-label={page.published ? 'Unpublish page' : 'Publish page'}
+              title={page.published ? 'Unpublish' : 'Publish'}
+            />
+            <ViewAction onClick={() => handleViewDetails(page)} aria-label="View details" title="View details" />
+            <EditAction onClick={() => handleEdit(page)} aria-label="Edit" />
+            <DeleteAction onClick={() => handleDelete(page)} aria-label="Delete" />
+          </RowActions>
+        )}
+        onRowClick={(page) => handleEdit(page)}
+        responsive
+      />
 
       {/* Create Page SideCanvas */}
       <SideCanvas
@@ -519,7 +524,7 @@ export const AdminPublicPagesPageClient: React.FC = () => {
                   <dt className="text-slate-600 dark:text-slate-400">Status:</dt>
                   <dd>
                     <span
-                      className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${getPublishedBadgeClasses(
+                      className={`inline-flex rounded-full px-2 py-0.5 ${getPublishedBadgeClasses(
                         selectedPage.published
                       )}`}
                     >

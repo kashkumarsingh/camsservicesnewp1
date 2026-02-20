@@ -72,7 +72,7 @@ export default function ScheduleStatusUpdate({ schedule, bookingId }: ScheduleSt
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={2}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
           placeholder="Add notes about this session..."
         />
       </div>

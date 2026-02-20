@@ -12,6 +12,8 @@ import { FAQItem } from '@/core/domain/faq/entities/FAQItem';
 import { FAQSlug } from '@/core/domain/faq/valueObjects/FAQSlug';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+import { extractList } from '@/infrastructure/http/responseHelpers';
+import { CACHE_TAGS, REVALIDATION_TIMES } from '@/utils/revalidationConstants';
 
 /**
  * Remote API Response Format
@@ -97,8 +99,12 @@ export class ApiFAQRepository implements IFAQRepository {
   }
 
   async findBySlug(slug: string): Promise<FAQItem | null> {
+    const isServerSide = typeof window === 'undefined';
+    const requestOptions: RequestInit | undefined = isServerSide
+      ? { next: { revalidate: REVALIDATION_TIMES.CONTENT_PAGE, tags: [CACHE_TAGS.FAQS, CACHE_TAGS.FAQ_SLUG(slug)] } }
+      : undefined;
     try {
-      const response = await apiClient.get<RemoteFAQResponse>(API_ENDPOINTS.FAQ_BY_SLUG(slug));
+      const response = await apiClient.get<RemoteFAQResponse>(API_ENDPOINTS.FAQ_BY_SLUG(slug), requestOptions);
       // ApiClient already unwraps { success: true, data: {...} } to { data: {...} }
       return this.toDomain(response.data);
     } catch (error: any) {
@@ -110,10 +116,13 @@ export class ApiFAQRepository implements IFAQRepository {
   }
 
   async findAll(): Promise<FAQItem[]> {
+    const isServerSide = typeof window === 'undefined';
+    const requestOptions: RequestInit | undefined = isServerSide
+      ? { next: { revalidate: REVALIDATION_TIMES.CONTENT_PAGE, tags: [CACHE_TAGS.FAQS] } }
+      : undefined;
     try {
-      const response = await apiClient.get<RemoteFAQResponse[]>(API_ENDPOINTS.FAQS);
-      // ApiClient already unwraps { success: true, data: [...] } to { data: [...] }
-      const faqs = Array.isArray(response.data) ? response.data : [];
+      const response = await apiClient.get<RemoteFAQResponse[] | { data: RemoteFAQResponse[]; meta?: unknown }>(API_ENDPOINTS.FAQS, requestOptions);
+      const faqs = extractList(response);
       return faqs.map(faq => this.toDomain(faq));
     } catch (error) {
       throw new Error(`Failed to fetch FAQs: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -138,8 +147,8 @@ export class ApiFAQRepository implements IFAQRepository {
         ? `${API_ENDPOINTS.FAQS}?${params.toString()}`
         : API_ENDPOINTS.FAQS;
       
-      const response = await apiClient.get<RemoteFAQResponse[]>(url);
-      const faqs = Array.isArray(response.data) ? response.data : [];
+      const response = await apiClient.get<RemoteFAQResponse[] | { data: RemoteFAQResponse[]; meta?: unknown }>(url);
+      const faqs = extractList(response);
       return faqs.map(faq => this.toDomain(faq));
     } catch (error) {
       throw new Error(`Failed to fetch FAQs: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -148,9 +157,8 @@ export class ApiFAQRepository implements IFAQRepository {
 
   async search(query: string): Promise<FAQItem[]> {
     try {
-      const response = await apiClient.get<RemoteFAQResponse[]>(`${API_ENDPOINTS.FAQS}?search=${encodeURIComponent(query)}`);
-      // ApiClient already unwraps { success: true, data: [...] } to { data: [...] }
-      const faqs = Array.isArray(response.data) ? response.data : [];
+      const response = await apiClient.get<RemoteFAQResponse[] | { data: RemoteFAQResponse[]; meta?: unknown }>(`${API_ENDPOINTS.FAQS}?search=${encodeURIComponent(query)}`);
+      const faqs = extractList(response);
       return faqs.map(faq => this.toDomain(faq));
     } catch (error) {
       throw new Error(`Failed to search FAQs: ${error instanceof Error ? error.message : 'Unknown error'}`);

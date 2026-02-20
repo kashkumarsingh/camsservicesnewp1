@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { ROUTES } from '@/utils/routes';
 
 type Props = {
   searchParams: Promise<{ package?: string; childId?: string }>;
@@ -14,7 +15,7 @@ export default async function CheckoutPage({ searchParams }: Props) {
   const packageSlug = resolvedParams.package;
 
   if (!packageSlug) {
-    redirect('/packages');
+    redirect(ROUTES.PACKAGES);
   }
 
   const childId = resolvedParams.childId ?? '';

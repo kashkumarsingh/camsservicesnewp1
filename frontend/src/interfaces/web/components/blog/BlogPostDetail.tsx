@@ -48,12 +48,12 @@ export default function BlogPostDetail({ slug, incrementViews = true }: BlogPost
       {/* Header */}
       <header className="mb-8">
         {post.category && (
-          <div className="inline-block bg-[#0080FF]/10 text-[#0080FF] px-4 py-2 rounded-full text-sm font-semibold mb-4">
+          <div className="inline-block bg-primary-blue/10 text-primary-blue px-4 py-2 rounded-full text-sm font-semibold mb-4">
             {post.category.name}
           </div>
         )}
 
-        <h1 className="text-4xl md:text-5xl font-heading font-bold text-[#1E3A5F] mb-4">
+        <h1 className="text-4xl md:text-5xl font-heading font-bold text-navy-blue mb-4">
           {post.title}
         </h1>
 
@@ -113,12 +113,12 @@ export default function BlogPostDetail({ slug, incrementViews = true }: BlogPost
       {/* Tags */}
       {post.tags && post.tags.length > 0 && (
         <div className="mt-12 pt-8 border-t border-gray-200">
-          <h3 className="text-lg font-semibold text-[#1E3A5F] mb-4">Tags:</h3>
+          <h3 className="text-lg font-semibold text-navy-blue mb-4">Tags:</h3>
           <div className="flex flex-wrap gap-2">
             {post.tags.map((tag) => (
               <span
                 key={tag.id}
-                className="bg-[#0080FF]/10 text-[#0080FF] px-4 py-2 rounded-full text-sm font-medium"
+                className="bg-primary-blue/10 text-primary-blue px-4 py-2 rounded-full text-sm font-medium"
               >
                 #{tag.name}
               </span>

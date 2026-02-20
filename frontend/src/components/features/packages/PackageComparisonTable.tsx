@@ -290,7 +290,7 @@ const PackageComparisonTable = () => {
       <div className="inline-block min-w-full align-middle">
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gradient-to-r from-[#0080FF] to-[#00D4FF]">
+            <thead className="bg-gradient-to-r from-primary-blue to-light-blue-cyan">
               <tr>
                 <th scope="col" className="px-4 py-4 text-left text-sm font-bold text-white">
                   Compare
@@ -300,7 +300,7 @@ const PackageComparisonTable = () => {
                     <div className="space-y-2">
                       <div className="text-white font-bold text-base">{pkg.name}</div>
                       {pkg.popular && (
-                        <span className="inline-block px-2 py-0.5 bg-[#FFD700] text-[#1E3A5F] text-[10px] font-bold rounded-full">
+                        <span className="inline-block px-2 py-0.5 bg-[#FFD700] text-navy-blue text-[10px] font-bold rounded-full">
                           Popular
                         </span>
                       )}
@@ -322,7 +322,7 @@ const PackageComparisonTable = () => {
                   <tr key={idx} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                        <Icon size={16} className="text-[#0080FF]" />
+                        <Icon size={16} className="text-primary-blue" />
                         <span>{row.label}</span>
                       </div>
                     </td>
@@ -332,7 +332,7 @@ const PackageComparisonTable = () => {
                       const badge = row.badge?.(pkg);
                       return (
                         <td key={pkg.id} className="px-4 py-3 text-center">
-                          <div className={`inline-flex items-center gap-2 ${isHighlighted ? 'font-bold text-[#0080FF]' : 'text-gray-700'}`}>
+                          <div className={`inline-flex items-center gap-2 ${isHighlighted ? 'font-bold text-primary-blue' : 'text-gray-700'}`}>
                             <span className="text-sm">{row.getValue(pkg)}</span>
                             {badge && (
                               <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded-full">
@@ -454,7 +454,7 @@ const PackageComparisonTable = () => {
                         <tr className="bg-blue-50 border-t-2 border-blue-200">
                           <td colSpan={packages.length + 1} className="px-4 py-3">
                             <div className="flex items-center gap-2">
-                              <Star size={16} className="text-[#0080FF]" />
+                              <Star size={16} className="text-primary-blue" />
                               <div className="text-sm font-bold text-gray-800">
                                 What Makes Each Package Different ({differentiatingFeatures.length} {differentiatingFeatures.length === 1 ? 'feature' : 'features'})
                               </div>
@@ -527,7 +527,7 @@ const PackageComparisonTable = () => {
                       ) : null}
                       <Link
                         href={`/packages/${pkg.slug}`}
-                        className="w-full px-4 py-2 text-center text-sm font-semibold text-[#0080FF] border-2 border-[#0080FF] rounded-lg hover:bg-[#0080FF] hover:text-white transition-colors"
+                        className="w-full px-4 py-2 text-center text-sm font-semibold text-primary-blue border-2 border-primary-blue rounded-lg hover:bg-primary-blue hover:text-white transition-colors"
                       >
                         View Details
                       </Link>

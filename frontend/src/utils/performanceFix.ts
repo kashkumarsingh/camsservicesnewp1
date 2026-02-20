@@ -31,13 +31,14 @@ export default function PerformanceFix() {
           }
           
           return originalMeasure(name, startMark, endMark);
-        } catch (error: any) {
+        } catch (error: unknown) {
           // Suppress "negative time stamp" errors during HMR/Fast Refresh
+          const msg = (error as { message?: string })?.message;
           if (
-            error?.message?.includes('negative time stamp') ||
-            error?.message?.includes('cannot have a negative') ||
-            error?.message?.includes('Failed to execute') ||
-            error?.message?.includes('measure')
+            msg?.includes('negative time stamp') ||
+            msg?.includes('cannot have a negative') ||
+            msg?.includes('Failed to execute') ||
+            msg?.includes('measure')
           ) {
             // Silently suppress - framework timing quirk
             return {} as PerformanceMeasure;
@@ -51,9 +52,9 @@ export default function PerformanceFix() {
       performance.mark = function(name: string, options?: PerformanceMarkOptions): PerformanceMark {
         try {
           return originalMark(name, options);
-        } catch (error: any) {
+        } catch (error: unknown) {
           // Suppress mark errors during HMR
-          if (error?.message?.includes('mark')) {
+          if ((error as { message?: string })?.message?.includes('mark')) {
             return {} as PerformanceMark;
           }
           throw error;

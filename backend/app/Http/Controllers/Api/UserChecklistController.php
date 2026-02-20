@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use App\Models\UserChecklist;
 use Illuminate\Http\JsonResponse;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
  */
 class UserChecklistController extends Controller
 {
+    use BaseApiController;
     /**
      * Get checklist for authenticated user
      * 
@@ -29,23 +31,11 @@ class UserChecklistController extends Controller
         
         $checklist = $user->checklist;
 
-        if (!$checklist) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Checklist not found. Please create a checklist first.',
-            ], 404);
+        if (! $checklist) {
+            return $this->notFoundResponse('Checklist');
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'checklist' => $this->formatChecklist($checklist),
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse(['checklist' => $this->formatChecklist($checklist)]);
     }
 
     /**
@@ -70,11 +60,7 @@ class UserChecklistController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         // Create or update checklist
@@ -82,17 +68,10 @@ class UserChecklistController extends Controller
         $checklist->fill($validator->validated());
         $checklist->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Checklist saved successfully. Admin will review and notify you.',
-            'data' => [
-                'checklist' => $this->formatChecklist($checklist),
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse(
+            ['checklist' => $this->formatChecklist($checklist)],
+            'Checklist saved successfully. Admin will review and notify you.'
+        );
     }
 
     /**

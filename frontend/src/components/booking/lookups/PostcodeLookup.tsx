@@ -278,7 +278,7 @@ const PostcodeLookup: React.FC<PostcodeLookupProps> = ({
                   ? 'border-red-500 bg-red-50'
                   : postcodeValid === true
                   ? 'border-green-500 bg-green-50'
-                  : 'border-gray-200 focus:border-[#0080FF] bg-white'
+                  : 'border-gray-200 focus:border-primary-blue bg-white'
               }`}
               disabled={loading}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); fetchAddresses(); } }}
@@ -334,7 +334,7 @@ const PostcodeLookup: React.FC<PostcodeLookupProps> = ({
           </label>
           <select
             onChange={(e) => handleAddressSelect(Number(e.target.value))}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#0080FF] focus:outline-none text-sm"
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary-blue focus:outline-none text-sm"
           >
             <option value="">-- Select your address --</option>
             {addresses.map((addr, index) => (
@@ -352,7 +352,7 @@ const PostcodeLookup: React.FC<PostcodeLookupProps> = ({
           <button
             type="button"
             onClick={() => setManualMode(true)}
-            className="text-sm text-[#0080FF] hover:underline font-medium"
+            className="text-sm text-primary-blue hover:underline font-medium"
           >
             {apiLimitExceeded ? 'Enter address manually' : "Can't find your address? Enter manually"}
           </button>
@@ -397,7 +397,7 @@ const PostcodeLookup: React.FC<PostcodeLookupProps> = ({
             className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none text-sm mb-3 transition-colors text-gray-900 ${
               apiLimitExceeded
                 ? 'border-amber-300 focus:border-amber-400 bg-white'
-                : 'border-gray-200 focus:border-[#0080FF] bg-white'
+                : 'border-gray-200 focus:border-primary-blue bg-white'
             }`}
           />
           

@@ -9,6 +9,7 @@ import { Policy } from '@/core/domain/policies/entities/Policy';
 import { PolicySlug } from '@/core/domain/policies/valueObjects/PolicySlug';
 import { PolicyType } from '@/core/domain/policies/entities/Policy';
 import { apiClient } from '@/infrastructure/http/ApiClient';
+import { extractList } from '@/infrastructure/http/responseHelpers';
 
 /**
  * Laravel API Response Format
@@ -118,11 +119,10 @@ export class ApiPolicyRepository implements IPolicyRepository {
 
   async findByType(type: string): Promise<Policy[]> {
     try {
-      const response = await apiClient.get<LaravelPolicyResponse[]>(
+      const response = await apiClient.get<LaravelPolicyResponse[] | { data: LaravelPolicyResponse[]; meta?: unknown }>(
         `${this.endpoint}?type=${encodeURIComponent(type)}`
       );
-      
-      return (Array.isArray(response.data) ? response.data : []).map(item => this.toDomain(item));
+      return extractList(response).map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to find policies by type: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -130,11 +130,10 @@ export class ApiPolicyRepository implements IPolicyRepository {
 
   async findAll(): Promise<Policy[]> {
     try {
-      const response = await apiClient.get<LaravelPolicyResponse[]>(
+      const response = await apiClient.get<LaravelPolicyResponse[] | { data: LaravelPolicyResponse[]; meta?: unknown }>(
         this.endpoint
       );
-      
-      return (Array.isArray(response.data) ? response.data : []).map(item => this.toDomain(item));
+      return extractList(response).map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to fetch policies: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }

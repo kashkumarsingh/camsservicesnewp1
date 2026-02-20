@@ -7,7 +7,11 @@ const nextConfig = {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
       { protocol: "https", hostname: "placehold.co" },
-      { protocol: "http", hostname: "localhost", pathname: "/storage/**" },
+      { protocol: "http", hostname: "localhost", pathname: "**/storage/**" },
+      // CMS images (Laravel storage) — dev uses localhost above; prod uses backend origin
+      { protocol: "https", hostname: "cams-backend.onrender.com", pathname: "**/storage/**" },
+      { protocol: "https", hostname: "cams-backend-oj5x.onrender.com", pathname: "**/storage/**" },
+      // If you use a custom API domain or CDN for images, add it here (no wildcards in hostname).
     ],
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,

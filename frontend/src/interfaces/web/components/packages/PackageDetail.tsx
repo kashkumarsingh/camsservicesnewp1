@@ -43,8 +43,8 @@ export default function PackageDetail({ slug, incrementViews = true }: PackageDe
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="prose lg:prose-xl mx-auto text-[#1E3A5F]">
-        <div className="text-lg text-[#1E3A5F] mb-6">
+      <div className="prose lg:prose-xl mx-auto text-navy-blue">
+        <div className="text-lg text-navy-blue mb-6">
           {renderHtml(pkg.description)}
         </div>
       </div>

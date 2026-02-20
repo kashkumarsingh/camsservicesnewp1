@@ -344,24 +344,24 @@ export interface MarkAttendanceResponse {
   attendance: ScheduleAttendance[];
 }
 
-// Time Tracking Types
+// Time Tracking Types (camelCase — API response is converted from snake_case by BaseApiController)
 export interface TimeEntry {
   id: number;
-  trainer_id: number;
-  booking_schedule_id: number;
+  trainerId: number;
+  bookingScheduleId: number;
   type: 'clock_in' | 'clock_out';
-  recorded_at: string;
+  recordedAt: string;
   source: string;
   notes?: string | null;
 }
 
 export interface TimeEntriesResponse {
-  time_entries: TimeEntry[];
+  timeEntries: TimeEntry[];
   pagination?: {
-    current_page: number;
-    per_page: number;
+    currentPage: number;
+    perPage: number;
     total: number;
-    last_page: number;
+    lastPage: number;
     from: number | null;
     to: number | null;
   };

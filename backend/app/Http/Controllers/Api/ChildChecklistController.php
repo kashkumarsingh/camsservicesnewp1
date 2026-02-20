@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
+use App\Http\Controllers\Api\ErrorCodes;
 use App\Http\Controllers\Controller;
 use App\Models\Child;
 use App\Models\ChildChecklist;
@@ -18,6 +20,7 @@ use Illuminate\Support\Facades\Validator;
  */
 class ChildChecklistController extends Controller
 {
+    use BaseApiController;
     /**
      * Get checklist for a child
      * 
@@ -31,32 +34,17 @@ class ChildChecklistController extends Controller
         
         $child = $user->children()->find($childId);
 
-        if (!$child) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Child not found',
-            ], 404);
+        if (! $child) {
+            return $this->notFoundResponse('Child');
         }
 
         $checklist = $child->checklist;
 
-        if (!$checklist) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Checklist not found. Please create a checklist first.',
-            ], 404);
+        if (! $checklist) {
+            return $this->notFoundResponse('Checklist');
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'checklist' => $this->formatChecklist($checklist),
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse(['checklist' => $this->formatChecklist($checklist)]);
     }
 
     /**
@@ -72,11 +60,8 @@ class ChildChecklistController extends Controller
         
         $child = $user->children()->find($childId);
 
-        if (!$child) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Child not found',
-            ], 404);
+        if (! $child) {
+            return $this->notFoundResponse('Child');
         }
 
         $validator = Validator::make($request->all(), [
@@ -97,11 +82,7 @@ class ChildChecklistController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         // Create or update checklist
@@ -113,17 +94,10 @@ class ChildChecklistController extends Controller
         $dispatcher->dispatch(\App\Services\Notifications\NotificationIntentFactory::childChecklistSubmitted($child, $checklist));
         $dispatcher->dispatch(\App\Services\Notifications\NotificationIntentFactory::childChecklistSubmittedToAdmin($child, $checklist));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Checklist saved successfully. Admin will review and notify you.',
-            'data' => [
-                'checklist' => $this->formatChecklist($checklist),
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse(
+            ['checklist' => $this->formatChecklist($checklist)],
+            'Checklist saved successfully. Admin will review and notify you.'
+        );
     }
 
     /**

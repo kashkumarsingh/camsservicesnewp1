@@ -14,14 +14,20 @@ use App\Domain\Booking\Entities\BookingParticipant;
 use App\Domain\Payment\Entities\Payment as PaymentEntity;
 use App\Domain\Booking\Entities\BookingSchedule;
 use App\Domain\Booking\Mappers\BookingMapper;
+use App\Exceptions\BookingConflictException;
 use App\Http\Controllers\Api\Concerns\BaseApiController;
+use App\Http\Controllers\Api\ErrorCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBookingRequest;
 use App\Http\Requests\UpdateBookingRequest;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Booking Controller (Interface Layer - API)
@@ -613,6 +619,26 @@ class BookingController extends Controller
                 [],
                 201
             );
+        } catch (AuthenticationException $e) {
+            return $this->unauthorizedResponse($e->getMessage());
+        } catch (AuthorizationException $e) {
+            return $this->forbiddenResponse($e->getMessage());
+        } catch (BookingConflictException $e) {
+            return $this->errorResponse(
+                $e->getMessage(),
+                ErrorCodes::CONFLICT,
+                $e->getContext(),
+                409
+            );
+        } catch (ValidationException $e) {
+            return $this->validationErrorResponse($e->errors()->toArray(), $e->getMessage());
+        } catch (HttpException $e) {
+            return $this->errorResponse(
+                $e->getMessage() ?: 'Request failed.',
+                null,
+                [],
+                $e->getStatusCode()
+            );
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             Log::error('Booking creation ModelNotFoundException', [
                 'message' => $e->getMessage(),
@@ -620,9 +646,10 @@ class BookingController extends Controller
                 'ids' => $e->getIds(),
                 'data' => $request->all(),
             ]);
+
             return $this->errorResponse(
                 'The selected package does not exist or is not available for booking.',
-                \App\Http\Controllers\Api\ErrorCodes::BOOKING_ERROR,
+                ErrorCodes::BOOKING_ERROR,
                 ['package_id' => ['The selected package does not exist or is not available.']],
                 400
             );
@@ -632,23 +659,13 @@ class BookingController extends Controller
                 'trace' => $e->getTraceAsString(),
                 'data' => $request->all(),
             ]);
+
             return $this->errorResponse(
                 $e->getMessage() ?: 'Invalid booking data provided.',
-                \App\Http\Controllers\Api\ErrorCodes::BOOKING_ERROR,
+                ErrorCodes::BOOKING_ERROR,
                 [],
                 400
             );
-        } catch (\Illuminate\Http\Exceptions\HttpResponseException $e) {
-            // HttpResponseException already contains a proper JSON response - just return it
-            $response = $e->getResponse();
-            
-            // Log for debugging
-            Log::info('Booking creation HttpResponseException', [
-                'status' => $response->getStatusCode(),
-                'content' => $response->getContent(),
-            ]);
-            
-            return $response;
         } catch (\RuntimeException $e) {
             Log::error('Booking creation RuntimeException', [
                 'message' => $e->getMessage(),
@@ -656,7 +673,8 @@ class BookingController extends Controller
                 'data' => $request->all(),
             ]);
             $errorMessage = $e->getMessage() ?: 'Failed to create booking. Please check your details and try again.';
-            return $this->errorResponse($errorMessage, \App\Http\Controllers\Api\ErrorCodes::BOOKING_ERROR, [], 400);
+
+            return $this->errorResponse($errorMessage, ErrorCodes::BOOKING_ERROR, [], 400);
         } catch (\Exception $e) {
             Log::error('Error creating booking', [
                 'error' => $e->getMessage(),
@@ -664,7 +682,7 @@ class BookingController extends Controller
                 'trace' => $e->getTraceAsString(),
                 'data' => $request->all(),
             ]);
-            
+
             return $this->serverErrorResponse('Failed to create booking.');
         }
     }
@@ -751,6 +769,26 @@ class BookingController extends Controller
                 [],
                 201
             );
+        } catch (AuthenticationException $e) {
+            return $this->unauthorizedResponse($e->getMessage());
+        } catch (AuthorizationException $e) {
+            return $this->forbiddenResponse($e->getMessage());
+        } catch (BookingConflictException $e) {
+            return $this->errorResponse(
+                $e->getMessage(),
+                ErrorCodes::CONFLICT,
+                $e->getContext(),
+                409
+            );
+        } catch (ValidationException $e) {
+            return $this->validationErrorResponse($e->errors()->toArray(), $e->getMessage());
+        } catch (HttpException $e) {
+            return $this->errorResponse(
+                $e->getMessage() ?: 'Request failed.',
+                null,
+                [],
+                $e->getStatusCode()
+            );
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return $this->notFoundResponse('Package');
         } catch (\InvalidArgumentException $e) {
@@ -758,20 +796,20 @@ class BookingController extends Controller
                 'message' => $e->getMessage(),
                 'data' => $request->all(),
             ]);
+
             return $this->errorResponse(
                 $e->getMessage() ?: 'Invalid booking data provided.',
-                \App\Http\Controllers\Api\ErrorCodes::BOOKING_ERROR,
+                ErrorCodes::BOOKING_ERROR,
                 [],
                 400
             );
-        } catch (\Illuminate\Http\Exceptions\HttpResponseException $e) {
-            return $e->getResponse();
         } catch (\Exception $e) {
             Log::error('Error creating booking after payment', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'data' => $request->all(),
             ]);
+
             return $this->serverErrorResponse('Failed to create booking after payment.');
         }
     }

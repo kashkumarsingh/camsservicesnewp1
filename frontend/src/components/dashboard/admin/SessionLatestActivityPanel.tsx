@@ -20,6 +20,8 @@ import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
 import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { SCHEDULE_SESSION_STATUS } from '@/utils/dashboardConstants';
 import { getGoogleMapsSearchUrl, getGoogleMapsUrlForCoordinates } from '@/utils/locationUtils';
 import type { AdminBookingDTO } from '@/core/application/admin/dto/AdminBookingDTO';
 import type { RemoteBookingSession } from '@/core/application/admin/dto/AdminBookingDTO';
@@ -57,7 +59,7 @@ function formatDateLabel(dateStr: string): string {
 function isSessionInProgress(session: RemoteBookingSession): boolean {
   if (!session?.date || !session?.startTime || !session?.endTime) return false;
   const status = session.status ?? 'scheduled';
-  if (status === 'completed' || status === 'cancelled' || status === 'no_show') return false;
+  if (status === SCHEDULE_SESSION_STATUS.COMPLETED || status === SCHEDULE_SESSION_STATUS.CANCELLED || status === SCHEDULE_SESSION_STATUS.NO_SHOW) return false;
   const start = new Date(session.date + 'T' + session.startTime).getTime();
   const end = new Date(session.date + 'T' + session.endTime).getTime();
   const now = Date.now();
@@ -225,7 +227,7 @@ function SessionActivityContent({
         <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Timeline
         </h3>
-        <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+        <p className="mt-0.5 text-2xs text-slate-500 dark:text-slate-400">
           From trainer clock-in to clock-out
         </p>
         <ul className="mt-3 space-y-0">
@@ -400,7 +402,7 @@ function SessionActivityContent({
             View activity logs
             <ExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden />
           </button>
-          <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+          <p className="mt-0.5 text-2xs text-slate-500 dark:text-slate-400">
             Full logs with notes, achievements and challenges
           </p>
         </div>
@@ -418,16 +420,16 @@ function SessionActivityContent({
           <ClipboardList className="h-3.5 w-3.5" aria-hidden />
           Activity logs
         </h3>
-        <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+        <p className="mt-0.5 text-2xs text-slate-500 dark:text-slate-400">
           {sortedLogs.length === 0
-            ? 'No logs yet'
+            ? EMPTY_STATE.NO_LOGS_YET.title
             : logsExpanded
               ? `Showing all ${sortedLogs.length} log${sortedLogs.length === 1 ? '' : 's'}`
               : `Latest ${visibleLogs.length} of ${sortedLogs.length}`}
         </p>
         {sortedLogs.length === 0 ? (
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-            No activity logs yet for this session.
+            {EMPTY_STATE.NO_ACTIVITY_LOGS_YET.message}
           </p>
         ) : (
           <>
@@ -499,19 +501,19 @@ function SessionActivityContent({
                       {(log.achievements || log.challenges) && (
                         <div className="mt-1.5 flex flex-wrap gap-1.5">
                           {log.achievements && (
-                            <span className="inline-block max-w-full rounded bg-amber-100 px-1.5 py-0.5 text-[11px] text-amber-800 line-clamp-2 dark:bg-amber-900/50 dark:text-amber-200">
+                            <span className="inline-block max-w-full rounded bg-amber-100 px-1.5 py-0.5 text-2xs text-amber-800 line-clamp-2 dark:bg-amber-900/50 dark:text-amber-200">
                               Achievements: {log.achievements}
                             </span>
                           )}
                           {log.challenges && (
-                            <span className="inline-block max-w-full rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-700 line-clamp-2 dark:bg-slate-700 dark:text-slate-300">
+                            <span className="inline-block max-w-full rounded bg-slate-100 px-1.5 py-0.5 text-2xs text-slate-700 line-clamp-2 dark:bg-slate-700 dark:text-slate-300">
                               Challenges: {log.challenges}
                             </span>
                           )}
                         </div>
                       )}
                       {log.createdAt && (
-                        <p className="mt-1.5 text-[11px] text-slate-400 dark:text-slate-500">
+                        <p className="mt-1.5 text-2xs text-slate-400 dark:text-slate-500">
                           Logged {formatTimeFromIso(log.createdAt)}
                         </p>
                       )}
@@ -707,7 +709,7 @@ export function SessionLatestActivityPanel({
                 {error}
               </div>
             )}
-            {!loading && !error && session && (
+            {!loading && !error && session && sessionId != null && bookingId != null && (
               <SessionActivityContent
                 session={session}
                 sessionId={sessionId}

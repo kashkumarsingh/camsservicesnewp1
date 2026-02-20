@@ -41,6 +41,7 @@ import {
 import { useLiveRefresh, useLiveRefreshContext } from "@/core/liveRefresh/LiveRefreshContext";
 import { LIVE_REFRESH_ENABLED } from "@/utils/liveRefreshConstants";
 import { getDashboardRoute, canAccessRoute } from "@/utils/navigation";
+import { ROUTES } from "@/utils/routes";
 import type { User } from "@/core/application/auth/types";
 import { ThemeToggle } from "@/components/theme";
 import ToastContainer from "@/components/ui/Toast/ToastContainer";
@@ -307,7 +308,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
     if (!user && isServerLoadError) return; // Show error UI with Retry
     if (!user) {
       const redirect = encodeURIComponent(pathname);
-      router.replace(`/login?redirect=${redirect}`);
+      router.replace(`${ROUTES.LOGIN}?redirect=${redirect}`);
       return;
     }
     // If on role-picker page, redirect to role-specific dashboard
@@ -608,7 +609,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                     role="menu"
                   >
                     <Link
-                      href="/account"
+                      href={ROUTES.ACCOUNT}
                       className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
                       onClick={() => setUserMenuOpen(false)}
                     >
@@ -629,7 +630,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                       </button>
                     ) : sectionRole === "trainer" ? (
                       <Link
-                        href="/dashboard/trainer/settings"
+                        href={ROUTES.DASHBOARD_TRAINER_SETTINGS}
                         className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
                         onClick={() => setUserMenuOpen(false)}
                       >
@@ -638,7 +639,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                       </Link>
                     ) : sectionRole === "admin" ? (
                       <Link
-                        href="/dashboard/admin/settings"
+                        href={ROUTES.DASHBOARD_ADMIN_SETTINGS}
                         className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
                         onClick={() => setUserMenuOpen(false)}
                       >
@@ -781,9 +782,9 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
         >
           <div className="grid grid-cols-3 h-14">
             <Link
-              href="/dashboard/parent"
+              href={ROUTES.DASHBOARD_PARENT}
               className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] ${
-                pathname === "/dashboard/parent" && !pathname.startsWith("/dashboard/parent/")
+                pathname === ROUTES.DASHBOARD_PARENT && !pathname.startsWith(`${ROUTES.DASHBOARD_PARENT}/`)
                   ? "text-blue-600 dark:text-blue-400"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
@@ -792,9 +793,9 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               <span>Overview</span>
             </Link>
             <Link
-              href="/dashboard/parent/schedule"
+              href={ROUTES.DASHBOARD_PARENT_SCHEDULE}
               className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] ${
-                pathname.startsWith("/dashboard/parent/schedule")
+                pathname.startsWith(ROUTES.DASHBOARD_PARENT_SCHEDULE)
                   ? "text-blue-600 dark:text-blue-400"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
@@ -803,9 +804,9 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               <span>Schedule</span>
             </Link>
             <Link
-              href="/dashboard/parent/children"
+              href={ROUTES.DASHBOARD_PARENT_CHILDREN}
               className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] ${
-                pathname.startsWith("/dashboard/parent/children")
+                pathname.startsWith(ROUTES.DASHBOARD_PARENT_CHILDREN)
                   ? "text-blue-600 dark:text-blue-400"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
@@ -825,7 +826,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
         >
           <div className="grid grid-cols-2 h-14 max-w-lg mx-auto">
             <Link
-              href="/dashboard/trainer"
+              href={ROUTES.DASHBOARD_TRAINER}
               className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] ${
                 trainerMobileTab === "schedule"
                   ? "text-blue-600 dark:text-blue-400"
@@ -837,7 +838,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               <span>Schedule</span>
             </Link>
             <Link
-              href="/dashboard/trainer?tab=more"
+              href={`${ROUTES.DASHBOARD_TRAINER}?tab=more`}
               className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] ${
                 trainerMobileTab === "more"
                   ? "text-blue-600 dark:text-blue-400"

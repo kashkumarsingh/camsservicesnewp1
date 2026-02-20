@@ -30,7 +30,7 @@ class ParentSafeguardingConcernController extends Controller
     {
         $user = Auth::user();
         if (! $user) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
+            return $this->unauthorizedResponse();
         }
 
         try {

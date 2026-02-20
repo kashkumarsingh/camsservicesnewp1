@@ -16,7 +16,7 @@ interface FAQItemCardProps {
 export default function FAQItemCard({ faq }: FAQItemCardProps) {
   return (
     <div className={`mb-6 p-6 rounded-lg shadow-md transition-all duration-300 transform-gpu hover:rotate-x-10
-      bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-galaxy-purple/10 to-[#00D4FF]/10
+      bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-galaxy-purple/10 to-light-blue-cyan/10
       text-center
     `}>
       <Link 

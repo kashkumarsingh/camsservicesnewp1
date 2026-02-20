@@ -9,6 +9,7 @@ import { ITestimonialRepository, TestimonialFilterOptions } from '@/core/applica
 import { Testimonial } from '@/core/domain/testimonials';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+import { extractList } from '@/infrastructure/http/responseHelpers';
 
 interface RemoteTestimonialResponse {
   id: string;
@@ -82,11 +83,7 @@ export class ApiTestimonialRepository implements ITestimonialRepository {
       const response = await apiClient.get<RemoteTestimonialResponse[] | RemoteTestimonialListResponse>(
         `${API_ENDPOINTS.TESTIMONIALS}${query.toString() ? `?${query.toString()}` : ''}`
       );
-
-      const testimonials = Array.isArray(response.data)
-        ? response.data
-        : (response.data as RemoteTestimonialListResponse).data ?? [];
-
+      const testimonials = extractList(response);
       return testimonials.map(this.toDomain);
     } catch (error) {
       throw new Error(`Failed to fetch testimonials: ${error instanceof Error ? error.message : 'Unknown error'}`);

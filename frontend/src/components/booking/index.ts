@@ -1,2 +1,2 @@
-// SessionBuilder removed (legacy). Parents book sessions from dashboard; trainers view booking detail only.
+// Booking components. Parents book from dashboard; trainers view booking detail only.
 

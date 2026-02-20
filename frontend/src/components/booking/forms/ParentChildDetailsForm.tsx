@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { User, Mail, Phone, PlusCircle, Trash2, HeartPulse, CheckCircle2, AlertCircle } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { validateEmail, validatePhone, validateFullName, validateAge } from '@/utils/validation';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface ChildDetails {
   id: number;
@@ -233,8 +234,8 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
   return (
     <div className="max-w-4xl mx-auto space-y-4">
       {/* Header Card */}
-      <div className="bg-white rounded-[30px] shadow-lg border-2 border-gray-200 overflow-hidden">
-        <div className="bg-gradient-to-r from-[#0080FF] to-[#00D4FF] px-6 py-4">
+      <div className="bg-white rounded-card shadow-lg border-2 border-gray-200 overflow-hidden">
+        <div className="bg-gradient-to-r from-primary-blue to-light-blue-cyan px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
               <User className="text-white" size={20} />
@@ -250,8 +251,8 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
           {/* Parent Details */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
-              <User className="text-[#0080FF]" size={20} />
-              <h3 className="text-lg font-bold text-[#1E3A5F]">Parent/Guardian Information</h3>
+              <User className="text-primary-blue" size={20} />
+              <h3 className="text-lg font-bold text-navy-blue">Parent/Guardian Information</h3>
               {isParentValid() && (
                 <CheckCircle2 className="text-green-500 ml-auto" size={20} />
               )}
@@ -274,7 +275,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
                         ? 'border-red-500 bg-red-50'
                         : nameValid === true
                         ? 'border-green-500 bg-green-50'
-                        : 'border-gray-200 focus:border-[#0080FF]'
+                        : 'border-gray-200 focus:border-primary-blue'
                     }`}
                     placeholder="e.g., Sarah Johnson"
                     required
@@ -314,7 +315,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
                         ? 'border-red-500 bg-red-50'
                         : emailValid === true
                         ? 'border-green-500 bg-green-50'
-                        : 'border-gray-200 focus:border-[#0080FF]'
+                        : 'border-gray-200 focus:border-primary-blue'
                     }`}
                     placeholder="your@email.com"
                     required
@@ -362,7 +363,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
                         ? 'border-red-500 bg-red-50'
                         : phoneValid === true
                         ? 'border-green-500 bg-green-50'
-                        : 'border-gray-200 focus:border-[#0080FF]'
+                        : 'border-gray-200 focus:border-primary-blue'
                     }`}
                     placeholder="07123 456789 or 020 1234 5678"
                     required
@@ -391,7 +392,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
       </div>
 
       {/* Children Section */}
-      <div className="bg-white rounded-[30px] shadow-lg border-2 border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-card shadow-lg border-2 border-gray-200 overflow-hidden">
         <div className="bg-gradient-to-r from-pink-50 to-purple-50 px-6 py-5 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -399,14 +400,14 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
                 <HeartPulse className="text-white" size={24} />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-[#1E3A5F]">Children's Information</h3>
+                <h3 className="text-xl font-bold text-navy-blue">Children's Information</h3>
                 <p className="text-sm text-gray-600 mt-0.5">Add all children participating in this package</p>
               </div>
             </div>
             {childrenDetails.length > 0 && childrenDetails.length < 5 && (
               <button
                 onClick={handleAddChild}
-                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#0080FF] to-[#00D4FF] text-white font-semibold rounded-xl hover:from-[#0069cc] hover:to-[#00b8e6] transition-all shadow-md hover:shadow-lg text-sm"
+                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-blue to-light-blue-cyan text-white font-semibold rounded-xl hover:from-primary-blue/90 hover:to-light-blue-cyan/90 transition-all shadow-md hover:shadow-lg text-sm"
               >
                 <PlusCircle size={20} />
                 <span className="hidden sm:inline">Add Another</span>
@@ -422,14 +423,14 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center mx-auto mb-4">
                 <HeartPulse className="text-pink-600" size={32} />
               </div>
-              <h4 className="text-lg font-bold text-gray-800 mb-2">No children added yet</h4>
+              <h4 className="text-lg font-bold text-gray-800 mb-2">{EMPTY_STATE.NO_CHILDREN_ADDED_YET.title}</h4>
               <p className="text-sm text-gray-600 mb-6 max-w-sm mx-auto">
                 Start by adding your first child&apos;s information
               </p>
               <Button 
                 onClick={handleAddChild} 
                 size="lg"
-                className="bg-gradient-to-r from-[#0080FF] to-[#00D4FF] hover:from-[#0069cc] hover:to-[#00b8e6] text-white font-bold shadow-lg hover:shadow-xl px-8"
+                className="bg-gradient-to-r from-primary-blue to-light-blue-cyan hover:from-primary-blue/90 hover:to-light-blue-cyan/90 text-white font-bold shadow-lg hover:shadow-xl px-8"
               >
                 <PlusCircle size={20} className="mr-2" />
                 Add First Child
@@ -445,8 +446,8 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
                     onClick={() => setActiveChildId(c.id)}
                     className={`whitespace-nowrap px-4 py-2 rounded-full border-2 text-sm font-semibold transition-colors ${
                       activeChildId === c.id
-                        ? 'border-[#0080FF] bg-blue-50 text-[#1E3A5F]'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-[#0080FF]'
+                        ? 'border-primary-blue bg-blue-50 text-navy-blue'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-primary-blue'
                     }`}
                     title={`Child ${idx + 1}`}
                   >
@@ -456,7 +457,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
                 {childrenDetails.length < 5 && (
                   <button
                     onClick={handleAddChild}
-                    className="ml-1 px-3 py-2 rounded-full border-2 border-dashed border-gray-300 text-gray-600 hover:border-[#0080FF] hover:text-[#0080FF] transition-colors text-sm"
+                    className="ml-1 px-3 py-2 rounded-full border-2 border-dashed border-gray-300 text-gray-600 hover:border-primary-blue hover:text-primary-blue transition-colors text-sm"
                     title="Add another child"
                   >
                     + Add
@@ -489,7 +490,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
                             {isValid ? <CheckCircle2 size={24} /> : <HeartPulse size={24} />}
                           </div>
                           <div>
-                            <h4 className="font-bold text-[#1E3A5F]">
+                            <h4 className="font-bold text-navy-blue">
                               {child.name.trim() || 'New Child'}
                             </h4>
                             <p className="text-xs text-gray-600">
@@ -514,7 +515,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
                         {/* Child Name */}
                         <div>
                           <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <User className="text-[#0080FF]" size={16} />
+                            <User className="text-primary-blue" size={16} />
                             Child's Full Name <span className="text-red-500">*</span>
                           </label>
                           <div className="relative">
@@ -529,7 +530,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
                                   ? 'border-red-500 bg-red-50'
                                   : childNameValid[child.id] === true
                                   ? 'border-green-500 bg-green-50'
-                                  : 'border-gray-200 focus:border-[#0080FF]'
+                                  : 'border-gray-200 focus:border-primary-blue'
                               }`}
                               placeholder="e.g., Emma Smith"
                               required
@@ -572,7 +573,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
                                   ? 'border-red-500 bg-red-50'
                                   : childAgeValid[child.id] === true
                                   ? 'border-green-500 bg-green-50'
-                                  : 'border-gray-200 focus:border-[#0080FF]'
+                                  : 'border-gray-200 focus:border-primary-blue'
                               }`}
                               placeholder="Enter age (0-25)"
                               required
@@ -607,7 +608,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
                           <textarea
                             value={child.medicalInfo || ''}
                             onChange={(e) => updateChild(child.id, 'medicalInfo', e.target.value)}
-                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#0080FF] focus:outline-none text-sm transition-all shadow-sm hover:shadow-md resize-none"
+                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary-blue focus:outline-none text-sm transition-all shadow-sm hover:shadow-md resize-none"
                             placeholder="e.g., Allergies, medical conditions, or special needs..."
                             rows={4}
                           />
@@ -638,7 +639,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
             variant="primary"
             size="lg"
             disabled={!canProceed()}
-            className="bg-gradient-to-r from-[#0080FF] to-[#00D4FF] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gradient-to-r from-primary-blue to-light-blue-cyan disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Continue to Location →
           </Button>

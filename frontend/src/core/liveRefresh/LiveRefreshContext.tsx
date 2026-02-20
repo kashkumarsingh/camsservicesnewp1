@@ -9,13 +9,14 @@ import React, {
 } from 'react';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 import {
-  LIVE_REFRESH_CONTEXTS,
+  LIVE_REFRESH_CONTEXTS_LIST,
   LIVE_REFRESH_HAS_WEBSOCKET_CONFIG,
   LIVE_REFRESH_POLL_FALLBACK_INTERVAL_MS,
   LIVE_REFRESH_WEBSOCKET_CONFIG,
   LIVE_REFRESH_WEBSOCKET_ENABLED,
   type LiveRefreshContextType,
 } from '@/utils/liveRefreshConstants';
+import { isAdminRole } from '@/utils/dashboardConstants';
 
 type RefetchFn = () => void | Promise<void>;
 
@@ -66,7 +67,7 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
   }, []);
 
   const refreshAll = useCallback(() => {
-    LIVE_REFRESH_CONTEXTS.forEach((ctx) => notifyContext(ctx));
+    LIVE_REFRESH_CONTEXTS_LIST.forEach((ctx) => notifyContext(ctx as LiveRefreshContextType));
   }, []);
 
   // WebSocket (Echo) when Reverb is configured – real-time live refresh
@@ -105,7 +106,8 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
         import('pusher-js'),
       ]);
       const Echo = EchoModule.default;
-      const Pusher = (PusherModule as { default: typeof import('pusher-js') }).default;
+      const PusherConstructor =
+        (PusherModule as unknown as { default: typeof import('pusher-js') }).default ?? PusherModule;
 
       const baseUrl =
         typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL
@@ -113,7 +115,7 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
           : '';
       const authEndpoint = baseUrl ? `${baseUrl}/api/v1/broadcasting/auth` : '';
 
-      (window as unknown as { Pusher: typeof Pusher }).Pusher = Pusher;
+      (window as unknown as { Pusher: typeof PusherConstructor }).Pusher = PusherConstructor;
 
       echo = new Echo({
         broadcaster: 'reverb',
@@ -136,18 +138,18 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
       echo.private(channelName).listen('.LiveRefreshContextsUpdated', (payload: { contexts?: string[] }) => {
         const contexts = payload?.contexts ?? [];
         contexts.forEach((ctx) => {
-          if (LIVE_REFRESH_CONTEXTS.includes(ctx as LiveRefreshContextType)) {
+          if (LIVE_REFRESH_CONTEXTS_LIST.includes(ctx)) {
             notifyContext(ctx as LiveRefreshContextType);
           }
         });
       });
 
-      const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+      const isAdmin = isAdminRole(user.role);
       if (isAdmin) {
         echo.private('live-refresh.admin').listen('.LiveRefreshContextsUpdated', (payload: { contexts?: string[] }) => {
           const contexts = payload?.contexts ?? [];
           contexts.forEach((ctx) => {
-            if (LIVE_REFRESH_CONTEXTS.includes(ctx as LiveRefreshContextType)) {
+            if (LIVE_REFRESH_CONTEXTS_LIST.includes(ctx)) {
               notifyContext(ctx as LiveRefreshContextType);
             }
           });

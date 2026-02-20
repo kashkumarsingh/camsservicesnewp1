@@ -55,7 +55,7 @@ export function bookingDTOToVisitorBooking(bookingDTO: BookingDTO): VisitorBooki
   const remainingHours = bookingDTO.totalHours - usedHours;
 
   // Convert schedules to sessionsData format
-  const sessionsData = bookingDTO.schedules.map((schedule, index) => {
+  const sessionsData = bookingDTO.schedules.map((schedule) => {
     const start = new Date(`2000-01-01T${schedule.startTime}`);
     const end = new Date(`2000-01-01T${schedule.endTime}`);
     const duration = (end.getTime() - start.getTime()) / (1000 * 60 * 60);

@@ -83,7 +83,7 @@ export default async function PolicyPage({ params }: PolicyPageProps) {
 
   return (
     <div>
-      <Section className="relative pt-20 pb-16 px-4 sm:px-6 lg:px-8 text-white overflow-hidden bg-gradient-to-br from-[#0080FF] to-[#1E3A5F]">
+      <Section className="relative pt-20 pb-16 px-4 sm:px-6 lg:px-8 text-white overflow-hidden bg-gradient-to-br from-primary-blue to-navy-blue">
         <div
           className="absolute inset-0 opacity-10"
           style={{ backgroundImage: "url('/svgs/geometric-pattern.svg')", backgroundRepeat: 'repeat' }}
@@ -104,7 +104,7 @@ export default async function PolicyPage({ params }: PolicyPageProps) {
 
       <div className="py-20 bg-gradient-to-br from-blue-50 to-white">
         <Section>
-          <article className="prose prose-lg md:prose-xl max-w-4xl mx-auto text-[#1E3A5F]">
+          <article className="prose prose-lg md:prose-xl max-w-4xl mx-auto text-navy-blue">
             {isHtmlContent(page.content ?? '')
               ? renderHtml(page.content ?? '', 'prose prose-lg md:prose-xl max-w-none')
               : <ReactMarkdown>{page.content ?? ''}</ReactMarkdown>}

@@ -1,14 +1,40 @@
 'use client';
 
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useMemo, useState, useCallback, useEffect, useRef } from 'react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAdminBookings } from '@/interfaces/web/hooks/admin/useAdminBookings';
-import type {
-  AdminBookingDTO,
-  AdminBookingsFilters,
-  BookingStatus,
-  PaymentStatus,
-} from '@/core/application/admin/dto/AdminBookingDTO';
+import type { AdminBookingDTO, AdminBookingsFilters } from '@/core/application/admin/dto/AdminBookingDTO';
+
+/** Build filters from URL search params (single source of truth for shareable state) */
+function filtersFromSearchParams(searchParams: URLSearchParams): AdminBookingsFilters {
+  const status = searchParams.get('status') ?? undefined;
+  const payment_status = searchParams.get('payment_status') ?? undefined;
+  const search = searchParams.get('search') ?? undefined;
+  const sort_by = searchParams.get('sort_by') ?? undefined;
+  const order = searchParams.get('order') ?? undefined;
+  const needs_trainer = searchParams.get('needs_trainer') === '1';
+  const f: AdminBookingsFilters = {};
+  if (status) f.status = status;
+  if (payment_status) f.payment_status = payment_status;
+  if (search) f.search = search;
+  if (sort_by) f.sort_by = sort_by;
+  if (order) f.order = order;
+  if (needs_trainer) f.needs_trainer = true;
+  return f;
+}
+
+/** Build URL search string from filters (omit defaults) */
+function searchStringFromFilters(f: AdminBookingsFilters): string {
+  const params = new URLSearchParams();
+  if (f.status) params.set('status', f.status);
+  if (f.payment_status) params.set('payment_status', f.payment_status);
+  if (f.search) params.set('search', f.search);
+  if (f.sort_by) params.set('sort_by', f.sort_by);
+  if (f.order) params.set('order', f.order);
+  if (f.needs_trainer) params.set('needs_trainer', '1');
+  const s = params.toString();
+  return s ? `?${s}` : '';
+}
 import SideCanvas from '@/components/ui/SideCanvas';
 import { TableRowsSkeleton } from '@/components/ui/Skeleton';
 import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
@@ -16,6 +42,25 @@ import { useLiveRefresh, useLiveRefreshContext } from '@/core/liveRefresh/LiveRe
 import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+import { getStatusBadgeClasses, getPaymentStatusBadgeClasses } from '@/utils/statusBadgeHelpers';
+import {
+  BOOKING_STATUS,
+  PAYMENT_STATUS,
+  type BookingStatusValue,
+} from '@/utils/dashboardConstants';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import {
+  EmptyState,
+  FilterPanel,
+  FilterSection,
+  FilterSelect,
+  FilterTriggerButton,
+  SearchInput,
+  RowActions,
+  ViewAction,
+} from '@/components/dashboard/universal';
+import Button from '@/components/ui/Button';
+import { ArrowDown, ArrowUp, ArrowUpDown, Download } from 'lucide-react';
 
 // ==========================================================================
 // Helper Functions
@@ -45,38 +90,6 @@ function formatDate(value?: string) {
   });
 }
 
-function getStatusBadgeClasses(status: BookingStatus) {
-  switch (status) {
-    case 'confirmed':
-      return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300';
-    case 'pending':
-    case 'draft':
-      return 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300';
-    case 'cancelled':
-      return 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300';
-    case 'completed':
-      return 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100';
-    default:
-      return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200';
-  }
-}
-
-function getPaymentStatusBadgeClasses(status: PaymentStatus) {
-  switch (status) {
-    case 'paid':
-      return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300';
-    case 'partial':
-      return 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300';
-    case 'pending':
-      return 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300';
-    case 'refunded':
-    case 'failed':
-      return 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300';
-    default:
-      return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200';
-  }
-}
-
 function getTrainerNames(booking: AdminBookingDTO): string {
   const trainerNames = Array.from(
     new Set(
@@ -96,19 +109,23 @@ function getPrimaryTrainerId(booking: AdminBookingDTO): string {
   return sessionWithTrainer?.trainerId ?? '';
 }
 
+/** Sortable column key supported by the API */
+const SORTABLE_COLUMNS = ['reference', 'created_at', 'updated_at'] as const;
+type SortByColumn = (typeof SORTABLE_COLUMNS)[number];
+
 // ==========================================================================
 // Main Component
 // ==========================================================================
 
 export const AdminBookingsPageClient: React.FC = () => {
   const searchParams = useSearchParams();
-  const needsTrainerFromUrl = searchParams.get('needs_trainer') === '1';
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const initialFilters = useMemo<AdminBookingsFilters>(() => {
-    const f: AdminBookingsFilters = {};
-    if (needsTrainerFromUrl) f.needs_trainer = true;
-    return f;
-  }, [needsTrainerFromUrl]);
+  const initialFilters = useMemo<AdminBookingsFilters>(
+    () => filtersFromSearchParams(searchParams),
+    [searchParams]
+  );
 
   const {
     bookings,
@@ -127,10 +144,32 @@ export const AdminBookingsPageClient: React.FC = () => {
 
   const liveRefreshContext = useLiveRefreshContext();
 
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>('');
-  const [showFilters, setShowFilters] = useState(false);
+  /** URL is source of truth: derive filter/sort UI from searchParams */
+  const statusFilter = searchParams.get('status') ?? '';
+  const paymentStatusFilter = searchParams.get('payment_status') ?? '';
+  const search = searchParams.get('search') ?? '';
+  const sortBy = searchParams.get('sort_by') ?? 'created_at';
+  const order = searchParams.get('order') ?? 'desc';
+
+  /** Sync URL changes (e.g. back/forward) into hook filters. Use ref so effect only depends on searchParams — including updateFilters in deps causes infinite loop (updateFilters changes when hook state updates). */
+  const isFirstMount = useRef(true);
+  const updateFiltersRef = useRef(updateFilters);
+  updateFiltersRef.current = updateFilters;
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+    updateFiltersRef.current(filtersFromSearchParams(searchParams));
+    // Intentionally omit updateFilters — we use updateFiltersRef.current to avoid "Maximum update depth exceeded" (updateFilters identity changes when hook state updates)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const filterTriggerRef = useRef<HTMLButtonElement>(null);
+  /** Staged filter values in the panel — only applied on "Apply now". */
+  const [stagedStatus, setStagedStatus] = useState('');
+  const [stagedPaymentStatus, setStagedPaymentStatus] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<AdminBookingDTO | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkOperationLoading, setBulkOperationLoading] = useState(false);
@@ -305,10 +344,71 @@ export const AdminBookingsPageClient: React.FC = () => {
   useLiveRefresh('bookings', adminBookingsRefetch, { enabled: LIVE_REFRESH_ENABLED });
   useLiveRefresh('trainer_schedules', adminBookingsRefetch, { enabled: LIVE_REFRESH_ENABLED });
 
-  // Handle filter changes
-  const handleFilterChange = (filters: AdminBookingsFilters) => {
-    updateFilters(filters);
-  };
+  /** Update URL and hook when user changes filter/sort/search (keeps state shareable and bookmarkable) */
+  const applyFilters = useCallback(
+    (next: AdminBookingsFilters) => {
+      router.replace(pathname + searchStringFromFilters(next), { scroll: false });
+      updateFilters(next);
+    },
+    [router, pathname, updateFilters]
+  );
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      applyFilters({ ...filtersFromSearchParams(searchParams), search: value || undefined });
+    },
+    [searchParams, applyFilters]
+  );
+
+  const handleFilterChange = useCallback(
+    (filters: AdminBookingsFilters) => {
+      applyFilters({ ...filtersFromSearchParams(searchParams), ...filters });
+    },
+    [searchParams, applyFilters]
+  );
+
+  const handleSortChange = useCallback(
+    (newSortBy: string, newOrder: string) => {
+      applyFilters({
+        ...filtersFromSearchParams(searchParams),
+        sort_by: newSortBy || undefined,
+        order: newOrder || undefined,
+      });
+    },
+    [searchParams, applyFilters]
+  );
+
+  const handleClearFilters = useCallback(() => {
+    router.replace(pathname, { scroll: false });
+    updateFilters({});
+  }, [router, pathname, updateFilters]);
+
+  /** Sync staged filters from URL when opening the panel. */
+  useEffect(() => {
+    if (filterPanelOpen) {
+      setStagedStatus(statusFilter);
+      setStagedPaymentStatus(paymentStatusFilter);
+    }
+  }, [filterPanelOpen, statusFilter, paymentStatusFilter]);
+
+  const hasActiveFilters = statusFilter !== '' || paymentStatusFilter !== '';
+  const activeFilterCount = [statusFilter, paymentStatusFilter].filter(Boolean).length;
+  const hasStagedFilters = stagedStatus !== '' || stagedPaymentStatus !== '';
+  const stagedFilterCount = [stagedStatus, stagedPaymentStatus].filter(Boolean).length;
+
+  const handleApplyFilters = useCallback(() => {
+    applyFilters({
+      ...filtersFromSearchParams(searchParams),
+      status: stagedStatus || undefined,
+      payment_status: stagedPaymentStatus || undefined,
+    });
+    setFilterPanelOpen(false);
+  }, [applyFilters, searchParams, stagedStatus, stagedPaymentStatus]);
+
+  const handleResetAllStaged = useCallback(() => {
+    setStagedStatus('');
+    setStagedPaymentStatus('');
+  }, []);
 
   // Handle bulk selection
   const toggleSelection = (id: string) => {
@@ -370,7 +470,7 @@ export const AdminBookingsPageClient: React.FC = () => {
   // Handle status update (inline)
   const handleStatusUpdate = async (
     bookingId: string,
-    newStatus: BookingStatus
+    newStatus: BookingStatusValue
   ) => {
     try {
       await updateStatus(bookingId, { status: newStatus });
@@ -447,107 +547,87 @@ export const AdminBookingsPageClient: React.FC = () => {
       {/* Error Display */}
       {error && (
         <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200">
-          {error}
+          <p className="mb-2">{error}</p>
+          <Button type="button" size="sm" variant="bordered" onClick={() => fetchBookings()}>
+            Retry
+          </Button>
         </div>
       )}
 
-      {/* Search + Filters + Export */}
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-1 items-center gap-2">
-            <input
-              type="search"
-              placeholder="Search by reference, parent, trainer or package..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="h-9 w-full max-w-md rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              {showFilters ? '✕ Hide Filters' : '⚙ Filters'}
-            </button>
-            <button
-              type="button"
-              onClick={handleExport}
-              className="inline-flex items-center rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-slate-800 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200"
-            >
-              📥 Export CSV
-            </button>
-          </div>
+      {/* Toolbar: Search (left) + Filter + Export (right) */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <SearchInput
+          value={search}
+          onChange={(value) => handleSearchChange(value)}
+          placeholder="Search by reference, parent, trainer or package…"
+          className="min-w-[160px] max-w-[320px] w-full md:w-auto flex-1"
+        />
+        <div className="flex flex-shrink-0 items-center gap-2">
+          <FilterTriggerButton
+            ref={filterTriggerRef}
+            hasActiveFilters={hasActiveFilters}
+            activeFilterCount={activeFilterCount}
+            onClick={() => setFilterPanelOpen(true)}
+          />
+          <Button type="button" size="sm" variant="bordered" onClick={handleExport} icon={<Download className="h-3.5 w-3.5" />}>
+            Export CSV
+          </Button>
         </div>
+      </div>
 
-        {/* Advanced Filters (collapsible) */}
-        {showFilters && (
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/60">
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-              Advanced Filters
-            </h3>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-300">
-                  Booking Status
-                </label>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => {
-                    setStatusFilter(e.target.value);
-                    handleFilterChange({ status: e.target.value || undefined });
-                  }}
-                  className="h-9 w-full rounded-md border border-slate-200 bg-white px-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-                >
-                  <option value="">All Statuses</option>
-                  <option value="draft">Draft</option>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="cancelled">Cancelled</option>
-                  <option value="completed">Completed</option>
-                </select>
-              </div>
+      <FilterPanel
+        isOpen={filterPanelOpen}
+        onClose={() => setFilterPanelOpen(false)}
+        onApply={handleApplyFilters}
+        onResetAll={handleResetAllStaged}
+        hasActiveFilters={hasStagedFilters}
+        activeFilterCount={stagedFilterCount}
+        title="Filter"
+        triggerRef={filterTriggerRef}
+      >
+        <FilterSection
+          title="Booking Status"
+          onReset={() => setStagedStatus('')}
+          isActive={stagedStatus !== ''}
+        >
+          <FilterSelect
+            label=""
+            value={stagedStatus}
+            onChange={setStagedStatus}
+            options={[
+              { label: 'All Statuses', value: '' },
+              { label: 'Draft', value: BOOKING_STATUS.DRAFT },
+              { label: 'Pending', value: BOOKING_STATUS.PENDING },
+              { label: 'Confirmed', value: BOOKING_STATUS.CONFIRMED },
+              { label: 'Cancelled', value: BOOKING_STATUS.CANCELLED },
+              { label: 'Completed', value: BOOKING_STATUS.COMPLETED },
+            ]}
+            size="panel"
+          />
+        </FilterSection>
+        <FilterSection
+          title="Payment Status"
+          onReset={() => setStagedPaymentStatus('')}
+          isActive={stagedPaymentStatus !== ''}
+        >
+          <FilterSelect
+            label=""
+            value={stagedPaymentStatus}
+            onChange={setStagedPaymentStatus}
+            options={[
+              { label: 'All Payment Statuses', value: '' },
+              { label: 'Pending', value: PAYMENT_STATUS.PENDING },
+              { label: 'Partial', value: PAYMENT_STATUS.PARTIAL },
+              { label: 'Paid', value: PAYMENT_STATUS.PAID },
+              { label: 'Refunded', value: PAYMENT_STATUS.REFUNDED },
+              { label: 'Failed', value: PAYMENT_STATUS.FAILED },
+            ]}
+            size="panel"
+          />
+        </FilterSection>
+      </FilterPanel>
 
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-300">
-                  Payment Status
-                </label>
-                <select
-                  value={paymentStatusFilter}
-                  onChange={(e) => {
-                    setPaymentStatusFilter(e.target.value);
-                    handleFilterChange({
-                      payment_status: e.target.value || undefined,
-                    });
-                  }}
-                  className="h-9 w-full rounded-md border border-slate-200 bg-white px-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-                >
-                  <option value="">All Payment Statuses</option>
-                  <option value="pending">Pending</option>
-                  <option value="partial">Partial</option>
-                  <option value="paid">Paid</option>
-                  <option value="refunded">Refunded</option>
-                  <option value="failed">Failed</option>
-                </select>
-              </div>
-
-              <div className="flex items-end">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStatusFilter('');
-                    setPaymentStatusFilter('');
-                    handleFilterChange({});
-                  }}
-                  className="inline-flex h-9 w-full items-center justify-center rounded-md border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-                >
-                  Clear Filters
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+      <div className="flex flex-col gap-3">
 
         {/* Bulk Actions */}
         {selectedIds.size > 0 && (
@@ -559,7 +639,7 @@ export const AdminBookingsPageClient: React.FC = () => {
               type="button"
               onClick={handleBulkConfirm}
               disabled={bulkOperationLoading}
-              className="ml-auto inline-flex items-center rounded-md bg-emerald-600 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
+              className="ml-auto inline-flex items-center rounded-md bg-emerald-600 px-2 py-1 text-2xs font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
             >
               ✓ Bulk Confirm
             </button>
@@ -567,7 +647,7 @@ export const AdminBookingsPageClient: React.FC = () => {
               type="button"
               onClick={handleBulkCancel}
               disabled={bulkOperationLoading}
-              className="inline-flex items-center rounded-md bg-rose-600 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-rose-700 disabled:opacity-50"
+              className="inline-flex items-center rounded-md bg-rose-600 px-2 py-1 text-2xs font-semibold text-white shadow-sm hover:bg-rose-700 disabled:opacity-50"
             >
               ✕ Bulk Cancel
             </button>
@@ -592,9 +672,54 @@ export const AdminBookingsPageClient: React.FC = () => {
                     className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                   />
                 </th>
-                <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Ref
-                </th>
+                {(
+                  [
+                    { key: 'reference' as SortByColumn, label: 'Ref' },
+                    { key: 'created_at' as SortByColumn, label: 'Created' },
+                    { key: 'updated_at' as SortByColumn, label: 'Updated' },
+                  ] as const
+                ).map(({ key, label }) => {
+                  const isSorted = sortBy === key;
+                  const ariaLabel = isSorted
+                    ? `Sort by ${label} ${order === 'asc' ? 'ascending' : 'descending'}. Click to change.`
+                    : `Sort by ${label}. Click to sort.`;
+                  return (
+                    <th
+                      key={key}
+                      scope="col"
+                      className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!isSorted) handleSortChange(key, 'asc');
+                          else handleSortChange(key, order === 'asc' ? 'desc' : 'asc');
+                        }}
+                        className="inline-flex cursor-pointer select-none items-center gap-1 hover:text-slate-900 dark:hover:text-slate-50"
+                        aria-sort={
+                          isSorted
+                            ? order === 'asc'
+                              ? 'ascending'
+                              : 'descending'
+                            : undefined
+                        }
+                        aria-label={ariaLabel}
+                        title={isSorted ? `Sorted by ${label} (${order})` : `Sort by ${label}`}
+                      >
+                        <span>{label}</span>
+                        {isSorted ? (
+                          order === 'asc' ? (
+                            <ArrowUp className="h-3 w-3 text-slate-900 dark:text-slate-50" aria-hidden />
+                          ) : (
+                            <ArrowDown className="h-3 w-3 text-slate-900 dark:text-slate-50" aria-hidden />
+                          )
+                        ) : (
+                          <ArrowUpDown className="h-3 w-3 text-slate-400 dark:text-slate-500" aria-hidden title="Sortable" />
+                        )}
+                      </button>
+                    </th>
+                  );
+                })}
                 <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Parent
                 </th>
@@ -617,14 +742,14 @@ export const AdminBookingsPageClient: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-800 dark:bg-slate-900">
               {loading ? (
-                <TableRowsSkeleton rowCount={SKELETON_COUNTS.TABLE_ROWS} colCount={8} />
+                <TableRowsSkeleton rowCount={SKELETON_COUNTS.TABLE_ROWS} colCount={10} />
               ) : filteredBookings.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={8}
-                    className="px-3 py-4 text-center text-xs text-slate-500 dark:text-slate-400"
-                  >
-                    No bookings found.
+                  <td colSpan={10} className="p-0">
+                    <EmptyState
+                      title={EMPTY_STATE.NO_BOOKINGS_FOUND.title}
+                      message={EMPTY_STATE.NO_BOOKINGS_FOUND.message}
+                    />
                   </td>
                 </tr>
               ) : (
@@ -647,6 +772,12 @@ export const AdminBookingsPageClient: React.FC = () => {
                       {booking.reference}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
+                      {formatDate(booking.createdAt)}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
+                      {formatDate(booking.updatedAt)}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
                       {booking.parentName}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
@@ -656,23 +787,23 @@ export const AdminBookingsPageClient: React.FC = () => {
                       <select
                         value={booking.status}
                         onChange={(e) =>
-                          handleStatusUpdate(booking.id, e.target.value as BookingStatus)
+                          handleStatusUpdate(booking.id, e.target.value as BookingStatusValue)
                         }
                         onClick={(event) => event.stopPropagation()}
-                        className={`inline-flex rounded-full border-0 px-2 py-0.5 text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 ${getStatusBadgeClasses(
+                        className={`inline-flex rounded-full border-0 px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${getStatusBadgeClasses(
                           booking.status
                         )}`}
                       >
-                        <option value="draft">Draft</option>
-                        <option value="pending">Pending</option>
-                        <option value="confirmed">Confirmed</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="completed">Completed</option>
+                        <option value={BOOKING_STATUS.DRAFT}>Draft</option>
+                        <option value={BOOKING_STATUS.PENDING}>Pending</option>
+                        <option value={BOOKING_STATUS.CONFIRMED}>Confirmed</option>
+                        <option value={BOOKING_STATUS.CANCELLED}>Cancelled</option>
+                        <option value={BOOKING_STATUS.COMPLETED}>Completed</option>
                       </select>
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-xs">
                       <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${getPaymentStatusBadgeClasses(
+                        className={`inline-flex rounded-full px-2 py-0.5 ${getPaymentStatusBadgeClasses(
                           booking.paymentStatus
                         )}`}
                       >
@@ -681,21 +812,21 @@ export const AdminBookingsPageClient: React.FC = () => {
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
                       <div className="flex flex-col gap-1">
-                        <span className="text-[11px] text-slate-600 dark:text-slate-300">
+                        <span className="text-2xs text-slate-600 dark:text-slate-300">
                           {getTrainerNames(booking)}
                         </span>
                         {booking.sessions.some((s) => !s.trainerId) && (() => {
                           const { list, loading } = getTableTrainerOptions(booking);
                           if (loading) {
                             return (
-                              <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                              <span className="text-2xs text-slate-500 dark:text-slate-400">
                                 Checking availability…
                               </span>
                             );
                           }
                           if (list.length === 0) {
                             return (
-                              <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                              <span className="text-2xs text-slate-500 dark:text-slate-400">
                                 No available trainers
                               </span>
                             );
@@ -707,7 +838,7 @@ export const AdminBookingsPageClient: React.FC = () => {
                                 handlePrimaryTrainerAssign(booking, event.target.value)
                               }
                               onClick={(event) => event.stopPropagation()}
-                              className="h-7 rounded-md border border-slate-300 bg-white px-2 text-[11px] text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+                              className="h-7 rounded-md border border-slate-300 bg-white px-2 text-2xs text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
                             >
                               <option value="">Assign trainer…</option>
                               {list.map((trainer) => (
@@ -721,16 +852,13 @@ export const AdminBookingsPageClient: React.FC = () => {
                       </div>
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-right text-xs">
-                      <button
-                        type="button"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setSelectedBooking(booking);
-                        }}
-                        className="inline-flex items-center rounded-md border border-slate-300 px-2 py-1 text-[11px] font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                      >
-                        👁️ View
-                      </button>
+                      <RowActions>
+                        <ViewAction
+                          onClick={() => setSelectedBooking(booking)}
+                          aria-label="View booking details"
+                          title="View booking details"
+                        />
+                      </RowActions>
                     </td>
                   </tr>
                 ))
@@ -778,14 +906,14 @@ export const AdminBookingsPageClient: React.FC = () => {
                     Ref {selectedBooking.reference}
                   </span>
                   <span
-                    className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${getStatusBadgeClasses(
+                    className={`inline-flex rounded-full px-2 py-0.5 ${getStatusBadgeClasses(
                       selectedBooking.status
                     )}`}
                   >
                     {selectedBooking.status}
                   </span>
                   <span
-                    className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${getPaymentStatusBadgeClasses(
+                    className={`inline-flex rounded-full px-2 py-0.5 ${getPaymentStatusBadgeClasses(
                       selectedBooking.paymentStatus
                     )}`}
                   >
@@ -906,8 +1034,8 @@ export const AdminBookingsPageClient: React.FC = () => {
                           {formatDate(session.date)}
                         </span>
                         <span
-                          className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${getStatusBadgeClasses(
-                            session.status as BookingStatus
+                          className={`inline-flex rounded-full px-2 py-0.5 ${getStatusBadgeClasses(
+                            session.status as BookingStatusValue
                           )}`}
                         >
                           {session.status}
@@ -920,21 +1048,21 @@ export const AdminBookingsPageClient: React.FC = () => {
                         Current trainer: {session.trainerName || 'Unassigned'}
                       </p>
                       <div className="mt-2">
-                        <label className="mb-1 block text-[11px] font-medium text-slate-700 dark:text-slate-300">
+                        <label className="mb-1 block text-2xs font-medium text-slate-700 dark:text-slate-300">
                           Assign trainer
                         </label>
                         {(() => {
                           const { list, loading } = getSessionTrainerOptions(session);
                           if (loading) {
                             return (
-                              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                              <p className="text-2xs text-slate-500 dark:text-slate-400">
                                 Checking availability…
                               </p>
                             );
                           }
                           if (list.length === 0) {
                             return (
-                              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                              <p className="text-2xs text-slate-500 dark:text-slate-400">
                                 No available trainers
                               </p>
                             );
@@ -958,7 +1086,7 @@ export const AdminBookingsPageClient: React.FC = () => {
                           );
                         })()}
                         {assigningSessionId === session.id && (
-                          <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                          <p className="mt-1 text-2xs text-slate-500 dark:text-slate-400">
                             Saving trainer assignment…
                           </p>
                         )}

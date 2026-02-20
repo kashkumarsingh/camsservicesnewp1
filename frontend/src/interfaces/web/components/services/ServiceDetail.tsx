@@ -42,8 +42,8 @@ export default function ServiceDetail({ slug, incrementViews = true }: ServiceDe
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="prose lg:prose-xl mx-auto text-[#1E3A5F]">
-        <p className="text-lg text-[#1E3A5F] mb-6">
+      <div className="prose lg:prose-xl mx-auto text-navy-blue">
+        <p className="text-lg text-navy-blue mb-6">
           At CAMS Services, we believe in providing comprehensive and compassionate support tailored to each child&apos;s unique needs. Our approach to {service.title.toLowerCase()} is built on principles of understanding, empowerment, and positive development.
         </p>
         {/* Additional content can be added based on service slug */}

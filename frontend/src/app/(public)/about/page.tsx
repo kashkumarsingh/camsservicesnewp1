@@ -14,6 +14,10 @@ import type { AboutCoreValueDTO, PageDTO } from '@/core/application/pages/dto/Pa
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { withTimeoutFallback } from '@/utils/promiseUtils';
+import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
+import { SEO_DEFAULTS } from '@/utils/seoConstants';
+import { ROUTES } from '@/utils/routes';
+import { ABOUT_PAGE } from '@/app/(public)/constants/aboutPageConstants';
 
 // Mark as dynamic because we use headers() in generateMetadata
 export const dynamic = 'force-dynamic';
@@ -45,7 +49,6 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = headersList.get('host');
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`;
-  const imageUrl = '/og-images/og-image.jpg';
 
   const useCase = new GetPageUseCase(pageRepository);
   const page = await withTimeoutFallback(useCase.execute(ABOUT_SLUG), 5000, null);
@@ -53,60 +56,37 @@ export async function generateMetadata(): Promise<Metadata> {
   const fallback = page ? null : await staticRepo.findBySlug(ABOUT_SLUG);
   const data = page ?? fallback;
 
-  const title = data?.title ? `${data.title} - CAMS Services` : 'About Us - CAMS Services';
+  const title = data?.title ? `${data.title} - ${SEO_DEFAULTS.siteName}` : `About Us - ${SEO_DEFAULTS.siteName}`;
   const description =
     data?.summary ??
     'Discover our mission, values, and the passionate team behind CAMS Services, committed to SEN support and trauma-informed care.';
 
-  return {
-    title,
-    description,
-    openGraph: {
+  return buildPublicMetadata(
+    {
       title,
       description,
-      url: `${baseUrl}/about`,
-      type: 'website',
-      images: [
-        {
-          url: `${baseUrl}${imageUrl}`,
-          width: 1200,
-          height: 630,
-          alt: data?.title ?? 'About CAMS Services',
-        },
-      ],
+      path: ROUTES.ABOUT,
+      imageAlt: data?.title ?? 'About CAMS Services',
     },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [imageUrl],
-    },
-    alternates: {
-      canonical: `${baseUrl}/about`,
-    },
-  };
+    baseUrl
+  );
 }
-
-const FALLBACK_HERO_TITLE = "Our Story: Dedicated to Every Child's Potential";
-const FALLBACK_HERO_DESCRIPTION =
-  "Discover our mission, values, and the passionate team behind CAMS Services, committed to SEN support and trauma-informed care.";
 
 export default async function About() {
   const { page, fromApi } = await getAboutPage();
 
-  // When fromApi is false (static fallback), use hardcoded hero so we don't duplicate the sections below
-  const heroTitle = fromApi && page?.title ? page.title : FALLBACK_HERO_TITLE;
-  const heroDescription = fromApi && page?.summary ? page.summary : FALLBACK_HERO_DESCRIPTION;
+  const heroTitle = fromApi && page?.title ? page.title : ABOUT_PAGE.FALLBACK_HERO_TITLE;
+  const heroDescription = fromApi && page?.summary ? page.summary : ABOUT_PAGE.FALLBACK_HERO_DESCRIPTION;
   const cmsContent = fromApi ? (page?.content?.trim() ?? '') : '';
   const hasCmsContent = cmsContent.length > 0;
 
   const missionTitle = (fromApi && (page as { mission?: { title?: string } })?.mission?.title)
     ? (page as { mission?: { title?: string } }).mission!.title
-    : 'Our Mission: Empowering Children and Young People';
+    : ABOUT_PAGE.DEFAULT_MISSION_TITLE;
   const missionDescription = fromApi && (page as { mission?: { description?: string } })?.mission?.description
     ? (page as { mission?: { description?: string } }).mission!.description
     : null;
-  const missionTitleStr: string = missionTitle ?? 'Our Mission: Empowering Children and Young People';
+  const missionTitleStr: string = missionTitle ?? ABOUT_PAGE.DEFAULT_MISSION_TITLE;
 
   const coreValuesData = fromApi && (page as { coreValues?: AboutCoreValueDTO[] })?.coreValues?.length
     ? (page as { coreValues: AboutCoreValueDTO[] }).coreValues
@@ -118,10 +98,10 @@ export default async function About() {
 
   const coreValuesSectionTitle = fromApi && (page as { coreValuesSectionTitle?: string | null })?.coreValuesSectionTitle
     ? (page as { coreValuesSectionTitle: string }).coreValuesSectionTitle
-    : 'Our Core Values';
+    : ABOUT_PAGE.DEFAULT_CORE_VALUES_SECTION_TITLE;
   const coreValuesSectionSubtitle = fromApi && (page as { coreValuesSectionSubtitle?: string | null })?.coreValuesSectionSubtitle
     ? (page as { coreValuesSectionSubtitle: string }).coreValuesSectionSubtitle
-    : 'The principles that guide our every action.';
+    : ABOUT_PAGE.DEFAULT_CORE_VALUES_SECTION_SUBTITLE;
 
   return (
     <div>
@@ -131,11 +111,11 @@ export default async function About() {
         subtitle={heroDescription}
         videoSrc="/videos/space-bg-2.mp4"
       >
-        <Button href="/contact" variant="superPlayful" size="lg" className="shadow-lg" withArrow>
-          Get in Touch
+        <Button href={ROUTES.CONTACT} variant="superPlayful" size="lg" className="shadow-lg" withArrow>
+          {ABOUT_PAGE.GET_IN_TOUCH}
         </Button>
-        <Button href="/services" variant="outline" size="lg" className="shadow-lg" withArrow>
-          View Our Services
+        <Button href={ROUTES.SERVICES} variant="outline" size="lg" className="shadow-lg" withArrow>
+          {ABOUT_PAGE.VIEW_OUR_SERVICES}
         </Button>
       </PageHero>
 
@@ -143,7 +123,7 @@ export default async function About() {
       {hasCmsContent && (
         <div className="py-20 bg-gradient-to-br from-slate-50 to-white">
           <Section>
-            <RichTextBlock content={cmsContent} proseClassName="prose prose-lg md:prose-xl max-w-4xl mx-auto text-[#1E3A5F]" />
+            <RichTextBlock content={cmsContent} proseClassName="prose prose-lg md:prose-xl max-w-4xl mx-auto text-navy-blue" />
           </Section>
         </div>
       )}
@@ -156,21 +136,18 @@ export default async function About() {
         values={coreValuesData && coreValuesData.length >= 3 ? coreValuesData : []}
       />
       <AboutSafeguardingSection
-        title={safeguardingData?.title ?? 'Our Commitment to Safeguarding'}
-        subtitle={safeguardingData?.subtitle ?? "Your child's safety and well-being are our highest priority."}
-        description={
-          safeguardingData?.description ??
-          "The safety and wellbeing of your child is paramount. All our staff are DBS-checked, first-aid certified, and extensively trained in the latest UK safeguarding protocols."
-        }
+        title={safeguardingData?.title ?? ABOUT_PAGE.DEFAULT_SAFEGUARDING_TITLE}
+        subtitle={safeguardingData?.subtitle ?? ABOUT_PAGE.DEFAULT_SAFEGUARDING_SUBTITLE}
+        description={safeguardingData?.description ?? ABOUT_PAGE.DEFAULT_SAFEGUARDING_DESCRIPTION}
         badges={safeguardingData?.badges}
       />
 
       {/* Common: CTA (reusable) */}
       <CTASection
-        title="Ready to Connect and Learn More?"
-        subtitle="Contact our friendly team today for a free, no-obligation consultation about our SEN support and mentoring programmes."
-        primaryCTA={{ text: "Book a Free Consultation", href: "/contact" }}
-        secondaryCTA={{ text: "Email Our Team", href: "mailto:info@camsservices.co.uk" }}
+        title={ABOUT_PAGE.CTA_TITLE}
+        subtitle={ABOUT_PAGE.CTA_SUBTITLE}
+        primaryCTA={{ text: ABOUT_PAGE.CTA_PRIMARY, href: ROUTES.CONTACT }}
+        secondaryCTA={{ text: ABOUT_PAGE.CTA_SECONDARY, href: 'mailto:info@camsservices.co.uk' }}
         variant="default"
       />
     </div>

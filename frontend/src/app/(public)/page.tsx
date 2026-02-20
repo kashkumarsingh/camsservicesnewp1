@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import HomePageClient from './HomePageClient';
 import { getSiteSettings } from '@/server/siteSettings/getSiteSettings';
 import { SiteSetting } from '@/core/domain/siteSettings/entities/SiteSetting';
@@ -10,23 +11,26 @@ import { ListServicesUseCase } from '@/core/application/services/useCases/ListSe
 import { packageRepository } from '@/infrastructure/persistence/packages';
 import { serviceRepository } from '@/infrastructure/persistence/services';
 import { withTimeoutFallback } from '@/utils/promiseUtils';
+import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
+import { SEO_DEFAULTS } from '@/utils/seoConstants';
 
-const DEFAULT_BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://camsservice.co.uk';
+// Mark as dynamic because we use headers() in generateMetadata
+export const dynamic = 'force-dynamic';
 
-function buildLogoUrl(path?: string | null) {
-  if (!path) {
-    return `${DEFAULT_BASE_URL}/og-images/og-image.jpg`;
-  }
-  if (path.startsWith('http')) {
-    return path;
-  }
-  if (path.startsWith('/')) {
-    return `${DEFAULT_BASE_URL}${path}`;
-  }
-  return `${DEFAULT_BASE_URL}/${path}`;
+function getBaseUrl(): string {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (siteUrl) return siteUrl.replace(/\/$/, '');
+  return 'https://camsservice.co.uk';
 }
 
-function buildHomeJsonLd(siteSettings: SiteSetting | null) {
+function buildLogoUrl(path: string | null | undefined, baseUrl: string) {
+  if (!path) return `${baseUrl}/og-images/og-image.jpg`;
+  if (path.startsWith('http')) return path;
+  if (path.startsWith('/')) return `${baseUrl}${path}`;
+  return `${baseUrl}/${path}`;
+}
+
+function buildHomeJsonLd(siteSettings: SiteSetting | null, baseUrl: string) {
   const orgName = siteSettings?.company.name ?? 'CAMS Services';
   const contact = siteSettings?.contact;
   const socialLinks = siteSettings?.social.links?.map((link) => link.url) ?? [];
@@ -36,8 +40,8 @@ function buildHomeJsonLd(siteSettings: SiteSetting | null) {
       '@context': 'https://schema.org',
       '@type': 'Organization',
       name: orgName,
-      url: DEFAULT_BASE_URL,
-      logo: buildLogoUrl(siteSettings?.navigation.logoPath ?? null),
+      url: baseUrl,
+      logo: buildLogoUrl(siteSettings?.navigation.logoPath ?? null, baseUrl),
       contactPoint: [
         {
           '@type': 'ContactPoint',
@@ -53,10 +57,10 @@ function buildHomeJsonLd(siteSettings: SiteSetting | null) {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: orgName,
-      url: DEFAULT_BASE_URL,
+      url: baseUrl,
       potentialAction: {
         '@type': 'SearchAction',
-        target: `${DEFAULT_BASE_URL}/search?query={search_term_string}`,
+        target: `${baseUrl}/search?query={search_term_string}`,
         'query-input': 'required name=search_term_string',
       },
     },
@@ -64,73 +68,40 @@ function buildHomeJsonLd(siteSettings: SiteSetting | null) {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  try {
-    const siteSettings = await withTimeoutFallback(getSiteSettings(), 2000, null).catch(() => null);
-    const title = siteSettings?.company.name
-      ? `${siteSettings.company.name} | Specialist SEN & Trauma-Informed Care`
-      : 'KidzRunZ | Specialist SEN & Trauma-Informed Care';
-    const description =
-      siteSettings?.company.description ??
-      'Specialist SEN & trauma-informed care programmes with DBS-checked professionals, personalized plans, and proven results.';
+  const headersList = await headers();
+  const host = headersList.get('host');
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}` || getBaseUrl();
 
-    return {
+  let title: string;
+  let description: string;
+  let siteName: string | null = null;
+
+  try {
+    const siteSettings = await withTimeoutFallback(getSiteSettings(), 5000, null).catch(() => null);
+    siteName = siteSettings?.company.name ?? null;
+    title = siteName
+      ? `${siteName} | Specialist SEN & Trauma-Informed Care`
+      : `${SEO_DEFAULTS.siteName} | Specialist SEN & Trauma-Informed Care`;
+    description =
+      siteSettings?.company.description?.trim() ??
+      SEO_DEFAULTS.description;
+  } catch {
+    title = `${SEO_DEFAULTS.siteName} | Specialist SEN & Trauma-Informed Care`;
+    description = SEO_DEFAULTS.description;
+  }
+
+  return buildPublicMetadata(
+    {
       title,
       description,
-      alternates: {
-        canonical: DEFAULT_BASE_URL,
-      },
-      openGraph: {
-        title,
-        description,
-        url: DEFAULT_BASE_URL,
-        siteName: siteSettings?.company.name ?? 'CAMS Services',
-        images: [
-          {
-            url: `${DEFAULT_BASE_URL}/og-images/homepage.jpg`,
-            width: 1200,
-            height: 630,
-            alt: 'CAMS Services - Specialist SEN & Trauma-Informed Care',
-          },
-        ],
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title,
-        description,
-        images: [`${DEFAULT_BASE_URL}/og-images/homepage.jpg`],
-      },
-    };
-  } catch (error) {
-    // Fallback metadata if site settings fail to load
-    console.error('[generateMetadata] Error generating metadata:', error);
-    return {
-      title: 'CAMS Services | Specialist SEN & Trauma-Informed Care',
-      description: 'Specialist SEN & trauma-informed care programmes with DBS-checked professionals, personalized plans, and proven results.',
-      alternates: {
-        canonical: DEFAULT_BASE_URL,
-      },
-      openGraph: {
-        title: 'CAMS Services | Specialist SEN & Trauma-Informed Care',
-        description: 'Specialist SEN & trauma-informed care programmes with DBS-checked professionals, personalized plans, and proven results.',
-        url: DEFAULT_BASE_URL,
-        siteName: 'CAMS Services',
-        images: [
-          {
-            url: `${DEFAULT_BASE_URL}/og-images/homepage.jpg`,
-            width: 1200,
-            height: 630,
-            alt: 'CAMS Services - Specialist SEN & Trauma-Informed Care',
-          },
-        ],
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: 'CAMS Services | Specialist SEN & Trauma-Informed Care',
-        description: 'Specialist SEN & trauma-informed care programmes with DBS-checked professionals, personalized plans, and proven results.',
-        images: [`${DEFAULT_BASE_URL}/og-images/homepage.jpg`],
-      },
-    };
-  }
+      path: '/',
+      imageUrl: '/og-images/homepage.jpg',
+      imageAlt: siteName ? `${siteName} - Specialist SEN & Trauma-Informed Care` : SEO_DEFAULTS.ogImageAlt,
+      siteName: siteName ?? undefined,
+    },
+    baseUrl
+  );
 }
 
 async function fetchPackages() {
@@ -171,16 +142,16 @@ export default async function LandingPage() {
   try {
     // Use centralized timeout utility for consistent, FAANG-grade timeout handling
     // Promise.allSettled ensures no single slow API blocks the entire page render
-    // Each operation has independent timeout with graceful fallback
+    // Each operation has independent timeout with graceful fallback (generous for Docker/cold start)
     const [siteSettingsResult, homePageResult, packagesResult, servicesResult] = await Promise.allSettled([
-      withTimeoutFallback(getSiteSettings(), 3000, null).catch(() => null), // Site settings have internal 1.5s timeout, outer guard remains 3s
+      withTimeoutFallback(getSiteSettings(), 6000, null).catch(() => null), // 6s – site settings (internal 10s), outer guard for cold backend
       withTimeoutFallback(
         new GetPageUseCase(pageRepository).execute('home').catch(() => null),
-        3000,
+        6000,
         null
-      ).catch(() => null), // 3 second timeout, fallback to null
-      withTimeoutFallback(fetchPackages(), 2000, []).catch(() => []), // 2 second timeout, fail fast and show page without packages
-      withTimeoutFallback(fetchServices(), 2000, []).catch(() => []), // 2 second timeout, fail fast and show page without services
+      ).catch(() => null), // 6s – home page content
+      withTimeoutFallback(fetchPackages(), 5000, []).catch(() => []), // 5s – fail fast and show page without packages if slow
+      withTimeoutFallback(fetchServices(), 5000, []).catch(() => []), // 5s – fail fast and show page without services if slow
     ]);
 
     // Extract values with fallbacks
@@ -194,7 +165,8 @@ export default async function LandingPage() {
     // Use fallback values (already initialized above)
   }
 
-  const structuredData = buildHomeJsonLd(siteSettings);
+  const baseUrl = getBaseUrl();
+  const structuredData = buildHomeJsonLd(siteSettings, baseUrl);
   const sections = (homePage?.sections ?? []) as HomePageSection[];
 
   return (

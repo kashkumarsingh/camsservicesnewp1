@@ -30,7 +30,7 @@ export default function PageHero({ title, subtitle, videoSrc, children, classNam
           playsInline
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0080FF]/30 to-[#00D4FF]/20 z-10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/30 to-light-blue-cyan/20 z-10" />
       <div
         className="absolute inset-0 z-10 opacity-10"
         style={{

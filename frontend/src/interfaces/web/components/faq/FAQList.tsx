@@ -12,6 +12,7 @@ import { useFAQ } from '../../hooks/faq/useFAQ';
 import { FAQFilterOptions } from '@/core/application/faq';
 import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
 import { FAQSkeleton } from '@/components/ui/Skeleton';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 import { renderHtml } from '@/utils/htmlRenderer';
 
 interface FAQListProps {
@@ -45,7 +46,7 @@ export default function FAQList({ filterOptions }: FAQListProps) {
   if (faqs.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">No FAQs found.</p>
+        <p className="text-gray-600">{EMPTY_STATE.NO_FAQS_FOUND.title}</p>
       </div>
     );
   }
@@ -62,7 +63,7 @@ export default function FAQList({ filterOptions }: FAQListProps) {
               border-2 rounded-xl transition-all duration-300
               ${
                 isOpen
-                  ? 'border-[#0080FF] bg-blue-50 shadow-lg'
+                  ? 'border-primary-blue bg-blue-50 shadow-lg'
                   : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
               }
             `}
@@ -75,7 +76,7 @@ export default function FAQList({ filterOptions }: FAQListProps) {
               <div className="flex-1 pr-4">
                 {/* Category Badge (if provided) */}
                 {faq.category && (
-                  <span className="inline-block px-3 py-1 bg-[#0080FF] text-white text-xs font-bold rounded-full mb-2">
+                  <span className="inline-block px-3 py-1 bg-primary-blue text-white text-xs font-bold rounded-full mb-2">
                     {faq.category}
                   </span>
                 )}
@@ -83,7 +84,7 @@ export default function FAQList({ filterOptions }: FAQListProps) {
                 <h3
                   className={`
                     font-bold text-base sm:text-lg
-                    ${isOpen ? 'text-[#0080FF]' : 'text-gray-900'}
+                    ${isOpen ? 'text-primary-blue' : 'text-gray-900'}
                   `}
                 >
                   {faq.title}
@@ -96,7 +97,7 @@ export default function FAQList({ filterOptions }: FAQListProps) {
                   flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300
                   ${
                     isOpen
-                      ? 'bg-[#0080FF] text-white rotate-180'
+                      ? 'bg-primary-blue text-white rotate-180'
                       : 'bg-gray-200 text-gray-600'
                   }
                 `}

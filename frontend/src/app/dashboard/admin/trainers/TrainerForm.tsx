@@ -446,7 +446,7 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
                       >
                         <div className="flex flex-col">
                           <span className="font-medium">{cert.name}</span>
-                          <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                          <span className="text-2xs text-slate-500 dark:text-slate-400">
                             {cert.year ? `Year: ${cert.year} · ` : ''}
                             {cert.issuer ? `Issuer: ${cert.issuer}` : ''}
                           </span>
@@ -455,7 +455,7 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
                               href={cert.file_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[10px] text-indigo-600 hover:underline dark:text-indigo-400"
+                              className="text-2xs text-indigo-600 hover:underline dark:text-indigo-400"
                             >
                               View document
                             </a>
@@ -480,7 +480,7 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
                                 toastManager.error(err instanceof Error ? err.message : 'Failed to delete certification');
                               }
                             }}
-                            className="ml-2 inline-flex items-center rounded-md border border-rose-300 px-2 py-0.5 text-[10px] font-medium text-rose-600 hover:bg-rose-50 dark:border-rose-700 dark:text-rose-300 dark:hover:bg-rose-950/40"
+                            className="ml-2 inline-flex items-center rounded-md border border-rose-300 px-2 py-0.5 text-2xs font-medium text-rose-600 hover:bg-rose-50 dark:border-rose-700 dark:text-rose-300 dark:hover:bg-rose-950/40"
                           >
                             Remove
                           </button>

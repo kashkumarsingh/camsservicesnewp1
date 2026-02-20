@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use Illuminate\Http\JsonResponse;
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\Auth;
  */
 class ParentActivityLogController extends Controller
 {
+    use BaseApiController;
+
     private const MAX_ITEMS = 100;
 
     /**
@@ -28,8 +31,8 @@ class ParentActivityLogController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = Auth::user();
-        if (!$user) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
+        if (! $user) {
+            return $this->unauthorizedResponse();
         }
 
         $logs = ActivityLog::query()
@@ -87,7 +90,7 @@ class ParentActivityLogController extends Controller
             ];
         });
 
-        return response()->json([
+        return $this->successResponse([
             'activity_logs' => $items->values()->all(),
         ]);
     }

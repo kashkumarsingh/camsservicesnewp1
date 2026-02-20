@@ -7,16 +7,18 @@ import CTASection from '@/components/shared/CTASection/CTASection';
 import Card from '@/components/ui/Card/Card';
 import IconList from '@/components/ui/IconList/IconList';
 import { CheckCircle2, Calendar, Phone, MessageSquare, Award, Shield, Sparkles, Star, Users, Clock } from 'lucide-react';
+import { ROUTES } from '@/utils/routes';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://camsservice.co.uk';
 
+/** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;
 
 export const metadata: Metadata = {
   title: "Thank You – We'll Be in Touch | CAMS Services",
   description: "Your enquiry has been received. Our team will review your request and get back to you within 24 hours.",
   alternates: {
-    canonical: `${BASE_URL}/contact/thank-you`,
+    canonical: `${BASE_URL}${ROUTES.CONTACT_THANK_YOU}`,
   },
 };
 
@@ -59,7 +61,7 @@ export default async function ContactThankYouPage() {
           muted
           playsInline
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0080FF]/40 to-[#1E3A5F]/60 z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/40 to-navy-blue/60 z-10"></div>
         <div className="absolute inset-0 z-10 opacity-10" style={{ backgroundImage: "url('/svgs/star.svg')", backgroundRepeat: "repeat", backgroundSize: "40px 40px" }}></div>
         
         <div className="relative z-20 text-center max-w-5xl mx-auto space-y-8">
@@ -93,11 +95,11 @@ export default async function ContactThankYouPage() {
           {/* Trust Badges */}
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-5 py-2.5 rounded-lg border border-white/20">
-              <Star className="text-[#00D4FF]" size={20} fill="currentColor" />
+              <Star className="text-light-blue-cyan" size={20} fill="currentColor" />
               <span className="font-semibold text-sm">4.9/5 Rating</span>
             </div>
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-5 py-2.5 rounded-lg border border-white/20">
-              <Shield className="text-[#00D4FF]" size={20} />
+              <Shield className="text-light-blue-cyan" size={20} />
               <span className="font-semibold text-sm">DBS Checked</span>
             </div>
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-5 py-2.5 rounded-lg border border-white/20">
@@ -105,14 +107,14 @@ export default async function ContactThankYouPage() {
               <span className="font-semibold text-sm">Ofsted Registered</span>
             </div>
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-5 py-2.5 rounded-lg border border-white/20">
-              <Users className="text-[#00D4FF]" size={20} />
+              <Users className="text-light-blue-cyan" size={20} />
               <span className="font-semibold text-sm">500+ Families</span>
             </div>
           </div>
           
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-2xl mx-auto">
-            <Button href="/packages" variant="superPlayful" size="lg" className="shadow-2xl text-lg" withArrow>
+            <Button href={ROUTES.PACKAGES} variant="superPlayful" size="lg" className="shadow-2xl text-lg" withArrow>
               Explore Tailored Programmes
             </Button>
             <Button href="/booking" variant="outline" size="lg" className="text-lg shadow-lg" withArrow>
@@ -127,25 +129,25 @@ export default async function ContactThankYouPage() {
         <div className="grid gap-8 lg:grid-cols-2 max-w-7xl mx-auto">
           <Card className="rounded-3xl border border-gray-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-[#0080FF]/10">
-                <Clock className="text-[#0080FF]" size={24} />
+              <div className="p-2 rounded-lg bg-primary-blue/10">
+                <Clock className="text-primary-blue" size={24} />
               </div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-[#0080FF]">What happens next</p>
+              <p className="text-sm font-semibold uppercase tracking-wide text-primary-blue">What happens next</p>
             </div>
-            <h2 className="mt-2 text-3xl font-bold text-[#1E3A5F]">A guided next step for every family</h2>
-            <p className="mt-4 text-lg text-[#1E3A5F]/80">
+            <h2 className="mt-2 text-3xl font-bold text-navy-blue">A guided next step for every family</h2>
+            <p className="mt-4 text-lg text-navy-blue/80">
               Your enquiry is routed to our specialist mentors instantly. We follow a simple three-step process so you
               always know what comes next.
             </p>
             <div className="mt-8 space-y-5">
               {nextSteps.map((step, index) => (
-                <div key={step.title} className="flex gap-5 rounded-2xl border-2 border-gray-100 bg-gradient-to-r from-white to-blue-50/50 p-5 hover:border-[#0080FF]/30 hover:shadow-md transition-all duration-300">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-[#0080FF] to-[#00D4FF] flex items-center justify-center">
+                <div key={step.title} className="flex gap-5 rounded-2xl border-2 border-gray-100 bg-gradient-to-r from-white to-blue-50/50 p-5 hover:border-primary-blue/30 hover:shadow-md transition-all duration-300">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-primary-blue to-light-blue-cyan flex items-center justify-center">
                     <span className="text-xl font-bold text-white">{index + 1}</span>
                   </div>
                   <div className="flex-1">
-                    <p className="font-bold text-lg text-[#1E3A5F] mb-1">{step.title}</p>
-                    <p className="text-sm text-[#1E3A5F]/70 leading-relaxed">{step.description}</p>
+                    <p className="font-bold text-lg text-navy-blue mb-1">{step.title}</p>
+                    <p className="text-sm text-navy-blue/70 leading-relaxed">{step.description}</p>
                   </div>
                 </div>
               ))}
@@ -214,7 +216,7 @@ export default async function ContactThankYouPage() {
               <div className="p-2 rounded-lg bg-green-100">
                 <Shield className="text-green-600" size={24} />
               </div>
-              <h3 className="text-2xl font-bold text-[#1E3A5F]">Why families trust CAMS</h3>
+              <h3 className="text-2xl font-bold text-navy-blue">Why families trust CAMS</h3>
             </div>
             <IconList items={reassuranceHighlights} />
           </Card>
@@ -224,7 +226,7 @@ export default async function ContactThankYouPage() {
               <div className="p-2 rounded-lg bg-purple-100">
                 <Calendar className="text-purple-600" size={24} />
               </div>
-              <h3 className="text-2xl font-bold text-[#1E3A5F]">Need to prepare for the call?</h3>
+              <h3 className="text-2xl font-bold text-navy-blue">Need to prepare for the call?</h3>
             </div>
             <IconList
               items={[
@@ -241,7 +243,7 @@ export default async function ContactThankYouPage() {
       <CTASection
         title="Ready to build your child’s success plan?"
         subtitle="Our trauma-informed mentors combine emotional support with practical strategies. Let’s co-create a programme that fits your family."
-        primaryCTA={{ text: 'View Success Stories', href: '/blog' }}
+        primaryCTA={{ text: 'View Success Stories', href: ROUTES.BLOG }}
         secondaryCTA={{ text: 'Return Home', href: '/' }}
         variant="default"
       />

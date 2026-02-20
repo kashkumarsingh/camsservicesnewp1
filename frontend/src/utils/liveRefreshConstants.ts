@@ -31,6 +31,9 @@ export const LIVE_REFRESH_CONTEXTS = [
 ] as const;
 export type LiveRefreshContextType = (typeof LIVE_REFRESH_CONTEXTS)[number];
 
+/** For .includes(ctx) checks — use this so string from payload type-checks (see typescript-status-includes). */
+export const LIVE_REFRESH_CONTEXTS_LIST: string[] = [...LIVE_REFRESH_CONTEXTS];
+
 /**
  * WebSocket (Reverb/Pusher) for live-refresh. When true, Echo is the only live-update path.
  * When false, no live refresh (manual invalidate/refresh still works).

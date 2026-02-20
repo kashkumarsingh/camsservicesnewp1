@@ -4,7 +4,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
-import { CheckCircle, Loader2, XCircle } from 'lucide-react';
+import { EmptyState } from '@/components/dashboard/universal/EmptyState';
+import { RowActions, ApproveAction, RejectAction } from '@/components/dashboard/universal/RowActions';
+import { Loader2 } from 'lucide-react';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface TrainerApplicationRow {
   id: string;
@@ -148,16 +151,19 @@ export function AdminTrainerApplicationsPageClient() {
           <Loader2 className="h-8 w-8 animate-spin text-slate-400" aria-hidden />
         </div>
       ) : applications.length === 0 ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-8 text-center dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-slate-600 dark:text-slate-400">No trainer applications found.</p>
-          <button
-            type="button"
-            onClick={() => router.push('/dashboard/admin')}
-            className="mt-3 text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-300"
-          >
-            Back to overview
-          </button>
-        </div>
+        <EmptyState
+          title={EMPTY_STATE.NO_TRAINER_APPLICATIONS_FOUND.title}
+          message={EMPTY_STATE.NO_TRAINER_APPLICATIONS_FOUND.message}
+          action={
+            <button
+              type="button"
+              onClick={() => router.push('/dashboard/admin')}
+              className="mt-3 text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-300"
+            >
+              Back to overview
+            </button>
+          }
+        />
       ) : (
         <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 overflow-hidden">
           <div className="overflow-x-auto">
@@ -234,32 +240,18 @@ export function AdminTrainerApplicationsPageClient() {
                       onKeyDown={(e) => e.stopPropagation()}
                     >
                       {(app.status === 'submitted' || app.status === 'under_review') && (
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleApprove(app.id);
-                            }}
+                        <RowActions>
+                          <ApproveAction
+                            onClick={() => handleApprove(app.id)}
                             disabled={actingId !== null}
-                            className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-xs font-medium text-emerald-800 hover:bg-emerald-100 disabled:opacity-50 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"
-                          >
-                            {actingId === app.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />}
-                            Approve
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleReject(app.id);
-                            }}
+                            aria-label="Approve"
+                          />
+                          <RejectAction
+                            onClick={() => handleReject(app.id)}
                             disabled={actingId !== null}
-                            className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2 py-1.5 text-xs font-medium text-rose-800 hover:bg-rose-100 disabled:opacity-50 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200"
-                          >
-                            {actingId === app.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
-                            Reject
-                          </button>
-                        </div>
+                            aria-label="Reject"
+                          />
+                        </RowActions>
                       )}
                     </td>
                   </tr>

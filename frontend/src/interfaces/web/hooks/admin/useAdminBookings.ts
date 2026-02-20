@@ -91,6 +91,8 @@ export function useAdminBookings(initialFilters?: AdminBookingsFilters) {
         if (activeFilters.session_date_to)
           params.append('session_date_to', activeFilters.session_date_to);
         if (activeFilters.search) params.append('search', activeFilters.search);
+        if (activeFilters.sort_by) params.append('sort_by', activeFilters.sort_by);
+        if (activeFilters.order) params.append('order', activeFilters.order);
         if (activeFilters.limit)
           params.append('limit', String(activeFilters.limit));
         if (activeFilters.offset)
@@ -373,6 +375,8 @@ export function useAdminBookings(initialFilters?: AdminBookingsFilters) {
       if (activeFilters.session_date_to)
         params.append('session_date_to', activeFilters.session_date_to);
       if (activeFilters.search) params.append('search', activeFilters.search);
+      if (activeFilters.sort_by) params.append('sort_by', activeFilters.sort_by);
+      if (activeFilters.order) params.append('order', activeFilters.order);
 
       const queryString = params.toString();
       const url = queryString
@@ -413,11 +417,12 @@ export function useAdminBookings(initialFilters?: AdminBookingsFilters) {
   }, [filters]);
 
   /**
-   * Update filters and refetch
+   * Update filters and refetch. Uses silent refetch so the table does not flicker
+   * (skeleton) when only sort/filter changes — data updates in place.
    */
   const updateFilters = useCallback((newFilters: AdminBookingsFilters) => {
     setFilters(newFilters);
-    fetchBookings(newFilters);
+    fetchBookings(newFilters, true);
   }, [fetchBookings]);
 
   // Initial fetch: cache-first when sync enabled and this is the "today" dashboard request

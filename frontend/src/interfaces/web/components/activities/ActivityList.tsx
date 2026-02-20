@@ -8,6 +8,7 @@
 
 import { useActivities } from '../../hooks/activities/useActivities';
 import ActivityCard from './ActivityCard';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 // No props needed - hook fetches all activities
 export default function ActivityList() {
@@ -32,7 +33,7 @@ export default function ActivityList() {
   if (activities.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">No activities found.</p>
+        <p className="text-gray-600">{EMPTY_STATE.NO_ACTIVITIES_FOUND.title}</p>
       </div>
     );
   }

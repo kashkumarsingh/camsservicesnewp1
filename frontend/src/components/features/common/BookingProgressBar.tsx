@@ -20,7 +20,7 @@ const BookingProgressBar: React.FC<BookingProgressBarProps> = ({ currentStep, to
     <div className="mb-8">
       <div className="w-full bg-gray-200 rounded-full h-3">
         <div
-          className="bg-gradient-to-r from-[#0080FF] to-[#00D4FF] h-3 rounded-full transition-all duration-500 ease-in-out shadow-lg"
+          className="bg-gradient-to-r from-primary-blue to-light-blue-cyan h-3 rounded-full transition-all duration-500 ease-in-out shadow-lg"
           style={{ width: `${((currentStep - 1) / totalSteps) * 100}%` }}
         ></div>
       </div>
@@ -28,7 +28,7 @@ const BookingProgressBar: React.FC<BookingProgressBarProps> = ({ currentStep, to
         {steps.map((step, index) => {
           const Icon = step.icon;
           return (
-            <div key={index} className={`flex flex-col items-center transition-all duration-200 ${currentStep === index + 1 ? 'font-bold text-[#0080FF] scale-110' : 'text-gray-500'}`}>
+            <div key={index} className={`flex flex-col items-center transition-all duration-200 ${currentStep === index + 1 ? 'font-bold text-primary-blue scale-110' : 'text-gray-500'}`}>
               <Icon size={20} className="mb-1" />
               <span className="hidden sm:inline">{step.name}</span>
             </div>

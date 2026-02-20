@@ -4,11 +4,12 @@ import { CheckCircle2, MapPin, Shield, Sparkles } from 'lucide-react';
 import Section from '@/components/layout/Section';
 import CTASection from '@/components/shared/CTASection';
 import Button from '@/components/ui/Button';
+import { ROUTES } from '@/utils/routes';
+import { BECOME_A_TRAINER_PAGE } from '@/app/(public)/constants/becomeATrainerPageConstants';
 
 export const metadata: Metadata = {
-  title: 'Become a Trainer – CAMS Services',
-  description:
-    'Join CAMS Services as a specialist trainer. Share your availability, safeguarding credentials, and service areas to work with families across London & Essex.',
+  title: BECOME_A_TRAINER_PAGE.META_TITLE,
+  description: BECOME_A_TRAINER_PAGE.META_DESCRIPTION,
 };
 
 const highlights = [
@@ -36,20 +37,19 @@ export default function BecomeTrainerPage() {
       <Section className="border-b border-slate-200 bg-slate-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">
-            Become a trainer
+            {BECOME_A_TRAINER_PAGE.HERO_TITLE}
           </h1>
           <p className="mt-4 text-base md:text-lg text-slate-600 max-w-2xl mx-auto">
-            CAMS Services pairs expert coaches with families investing in bespoke activity plans. Share your
-            safeguarding, coverage radius, and specialisms to unlock curated bookings across London & Essex.
+            {BECOME_A_TRAINER_PAGE.HERO_SUBTITLE}
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm text-slate-600">
-            <span>Avg. assignment time: 48 hours</span>
+            <span>{BECOME_A_TRAINER_PAGE.HERO_STATS_AVG}</span>
             <span>·</span>
-            <span>Level 3 safeguarding required</span>
+            <span>{BECOME_A_TRAINER_PAGE.HERO_STATS_LEVEL}</span>
           </div>
           <div className="mt-8">
             <Button href="#application-form" variant="primary" size="lg" withArrow>
-              Start application
+              {BECOME_A_TRAINER_PAGE.HERO_CTA}
             </Button>
           </div>
         </div>
@@ -61,10 +61,10 @@ export default function BecomeTrainerPage() {
           <div className="grid max-w-6xl mx-auto gap-8 lg:grid-cols-[1.1fr,0.9fr]">
             <div className="space-y-6">
               {/* Highlights Cards */}
-              <div className="rounded-lg border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+              <div className="rounded-card border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
                 <div className="grid gap-4 sm:grid-cols-3">
                   {highlights.map((item) => (
-                    <div key={item.title} className="rounded-lg border border-slate-200 bg-slate-50/60 p-4">
+                    <div key={item.title} className="rounded-card border border-slate-200 bg-slate-50/60 p-4">
                       <div className="w-10 h-10 rounded-lg bg-slate-900/5 flex items-center justify-center mb-3">
                         <item.icon className="h-5 w-5 text-slate-700" />
                       </div>
@@ -76,7 +76,7 @@ export default function BecomeTrainerPage() {
               </div>
 
               {/* How Onboarding Works */}
-              <div className="rounded-lg border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+              <div className="rounded-card border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
                 <h2 className="text-xl font-semibold text-slate-900 mb-4">How onboarding works</h2>
                 <div className="space-y-3">
                   {[
@@ -93,7 +93,7 @@ export default function BecomeTrainerPage() {
               </div>
 
               {/* Support Section */}
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-6 sm:p-8">
+              <div className="rounded-card border border-slate-200 bg-slate-50 p-6 sm:p-8">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Need a hand?</p>
                 <h3 className="mt-2 text-lg font-semibold text-slate-900">Dedicated onboarding support</h3>
                 <p className="mt-2 text-sm text-slate-700">
@@ -126,7 +126,7 @@ export default function BecomeTrainerPage() {
         title="Ready to Join Our Team?"
         subtitle="Start your journey as a CAMS trainer and make a lasting impact on children's lives."
         primaryCTA={{ text: 'Submit Your Application', href: '#application-form' }}
-        secondaryCTA={{ text: 'View Current Trainers', href: '/trainers' }}
+        secondaryCTA={{ text: 'View Current Trainers', href: ROUTES.TRAINERS }}
         variant="default"
       />
     </main>

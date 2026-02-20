@@ -6,6 +6,7 @@ import { LogIn, User, LogOut } from 'lucide-react';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 import { useRouter } from 'next/navigation';
 import { getDashboardRoute } from '@/utils/navigation';
+import { ROUTES } from '@/utils/routes';
 
 interface AuthButtonsProps {
   isMobile?: boolean;
@@ -66,14 +67,14 @@ const AuthButtons: React.FC<AuthButtonsProps> = ({ isMobile = false }) => {
   return (
     <div className={isMobile ? 'flex flex-col gap-2' : 'flex items-center gap-4'}>
       <Link
-        href="/login"
+        href={ROUTES.LOGIN}
         className={isMobile ? `${mobileBaseClasses} ${mobileSecondaryClasses}` : desktopLinkClasses}
       >
         <LogIn size={isMobile ? 20 : 16} />
         Login
       </Link>
       <Link
-        href="/register"
+        href={ROUTES.REGISTER}
         className={isMobile ? `${mobileBaseClasses} ${mobilePrimaryClasses}` : desktopPrimaryClasses}
       >
         Register

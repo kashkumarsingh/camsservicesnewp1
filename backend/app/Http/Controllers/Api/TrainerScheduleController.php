@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
+use App\Http\Controllers\Api\ErrorCodes;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\BookingSchedule;
@@ -24,6 +26,7 @@ use Illuminate\Support\Facades\Validator;
  */
 class TrainerScheduleController extends Controller
 {
+    use BaseApiController;
     /**
      * Get all schedules assigned to the authenticated trainer
      * 
@@ -37,11 +40,8 @@ class TrainerScheduleController extends Controller
         // Get trainer model linked to this user
         $trainerModel = \App\Models\Trainer::where('user_id', $trainer->id)->first();
         
-        if (!$trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         $query = BookingSchedule::where('trainer_id', $trainerModel->id)
@@ -77,24 +77,20 @@ class TrainerScheduleController extends Controller
 
         $schedules = $query->paginate($request->get('per_page', 50));
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'schedules' => $schedules->items(),
-            ],
-            'meta' => [
+        return $this->successResponse(
+            ['schedules' => $schedules->items()],
+            null,
+            [
                 'pagination' => [
-                    'current_page' => $schedules->currentPage(),
-                    'per_page' => $schedules->perPage(),
+                    'currentPage' => $schedules->currentPage(),
+                    'perPage' => $schedules->perPage(),
                     'total' => $schedules->total(),
-                    'last_page' => $schedules->lastPage(),
+                    'lastPage' => $schedules->lastPage(),
                     'from' => $schedules->firstItem(),
                     'to' => $schedules->lastItem(),
                 ],
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            ]
+        );
     }
 
     /**
@@ -107,11 +103,8 @@ class TrainerScheduleController extends Controller
         $trainer = Auth::user();
 
         $trainerModel = \App\Models\Trainer::where('user_id', $trainer->id)->first();
-        if (!$trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         $schedule = BookingSchedule::where('id', $scheduleId)
@@ -126,23 +119,16 @@ class TrainerScheduleController extends Controller
             ])
             ->first();
 
-        if (!$schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or not assigned to you.',
-            ], 404);
+        if (! $schedule) {
+            return $this->errorResponse(
+                'Schedule not found or not assigned to you.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'schedule' => $schedule,
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse(['schedule' => $schedule]);
     }
 
     /**
@@ -156,11 +142,8 @@ class TrainerScheduleController extends Controller
         // Get trainer model linked to this user
         $trainerModel = \App\Models\Trainer::where('user_id', $trainer->id)->first();
         
-        if (!$trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         // Verify schedule belongs to trainer
@@ -168,11 +151,13 @@ class TrainerScheduleController extends Controller
             ->where('trainer_id', $trainerModel->id)
             ->first();
 
-        if (!$schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or not assigned to this trainer.',
-            ], 404);
+        if (! $schedule) {
+            return $this->errorResponse(
+                'Schedule not found or not assigned to this trainer.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
         $validator = Validator::make($request->all(), [
@@ -185,11 +170,7 @@ class TrainerScheduleController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         // Get booking participants for this booking
@@ -200,10 +181,12 @@ class TrainerScheduleController extends Controller
             ->toArray();
 
         if (count($validParticipants) !== count($participantIds)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'One or more participants do not belong to this booking.',
-            ], 422);
+            return $this->errorResponse(
+                'One or more participants do not belong to this booking.',
+                ErrorCodes::VALIDATION_ERROR,
+                [],
+                422
+            );
         }
 
         // Create or update attendance records
@@ -227,17 +210,10 @@ class TrainerScheduleController extends Controller
             $attendanceRecords[] = $attendance->load('participant:id,first_name,last_name');
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Attendance marked successfully',
-            'data' => [
-                'attendance' => $attendanceRecords,
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse(
+            ['attendance' => $attendanceRecords],
+            'Attendance marked successfully'
+        );
     }
 
     /**
@@ -251,11 +227,8 @@ class TrainerScheduleController extends Controller
         // Get trainer model linked to this user
         $trainerModel = \App\Models\Trainer::where('user_id', $trainer->id)->first();
         
-        if (!$trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         // Verify schedule belongs to trainer
@@ -263,11 +236,13 @@ class TrainerScheduleController extends Controller
             ->where('trainer_id', $trainerModel->id)
             ->first();
 
-        if (!$schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or not assigned to this trainer.',
-            ], 404);
+        if (! $schedule) {
+            return $this->errorResponse(
+                'Schedule not found or not assigned to this trainer.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
         $notes = TrainerNote::where('trainer_id', $trainer->id)
@@ -276,16 +251,7 @@ class TrainerScheduleController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'notes' => $notes,
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse(['notes' => $notes]);
     }
 
     /**
@@ -299,11 +265,8 @@ class TrainerScheduleController extends Controller
         // Get trainer model linked to this user
         $trainerModel = \App\Models\Trainer::where('user_id', $trainer->id)->first();
         
-        if (!$trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         // Verify schedule belongs to trainer
@@ -312,20 +275,24 @@ class TrainerScheduleController extends Controller
             ->first();
 
         if (! $schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or not assigned to this trainer.',
-            ], 404);
+            return $this->errorResponse(
+                'Schedule not found or not assigned to this trainer.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
         // Notes can only be added for sessions that have ended
         $endTime = $schedule->end_time ? \Carbon\Carbon::parse($schedule->end_time)->format('H:i') : '23:59';
         $sessionEndsAt = \Carbon\Carbon::parse($schedule->date.' '.$endTime);
         if ($sessionEndsAt->isFuture()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Notes can only be added for sessions that have ended.',
-            ], 422);
+            return $this->errorResponse(
+                'Notes can only be added for sessions that have ended.',
+                ErrorCodes::INVALID_STATE,
+                [],
+                422
+            );
         }
 
         $validator = Validator::make($request->all(), [
@@ -335,11 +302,7 @@ class TrainerScheduleController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         $note = TrainerNote::create([
@@ -351,17 +314,12 @@ class TrainerScheduleController extends Controller
             'is_private' => $request->is_private ?? false,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Note created successfully',
-            'data' => [
-                'note' => $note,
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 201);
+        return $this->successResponse(
+            ['note' => $note],
+            'Note created successfully',
+            [],
+            201
+        );
     }
 
     /**
@@ -377,10 +335,7 @@ class TrainerScheduleController extends Controller
         $trainerModel = \App\Models\Trainer::where('user_id', $user->id)->first();
 
         if (! $trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+            return $this->notFoundResponse('Trainer profile');
         }
 
         $schedule = BookingSchedule::where('id', $scheduleId)
@@ -388,10 +343,12 @@ class TrainerScheduleController extends Controller
             ->first();
 
         if (! $schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or not assigned to this trainer.',
-            ], 404);
+            return $this->errorResponse(
+                'Schedule not found or not assigned to this trainer.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
         $validator = Validator::make($request->all(), [
@@ -401,11 +358,7 @@ class TrainerScheduleController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         $customName = $request->filled('current_activity_custom_name')
@@ -448,10 +401,8 @@ class TrainerScheduleController extends Controller
             true
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Current activity updated.',
-            'data' => [
+        return $this->successResponse(
+            [
                 'schedule' => [
                     'id' => $schedule->id,
                     'current_activity_id' => $schedule->current_activity_id,
@@ -459,11 +410,8 @@ class TrainerScheduleController extends Controller
                     'location' => $schedule->location,
                 ],
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            'Current activity updated.'
+        );
     }
 
     /**
@@ -472,26 +420,30 @@ class TrainerScheduleController extends Controller
     public function confirmAssignment(int $scheduleId): JsonResponse
     {
         $trainerModel = \App\Models\Trainer::where('user_id', Auth::id())->first();
-        if (!$trainerModel) {
-            return response()->json(['success' => false, 'message' => 'Trainer profile not found.'], 404);
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         $schedule = BookingSchedule::where('id', $scheduleId)
             ->where('trainer_id', $trainerModel->id)
             ->first();
 
-        if (!$schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or not assigned to you.',
-            ], 404);
+        if (! $schedule) {
+            return $this->errorResponse(
+                'Schedule not found or not assigned to you.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
         if (($schedule->trainer_assignment_status ?? '') !== BookingSchedule::TRAINER_ASSIGNMENT_PENDING_CONFIRMATION) {
-            return response()->json([
-                'success' => false,
-                'message' => 'This session is not pending your confirmation.',
-            ], 422);
+            return $this->errorResponse(
+                'This session is not pending your confirmation.',
+                ErrorCodes::INVALID_STATE,
+                [],
+                422
+            );
         }
 
         $schedule->update([
@@ -506,12 +458,10 @@ class TrainerScheduleController extends Controller
         $dispatcher->dispatch(\App\Services\Notifications\NotificationIntentFactory::sessionBookedToTrainer($schedule->fresh()));
         $dispatcher->dispatch(\App\Services\Notifications\NotificationIntentFactory::trainerAssignedToParent($schedule->fresh()));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Session confirmed.',
-            'data' => ['scheduleId' => (string) $schedule->id],
-            'meta' => ['timestamp' => now()->toIso8601String(), 'version' => 'v1'],
-        ], 200);
+        return $this->successResponse(
+            ['scheduleId' => (string) $schedule->id],
+            'Session confirmed.'
+        );
     }
 
     /**
@@ -520,38 +470,40 @@ class TrainerScheduleController extends Controller
     public function declineAssignment(Request $request, int $scheduleId): JsonResponse
     {
         $trainerModel = \App\Models\Trainer::where('user_id', Auth::id())->first();
-        if (!$trainerModel) {
-            return response()->json(['success' => false, 'message' => 'Trainer profile not found.'], 404);
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         $schedule = BookingSchedule::where('id', $scheduleId)
             ->where('trainer_id', $trainerModel->id)
             ->first();
 
-        if (!$schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or not assigned to you.',
-            ], 404);
+        if (! $schedule) {
+            return $this->errorResponse(
+                'Schedule not found or not assigned to you.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
         if (($schedule->trainer_assignment_status ?? '') !== BookingSchedule::TRAINER_ASSIGNMENT_PENDING_CONFIRMATION) {
-            return response()->json([
-                'success' => false,
-                'message' => 'This session is not pending your confirmation.',
-            ], 422);
+            return $this->errorResponse(
+                'This session is not pending your confirmation.',
+                ErrorCodes::INVALID_STATE,
+                [],
+                422
+            );
         }
 
         $reason = $request->input('reason', '');
 
         app(\App\Actions\Booking\ProcessTrainerDeclineAndTryNextAction::class)->execute($schedule, $reason);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Session declined. Another trainer may be assigned.',
-            'data' => ['scheduleId' => (string) $schedule->id],
-            'meta' => ['timestamp' => now()->toIso8601String(), 'version' => 'v1'],
-        ], 200);
+        return $this->successResponse(
+            ['scheduleId' => (string) $schedule->id],
+            'Session declined. Another trainer may be assigned.'
+        );
     }
 }
 

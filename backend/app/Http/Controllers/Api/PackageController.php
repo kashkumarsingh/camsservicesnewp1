@@ -136,6 +136,7 @@ class PackageController extends Controller
         $features = $package->normalized_features;
         $requirements = $package->normalized_requirements;
 
+        // Single API contract: camelCase only. Frontend types and uses only these keys.
         return [
             'id' => (string) $package->id,
             'name' => $package->name,
@@ -143,34 +144,34 @@ class PackageController extends Controller
             'description' => $package->description,
             'price' => (float) $package->price,
             'hours' => $package->hours,
-            'duration' => $package->getDurationString(), // Computed: "3 hours per week for 6 weeks"
-            'duration_weeks' => $package->duration_weeks,
-            'hoursPerWeek' => $hoursPerWeek, // camelCase for frontend
-            'hoursPerActivity' => (float) ($package->hours_per_activity ?? 3.0), // camelCase for frontend
-            'calculatedActivities' => $package->calculated_activities ?? 0, // camelCase for frontend
-            'allowActivityOverride' => (bool) ($package->allow_activity_override ?? true), // camelCase for frontend
-            'age_group' => $package->age_group,
-            'difficulty_level' => $package->difficulty_level,
-            'max_participants' => $package->max_participants,
-            'spotsRemaining' => $package->spots_remaining, // camelCase for frontend
-            'total_spots' => $package->total_spots,
-            'features' => $features, // Normalized to simple array
-            'perks' => $package->perks ?? [], // Frontend required
+            'duration' => $package->getDurationString(),
+            'durationWeeks' => $package->duration_weeks,
+            'hoursPerWeek' => $hoursPerWeek,
+            'hoursPerActivity' => (float) ($package->hours_per_activity ?? 3.0),
+            'calculatedActivities' => $package->calculated_activities ?? 0,
+            'allowActivityOverride' => (bool) ($package->allow_activity_override ?? true),
+            'ageGroup' => $package->age_group,
+            'difficultyLevel' => $package->difficulty_level,
+            'maxParticipants' => $package->max_participants,
+            'spotsRemaining' => $package->spots_remaining,
+            'totalSpots' => $package->total_spots,
+            'features' => $features,
+            'perks' => $package->perks ?? [],
             'activities' => $activities,
             'trainers' => $trainers,
-            'what_to_expect' => $package->what_to_expect,
-            'requirements' => $requirements, // Normalized to simple array
+            'whatToExpect' => $package->what_to_expect,
+            'requirements' => $requirements,
             'image' => $package->image,
-            'color' => $package->color, // Frontend required (Tailwind gradient)
-            'popular' => $package->is_popular, // camelCase for frontend
-            'isActive' => (bool) $package->is_active, // camelCase for frontend - indicates if package is active
-            'views' => $package->views ?? 0, // Frontend required
-            'can_be_booked' => $package->canBeBooked(),
-            'has_available_spots' => $package->hasAvailableSpots(),
-            'is_fully_booked' => $package->isFullyBooked(),
-            'availability_percentage' => $package->getAvailabilityPercentage(),
-            'testimonials' => $testimonials, // Package-specific testimonials
-            'trustIndicators' => $package->trust_indicators ?? [], // Package-specific trust indicators
+            'color' => $package->color,
+            'popular' => $package->is_popular,
+            'isActive' => (bool) $package->is_active,
+            'views' => $package->views ?? 0,
+            'canBeBooked' => $package->canBeBooked(),
+            'hasAvailableSpots' => $package->hasAvailableSpots(),
+            'isFullyBooked' => $package->isFullyBooked(),
+            'availabilityPercentage' => $package->getAvailabilityPercentage(),
+            'testimonials' => $testimonials,
+            'trustIndicators' => $package->trust_indicators ?? [],
             'metrics' => [
                 'activityCount' => count($activities),
                 'trainerCount' => count($trainers),
@@ -178,8 +179,8 @@ class PackageController extends Controller
                 'spotsRemaining' => $package->spots_remaining,
                 'totalSpots' => $package->total_spots,
             ],
-            'created_at' => $package->created_at->toIso8601String(),
-            'updated_at' => $package->updated_at->toIso8601String(),
+            'createdAt' => $package->created_at->toIso8601String(),
+            'updatedAt' => $package->updated_at->toIso8601String(),
         ];
     }
 

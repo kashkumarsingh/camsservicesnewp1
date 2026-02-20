@@ -6,6 +6,8 @@ import { Calendar, Clock, Activity, Edit2, Trash2, Plus, Loader2, CreditCard } f
 import moment from 'moment';
 import Button from '@/components/ui/Button';
 import { BaseModal } from '@/components/ui/Modal';
+import { EmptyState } from '@/components/dashboard/universal/EmptyState';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import type { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
@@ -187,10 +189,10 @@ export default function BookedSessionsModal({
       )}
       <div className="space-y-6">
           {sessions.length === 0 ? (
-            <div className="text-center py-12">
-              <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">No sessions booked yet</p>
-            </div>
+            <EmptyState
+              title={EMPTY_STATE.NO_SESSIONS_BOOKED_YET.title}
+              message={EMPTY_STATE.NO_SESSIONS_BOOKED_YET.message}
+            />
           ) : (
             <div className="space-y-6">
               {sortedDates.map((date) => {

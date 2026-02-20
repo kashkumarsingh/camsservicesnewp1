@@ -45,7 +45,7 @@ export default function PolicyDisplay({ slug, incrementViews = true }: PolicyDis
     <div className="max-w-4xl mx-auto">
       <article className="prose lg:prose-xl mx-auto">
         <header className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-heading font-bold text-[#1E3A5F] mb-4">
+          <h1 className="text-4xl md:text-5xl font-heading font-bold text-navy-blue mb-4">
             {policy.title}
           </h1>
           {policy.summary && (
@@ -65,7 +65,7 @@ export default function PolicyDisplay({ slug, incrementViews = true }: PolicyDis
         <footer className="mt-12 pt-8 border-t border-gray-200">
           <p className="text-sm text-gray-600">
             If you have questions about this policy, please contact us at{' '}
-            <a href="mailto:info@camsservices.co.uk" className="text-[#0080FF] hover:underline">
+            <a href="mailto:info@camsservices.co.uk" className="text-primary-blue hover:underline">
               info@camsservices.co.uk
             </a>
           </p>

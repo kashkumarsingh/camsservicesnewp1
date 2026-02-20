@@ -269,16 +269,16 @@ export function TrainerApplicationForm() {
   if (result) {
     const referenceDisplay = typeof result.id === 'string' && result.id.length > 3 ? result.id : `CAMS-TA-${result.id}`;
     return (
-      <div className="rounded-[30px] border-2 border-gray-200 bg-white p-8 shadow-md">
-        <p className="text-sm font-semibold uppercase tracking-wide text-[#0080FF]">Application received</p>
-        <h3 className="mt-3 text-2xl font-semibold text-[#1E3A5F]">You're all set!</h3>
+      <div className="rounded-card border-2 border-gray-200 bg-white p-8 shadow-md">
+        <p className="text-sm font-semibold uppercase tracking-wide text-primary-blue">Application received</p>
+        <h3 className="mt-3 text-2xl font-semibold text-navy-blue">You're all set!</h3>
         <p className="mt-3 text-base text-gray-700">
           Thank you for sharing your expertise. Our team will review your profile and will email next steps to{' '}
           <strong>{formData.email}</strong> within 2–3 working days. Keep your reference handy when you get in touch:
         </p>
         <div className="mt-6 rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-blue-50 to-purple-50 p-5">
           <p className="text-sm font-medium text-gray-600">Application reference</p>
-          <p className="text-xl font-semibold text-[#1E3A5F] font-mono">{referenceDisplay}</p>
+          <p className="text-xl font-semibold text-navy-blue font-mono">{referenceDisplay}</p>
           <p className="mt-1 text-sm text-gray-600">Status: {result.status}</p>
         </div>
       </div>
@@ -286,10 +286,10 @@ export function TrainerApplicationForm() {
   }
 
   return (
-    <form id="application-form" onSubmit={handleSubmit} className="space-y-8 rounded-[30px] border-2 border-gray-200 bg-white p-8 shadow-md">
+    <form id="application-form" onSubmit={handleSubmit} className="space-y-8 rounded-card border-2 border-gray-200 bg-white p-8 shadow-md">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-[0.4em] text-[#0080FF]">Join the CAMS Collective</p>
-        <h3 className="mt-2 text-3xl font-bold text-[#1E3A5F]">Less typing, faster onboarding</h3>
+        <p className="text-sm font-semibold uppercase tracking-[0.4em] text-primary-blue">Join the CAMS Collective</p>
+        <h3 className="mt-2 text-3xl font-bold text-navy-blue">Less typing, faster onboarding</h3>
         <p className="mt-3 text-base text-gray-700">
           We match every coach to families by expertise, coverage radius, and safeguarding credentials. Three quick
           steps unlocks curated bookings.

@@ -146,7 +146,7 @@ const PaymentForm = ({
           <CreditCard className="text-white" size={20} />
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-bold text-[#1E3A5F]">Payment Required</h3>
+          <h3 className="text-lg font-bold text-navy-blue">Payment Required</h3>
           <p className="text-xs text-gray-600">Secure payment to confirm your booking</p>
         </div>
         {paymentStatus === 'completed' && (
@@ -161,7 +161,7 @@ const PaymentForm = ({
       <div className="bg-white rounded-lg p-4 border-2 border-green-200 mb-4">
         <div className="text-center">
           <p className="text-xs text-gray-600 mb-1">Total Amount</p>
-          <div className="text-3xl font-extrabold text-[#0080FF] mb-2">
+          <div className="text-3xl font-extrabold text-primary-blue mb-2">
             £{amount.toFixed(2)}
           </div>
           <div className="flex items-center justify-center gap-2 text-xs text-gray-600">
@@ -269,7 +269,7 @@ const PaymentForm = ({
             <button
               onClick={handleCheckout}
               disabled={disabled}
-              className="w-full bg-gradient-to-r from-[#0080FF] to-[#00D4FF] text-white px-6 py-4 rounded-lg font-semibold hover:from-[#0069cc] hover:to-[#00b8e6] transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-primary-blue to-light-blue-cyan text-white px-6 py-4 rounded-lg font-semibold hover:from-primary-blue/90 hover:to-light-blue-cyan/90 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Lock size={18} />
               <span>Continue to Secure Checkout</span>

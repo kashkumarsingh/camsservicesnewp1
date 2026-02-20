@@ -14,6 +14,19 @@
   --color-secondary-foreground: hsl(48 96% 89%);
   --color-accent: hsl(120 50% 45%);
   --color-accent-foreground: hsl(120 55% 95%);
+  /* Theme tokens for gradients/shadows/scrollbars (match tailwind.config.js where applicable) */
+  --color-primary-blue: #0080FF;
+  --color-light-blue-cyan: #00D4FF;
+  --color-orbital-green: #7FFF00;
+  --color-star-gold: #FFD700;
+  --color-accent-orange: #FF6B35;
+  --color-sky-blue: #87CEEB;
+  --color-scrollbar-track: #f1f1f1;
+  --color-scrollbar-thumb: #0080FF;
+  --color-scrollbar-thumb-hover: #0069cc;
+  --color-sidebar-track: #f1f5f9;
+  --color-sidebar-thumb: #cbd5e1;
+  --color-sidebar-thumb-hover: #94a3b8;
 }
 
 /* Force light when user selects light (manual switch). */
@@ -94,7 +107,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hero-gradient-bg {
-  background: linear-gradient(135deg, #0080FF 0%, #00D4FF 50%, #0080FF 100%);
+  background: linear-gradient(135deg, var(--color-primary-blue) 0%, var(--color-light-blue-cyan) 50%, var(--color-primary-blue) 100%);
   background-size: cover;
 }
 
@@ -103,12 +116,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .card-right-shadow {
-  box-shadow: 8px 8px 0px #7FFF00, 12px 12px 0px #FFD700; /* Two-layer shadow */
+  box-shadow: 8px 8px 0px var(--color-orbital-green), 12px 12px 0px var(--color-star-gold);
 }
 
 .card-hover-lift:hover {
-  transform: translateY(-5px); /* Subtle lift effect */
-  box-shadow: 10px 10px 0px #7FFF00, 15px 15px 0px #FFD700; /* Slightly increased shadow on hover */
+  transform: translateY(-5px);
+  box-shadow: 10px 10px 0px var(--color-orbital-green), 15px 15px 0px var(--color-star-gold);
 }
 
 @keyframes bounce-fun {
@@ -123,12 +136,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hero-playful-gradient-bg {
-  background: linear-gradient(135deg, 
-    #0080FF 0%,    /* Blue */
-    #00D4FF 25%,   /* Cyan */
-    #7FFF00 50%,   /* Green */
-    #FFD700 75%,   /* Yellow */
-    #FF6B35 100%   /* Orange */
+  background: linear-gradient(135deg,
+    var(--color-primary-blue) 0%,
+    var(--color-light-blue-cyan) 25%,
+    var(--color-orbital-green) 50%,
+    var(--color-star-gold) 75%,
+    var(--color-accent-orange) 100%
   );
   background-size: cover;
 }
@@ -173,11 +186,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .cta-sky-nature-gradient {
-  background: linear-gradient(180deg, 
-    #87CEEB 0%,    /* Sky Blue */
-    #00D4FF 30%,   /* Bright Blue */
-    #7FFF00 70%,   /* Grass Green */
-    #FFD700 100%   /* Sun Yellow */
+  background: linear-gradient(180deg,
+    var(--color-sky-blue) 0%,
+    var(--color-light-blue-cyan) 30%,
+    var(--color-orbital-green) 70%,
+    var(--color-star-gold) 100%
   );
   background-size: cover;
 }
@@ -271,17 +284,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--color-scrollbar-track);
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #0080FF;
+  background: var(--color-scrollbar-thumb);
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #0069cc;
+  background: var(--color-scrollbar-thumb-hover);
 }
 
 /* Sidebar list scroll: visible scrollbar when 4+ items */
@@ -292,15 +305,15 @@ h1, h2, h3, h4, h5, h6 {
   width: 6px;
 }
 .sidebar-list-scroll::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--color-sidebar-track);
   border-radius: 4px;
 }
 .sidebar-list-scroll::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--color-sidebar-thumb);
   border-radius: 4px;
 }
 .sidebar-list-scroll::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--color-sidebar-thumb-hover);
 }
 
 @media (prefers-color-scheme: dark) {

@@ -1,16 +1,24 @@
 'use client';
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import SideCanvas from "@/components/ui/SideCanvas";
-import { Filter } from "lucide-react";
+import {
+  FilterPanel,
+  FilterSection,
+  FilterSelect,
+  FilterTriggerButton,
+  SearchInput,
+} from "@/components/dashboard/universal";
+import { RowActions, EditAction, DeleteAction } from "@/components/dashboard/universal/RowActions";
+import Button from "@/components/ui/Button";
 import type { AdminActivityDTO, CreateActivityDTO, UpdateActivityDTO } from "@/core/application/admin/dto/AdminActivityDTO";
 import { useAdminActivities } from "@/interfaces/web/hooks/admin/useAdminActivities";
 import { toastManager } from "@/utils/toast";
+import { EMPTY_STATE } from "@/utils/emptyStateConstants";
 
 type ActivityFormData = CreateActivityDTO | UpdateActivityDTO;
 
 const CATEGORY_DATALIST_ID = "activity-category-datalist";
-const CATEGORY_FILTER_DATALIST_ID = "activity-category-filter-datalist";
 
 function formatDuration(duration: number | null): string {
   if (duration === null || Number.isNaN(duration)) return "—";
@@ -26,7 +34,10 @@ export const AdminActivitiesPageClient: React.FC = () => {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [showFilters, setShowFilters] = useState(false);
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const filterTriggerRef = useRef<HTMLButtonElement>(null);
+  const [stagedCategory, setStagedCategory] = useState<string>("");
+  const [stagedStatus, setStagedStatus] = useState<string>("all");
   const [selectedActivity, setSelectedActivity] = useState<AdminActivityDTO | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -64,10 +75,44 @@ export const AdminActivitiesPageClient: React.FC = () => {
     return result;
   }, [activities, categoryFilter]);
 
+  const hasActiveFilters = categoryFilter !== "" || statusFilter !== "all";
+  const activeFilterCount = (categoryFilter ? 1 : 0) + (statusFilter !== "all" ? 1 : 0);
+  const hasStagedFilters = stagedCategory !== "" || stagedStatus !== "all";
+  const stagedFilterCount = (stagedCategory ? 1 : 0) + (stagedStatus !== "all" ? 1 : 0);
+
+  useEffect(() => {
+    if (filterPanelOpen) {
+      setStagedCategory(categoryFilter);
+      setStagedStatus(statusFilter);
+    }
+  }, [filterPanelOpen, categoryFilter, statusFilter]);
+
+  const handleApplyFilters = useCallback(() => {
+    setCategoryFilter(stagedCategory);
+    setStatusFilter(stagedStatus);
+    setFilterPanelOpen(false);
+  }, [stagedCategory, stagedStatus]);
+
+  const handleResetAllStaged = useCallback(() => {
+    setStagedCategory("");
+    setStagedStatus("all");
+  }, []);
+
+  const handleClearFilters = () => {
+    setCategoryFilter("");
+    setStatusFilter("all");
+    setSearch("");
+  };
+
   const categories = useMemo(() => {
     const cats = activities.map((a) => a.category).filter(Boolean) as string[];
     return Array.from(new Set(cats)).sort();
   }, [activities]);
+
+  const categoryFilterOptions = useMemo(
+    () => [{ label: "All categories", value: "" }, ...categories.map((cat) => ({ label: cat, value: cat }))],
+    [categories]
+  );
 
   const handleCreateClick = () => {
     setFormData({
@@ -162,88 +207,67 @@ export const AdminActivitiesPageClient: React.FC = () => {
         </div>
       )}
 
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-1 items-center gap-2">
-            <input
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by name, category, description..."
-              className="h-9 w-full max-w-md rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              <Filter className="h-3.5 w-3.5" />
-              {showFilters ? "Hide" : "Show"} filters
-            </button>
-            <button
-              type="button"
-              onClick={handleCreateClick}
-              className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700"
-            >
-              New activity
-            </button>
-          </div>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search by name, category, description…"
+          className="min-w-[160px] max-w-[320px] w-full md:w-auto flex-1"
+        />
+        <div className="flex flex-shrink-0 items-center gap-2">
+          <FilterTriggerButton
+            ref={filterTriggerRef}
+            hasActiveFilters={hasActiveFilters}
+            activeFilterCount={activeFilterCount}
+            onClick={() => setFilterPanelOpen(true)}
+          />
+          <Button type="button" size="sm" variant="primary" onClick={handleCreateClick}>
+            New activity
+          </Button>
         </div>
-
-        {showFilters && (
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
-              <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-                  Category
-                </label>
-                <input
-                  type="text"
-                  list={CATEGORY_FILTER_DATALIST_ID}
-                  value={categoryFilter}
-                  onChange={(e) => setCategoryFilter(e.target.value)}
-                  placeholder="Type or choose category"
-                  className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-                />
-                <datalist id={CATEGORY_FILTER_DATALIST_ID}>
-                  <option value="" />
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat} />
-                  ))}
-                </datalist>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-                  Status
-                </label>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-                >
-                  <option value="all">All statuses</option>
-                  <option value="active">Active only</option>
-                  <option value="inactive">Inactive only</option>
-                </select>
-              </div>
-              <div className="flex items-end">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCategoryFilter("");
-                    setStatusFilter("all");
-                  }}
-                  className="text-xs text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
-                >
-                  Clear filters
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
+
+      <FilterPanel
+        isOpen={filterPanelOpen}
+        onClose={() => setFilterPanelOpen(false)}
+        onApply={handleApplyFilters}
+        onResetAll={handleResetAllStaged}
+        hasActiveFilters={hasStagedFilters}
+        activeFilterCount={stagedFilterCount}
+        title="Filter"
+        triggerRef={filterTriggerRef}
+      >
+        <FilterSection
+          title="Category"
+          onReset={() => setStagedCategory("")}
+          isActive={stagedCategory !== ""}
+        >
+          <FilterSelect
+            label=""
+            value={stagedCategory}
+            onChange={setStagedCategory}
+            options={categoryFilterOptions}
+            size="panel"
+          />
+        </FilterSection>
+        <FilterSection
+          title="Status"
+          onReset={() => setStagedStatus("all")}
+          isActive={stagedStatus !== "all"}
+        >
+          <FilterSelect
+            label=""
+            value={stagedStatus}
+            onChange={setStagedStatus}
+            options={[
+              { label: "All statuses", value: "all" },
+              { label: "Active only", value: "active" },
+              { label: "Inactive only", value: "inactive" },
+            ]}
+            size="panel"
+          />
+        </FilterSection>
+      </FilterPanel>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="max-h-[420px] overflow-x-auto overflow-y-auto text-sm">
@@ -267,7 +291,7 @@ export const AdminActivitiesPageClient: React.FC = () => {
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-3 py-4 text-center text-xs text-slate-500 dark:text-slate-400">
-                    No activities found.
+                    {EMPTY_STATE.NO_ACTIVITIES_FOUND.title}
                   </td>
                 </tr>
               ) : (
@@ -292,20 +316,10 @@ export const AdminActivitiesPageClient: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-3 py-2 text-right text-xs" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        type="button"
-                        onClick={() => handleEditClick(activity)}
-                        className="mr-2 rounded border border-slate-200 px-2 py-1 text-xs hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(activity.id)}
-                        className="rounded border border-rose-200 px-2 py-1 text-xs text-rose-700 hover:bg-rose-50 dark:border-rose-900 dark:text-rose-300 dark:hover:bg-rose-950/40"
-                      >
-                        Delete
-                      </button>
+                      <RowActions>
+                        <EditAction onClick={() => handleEditClick(activity)} aria-label="Edit activity" />
+                        <DeleteAction onClick={() => handleDelete(activity.id)} aria-label="Delete activity" />
+                      </RowActions>
                     </td>
                   </tr>
                 ))

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import React from "react";
+import { EMPTY_STATE } from "@/utils/emptyStateConstants";
 
 export const metadata: Metadata = {
   title: "Trainer Dashboard - Clients",
@@ -22,7 +23,7 @@ export default function TrainerClientsPage() {
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-400">
           <p className="font-medium text-slate-700 dark:text-slate-200">
-            No clients loaded yet
+            {EMPTY_STATE.NO_CLIENTS_LOADED_YET.title}
           </p>
           <p className="mt-1 text-xs">
             Once connected, this will reuse a shared client card pattern across

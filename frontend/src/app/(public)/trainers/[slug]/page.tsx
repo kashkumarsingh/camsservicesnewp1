@@ -9,6 +9,10 @@ import { trainerRepository } from '@/infrastructure/persistence/trainers';
 import TrainerProfile from '@/interfaces/web/components/trainers/TrainerProfile';
 import TrainerCard from '@/interfaces/web/components/trainers/TrainerCard';
 import type { TrainerDTO } from '@/core/application/trainers/dto/TrainerDTO';
+import { ROUTES } from '@/utils/routes';
+
+/** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
+export const revalidate = 1800;
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -77,7 +81,7 @@ export default async function TrainerDetailsPage({ params }: Props) {
           muted
           playsInline
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0080FF]/50 to-[#00D4FF]/30 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/50 to-light-blue-cyan/30 z-10" />
         <div className="relative z-20 text-center max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-heading font-extrabold mb-6 leading-tight tracking-tight heading-text-shadow">
             {trainer.name}
@@ -86,10 +90,10 @@ export default async function TrainerDetailsPage({ params }: Props) {
             {trainer.role}
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-5">
-            <Button href="/contact" variant="superPlayful" size="lg" className="shadow-lg" withArrow>
+            <Button href={ROUTES.CONTACT} variant="superPlayful" size="lg" className="shadow-lg" withArrow>
               Book a Session
             </Button>
-            <Button href="/trainers" variant="outline" size="lg" className="shadow-lg" withArrow>
+            <Button href={ROUTES.TRAINERS} variant="outline" size="lg" className="shadow-lg" withArrow>
               View All Team Members
             </Button>
           </div>
@@ -106,8 +110,8 @@ export default async function TrainerDetailsPage({ params }: Props) {
 
             {/* Right Column: Sticky Card with key info */}
             <aside className="md:col-span-1 md:sticky md:top-28 space-y-6">
-              <div className="bg-white rounded-[24px] border-2 border-gray-200 p-5 shadow-sm">
-                <h4 className="font-bold text-[#1E3A5F] mb-3">At a Glance</h4>
+              <div className="bg-white rounded-card border-2 border-gray-200 p-5 shadow-sm">
+                <h4 className="font-bold text-navy-blue mb-3">At a Glance</h4>
                 <ul className="text-sm text-gray-700 space-y-2">
                   <li>
                     <span className="font-semibold">Rating:</span> {trainer.rating.toFixed(1)}/5
@@ -124,25 +128,25 @@ export default async function TrainerDetailsPage({ params }: Props) {
                   )}
                 </ul>
                 <div className="mt-4">
-                  <Button href="/contact" variant="primary" size="md" className="w-full">
+                  <Button href={ROUTES.CONTACT} variant="primary" size="md" className="w-full">
                     Contact
                   </Button>
                 </div>
               </div>
 
-              <div className="bg-white rounded-[24px] border-2 border-gray-200 p-5 shadow-sm">
-                <h4 className="font-bold text-[#1E3A5F] mb-3">Key Highlights</h4>
+              <div className="bg-white rounded-card border-2 border-gray-200 p-5 shadow-sm">
+                <h4 className="font-bold text-navy-blue mb-3">Key Highlights</h4>
                 <ul className="text-sm text-gray-700 space-y-3">
                   <li className="flex items-start gap-3">
-                    <CheckCircle2 className="text-[#0080FF] flex-shrink-0 mt-1" size={20} />
+                    <CheckCircle2 className="text-primary-blue flex-shrink-0 mt-1" size={20} />
                     <span>Fully DBS checked and certified.</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <CheckCircle2 className="text-[#0080FF] flex-shrink-0 mt-1" size={20} />
+                    <CheckCircle2 className="text-primary-blue flex-shrink-0 mt-1" size={20} />
                     <span>Experienced in {trainer.specialties.slice(0, 2).join(', ')}.</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <CheckCircle2 className="text-[#0080FF] flex-shrink-0 mt-1" size={20} />
+                    <CheckCircle2 className="text-primary-blue flex-shrink-0 mt-1" size={20} />
                     <span>Available for tailored support plans.</span>
                   </li>
                 </ul>
@@ -169,8 +173,8 @@ export default async function TrainerDetailsPage({ params }: Props) {
       <CTASection
         title={`Ready to Work with ${trainer.name}?`}
         subtitle={`Contact us today to learn more about how ${trainer.name} can support your child's development.`}
-        primaryCTA={{ text: 'Get Started Today', href: '/contact' }}
-        secondaryCTA={{ text: 'View Our Packages', href: '/packages' }}
+        primaryCTA={{ text: 'Get Started Today', href: ROUTES.CONTACT }}
+        secondaryCTA={{ text: 'View Our Packages', href: ROUTES.PACKAGES }}
         variant="default"
       />
     </div>

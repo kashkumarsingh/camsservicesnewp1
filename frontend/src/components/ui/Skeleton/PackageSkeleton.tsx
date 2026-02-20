@@ -14,7 +14,7 @@ export default function PackageSkeleton({ count = 1 }: PackageSkeletonProps) {
   return (
     <>
       {Array.from({ length: count }, (_, i) => (
-        <div key={`package-skeleton-${i}`} className="relative rounded-[30px] border-2 border-gray-200 shadow-md bg-white h-full overflow-hidden">
+        <div key={`package-skeleton-${i}`} className="relative rounded-card border-2 border-gray-200 shadow-md bg-white h-full overflow-hidden">
           {/* Image Skeleton */}
           <div className="relative w-full h-48 bg-gray-200 animate-pulse" />
           {/* Content Skeleton */}

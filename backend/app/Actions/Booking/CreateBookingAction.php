@@ -5,12 +5,17 @@ namespace App\Actions\Booking;
 use App\Actions\Packages\GetPackageAction;
 use App\Contracts\Booking\IBookingRepository;
 use App\Events\BookingCreated;
+use App\Exceptions\BookingConflictException;
 use App\Models\Booking;
 use App\ValueObjects\Booking\BookingReference;
 use App\ValueObjects\Booking\BookingStatus;
 use App\ValueObjects\Booking\PaymentStatus;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Create Booking Action (Application Layer)
@@ -61,42 +66,26 @@ class CreateBookingAction
             // Require authenticated user (Sanctum authentication)
             // The route already has 'auth:sanctum' middleware, but we double-check here
             $user = auth()->user();
-            if (!$user) {
-                throw new \Illuminate\Http\Exceptions\HttpResponseException(
-                    response()->json([
-                        'success' => false,
-                        'message' => 'You must be logged in to create a booking.',
-                        'errors' => [
-                            'authentication' => ['Authentication required to book packages.']
-                        ]
-                    ], 401)
-                );
+            if (! $user) {
+                throw new AuthenticationException('You must be logged in to create a booking.');
             }
 
             // Check user approval status
             if ($user->approval_status !== 'approved') {
-                $statusMessage = match($user->approval_status) {
+                $statusMessage = match ($user->approval_status) {
                     'pending' => 'Your account is pending admin approval. You cannot book packages yet.',
                     'rejected' => 'Your account was not approved. Please contact us for more information.',
                     default => 'Your account is not approved for booking packages.',
                 };
 
-                throw new \Illuminate\Http\Exceptions\HttpResponseException(
-                    response()->json([
-                        'success' => false,
-                        'message' => $statusMessage,
-                        'errors' => [
-                            'approval_status' => [$statusMessage]
-                        ]
-                    ], 403)
-                );
+                throw new AuthorizationException($statusMessage);
             }
 
             // Validate package exists and is active using Action (Clean Architecture)
             $package = $this->getPackageAction->executeById($data['package_id']);
-            
-            if (!$package->is_active) {
-                throw new \RuntimeException('Package is not active and cannot be booked.');
+
+            if (! $package->is_active) {
+                throw new HttpException(422, 'Package is not active and cannot be booked.');
             }
 
             // Prevent duplicate bookings: Check if user has recently created a booking for the same package
@@ -116,22 +105,22 @@ class CreateBookingAction
                     'created_at' => $recentBooking->created_at,
                 ]);
 
-                throw new \Illuminate\Http\Exceptions\HttpResponseException(
-                    response()->json([
-                        'success' => false,
-                        'message' => 'You have recently created a booking for this package. Please wait a few minutes before creating another booking, or use your existing booking.',
-                        'errors' => [
-                            'duplicate_booking' => [
-                                'You already have a recent booking for this package. Reference: ' . $recentBooking->reference
-                            ]
+                throw new BookingConflictException(
+                    'You have recently created a booking for this package. Please wait a few minutes before creating another booking, or use your existing booking.',
+                    null,
+                    0,
+                    [],
+                    [
+                        'duplicate_booking' => [
+                            'You already have a recent booking for this package. Reference: '.$recentBooking->reference,
                         ],
                         'existing_booking' => [
                             'id' => $recentBooking->id,
                             'reference' => $recentBooking->reference,
                             'status' => $recentBooking->status,
                             'created_at' => $recentBooking->created_at->toIso8601String(),
-                        ]
-                    ], 409) // 409 Conflict
+                        ],
+                    ]
                 );
             }
 
@@ -209,9 +198,6 @@ class CreateBookingAction
 
             return $booking->load(['package', 'participants', 'schedules.trainer', 'payments']);
             });
-        } catch (\Illuminate\Http\Exceptions\HttpResponseException $e) {
-            // Re-throw HttpResponseException (it already has a proper JSON response)
-            throw $e;
         } catch (\Illuminate\Database\QueryException $e) {
             Log::error('Booking creation database error', [
                 'message' => $e->getMessage(),
@@ -269,35 +255,31 @@ class CreateBookingAction
     private function createParticipants(Booking $booking, array $participantsData, \App\Models\Package $package): void
     {
         $user = auth()->user();
-        
-        if (!$user) {
-            throw new \Illuminate\Http\Exceptions\HttpResponseException(
-                response()->json([
-                    'success' => false,
-                    'message' => 'You must be logged in to create a booking.',
-                    'errors' => [
-                        'authentication' => ['Authentication required to book packages.']
-                    ]
-                ], 401)
-            );
+
+        if (! $user) {
+            throw new AuthenticationException('You must be logged in to create a booking.');
         }
-        
+
         foreach ($participantsData as $index => $participantData) {
             // Require child_id for all participants (children must be approved before booking)
             // Pay First flow: child_id is required - children should be selected/approved before booking
-            if (!isset($participantData['child_id']) || $participantData['child_id'] === null) {
-                throw new \InvalidArgumentException(
-                    "Participant at index {$index} is missing required 'child_id'. All participants must reference an approved child. Please select an approved child before booking."
-                );
+            if (! isset($participantData['child_id']) || $participantData['child_id'] === null) {
+                throw ValidationException::withMessages([
+                    "participants.{$index}.child_id" => [
+                        'All participants must reference an approved child. Please select an approved child before booking.',
+                    ],
+                ]);
             }
 
             // Load and validate child
             $child = \App\Models\Child::find($participantData['child_id']);
-            
-            if (!$child) {
-                throw new \InvalidArgumentException(
-                    "Child with ID {$participantData['child_id']} not found for participant at index {$index}."
-                );
+
+            if (! $child) {
+                throw ValidationException::withMessages([
+                    "participants.{$index}.child_id" => [
+                        "Child with ID {$participantData['child_id']} not found for participant at index {$index}.",
+                    ],
+                ]);
             }
 
             // Verify child belongs to booking user
@@ -308,40 +290,23 @@ class CreateBookingAction
                     'booking_user_id' => $user->id,
                     'participant_index' => $index,
                 ]);
-                throw new \Illuminate\Http\Exceptions\HttpResponseException(
-                    response()->json([
-                        'success' => false,
-                        'message' => "Child does not belong to you.",
-                        'errors' => [
-                            'participants' => ["Child at index {$index} does not belong to the authenticated user."]
-                        ]
-                    ], 403)
-                );
+
+                throw new AuthorizationException("Child at index {$index} does not belong to the authenticated user.");
             }
 
             // Verify child is approved
             if ($child->approval_status !== 'approved') {
-                $statusMessage = match($child->approval_status) {
+                $statusMessage = match ($child->approval_status) {
                     'pending' => "Child '{$child->name}' is pending approval and cannot be booked yet.",
                     'rejected' => "Child '{$child->name}' was not approved and cannot be booked.",
                     default => "Child '{$child->name}' is not approved for booking.",
                 };
 
-                throw new \Illuminate\Http\Exceptions\HttpResponseException(
-                    response()->json([
-                        'success' => false,
-                        'message' => $statusMessage,
-                        'errors' => [
-                            'participants' => [$statusMessage]
-                        ]
-                    ], 403)
-                );
+                throw new AuthorizationException($statusMessage);
             }
 
             // BUSINESS RULE: One active package per child (regardless of package type)
             // Check if child already has ANY active booking
-            // This prevents booking a new package while an existing package is still active
-            // Only blocks if the existing booking is still active (not expired)
             if ($child->hasAnyActiveBooking()) {
                 $existingBooking = $child->activeBookings()
                     ->with('package')
@@ -351,47 +316,34 @@ class CreateBookingAction
                 if ($existingBooking) {
                     $modeName = $existingBooking->mode_name ?? 'Unknown mode';
                     $packageName = $existingBooking->package->name ?? 'this package';
-                    $expiresAt = $existingBooking->package_expires_at 
-                        ? $existingBooking->package_expires_at->format('Y-m-d') 
+                    $expiresAt = $existingBooking->package_expires_at
+                        ? $existingBooking->package_expires_at->format('Y-m-d')
                         : 'No expiry set';
+                    $message = "Child '{$child->name}' already has an active package ({$packageName}). "
+                        ."Each child can only have one active package at a time. "
+                        ."The current package expires on {$expiresAt}. "
+                        .'Please complete or cancel the existing package, or wait until it expires before booking a new package.';
 
-                    throw new \Illuminate\Http\Exceptions\HttpResponseException(
-                        response()->json([
-                            'success' => false,
-                            'message' => "Child '{$child->name}' already has an active package ({$packageName}).",
-                            'errors' => [
-                                'participants' => [
-                                    "Child '{$child->name}' already has an active package ({$packageName}). " .
-                                    "Each child can only have one active package at a time. " .
-                                    "The current package expires on {$expiresAt}. " .
-                                    "Please complete or cancel the existing package, or wait until it expires before booking a new package."
-                                ]
-                            ],
-                            'existing_booking' => [
-                                'id' => $existingBooking->id,
-                                'reference' => $existingBooking->reference,
-                                'package' => $packageName,
-                                'mode' => $modeName,
-                                'status' => $existingBooking->status,
-                                'payment_status' => $existingBooking->payment_status,
-                                'package_expires_at' => $expiresAt,
-                                'has_expired' => $existingBooking->hasExpired(),
-                            ]
-                        ], 409) // 409 Conflict
-                    );
+                    throw new BookingConflictException($message, null, 0, [], [
+                        'participants' => [$message],
+                        'existing_booking' => [
+                            'id' => $existingBooking->id,
+                            'reference' => $existingBooking->reference,
+                            'package' => $packageName,
+                            'mode' => $modeName,
+                            'status' => $existingBooking->status,
+                            'payment_status' => $existingBooking->payment_status,
+                            'package_expires_at' => $expiresAt,
+                            'has_expired' => $existingBooking->hasExpired(),
+                        ],
+                    ]);
                 }
             }
 
             // Verify child has completed checklist (required for approval)
-            if (!$child->checklist || !$child->checklist->checklist_completed) {
-                throw new \Illuminate\Http\Exceptions\HttpResponseException(
-                    response()->json([
-                        'success' => false,
-                        'message' => "Child '{$child->name}' does not have a completed checklist. Please complete the UK compliance checklist before booking.",
-                        'errors' => [
-                            'participants' => ["Child '{$child->name}' requires a completed checklist before booking. Please complete the checklist in your dashboard."]
-                        ]
-                    ], 403)
+            if (! $child->checklist || ! $child->checklist->checklist_completed) {
+                throw new AuthorizationException(
+                    "Child '{$child->name}' requires a completed checklist before booking. Please complete the checklist in your dashboard."
                 );
             }
 

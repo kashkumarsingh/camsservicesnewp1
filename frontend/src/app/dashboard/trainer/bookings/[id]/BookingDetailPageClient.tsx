@@ -87,7 +87,7 @@ export default function BookingDetailPageClient({ bookingId }: BookingDetailPage
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Link href="/dashboard/trainer/bookings" className="inline-flex items-center text-[#0080FF] hover:text-[#00D4FF] mb-6">
+          <Link href="/dashboard/trainer/bookings" className="inline-flex items-center text-primary-blue hover:text-light-blue-cyan mb-6">
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Bookings
           </Link>
@@ -103,7 +103,7 @@ export default function BookingDetailPageClient({ bookingId }: BookingDetailPage
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Link href="/dashboard/trainer/bookings" className="inline-flex items-center text-[#0080FF] hover:text-[#00D4FF] mb-6">
+          <Link href="/dashboard/trainer/bookings" className="inline-flex items-center text-primary-blue hover:text-light-blue-cyan mb-6">
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Bookings
           </Link>
@@ -118,7 +118,7 @@ export default function BookingDetailPageClient({ bookingId }: BookingDetailPage
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link href="/dashboard/trainer/bookings" className="inline-flex items-center text-[#0080FF] hover:text-[#00D4FF] mb-6">
+        <Link href="/dashboard/trainer/bookings" className="inline-flex items-center text-primary-blue hover:text-light-blue-cyan mb-6">
           <ArrowLeft className="h-5 w-5 mr-2" />
           Back to Bookings
         </Link>

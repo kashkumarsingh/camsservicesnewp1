@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format, parseISO } from 'date-fns';
@@ -13,11 +13,26 @@ import type {
   AdminTrainersFilters,
 } from '@/core/application/admin/dto/AdminTrainerDTO';
 import SideCanvas from '@/components/ui/SideCanvas';
-import { ListRowsSkeleton, TableRowsSkeleton } from '@/components/ui/Skeleton';
-import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
+import {
+  DataTable,
+  FilterPanel,
+  FilterSection,
+  FilterSelect,
+  FilterTriggerButton,
+  SearchInput,
+  type Column,
+  type SortDirection,
+} from '@/components/dashboard/universal';
+import { RowActions, ViewAction, EditAction, DeleteAction } from '@/components/dashboard/universal/RowActions';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 import { TrainerForm } from './TrainerForm';
 import { AdminTrainerAvailabilityPanel } from '@/components/dashboard/admin/AdminTrainerAvailabilityPanel';
-import { Calendar, Clock, MapPin } from 'lucide-react';
+import { Calendar, Clock, MapPin, Download } from 'lucide-react';
+import { getActiveBadgeClasses } from '@/utils/statusBadgeHelpers';
+import { BOOKING_STATUS, DEFAULT_TABLE_SORT } from '@/utils/dashboardConstants';
+import Button from '@/components/ui/Button';
+import { Switch } from '@/components/ui/Switch';
+import { ListRowsSkeleton } from '@/components/ui/Skeleton';
 
 // ==========================================================================
 // Helper Functions
@@ -34,12 +49,6 @@ function formatDateTime(value?: string) {
     hour: '2-digit',
     minute: '2-digit',
   });
-}
-
-function getStatusBadgeClasses(isActive: boolean) {
-  return isActive
-    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
-    : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200';
 }
 
 // ==========================================================================
@@ -76,9 +85,14 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
   } = useAdminTrainers();
 
   const [search, setSearch] = useState('');
+  const [sortKey, setSortKey] = useState<string | null>(DEFAULT_TABLE_SORT.sortKey);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(DEFAULT_TABLE_SORT.sortDirection);
   const [isActiveFilter, setIsActiveFilter] = useState<string>('');
   const [hasCertificationsFilter, setHasCertificationsFilter] = useState<string>('');
-  const [showFilters, setShowFilters] = useState(false);
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const filterTriggerRef = useRef<HTMLButtonElement>(null);
+  const [stagedIsActive, setStagedIsActive] = useState<string>('');
+  const [stagedCertifications, setStagedCertifications] = useState<string>('');
   const [selectedTrainer, setSelectedTrainer] = useState<AdminTrainerDTO | null>(null);
   const [availabilityTrainer, setAvailabilityTrainer] = useState<AdminTrainerDTO | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -102,6 +116,88 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
     });
   }, [trainers, search]);
 
+  const sortedTrainers = useMemo(() => {
+    const list = [...filteredTrainers];
+    const key = sortKey ?? DEFAULT_TABLE_SORT.sortKey;
+    const dir = sortDirection ?? DEFAULT_TABLE_SORT.sortDirection;
+    list.sort((a, b) => {
+      let aVal: string | number = '';
+      let bVal: string | number = '';
+      if (key === 'name') {
+        aVal = a.name ?? '';
+        bVal = b.name ?? '';
+      } else if (key === 'email') {
+        aVal = a.email ?? '';
+        bVal = b.email ?? '';
+      } else if (key === 'certifications') {
+        aVal = a.certifications?.length ?? 0;
+        bVal = b.certifications?.length ?? 0;
+      } else if (key === 'status') {
+        aVal = a.isActive ? 1 : 0;
+        bVal = b.isActive ? 1 : 0;
+      } else {
+        aVal = a.name ?? '';
+        bVal = b.name ?? '';
+      }
+      const cmp =
+        typeof aVal === 'number' && typeof bVal === 'number'
+          ? aVal - bVal
+          : String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
+      return dir === 'asc' ? cmp : -cmp;
+    });
+    return list;
+  }, [filteredTrainers, sortKey, sortDirection]);
+
+  const handleSortChange = (key: string | null, dir: 'asc' | 'desc' | null) => {
+    setSortKey(key);
+    setSortDirection(dir ?? 'asc');
+  };
+
+  const trainerColumns: Column<AdminTrainerDTO>[] = useMemo(
+    () => [
+      { id: 'name', header: 'Name', sortable: true, accessor: (row) => row.name },
+      {
+        id: 'email',
+        header: 'Email',
+        sortable: true,
+        accessor: (row) => row.email || '—',
+      },
+      {
+        id: 'certifications',
+        header: 'Certifications',
+        sortable: true,
+        accessor: (row) =>
+          row.certifications.length > 0
+            ? row.certifications
+                .slice(0, 2)
+                .map((c) => c.name)
+                .join(', ') + (row.certifications.length > 2 ? ` +${row.certifications.length - 2}` : '')
+            : '—',
+      },
+      {
+        id: 'regions',
+        header: 'Regions',
+        sortable: false,
+        accessor: (row) =>
+          row.serviceAreaPostcodes.length > 0
+            ? row.serviceAreaPostcodes.slice(0, 2).join(', ') +
+              (row.serviceAreaPostcodes.length > 2 ? ` +${row.serviceAreaPostcodes.length - 2}` : '')
+            : '—',
+      },
+      {
+        id: 'status',
+        header: 'Status',
+        sortable: true,
+        accessor: (row) => (
+          <span className={`inline-flex rounded-full px-2 py-0.5 ${getActiveBadgeClasses(row.isActive)}`}>
+            {row.isActive ? 'Active' : 'Inactive'}
+          </span>
+        ),
+      },
+    ],
+    []
+  );
+
   const scheduleDateRange = useMemo(() => getScheduleDateRange(), []);
   const scheduleFilters = useMemo(
     () => (selectedTrainer ? { ...scheduleDateRange, per_page: 50 } : undefined),
@@ -121,6 +217,40 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
   // Handle filter changes
   const handleFilterChange = (filters: AdminTrainersFilters) => {
     updateFilters(filters);
+  };
+
+  const hasActiveFilters = isActiveFilter !== '' || hasCertificationsFilter !== '';
+  const activeFilterCount = (isActiveFilter ? 1 : 0) + (hasCertificationsFilter ? 1 : 0);
+  const hasStagedFilters = stagedIsActive !== '' || stagedCertifications !== '';
+  const stagedFilterCount = (stagedIsActive ? 1 : 0) + (stagedCertifications ? 1 : 0);
+
+  useEffect(() => {
+    if (filterPanelOpen) {
+      setStagedIsActive(isActiveFilter);
+      setStagedCertifications(hasCertificationsFilter);
+    }
+  }, [filterPanelOpen, isActiveFilter, hasCertificationsFilter]);
+
+  const handleApplyFilters = useCallback(() => {
+    setIsActiveFilter(stagedIsActive);
+    setHasCertificationsFilter(stagedCertifications);
+    handleFilterChange({
+      is_active: stagedIsActive === '' ? undefined : stagedIsActive === 'true',
+      has_certifications: stagedCertifications === '' ? undefined : stagedCertifications === 'true',
+    });
+    setFilterPanelOpen(false);
+  }, [stagedIsActive, stagedCertifications]);
+
+  const handleResetAllStaged = useCallback(() => {
+    setStagedIsActive('');
+    setStagedCertifications('');
+  }, []);
+
+  const handleClearFilters = () => {
+    setIsActiveFilter('');
+    setHasCertificationsFilter('');
+    setSearch('');
+    handleFilterChange({});
   };
 
   // Handle activate/deactivate
@@ -192,239 +322,137 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
         </div>
       )}
 
-      {/* Search + Filters + Export + Create */}
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-1 items-center gap-2">
-            <input
-              type="search"
-              placeholder="Search by name, email or region..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="h-9 w-full max-w-md rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              {showFilters ? '✕ Hide Filters' : '⚙ Filters'}
-            </button>
-            <button
-              type="button"
-              onClick={handleExport}
-              className="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              📥 Export CSV
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowCreateForm(true)}
-              className="inline-flex items-center rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-slate-800 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200"
-            >
-              ➕ Create Trainer
-            </button>
-          </div>
+      {/* Toolbar: Search (left) + Filter + Export + Create (right) */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search by name, email or region…"
+          className="min-w-[160px] max-w-[320px] w-full md:w-auto flex-1"
+        />
+        <div className="flex flex-shrink-0 items-center gap-2">
+          <FilterTriggerButton
+          ref={filterTriggerRef}
+          hasActiveFilters={hasActiveFilters}
+          activeFilterCount={activeFilterCount}
+          onClick={() => setFilterPanelOpen(true)}
+        />
+        <Button type="button" size="sm" variant="bordered" onClick={handleExport} icon={<Download className="h-3.5 w-3.5" />}>
+          Export CSV
+        </Button>
+        <Button type="button" size="sm" variant="secondary" onClick={() => setShowCreateForm(true)}>
+          Create Trainer
+        </Button>
         </div>
-
-        {/* Advanced Filters (collapsible) */}
-        {showFilters && (
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/60">
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-              Advanced Filters
-            </h3>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-300">
-                  Active Status
-                </label>
-                <select
-                  value={isActiveFilter}
-                  onChange={(e) => {
-                    setIsActiveFilter(e.target.value);
-                    handleFilterChange({
-                      is_active: e.target.value === '' ? undefined : e.target.value === 'true',
-                    });
-                  }}
-                  className="h-9 w-full rounded-md border border-slate-200 bg-white px-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-                >
-                  <option value="">All Trainers</option>
-                  <option value="true">Active Only</option>
-                  <option value="false">Inactive Only</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-300">
-                  Certifications
-                </label>
-                <select
-                  value={hasCertificationsFilter}
-                  onChange={(e) => {
-                    setHasCertificationsFilter(e.target.value);
-                    handleFilterChange({
-                      has_certifications:
-                        e.target.value === '' ? undefined : e.target.value === 'true',
-                    });
-                  }}
-                  className="h-9 w-full rounded-md border border-slate-200 bg-white px-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-                >
-                  <option value="">All</option>
-                  <option value="true">With Certifications</option>
-                  <option value="false">No Certifications</option>
-                </select>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setIsActiveFilter('');
-                  setHasCertificationsFilter('');
-                  handleFilterChange({});
-                }}
-                className="col-span-1 inline-flex h-9 items-center justify-center rounded-md border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 sm:col-span-2 lg:col-span-1"
-              >
-                Clear Filters
-              </button>
-            </div>
-          </div>
-        )}
       </div>
+
+      <FilterPanel
+        isOpen={filterPanelOpen}
+        onClose={() => setFilterPanelOpen(false)}
+        onApply={handleApplyFilters}
+        onResetAll={handleResetAllStaged}
+        hasActiveFilters={hasStagedFilters}
+        activeFilterCount={stagedFilterCount}
+        title="Filter"
+        triggerRef={filterTriggerRef}
+      >
+        <FilterSection
+          title="Active Status"
+          onReset={() => setStagedIsActive('')}
+          isActive={stagedIsActive !== ''}
+        >
+          <FilterSelect
+            label=""
+            value={stagedIsActive}
+            onChange={setStagedIsActive}
+            options={[
+              { label: 'All Trainers', value: '' },
+              { label: 'Active Only', value: 'true' },
+              { label: 'Inactive Only', value: 'false' },
+            ]}
+            size="panel"
+          />
+        </FilterSection>
+        <FilterSection
+          title="Certifications"
+          onReset={() => setStagedCertifications('')}
+          isActive={stagedCertifications !== ''}
+        >
+          <FilterSelect
+            label=""
+            value={stagedCertifications}
+            onChange={setStagedCertifications}
+            options={[
+              { label: 'All', value: '' },
+              { label: 'With Certifications', value: 'true' },
+              { label: 'No Certifications', value: 'false' },
+            ]}
+            size="panel"
+          />
+        </FilterSection>
+      </FilterPanel>
 
       {/* Trainers Table */}
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="max-h-[420px] overflow-x-auto overflow-y-auto text-sm">
-          <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-            <thead className="bg-slate-50 dark:bg-slate-950/40">
-              <tr>
-                <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Name
-                </th>
-                <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Email
-                </th>
-                <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Certifications
-                </th>
-                <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Regions
-                </th>
-                <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Status
-                </th>
-                <th className="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-800 dark:bg-slate-900">
-              {loading ? (
-                <TableRowsSkeleton rowCount={SKELETON_COUNTS.TABLE_ROWS} colCount={6} />
-              ) : filteredTrainers.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-3 py-4 text-center text-xs text-slate-500 dark:text-slate-400"
-                  >
-                    No trainers found.
-                  </td>
-                </tr>
-              ) : (
-                filteredTrainers.map((trainer) => (
-                  <tr
-                    key={trainer.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-800/60"
-                  >
-                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
-                      {trainer.name}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
-                      {trainer.email || '—'}
-                    </td>
-                    <td className="px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
-                      {trainer.certifications.length > 0
-                        ? trainer.certifications
-                            .slice(0, 2)
-                            .map((cert) => cert.name)
-                            .join(', ') +
-                          (trainer.certifications.length > 2
-                            ? ` +${trainer.certifications.length - 2}`
-                            : '')
-                        : '—'}
-                    </td>
-                    <td className="px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
-                      {trainer.serviceAreaPostcodes.length > 0
-                        ? trainer.serviceAreaPostcodes.slice(0, 2).join(', ') +
-                          (trainer.serviceAreaPostcodes.length > 2
-                            ? ` +${trainer.serviceAreaPostcodes.length - 2}`
-                            : '')
-                        : '—'}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-xs">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleToggleActive(trainer.id, trainer.isActive)
-                        }
-                        className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${getStatusBadgeClasses(
-                          trainer.isActive
-                        )}`}
-                      >
-                        {trainer.isActive ? 'Active' : 'Inactive'}
-                      </button>
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-right text-xs">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          type="button"
-                          onClick={() => setAvailabilityTrainer(trainer)}
-                          className="inline-flex items-center rounded-md border border-emerald-300 bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700 shadow-sm hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200 dark:hover:bg-emerald-900/50"
-                        >
-                          📆 Availability
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedTrainer(trainer)}
-                          className="inline-flex items-center rounded-md border border-slate-300 px-2 py-1 text-[11px] font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                        >
-                          👁️ View
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingTrainer(trainer);
-                            setShowEditForm(true);
-                          }}
-                          className="inline-flex items-center rounded-md border border-slate-300 px-2 py-1 text-[11px] font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                        >
-                          ✏️ Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleDelete(trainer.id, trainer.name)
-                          }
-                          className="inline-flex items-center rounded-md border border-rose-300 px-2 py-1 text-[11px] font-medium text-rose-600 shadow-sm hover:bg-rose-50 dark:border-rose-700 dark:text-rose-400 dark:hover:bg-rose-950/40"
-                        >
-                          🗑️ Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex items-center justify-between border-t border-slate-200 px-3 py-2 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
-          <span>
-            Showing {filteredTrainers.length} of {totalCount} trainer
-            {totalCount === 1 ? '' : 's'}
-          </span>
-        </div>
-      </div>
+      <DataTable<AdminTrainerDTO>
+        columns={trainerColumns}
+        data={sortedTrainers}
+        isLoading={loading}
+        error={error}
+        onRetry={() => updateFilters({})}
+        emptyTitle={EMPTY_STATE.NO_TRAINERS_FOUND.title}
+        emptyMessage={EMPTY_STATE.NO_TRAINERS_FOUND.message}
+        searchable
+        searchPlaceholder="Search by name, email or region…"
+        searchQuery={search}
+        onSearchQueryChange={setSearch}
+        sortable
+        sortKey={sortKey}
+        sortDirection={sortDirection}
+        onSortChange={handleSortChange}
+        renderRowActions={(trainer) => (
+          <RowActions>
+            <Button
+              type="button"
+              size="sm"
+              variant="bordered"
+              onClick={(e) => {
+                e?.stopPropagation();
+                setAvailabilityTrainer(trainer);
+              }}
+              className="min-w-0 border-emerald-300 bg-emerald-50 p-1.5 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200 dark:hover:bg-emerald-900/50"
+              aria-label="Availability"
+              title="Availability"
+            >
+              <Calendar className="h-3 w-3" />
+            </Button>
+            <ViewAction
+              onClick={() => setSelectedTrainer(trainer)}
+              aria-label="View trainer"
+              title="View"
+            />
+            <EditAction
+              onClick={() => {
+                setEditingTrainer(trainer);
+                setShowEditForm(true);
+              }}
+              aria-label="Edit"
+            />
+            <Switch
+              size="sm"
+              checked={!!trainer.isActive}
+              onCheckedChange={() => handleToggleActive(trainer.id, trainer.isActive)}
+              aria-label={trainer.isActive ? 'Deactivate trainer' : 'Activate trainer'}
+              title={trainer.isActive ? 'Deactivate' : 'Activate'}
+            />
+            <DeleteAction
+              onClick={() => handleDelete(trainer.id, trainer.name)}
+              aria-label="Delete"
+            />
+          </RowActions>
+        )}
+        onRowClick={(trainer) => setSelectedTrainer(trainer)}
+        responsive
+      />
 
       {/* View Details Side Panel */}
       <SideCanvas
@@ -475,9 +503,7 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
                   <dt className="font-medium">Status</dt>
                   <dd className="mt-0.5">
                     <span
-                      className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${getStatusBadgeClasses(
-                        selectedTrainer.isActive
-                      )}`}
+                      className={`inline-flex rounded-full px-2 py-0.5 ${getActiveBadgeClasses(selectedTrainer.isActive)}`}
                     >
                       {selectedTrainer.isActive ? 'Active' : 'Inactive'}
                     </span>
@@ -644,9 +670,9 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
                       </div>
                       <span
                         className={`mt-1 inline-block rounded px-1.5 py-0.5 text-[10px] font-medium ${
-                          s.status === 'completed'
+                          s.status === BOOKING_STATUS.COMPLETED
                             ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200'
-                            : s.status === 'cancelled'
+                            : s.status === BOOKING_STATUS.CANCELLED
                               ? 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
                               : 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200'
                         }`}

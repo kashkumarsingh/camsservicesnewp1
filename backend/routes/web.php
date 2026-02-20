@@ -43,19 +43,3 @@ Route::get('/routes/trainer-dashboard', function () {
         'url' => trainer_dashboard_url(),
     ]);
 })->name('trainer.dashboard.url');
-
-// DEBUG: Test trainers endpoint (REMOVE AFTER TESTING)
-Route::get('/debug/trainers', function () {
-    $trainers = \App\Models\Trainer::all();
-    
-    return response()->json([
-        'count' => $trainers->count(),
-        'trainers' => $trainers->map(fn($t) => [
-            'id' => $t->id,
-            'name' => $t->name,
-            'slug' => $t->slug,
-            'is_active' => $t->is_active,
-            'created_at' => $t->created_at,
-        ]),
-    ]);
-});

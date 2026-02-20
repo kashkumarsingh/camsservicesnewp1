@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Button from '@/components/ui/Button/Button';
+import { ROUTES } from '@/utils/routes';
 
 export default function NotFound() {
   return (
@@ -16,7 +17,7 @@ export default function NotFound() {
           <Link href="/">
             <Button variant="primary">Go Home</Button>
           </Link>
-          <Link href="/contact">
+          <Link href={ROUTES.CONTACT}>
             <Button variant="secondary">Contact Us</Button>
           </Link>
         </div>

@@ -139,7 +139,7 @@ export default function ActivityLogForm({
             value={formData.activity_name}
             onChange={(e) => setFormData(prev => ({ ...prev, activity_name: e.target.value }))}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
             placeholder="e.g., Art and Craft Session"
           />
         </div>
@@ -154,7 +154,7 @@ export default function ActivityLogForm({
               value={formData.activity_date}
               onChange={(e) => setFormData(prev => ({ ...prev, activity_date: e.target.value }))}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
             />
           </div>
 
@@ -165,7 +165,7 @@ export default function ActivityLogForm({
             <select
               value={formData.status}
               onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
             >
               <option value="in_progress">In Progress</option>
               <option value="completed">Completed</option>
@@ -183,7 +183,7 @@ export default function ActivityLogForm({
               type="time"
               value={formData.start_time}
               onChange={(e) => setFormData(prev => ({ ...prev, start_time: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
             />
           </div>
 
@@ -195,7 +195,7 @@ export default function ActivityLogForm({
               type="time"
               value={formData.end_time}
               onChange={(e) => setFormData(prev => ({ ...prev, end_time: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
             />
           </div>
 
@@ -209,7 +209,7 @@ export default function ActivityLogForm({
               onChange={(e) => setFormData(prev => ({ ...prev, duration_minutes: e.target.value ? parseFloat(e.target.value) : undefined }))}
               min="0"
               step="0.01"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
               placeholder="Auto-calculated"
             />
           </div>
@@ -223,7 +223,7 @@ export default function ActivityLogForm({
             value={formData.description}
             onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
             placeholder="Brief description of the activity..."
           />
         </div>
@@ -241,7 +241,7 @@ export default function ActivityLogForm({
             value={formData.notes}
             onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
             placeholder="Add notes about the activity..."
           />
         </div>
@@ -254,7 +254,7 @@ export default function ActivityLogForm({
             value={formData.behavioral_observations}
             onChange={(e) => setFormData(prev => ({ ...prev, behavioral_observations: e.target.value }))}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
             placeholder="Observe and note any behavioral patterns..."
           />
         </div>
@@ -267,7 +267,7 @@ export default function ActivityLogForm({
             value={formData.achievements}
             onChange={(e) => setFormData(prev => ({ ...prev, achievements: e.target.value }))}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
             placeholder="Document achievements and positive moments..."
           />
         </div>
@@ -280,7 +280,7 @@ export default function ActivityLogForm({
             value={formData.challenges}
             onChange={(e) => setFormData(prev => ({ ...prev, challenges: e.target.value }))}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
             placeholder="Note any challenges faced during the activity..."
           />
         </div>
@@ -294,7 +294,7 @@ export default function ActivityLogForm({
             id="milestone_achieved"
             checked={formData.milestone_achieved}
             onChange={(e) => setFormData(prev => ({ ...prev, milestone_achieved: e.target.checked }))}
-            className="w-4 h-4 text-[#0080FF] border-gray-300 rounded focus:ring-[#0080FF]"
+            className="w-4 h-4 text-primary-blue border-gray-300 rounded focus:ring-primary-blue"
           />
           <label htmlFor="milestone_achieved" className="text-sm font-medium text-gray-700">
             Milestone Achieved
@@ -311,7 +311,7 @@ export default function ActivityLogForm({
                 type="text"
                 value={formData.milestone_name || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, milestone_name: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
                 placeholder="e.g., First Independent Drawing"
               />
             </div>
@@ -324,7 +324,7 @@ export default function ActivityLogForm({
                 value={formData.milestone_description || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, milestone_description: e.target.value }))}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
                 placeholder="Describe the milestone achievement..."
               />
             </div>
@@ -348,7 +348,7 @@ export default function ActivityLogForm({
             id="consent_photography"
             checked={formData.consent_photography}
             onChange={(e) => setFormData(prev => ({ ...prev, consent_photography: e.target.checked }))}
-            className="w-4 h-4 text-[#0080FF] border-gray-300 rounded focus:ring-[#0080FF]"
+            className="w-4 h-4 text-primary-blue border-gray-300 rounded focus:ring-primary-blue"
           />
           <label htmlFor="consent_photography" className="text-sm text-gray-700">
             Photography consent obtained

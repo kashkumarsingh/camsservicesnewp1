@@ -7,8 +7,8 @@ import { serviceRepository } from '@/infrastructure/persistence/services';
 import { getSiteSettings } from '@/server/siteSettings/getSiteSettings';
 import { SiteSetting } from '@/core/domain/siteSettings/entities/SiteSetting';
 import { Metadata } from 'next';
-import { headers } from 'next/headers';
 
+/** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;
 
 async function fetchPackages() {
@@ -32,10 +32,7 @@ async function fetchServices() {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = await headers();
-  const host = headersList.get('host');
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (host ? `${protocol}://${host}` : 'https://camsservice.co.uk');
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
   const title = 'Contact CAMS Services | Free SEN Consultation';
   const description = 'Speak with our trauma-informed specialists. Book a free consultation to design a personalised support plan for your child.';
 

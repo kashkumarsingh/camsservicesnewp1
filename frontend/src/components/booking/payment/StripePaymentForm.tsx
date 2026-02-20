@@ -397,7 +397,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = (props) => {
             window.location.href = checkoutUrl;
           }}
           disabled={isLoadingCheckout}
-          className="w-full bg-gradient-to-r from-[#0080FF] to-[#00D4FF] text-white px-6 py-3 rounded-lg font-semibold hover:from-[#0069cc] hover:to-[#00b8e6] transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-gradient-to-r from-primary-blue to-light-blue-cyan text-white px-6 py-3 rounded-lg font-semibold hover:from-primary-blue/90 hover:to-light-blue-cyan/90 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoadingCheckout ? (
             <>

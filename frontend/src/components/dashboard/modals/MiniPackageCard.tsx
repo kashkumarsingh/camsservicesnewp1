@@ -46,7 +46,7 @@ export default function MiniPackageCard({
         {/* Popular Badge */}
         {pkg.popular && (
           <div className="absolute top-2 right-2 z-10">
-            <div className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#1E3A5F] text-[9px] font-semibold px-1.5 py-0.5 rounded-md flex items-center gap-1">
+            <div className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-navy-blue text-[9px] font-semibold px-1.5 py-0.5 rounded-md flex items-center gap-1">
               <Sparkles size={8} />
               <span>Popular</span>
             </div>
@@ -54,7 +54,7 @@ export default function MiniPackageCard({
         )}
 
         {/* Package Name */}
-        <h3 className="text-lg font-bold text-[#1E3A5F] mb-2 pr-12">
+        <h3 className="text-lg font-bold text-navy-blue mb-2 pr-12">
           {pkg.name}
         </h3>
 
@@ -86,7 +86,7 @@ export default function MiniPackageCard({
 
         {/* Price */}
         <div className="mb-3">
-          <div className="text-2xl font-extrabold text-[#1E3A5F] dark:text-gray-100">
+          <div className="text-2xl font-extrabold text-navy-blue dark:text-gray-100">
             £{pkg.price}
           </div>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-gray-500 dark:text-gray-400">

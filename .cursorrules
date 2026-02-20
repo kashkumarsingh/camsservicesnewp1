@@ -221,6 +221,53 @@ async get(id: string) {
 ```
 
 # ---------------------------------------------------------------------------
+# SINGLE SOURCE OF TRUTH — UNIVERSAL RULE
+# ---------------------------------------------------------------------------
+Before writing any new logic, check if a shared helper, trait, base class, or utility already exists. If it does, use it. If it doesn't, create it in the right shared location and use that.
+
+**Backend (Laravel):**
+- Shared response logic → **BaseApiController** (traits/helpers only; never in individual controllers)
+- Shared response shaping (middleware, exception handler) → **ApiResponseHelper** or equivalent shared trait
+- **Never** use raw `response()->json()` in controllers, middleware, form requests, or actions
+- Key conversion (snake_case → camelCase) → **only** in `BaseApiController::keysToCamelCase()` (via ApiResponseHelper)
+
+**Frontend (Next.js):**
+- Shared API unwrapping → **ApiClient** (single place for envelope handling)
+- Shared list extraction → **extractList()** in `frontend/src/infrastructure/http/responseHelpers.ts`
+- **Never** write inline shape handling in repositories
+- Repository DTOs are per-resource but must rely on the shared extraction helpers above
+
+**Universal checks Cursor must do before generating code:**
+1. Does a base class / trait / helper already handle this? → Use it
+2. Am I about to duplicate logic that exists elsewhere? → Stop, find the shared location
+3. Am I writing raw `response()->json()` or inline fetch/axios? → Stop, use the shared helper
+4. Am I handling a response shape inline in a repository? → Stop, use extractList or ApiClient
+5. If creating something new that could be reused → put it in the shared location, not inline
+
+**Acceptable exceptions to Single Source of Truth rules (do not flag as violations):**
+
+*Backend:*
+- `backend/routes/web.php` — web routes may use `response()->json()` directly; not part of the API contract
+- `/debug/*` routes — should be deleted before production, not refactored
+
+*Frontend:*
+- **ApiClient** — uses fetch internally by design (it is the shared wrapper)
+- **getSiteSettings / useSiteSettings** — uses fetch with Next.js ISR (`next: { revalidate, tags }`); not a backend API call
+- **CSV/blob download** (useAdminTrainers, useAdminBookings) — uses fetch with `Accept: text/csv` / `response.blob()`; JSON contract does not apply
+- **External APIs** (locationUtils, AddressLookupService, promiseUtils) — uses fetch for third-party services; ApiClient is for internal backend only
+- **ApiPaymentRepository.findByPayable** — accesses `response.data.data?.payments` intentionally; payments are nested in a booking payload (single-resource exemption)
+- **ApiBookingRepository** — uses toBookingList() by design; see inline comment
+
+# ---------------------------------------------------------------------------
+# LIST EXTRACTION (API LIST RESPONSE SHAPES)
+# ---------------------------------------------------------------------------
+- **All list endpoints** use `extractList<T>(response)` from `frontend/src/infrastructure/http/responseHelpers.ts`
+- **Never** write inline array/nested shape handling in individual repositories
+- `extractList` handles both `{ data: T[] }` and `{ data: { data: T[], meta } }` shapes; malformed paginated payloads throw early
+- **Single-resource methods** (findById, findBySlug) are exempt — they access `response.data` directly
+- If a repository needs different extraction logic (e.g. ApiBookingRepository), **document the reason inline** so it is not "fixed" to use extractList without checking contract and call sites
+
+# ---------------------------------------------------------------------------
 # SKELETON LOADING PATTERNS (FAANG-LEVEL UX)
 # ---------------------------------------------------------------------------
 **See:** `docs/cursorcontext/frontend/SKELETON_LOADING_GUIDE.md`
@@ -318,6 +365,7 @@ parseInt(String(value), 10)
 ```
 
 **Pre-Deployment Checklist:**
+- [ ] **Hard gate:** Run `npm run typecheck` (or `tsc --noEmit`) in frontend before merge; type mismatches in repositories are runtime bugs, not just lint
 - [ ] All optional properties have null checks/fallbacks
 - [ ] All type conversions are explicit
 - [ ] All response types match unwrapped structure
@@ -325,6 +373,35 @@ parseInt(String(value), 10)
 - [ ] All parseInt() calls convert to string first
 - [ ] All nested access uses optional chaining
 - [ ] No `any` types or `@ts-ignore`
+
+# ---------------------------------------------------------------------------
+# TYPESCRIPT — UNIVERSAL RULES
+# ---------------------------------------------------------------------------
+1. **tsc must pass** before any PR or deployment. Zero tolerance for type errors.
+2. **No implicit any** — all callback params must be explicitly typed (e.g. `.map((item: ItemType) => ...)`, `(acc: AccType, item: ItemType)` in reduce).
+3. **No `(x as any)` casts** — fix the underlying type instead.
+4. **`string | null` is not `string`** — handle null before passing to components (e.g. `value ?? ''` or early return).
+5. **Date params** must receive `Date` objects, not ISO strings — convert at the call site: `new Date(isoString)`.
+6. **Never import a file that doesn't exist** — create sub-files before refactoring parent imports; run tsc before committing any file move or split.
+7. **When a type gains a new field,** search the codebase for all usages and update them.
+8. **Props interfaces are contracts** — if a parent passes a prop, the child must declare it.
+9. **Form data types** (e.g. ParentBookingFormData) are the single source of truth for form shape — update the type first, then the usages.
+10. **Third-party CJS/ESM interop** — use `import * as X` pattern; access `.default` with a fallback (e.g. `Mod.default ?? Mod`).
+
+**Module imports:** Before refactoring/moving a file, update ALL import paths that reference it. If splitting a component into sub-files, create all sub-files before updating the parent imports.
+
+**Type contracts:** When adding a field to a form data type or response DTO, update ALL places that use that type. Never use `(payload as any)` to bypass type errors — fix the type instead.
+
+**tsconfig:** Use `strict: true` and `noImplicitAny: true` — treat type errors as errors, not warnings.
+
+# ---------------------------------------------------------------------------
+# DEAD CODE / LEGACY FILES
+# ---------------------------------------------------------------------------
+- If a file or component is **no longer used, delete it immediately** — do not leave it in the codebase.
+- Never leave legacy files "just in case" — that's what git history is for.
+- Before deleting, run a codebase-wide search for any remaining imports of that file.
+- If a file has **zero importers**, it should not exist.
+- `/debug/*` routes and legacy flows (e.g. SessionBuilder) should be **deleted** before production, not refactored.
 
 # ---------------------------------------------------------------------------
 # CODE QUALITY & STANDARDS (FAANG-LEVEL)
@@ -379,7 +456,8 @@ parseInt(String(value), 10)
 1. ✅ **NEVER** push directly to `main`
 2. ✅ **ALWAYS** create feature branch: `feature/description` or `fix/description`
 3. ✅ Push to feature branch (no deployment)
-4. ✅ Inform user to merge when ready
+4. ✅ Before merge: run `npm run typecheck` in frontend (hard gate — no merge if tsc fails)
+5. ✅ Inform user to merge when ready
 
 ```bash
 # Always use feature branches
@@ -515,7 +593,11 @@ Suggest NEW chat tab when:
 # ADDITIONAL REFERENCES
 # ---------------------------------------------------------------------------
 For detailed guides, see:
+- **Single source of truth (response/API):** .cursorrules § SINGLE SOURCE OF TRUTH — UNIVERSAL RULE; **why:** `ADR-001-response-single-source-of-truth.md`
 - **UX/UI:** `docs/cursorcontext/frontend/UX_DESIGN_PRINCIPLES.md`
+- **Frontend UI (design tokens & behaviour):** `.cursor/rules/frontend-ui-design-tokens.mdc`, `.cursor/rules/frontend-ui-behaviour.mdc`
+- **Dashboard (layout, DataTable, badges, modals, forms, no hardcoding):** `DASHBOARD_RULES.md`; rule: `.cursor/rules/dashboard-standards.mdc` (applies when editing dashboard files)
+- **Public CMS pages (content flow, ISR, rich text, SEO, invalidation):** `.cursor/rules/public-cms-pages.mdc`; constants: `revalidationConstants.ts`, `seoConstants.ts`
 - **Skeletons:** `docs/cursorcontext/frontend/SKELETON_LOADING_GUIDE.md`
 - **Database:** `docs/cursorcontext/database/DATABASE_DESIGN_PRINCIPLES.md`
 - **API:** `docs/cursorcontext/api/API_BEST_PRACTICES.md`
@@ -524,6 +606,7 @@ For detailed guides, see:
 - **Email:** `docs/cursorcontext/features/notifications/EMAIL_POLICY.md`
 - **Parent UX:** `docs/cursorcontext/features/booking/PARENT_UX_STANDARD.md`
 - **Glossary:** `docs/cursorcontext/GLOSSARY.md`
+- **Remaining work (prioritised roadmap):** `REMAINING_WORK.md` (project root)
 
 # ---------------------------------------------------------------------------
 # END OF OPTIMISED RULES (90k tokens - 53% reduction from 190k)

@@ -12,7 +12,7 @@ import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
 export function useCalendarRangePopover() {
   const [calendarPopoverOpen, setCalendarPopoverOpen] = useState(false);
   const [calendarViewMonthKey, setCalendarViewMonthKey] = useState(() =>
-    getMonthKey(getMonday(new Date().toISOString().slice(0, 10)))
+    getMonthKey(getMonday(new Date()))
   );
   const [calendarViewYear, setCalendarViewYear] = useState(() => new Date().getFullYear());
   const [hoveredDay, setHoveredDay] = useState<string | null>(null);

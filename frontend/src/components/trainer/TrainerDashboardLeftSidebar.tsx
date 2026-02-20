@@ -5,6 +5,7 @@ import moment, { Moment } from 'moment';
 import { Calendar, User, Plus, ChevronDown, ChevronUp, Settings, LogOut, HelpCircle, Clock as ClockIcon } from 'lucide-react';
 import { BookingCalendar } from '@/components/ui/Calendar';
 import type { TrainerBooking } from '@/core/application/trainer/types';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface TrainerDashboardLeftSidebarProps {
   /** Current bookings */
@@ -408,7 +409,7 @@ export default function TrainerDashboardLeftSidebar({
         {showTrainees && (
           <div className="px-4 py-3 space-y-2 max-h-[300px] overflow-y-auto">
             {trainees.length === 0 ? (
-              <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">No trainees yet</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">{EMPTY_STATE.NO_TRAINEES_YET.title}</p>
             ) : (
               trainees.map((trainee) => {
                 const isVisible =

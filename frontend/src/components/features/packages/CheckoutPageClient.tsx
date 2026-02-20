@@ -44,7 +44,7 @@ export default function CheckoutPageClient({
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="animate-spin text-[#0080FF] mx-auto mb-4" size={32} />
+          <Loader2 className="animate-spin text-primary-blue mx-auto mb-4" size={32} />
           <p className="text-gray-600">Loading checkout...</p>
         </div>
       </div>
@@ -61,15 +61,15 @@ export default function CheckoutPageClient({
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white py-12 px-4">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-[30px] p-8 shadow-2xl border-2 border-yellow-200">
+          <div className="bg-white rounded-card p-8 shadow-2xl border-2 border-yellow-200">
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-[#1E3A5F] mb-4">Account Pending Approval</h1>
-              <p className="text-lg text-[#1E3A5F]/80 mb-6">
+              <h1 className="text-3xl font-bold text-navy-blue mb-4">Account Pending Approval</h1>
+              <p className="text-lg text-navy-blue/80 mb-6">
                 Your registration is pending admin approval. You'll be notified once approved.
               </p>
               <button
                 onClick={() => router.push('/dashboard/parent')}
-                className="bg-[#0080FF] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#0069cc] transition-colors"
+                className="bg-primary-blue text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-blue/90 transition-colors"
               >
                 Go to Dashboard
               </button>
@@ -85,15 +85,15 @@ export default function CheckoutPageClient({
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white py-12 px-4">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-[30px] p-8 shadow-2xl border-2 border-blue-200">
+          <div className="bg-white rounded-card p-8 shadow-2xl border-2 border-blue-200">
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-[#1E3A5F] mb-4">No Approved Children</h1>
-              <p className="text-lg text-[#1E3A5F]/80 mb-6">
+              <h1 className="text-3xl font-bold text-navy-blue mb-4">No Approved Children</h1>
+              <p className="text-lg text-navy-blue/80 mb-6">
                 You need to add children and have them approved before purchasing packages.
               </p>
               <button
                 onClick={() => router.push('/dashboard/parent')}
-                className="bg-[#0080FF] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#0069cc] transition-colors"
+                className="bg-primary-blue text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-blue/90 transition-colors"
               >
                 Go to Dashboard
               </button>

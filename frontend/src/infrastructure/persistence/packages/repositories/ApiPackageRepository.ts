@@ -12,6 +12,8 @@ import { Package } from '@/core/domain/packages/entities/Package';
 import { PackageSlug } from '@/core/domain/packages/valueObjects/PackageSlug';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+import { extractList } from '@/infrastructure/http/responseHelpers';
+import { CACHE_TAGS, REVALIDATION_TIMES } from '@/utils/revalidationConstants';
 import {
   PackageActivity,
   PackagePerformanceMetrics,
@@ -22,8 +24,8 @@ import {
 
 /**
  * Remote API Response Format
- * Expected response structure from remote backend API (camelCase)
- * Generic naming allows switching between Laravel, Sanity, Contentful, etc.
+ * Single contract: backend sends camelCase only (see PackageController::formatPackageResponse).
+ * No snake_case; no dual fallbacks.
  */
 interface RemotePackageTrainer {
   id: string;
@@ -75,6 +77,7 @@ interface RemotePackageTrustIndicator {
   icon?: string;
 }
 
+/** API contract: camelCase only. Backend PackageController must return this shape. */
 interface RemotePackageResponse {
   id: string;
   name: string;
@@ -83,20 +86,23 @@ interface RemotePackageResponse {
   hours: number;
   price: number;
   duration: string;
-  color: string;
+  durationWeeks?: number;
+  /** Required from API; default 1 only when backend sends 0 (invalid for PackageDuration). */
+  hoursPerWeek?: number;
+  hoursPerActivity?: number;
+  calculatedActivities?: number;
+  allowActivityOverride?: boolean;
+  color?: string | null;
   features: string[];
   activities: RemotePackageActivity[];
   perks: string[];
   popular: boolean;
-  isActive?: boolean; // Indicates if package is active (is_active = true)
-  hours_per_week: number;
-  hoursPerActivity?: number;
-  calculatedActivities?: number;
-  allowActivityOverride?: boolean;
-  spots_remaining?: number;
-  views: number;
-  created_at: string;
-  updated_at: string;
+  isActive?: boolean;
+  spotsRemaining?: number | null;
+  totalSpots?: number | null;
+  views?: number;
+  createdAt?: string;
+  updatedAt?: string;
   trainers?: RemotePackageTrainer[];
   metrics?: RemotePackageMetrics;
   testimonials?: RemotePackageTestimonial[];
@@ -155,11 +161,9 @@ export class ApiPackageRepository implements IPackageRepository {
       allowActivityOverride: response.allowActivityOverride,
     });
     const slug = PackageSlug.fromString(response.slug);
-    
-    // Extract weeks from duration string
-    const weeksMatch = response.duration.match(/(\d+)\s+weeks?/);
-    const totalWeeks = weeksMatch ? parseInt(weeksMatch[1]) : 6;
-    
+    const totalWeeks = response.durationWeeks ?? 6;
+    const hoursPerWeek = Math.max(1, response.hoursPerWeek ?? 0);
+
     const trainers: PackageTrainerSummary[] = response.trainers?.map((trainer) => ({
       id: trainer.id,
       name: trainer.name,
@@ -206,21 +210,22 @@ export class ApiPackageRepository implements IPackageRepository {
         }
       : undefined;
 
+    const spotsRemaining = response.spotsRemaining ?? response.metrics?.spotsRemaining ?? response.metrics?.totalSpots ?? response.totalSpots;
     return Package.create(
       response.id,
       response.name,
       response.description,
       response.hours,
       response.price,
-      response.hours_per_week,
+      hoursPerWeek,
       totalWeeks,
-      response.color,
+      response.color ?? '',
       response.features,
       activities,
       response.perks,
       slug,
       response.popular,
-      response.spots_remaining,
+      spotsRemaining ?? undefined,
       trainers,
       metrics,
       response.testimonials?.map<PackageTestimonialSummary>((testimonial) => ({
@@ -244,6 +249,7 @@ export class ApiPackageRepository implements IPackageRepository {
   /**
    * Convert domain entity to remote API request format
    */
+  /** Request body: camelCase. Backend AdminPackagesController accepts and maps to DB. */
   private toApi(pkg: Package): Partial<RemotePackageResponse> {
     return {
       name: pkg.name,
@@ -257,8 +263,8 @@ export class ApiPackageRepository implements IPackageRepository {
       activities: pkg.activities,
       perks: pkg.perks,
       popular: pkg.popular,
-      hours_per_week: pkg.duration.hoursPerWeek,
-      spots_remaining: pkg.spotsRemaining,
+      hoursPerWeek: pkg.duration.hoursPerWeek,
+      spotsRemaining: pkg.spotsRemaining,
       views: pkg.views,
     };
   }
@@ -295,25 +301,26 @@ export class ApiPackageRepository implements IPackageRepository {
     }
 
     try {
-      // Try to find by ID (though backend may treat it as slug)
-      // This is a fallback - the backend route /packages/{slug} might work for numeric slugs
       const response = await apiClient.get<RemotePackageResponse>(
         `${API_ENDPOINTS.PACKAGES}/${id}`
       );
       return this.toDomain(response.data);
-    } catch (error: any) {
-      // Gracefully handle all errors - return null to allow findBySlug fallback
-      // This prevents errors from blocking the use case from trying alternative methods
+    } catch {
       return null;
     }
   }
 
   async findBySlug(slug: string): Promise<Package | null> {
+    const isServerSide = typeof window === 'undefined';
+    const requestOptions: RequestInit | undefined = isServerSide
+      ? { next: { revalidate: REVALIDATION_TIMES.CONTENT_PAGE, tags: [CACHE_TAGS.PACKAGES, CACHE_TAGS.PACKAGE_SLUG(slug)] } }
+      : undefined;
     try {
       // Backend route is /packages/{slug} (path parameter, not query)
       // ApiClient unwraps { success: true, data: {...} } to { data: {...} }
       const response = await apiClient.get<RemotePackageResponse>(
-        API_ENDPOINTS.PACKAGE_BY_SLUG(slug)
+        API_ENDPOINTS.PACKAGE_BY_SLUG(slug),
+        requestOptions
       );
       
       // ApiClient already unwraps, so response.data is the actual package data
@@ -330,7 +337,7 @@ export class ApiPackageRepository implements IPackageRepository {
     } catch (error) {
       // Gracefully handle 404, timeout, or other errors
       if (error instanceof Error) {
-        const apiError = error as any;
+        const apiError = error as { response?: { status?: number }; message?: string };
         if (apiError.response?.status === 404 || apiError.message?.includes('timeout') || apiError.message?.includes('not found')) {
           if (process.env.NODE_ENV === 'development') {
             console.warn(`[ApiPackageRepository] Package with slug "${slug}" not found (404)`);
@@ -338,30 +345,35 @@ export class ApiPackageRepository implements IPackageRepository {
           return null;
         }
       }
-      // Log other errors in development
       if (process.env.NODE_ENV === 'development') {
         console.error(`[ApiPackageRepository] Error fetching package by slug "${slug}":`, error);
       }
-      // Return null instead of throwing to allow graceful fallback
       return null;
     }
   }
 
   async findAllWithMeta(): Promise<PackageListResult> {
+    const isServerSide = typeof window === 'undefined';
+    const requestOptions: RequestInit | undefined = isServerSide
+      ? { next: { revalidate: REVALIDATION_TIMES.CONTENT_PAGE, tags: [CACHE_TAGS.PACKAGES] } }
+      : undefined;
     try {
       const response = await apiClient.get<RemotePackageListResponse | RemotePackageResponse[]>(
-        API_ENDPOINTS.PACKAGES
+        API_ENDPOINTS.PACKAGES,
+        requestOptions
       );
 
-      let payload: RemotePackageListResponse;
-      if (Array.isArray(response.data)) {
-        payload = { data: response.data };
-      } else {
-        payload = response.data as RemotePackageListResponse;
-      }
+      const data = extractList(response);
+      const meta =
+        response.data &&
+        typeof response.data === 'object' &&
+        !Array.isArray(response.data) &&
+        'meta' in response.data
+          ? (response.data as RemotePackageListResponse).meta
+          : undefined;
 
-      const packages = payload.data.map(pkg => this.toDomain(pkg));
-      const metrics = payload.meta?.metrics ? this.mapCollectionMetrics(payload.meta.metrics) : undefined;
+      const packages = data.map(pkg => this.toDomain(pkg));
+      const metrics = meta?.metrics ? this.mapCollectionMetrics(meta.metrics) : undefined;
 
       return { packages, metrics };
     } catch (error: any) {
@@ -396,16 +408,7 @@ export class ApiPackageRepository implements IPackageRepository {
       const response = await apiClient.get<RemotePackageResponse[] | RemotePackageListResponse>(
         `${API_ENDPOINTS.PACKAGES}?search=${encodeURIComponent(query)}`
       );
-      
-      let packages: RemotePackageResponse[];
-      if (Array.isArray(response.data)) {
-        packages = response.data;
-      } else if ('data' in response.data) {
-        packages = (response.data as RemotePackageListResponse).data;
-      } else {
-        packages = [];
-      }
-      
+      const packages = extractList(response);
       return packages.map(pkg => this.toDomain(pkg));
     } catch (error) {
       throw new Error(`Failed to search packages: ${error instanceof Error ? error.message : 'Unknown error'}`);

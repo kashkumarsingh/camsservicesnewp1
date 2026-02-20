@@ -11,7 +11,7 @@ import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
 
 export default function FooterSkeleton() {
   return (
-    <footer className="relative bg-gradient-to-br from-[#1E3A5F] via-[#0080FF] to-[#00D4FF] text-white overflow-hidden">
+    <footer className="relative bg-gradient-to-br from-navy-blue via-primary-blue to-light-blue-cyan text-white overflow-hidden">
       <div
         className="absolute inset-0 opacity-5"
         style={{

@@ -1,7 +1,9 @@
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+import { extractList } from '@/infrastructure/http/responseHelpers';
 import { IPageRepository } from '@/core/application/pages/ports/IPageRepository';
 import { Page } from '@/core/domain/pages/entities/Page';
+import { CACHE_TAGS, REVALIDATION_TIMES } from '@/utils/revalidationConstants';
 
 interface RemotePageResponse {
   id: string;
@@ -69,8 +71,8 @@ export class ApiPageRepository implements IPageRepository {
     const requestOptions: RequestInit | undefined = isServerSide
       ? {
           next: {
-            revalidate: 1800,
-            tags: ['pages', `page:${slug}`],
+            revalidate: REVALIDATION_TIMES.CONTENT_PAGE,
+            tags: [CACHE_TAGS.PAGES, CACHE_TAGS.PAGE_SLUG(slug)],
           },
         }
       : {
@@ -126,18 +128,17 @@ export class ApiPageRepository implements IPageRepository {
     const requestOptions: RequestInit | undefined = isServerSide
       ? {
           next: {
-            revalidate: 1800,
-            tags: ['pages'],
+            revalidate: REVALIDATION_TIMES.CONTENT_PAGE,
+            tags: [CACHE_TAGS.PAGES],
           },
         }
       : {
           cache: 'no-store',
         };
 
-    // ApiClient unwraps { success: true, data: [...] } to { data: [...] }
-    const response = await apiClient.get<RemotePageResponse[]>(API_ENDPOINTS.PAGES, requestOptions);
-    const pages = Array.isArray(response.data) ? response.data : [];
-
+    // ApiClient unwraps { success: true, data: [...] } to { data: [...] } or { data: { data: [...], meta } }
+    const response = await apiClient.get<RemotePageResponse[] | { data: RemotePageResponse[]; meta?: unknown }>(API_ENDPOINTS.PAGES, requestOptions);
+    const pages = extractList(response);
     return pages.map((page) => this.toDomain(page));
   }
 }

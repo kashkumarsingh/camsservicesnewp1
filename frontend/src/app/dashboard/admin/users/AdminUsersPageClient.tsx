@@ -1,11 +1,25 @@
 'use client';
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import SideCanvas from "@/components/ui/SideCanvas";
+import {
+  DataTable,
+  FilterPanel,
+  FilterSection,
+  FilterSelect,
+  FilterTriggerButton,
+  SearchInput,
+  type Column,
+  type SortDirection,
+} from "@/components/dashboard/universal";
+import { RowActions, EditAction, DeleteAction, ApproveAction, RejectAction } from "@/components/dashboard/universal/RowActions";
+import Button from "@/components/ui/Button";
 import { useAdminUsers, type AdminUserRow } from "@/interfaces/web/hooks/dashboard/useAdminUsers";
 import type { CreateUserDTO, UpdateUserDTO } from "@/core/application/admin/dto/AdminUserDTO";
-import { Download, Filter } from "lucide-react";
+import { Download } from "lucide-react";
 import { toastManager } from "@/utils/toast";
+import { EMPTY_STATE } from "@/utils/emptyStateConstants";
+import { DEFAULT_TABLE_SORT } from "@/utils/dashboardConstants";
 
 type UserFormData = CreateUserDTO | UpdateUserDTO;
 
@@ -33,12 +47,15 @@ export const AdminUsersPageClient: React.FC = () => {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("");
   const [approvalStatusFilter, setApprovalStatusFilter] = useState<string>("");
-  
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const filterTriggerRef = useRef<HTMLButtonElement>(null);
+  const [stagedRole, setStagedRole] = useState<string>("");
+  const [stagedApprovalStatus, setStagedApprovalStatus] = useState<string>("");
+
   // UI state
   const [selectedUser, setSelectedUser] = useState<AdminUserRow | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
   const [formData, setFormData] = useState<UserFormData>({
     name: "",
     email: "",
@@ -49,15 +66,103 @@ export const AdminUsersPageClient: React.FC = () => {
   const [rejectionReason, setRejectionReason] = useState("");
 
   // Data hooks
-  const { users, loading, error, createUser, updateUser, deleteUser, approveUser, rejectUser } = useAdminUsers({
+  const { users, loading, error, refetch, createUser, updateUser, deleteUser, approveUser, rejectUser } = useAdminUsers({
     role: roleFilter || undefined,
     approvalStatus: approvalStatusFilter || undefined,
     search: search || undefined,
   });
 
+  const [sortKey, setSortKey] = useState<string | null>(DEFAULT_TABLE_SORT.sortKey);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(DEFAULT_TABLE_SORT.sortDirection);
+
   const internalUsers = useMemo(
-    () => users.filter((user) => INTERNAL_ROLES.includes(user.role as typeof INTERNAL_ROLES[number])),
+    () => users.filter((user) => INTERNAL_ROLES.includes(user.role as (typeof INTERNAL_ROLES)[number])),
     [users]
+  );
+
+  const sortedUsers = useMemo(() => {
+    const list = [...internalUsers];
+    const key = sortKey ?? DEFAULT_TABLE_SORT.sortKey;
+    const dir = sortDirection ?? DEFAULT_TABLE_SORT.sortDirection;
+    list.sort((a, b) => {
+      let aVal: string | number = "";
+      let bVal: string | number = "";
+      if (key === "name") {
+        aVal = a.name ?? "";
+        bVal = b.name ?? "";
+      } else if (key === "email") {
+        aVal = a.email ?? "";
+        bVal = b.email ?? "";
+      } else if (key === "approvalStatus") {
+        aVal = a.approvalStatus ?? "";
+        bVal = b.approvalStatus ?? "";
+      } else {
+        aVal = a.name ?? "";
+        bVal = b.name ?? "";
+      }
+      const cmp =
+        typeof aVal === "number" && typeof bVal === "number"
+          ? aVal - bVal
+          : String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
+      return dir === "asc" ? cmp : -cmp;
+    });
+    return list;
+  }, [internalUsers, sortKey, sortDirection]);
+
+  const hasActiveFilters = roleFilter !== "" || approvalStatusFilter !== "";
+  const activeFilterCount = (roleFilter ? 1 : 0) + (approvalStatusFilter ? 1 : 0);
+  const hasStagedFilters = stagedRole !== "" || stagedApprovalStatus !== "";
+  const stagedFilterCount = (stagedRole ? 1 : 0) + (stagedApprovalStatus ? 1 : 0);
+
+  useEffect(() => {
+    if (filterPanelOpen) {
+      setStagedRole(roleFilter);
+      setStagedApprovalStatus(approvalStatusFilter);
+    }
+  }, [filterPanelOpen, roleFilter, approvalStatusFilter]);
+
+  const handleApplyFilters = useCallback(() => {
+    setRoleFilter(stagedRole);
+    setApprovalStatusFilter(stagedApprovalStatus);
+    setFilterPanelOpen(false);
+  }, [stagedRole, stagedApprovalStatus]);
+
+  const handleResetAllStaged = useCallback(() => {
+    setStagedRole("");
+    setStagedApprovalStatus("");
+  }, []);
+
+  const handleClearFilters = () => {
+    setRoleFilter("");
+    setApprovalStatusFilter("");
+    setSearch("");
+  };
+
+  const handleSortChange = (key: string | null, dir: "asc" | "desc" | null) => {
+    setSortKey(key);
+    setSortDirection(dir ?? "asc");
+  };
+
+  const userColumns: Column<AdminUserRow>[] = useMemo(
+    () => [
+      { id: "name", header: "Name", sortable: true, accessor: (row) => row.name },
+      { id: "email", header: "Email", sortable: true, accessor: (row) => row.email },
+      {
+        id: "approvalStatus",
+        header: "Approval",
+        sortable: true,
+        accessor: (row) => (
+          <span
+            className={`inline-flex rounded-full px-2 py-0.5 text-2xs font-medium ${getApprovalBadgeClasses(
+              row.approvalStatus
+            )}`}
+          >
+            {row.approvalStatus}
+          </span>
+        ),
+      },
+    ],
+    []
   );
 
   /**
@@ -169,8 +274,8 @@ export const AdminUsersPageClient: React.FC = () => {
   /**
    * Handle approve user
    */
-  const handleApprove = async (id: string, event: React.MouseEvent) => {
-    event.stopPropagation();
+  const handleApprove = async (id: string, event?: React.MouseEvent) => {
+    event?.stopPropagation();
     try {
       await approveUser(id);
       toastManager.success("User approved.");
@@ -182,8 +287,8 @@ export const AdminUsersPageClient: React.FC = () => {
   /**
    * Handle reject user
    */
-  const handleReject = async (id: string, event: React.MouseEvent) => {
-    event.stopPropagation();
+  const handleReject = async (id: string, event?: React.MouseEvent) => {
+    event?.stopPropagation();
     const reason = prompt("Rejection reason (optional):");
     if (reason === null) return;
     try {
@@ -205,200 +310,109 @@ export const AdminUsersPageClient: React.FC = () => {
         </p>
       </header>
 
-      {error && (
-        <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200">
-          {error}
-        </div>
-      )}
-
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-1 items-center gap-2">
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, email..."
-            className="h-9 w-full max-w-md rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+      {/* Toolbar: Search (left) + Filter + Export + New user (right) */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search by name, email…"
+          className="min-w-[160px] max-w-[320px] w-full md:w-auto flex-1"
+        />
+        <div className="flex flex-shrink-0 items-center gap-2">
+          <FilterTriggerButton
+            ref={filterTriggerRef}
+            hasActiveFilters={hasActiveFilters}
+            activeFilterCount={activeFilterCount}
+            onClick={() => setFilterPanelOpen(true)}
           />
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setShowFilters(!showFilters)}
-            className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            <Filter size={14} />
-            Filters
-          </button>
-          <button
-            type="button"
-            onClick={handleExport}
-            disabled={users.length === 0}
-            className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            <Download size={14} />
-            Export
-          </button>
-          <button
-            type="button"
-            onClick={handleCreateClick}
-            className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700"
-          >
+          <Button type="button" size="sm" variant="bordered" onClick={handleExport} disabled={users.length === 0} icon={<Download className="h-3.5 w-3.5" />}>
+            Export CSV
+          </Button>
+          <Button type="button" size="sm" variant="primary" onClick={handleCreateClick}>
             New user
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* Advanced Filters */}
-      {showFilters && (
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/50">
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="h-8 rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-            >
-              <option value="">All internal roles</option>
-              <option value="editor">Editor</option>
-              <option value="admin">Admin</option>
-              <option value="super_admin">Super Admin</option>
-            </select>
+      <FilterPanel
+        isOpen={filterPanelOpen}
+        onClose={() => setFilterPanelOpen(false)}
+        onApply={handleApplyFilters}
+        onResetAll={handleResetAllStaged}
+        hasActiveFilters={hasStagedFilters}
+        activeFilterCount={stagedFilterCount}
+        title="Filter"
+        triggerRef={filterTriggerRef}
+      >
+        <FilterSection
+          title="Role"
+          onReset={() => setStagedRole("")}
+          isActive={stagedRole !== ""}
+        >
+          <FilterSelect
+            label=""
+            value={stagedRole}
+            onChange={setStagedRole}
+            options={[
+              { label: "All internal roles", value: "" },
+              { label: "Editor", value: "editor" },
+              { label: "Admin", value: "admin" },
+              { label: "Super Admin", value: "super_admin" },
+            ]}
+            size="panel"
+          />
+        </FilterSection>
+        <FilterSection
+          title="Approval"
+          onReset={() => setStagedApprovalStatus("")}
+          isActive={stagedApprovalStatus !== ""}
+        >
+          <FilterSelect
+            label=""
+            value={stagedApprovalStatus}
+            onChange={setStagedApprovalStatus}
+            options={[
+              { label: "All statuses", value: "" },
+              { label: "Pending", value: "pending" },
+              { label: "Approved", value: "approved" },
+              { label: "Rejected", value: "rejected" },
+            ]}
+            size="panel"
+          />
+        </FilterSection>
+      </FilterPanel>
 
-            <select
-              value={approvalStatusFilter}
-              onChange={(e) => setApprovalStatusFilter(e.target.value)}
-              className="h-8 rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-            >
-              <option value="">All approval statuses</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-            </select>
-
-            <button
-              type="button"
-              onClick={() => {
-                setRoleFilter("");
-                setApprovalStatusFilter("");
-              }}
-              className="text-xs text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
-            >
-              Clear filters
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Internal users table */}
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="max-h-[420px] overflow-x-auto overflow-y-auto text-sm">
-          <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-            <thead className="bg-slate-50 dark:bg-slate-950/40">
-              <tr>
-                <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Name
-                </th>
-                <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Email
-                </th>
-                <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Approval
-                </th>
-                <th className="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-800 dark:bg-slate-900">
-              {loading ? (
-                <tr>
-                  <td
-                    colSpan={4}
-                    className="px-3 py-4 text-center text-xs text-slate-500 dark:text-slate-400"
-                  >
-                    Loading users…
-                  </td>
-                </tr>
-              ) : internalUsers.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={4}
-                    className="px-3 py-4 text-center text-xs text-slate-500 dark:text-slate-400"
-                  >
-                    No users found.
-                  </td>
-                </tr>
-              ) : (
-                internalUsers.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60"
-                    onClick={() => setSelectedUser(user)}
-                  >
-                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
-                      {user.name}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
-                      {user.email}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-xs">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${getApprovalBadgeClasses(
-                          user.approvalStatus
-                        )}`}
-                      >
-                        {user.approvalStatus}
-                      </span>
-                    </td>
-                    <td
-                      className="whitespace-nowrap px-3 py-2 text-right text-xs space-x-1"
-                      onClick={(event) => event.stopPropagation()}
-                    >
-                      {user.approvalStatus === "pending" && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={(e) => handleApprove(user.id, e)}
-                            className="inline-flex items-center rounded-md border border-emerald-300 px-2 py-1 text-[11px] font-medium text-emerald-600 shadow-sm hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => handleReject(user.id, e)}
-                            className="inline-flex items-center rounded-md border border-rose-300 px-2 py-1 text-[11px] font-medium text-rose-600 shadow-sm hover:bg-rose-50 dark:border-rose-700 dark:text-rose-400 dark:hover:bg-rose-950/40"
-                          >
-                            Reject
-                          </button>
-                        </>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => handleEditClick(user)}
-                        className="inline-flex items-center rounded-md border border-slate-300 px-2 py-1 text-[11px] font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(user.id)}
-                        className="inline-flex items-center rounded-md border border-rose-300 px-2 py-1 text-[11px] font-medium text-rose-600 shadow-sm hover:bg-rose-50 dark:border-rose-700 dark:text-rose-400 dark:hover:bg-rose-950/40"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex items-center justify-between border-t border-slate-200 px-3 py-2 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
-          <span>
-            Showing {internalUsers.length} internal user{internalUsers.length === 1 ? "" : "s"}
-          </span>
-        </div>
-      </div>
+      <DataTable<AdminUserRow>
+        columns={userColumns}
+        data={sortedUsers}
+        isLoading={loading}
+        error={error}
+        onRetry={() => void refetch()}
+        emptyTitle={EMPTY_STATE.NO_USERS_FOUND.title}
+        emptyMessage={EMPTY_STATE.NO_USERS_FOUND.message}
+        searchable
+        searchPlaceholder="Search by name, email…"
+        searchQuery={search}
+        onSearchQueryChange={setSearch}
+        sortable
+        sortKey={sortKey}
+        sortDirection={sortDirection}
+        onSortChange={handleSortChange}
+        renderRowActions={(user) => (
+          <RowActions>
+            {user.approvalStatus === "pending" && (
+              <>
+                <ApproveAction onClick={() => handleApprove(user.id)} aria-label="Approve" />
+                <RejectAction onClick={() => handleReject(user.id)} aria-label="Reject" />
+              </>
+            )}
+            <EditAction onClick={() => handleEditClick(user)} aria-label="Edit" />
+            <DeleteAction onClick={() => handleDelete(user.id)} aria-label="Delete" />
+          </RowActions>
+        )}
+        onRowClick={(user) => setSelectedUser(user)}
+        responsive
+      />
 
       {/* Detail View Canvas */}
       <SideCanvas
@@ -434,7 +448,7 @@ export const AdminUsersPageClient: React.FC = () => {
                   <dt className="font-medium">Approval status</dt>
                   <dd className="mt-0.5">
                     <span
-                      className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${getApprovalBadgeClasses(
+                      className={`inline-flex rounded-full px-2 py-0.5 text-2xs font-medium ${getApprovalBadgeClasses(
                         selectedUser.approvalStatus
                       )}`}
                     >

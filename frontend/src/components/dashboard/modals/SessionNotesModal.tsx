@@ -5,6 +5,7 @@ import { FileText, ChevronRight } from 'lucide-react';
 import moment from 'moment';
 import { BaseModal } from '@/components/ui/Modal';
 import type { SessionNoteItem } from '@/components/dashboard/SessionNotesCard';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface SessionNotesModalProps {
   isOpen: boolean;
@@ -52,7 +53,7 @@ export default function SessionNotesModal({
       <div className="p-0">
           {!hasItems ? (
             <p className="text-sm text-[#5f6368] dark:text-gray-400">
-              No trainer notes yet. Summary notes from your child&rsquo;s trainer will appear here after completed sessions. You can also see live activity logs during and after each session from the schedule.
+              {EMPTY_STATE.NO_TRAINER_NOTES_YET.message}
             </p>
           ) : (
             <ul

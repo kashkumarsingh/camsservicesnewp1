@@ -71,7 +71,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
         {/* FIXED: Show list of added custom activities */}
         {customActivities.length > 0 && (
           <div className="mt-4 space-y-2">
-            <h5 className="text-sm font-bold text-[#1E3A5F] flex items-center gap-2">
+            <h5 className="text-sm font-bold text-navy-blue flex items-center gap-2">
               <Sparkles size={16} className="text-[#9333EA]" />
               Your Requested Activities ({customActivities.length})
             </h5>
@@ -82,7 +82,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h6 className="font-bold text-[#1E3A5F] flex items-center gap-2">
+                    <h6 className="font-bold text-navy-blue flex items-center gap-2">
                       ✨ {activity.name}
                       <span className="text-xs font-semibold text-[#9333EA] bg-purple-100 px-2 py-0.5 rounded-full">
                         {activity.duration}h
@@ -167,7 +167,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Activity Name */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#1E3A5F] mb-2">
+                  <label className="block text-sm font-semibold text-navy-blue mb-2">
                     What activity would your child like? *
                   </label>
                   <input
@@ -175,13 +175,13 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                     value={customName}
                     onChange={(e) => onCustomNameChange(e.target.value)}
                     placeholder="e.g., Baking cookies, Building robots, Painting..."
-                    className="w-full px-4 py-3 rounded-[30px] border-2 border-gray-200 focus:border-[#9333EA] focus:outline-none text-[#1E3A5F]"
+                    className="w-full px-4 py-3 rounded-card border-2 border-gray-200 focus:border-[#9333EA] focus:outline-none text-navy-blue"
                   />
                 </div>
 
                 {/* Duration Picker */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#1E3A5F] mb-1">
+                  <label className="block text-sm font-semibold text-navy-blue mb-1">
                     How long should this activity last? *
                   </label>
                   <p className="text-xs text-gray-600 mb-2">
@@ -204,7 +204,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                           const totalHours = hours + (currentMinutes / 60);
                           onCustomDurationChange(totalHours.toString());
                         }}
-                        className="w-full px-3 py-2.5 rounded-lg border-2 border-gray-200 focus:border-[#9333EA] focus:outline-none text-[#1E3A5F] text-sm"
+                        className="w-full px-3 py-2.5 rounded-lg border-2 border-gray-200 focus:border-[#9333EA] focus:outline-none text-navy-blue text-sm"
                       >
                         {(() => {
                           const maxFromRemaining = remainingHours;
@@ -244,7 +244,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                           const totalHours = currentHours + (minutes / 60);
                           onCustomDurationChange(totalHours.toString());
                         }}
-                        className="w-full px-3 py-2.5 rounded-lg border-2 border-gray-200 focus:border-[#9333EA] focus:outline-none text-[#1E3A5F] text-sm"
+                        className="w-full px-3 py-2.5 rounded-lg border-2 border-gray-200 focus:border-[#9333EA] focus:outline-none text-navy-blue text-sm"
                       >
                         <option value="0">0 min</option>
                         <option value="15">15 min</option>
@@ -258,7 +258,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                   <div className="mt-2 p-2 bg-purple-50 border border-purple-200 rounded-lg">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-[#9333EA]">Total Duration:</span>
-                      <span className="text-sm font-bold text-[#1E3A5F]">
+                      <span className="text-sm font-bold text-navy-blue">
                         {(() => {
                           const parsed = parseFloat(customDuration || '0');
                           const hours = Math.floor(parsed);
@@ -300,7 +300,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
 
                 {/* Description */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-[#1E3A5F] mb-2">
+                  <label className="block text-sm font-semibold text-navy-blue mb-2">
                     Tell us more (Optional)
                   </label>
                   <textarea
@@ -308,17 +308,17 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                     onChange={(e) => onCustomDescriptionChange(e.target.value)}
                     placeholder="e.g., Making chocolate chip cookies and decorating with icing"
                     rows={2}
-                    className="w-full px-4 py-3 rounded-[30px] border-2 border-gray-200 focus:border-[#9333EA] focus:outline-none resize-none text-[#1E3A5F]"
+                    className="w-full px-4 py-3 rounded-card border-2 border-gray-200 focus:border-[#9333EA] focus:outline-none resize-none text-navy-blue"
                   />
                 </div>
 
                 {/* Equipment Options */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-[#1E3A5F] mb-2">
+                  <label className="block text-sm font-semibold text-navy-blue mb-2">
                     Does your child need special equipment or materials?
                   </label>
                   <div className="space-y-2 mb-3">
-                    <label className="flex items-center cursor-pointer p-3 rounded-[30px] border-2 border-gray-200 hover:border-[#9333EA] transition-colors bg-white">
+                    <label className="flex items-center cursor-pointer p-3 rounded-card border-2 border-gray-200 hover:border-[#9333EA] transition-colors bg-white">
                       <input
                         type="radio"
                         name="equipmentOption"
@@ -330,9 +330,9 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                         }}
                         className="w-4 h-4 text-[#9333EA] border-gray-300 focus:ring-2 focus:ring-[#9333EA] mr-3"
                       />
-                      <span className="text-[#1E3A5F]">No, standard equipment is fine</span>
+                      <span className="text-navy-blue">No, standard equipment is fine</span>
                     </label>
-                    <label className="flex items-center cursor-pointer p-3 rounded-[30px] border-2 border-gray-200 hover:border-[#9333EA] transition-colors bg-white">
+                    <label className="flex items-center cursor-pointer p-3 rounded-card border-2 border-gray-200 hover:border-[#9333EA] transition-colors bg-white">
                       <input
                         type="radio"
                         name="equipmentOption"
@@ -341,9 +341,9 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                         onChange={() => onEquipmentOptionChange('yes')}
                         className="w-4 h-4 text-[#9333EA] border-gray-300 focus:ring-2 focus:ring-[#9333EA] mr-3"
                       />
-                      <span className="text-[#1E3A5F]">Yes, I&apos;ll specify below</span>
+                      <span className="text-navy-blue">Yes, I&apos;ll specify below</span>
                     </label>
-                    <label className="flex items-center cursor-pointer p-3 rounded-[30px] border-2 border-gray-200 hover:border-[#9333EA] transition-colors bg-white">
+                    <label className="flex items-center cursor-pointer p-3 rounded-card border-2 border-gray-200 hover:border-[#9333EA] transition-colors bg-white">
                       <input
                         type="radio"
                         name="equipmentOption"
@@ -355,7 +355,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                         }}
                         className="w-4 h-4 text-[#9333EA] border-gray-300 focus:ring-2 focus:ring-[#9333EA] mr-3"
                       />
-                      <span className="text-[#1E3A5F]">Not sure, please advise</span>
+                      <span className="text-navy-blue">Not sure, please advise</span>
                     </label>
                   </div>
                   {equipmentOption === 'yes' && (
@@ -364,11 +364,11 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                       value={customEquipment}
                       onChange={(e) => onCustomEquipmentChange(e.target.value)}
                       placeholder="e.g., Magnifying glass, Water bottle"
-                      className="w-full px-4 py-3 rounded-[30px] border-2 border-[#9333EA] focus:border-[#9333EA] focus:outline-none text-[#1E3A5F]"
+                      className="w-full px-4 py-3 rounded-card border-2 border-[#9333EA] focus:border-[#9333EA] focus:outline-none text-navy-blue"
                     />
                   )}
                   {equipmentOption === 'unsure' && (
-                    <div className="px-4 py-3 rounded-[30px] border-2 border-gray-200 bg-gray-50 text-sm text-gray-600">
+                    <div className="px-4 py-3 rounded-card border-2 border-gray-200 bg-gray-50 text-sm text-gray-600">
                       Your trainer will contact you to discuss equipment needs.
                     </div>
                   )}

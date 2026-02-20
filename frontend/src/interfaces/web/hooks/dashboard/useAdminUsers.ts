@@ -11,6 +11,7 @@ import type {
   RemoteAdminUserResponse,
 } from '@/core/application/admin/dto/AdminUserDTO';
 import { mapRemoteUserToDTO } from '@/core/application/admin/dto/AdminUserDTO';
+import { isAdminRole } from '@/utils/dashboardConstants';
 
 export type AdminUserRow = AdminUserDTO;
 
@@ -52,7 +53,7 @@ export function useAdminUsers(filters?: UseAdminUsersFilters) {
       }
 
       // Only admins and super_admins should use this hook
-      if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
+      if (!user || !isAdminRole(user.role)) {
         setLoading(false);
         setUsers([]);
         setError(null);

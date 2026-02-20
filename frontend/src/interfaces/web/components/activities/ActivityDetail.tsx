@@ -48,7 +48,7 @@ export default function ActivityDetail({ slug, incrementViews = true }: Activity
       {/* Back Link */}
       <Link 
         href="/activities" 
-        className="inline-flex items-center gap-2 text-[#1E3A5F]/80 hover:text-[#0080FF] mb-6 transition-colors"
+        className="inline-flex items-center gap-2 text-navy-blue/80 hover:text-primary-blue mb-6 transition-colors"
       >
         <ArrowLeft size={18} />
         Back to Activities
@@ -57,12 +57,12 @@ export default function ActivityDetail({ slug, incrementViews = true }: Activity
       {/* Header */}
       <header className="mb-8">
         {activity.category && (
-          <div className="inline-block bg-[#0080FF]/10 text-[#0080FF] px-4 py-2 rounded-full text-sm font-semibold mb-4">
+          <div className="inline-block bg-primary-blue/10 text-primary-blue px-4 py-2 rounded-full text-sm font-semibold mb-4">
             {activity.category}
           </div>
         )}
 
-        <h1 className="text-4xl md:text-5xl font-heading font-bold text-[#1E3A5F] mb-4">
+        <h1 className="text-4xl md:text-5xl font-heading font-bold text-navy-blue mb-4">
           {activity.name}
         </h1>
 
@@ -103,7 +103,7 @@ export default function ActivityDetail({ slug, incrementViews = true }: Activity
       {/* Trainer Information */}
       {activity.trainerIds && activity.trainerIds.length > 0 && (
         <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 mb-8">
-          <h3 className="text-xl font-bold text-[#1E3A5F] mb-4">Available Trainers</h3>
+          <h3 className="text-xl font-bold text-navy-blue mb-4">Available Trainers</h3>
           <p className="text-gray-700">
             This activity is led by {activity.trainerIds.length} {activity.trainerIds.length === 1 ? 'qualified trainer' : 'qualified trainers'}.
             {activity.trainers && activity.trainers.length > 0 && (

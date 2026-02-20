@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ContactSubmissionController;
 use App\Http\Controllers\Api\NewsletterSubscriptionController;
 use App\Http\Controllers\Api\TrainerApplicationController;
+use App\Support\ApiResponseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -21,9 +22,8 @@ use Illuminate\Support\Str;
 */
 
 // Health check endpoint (no caching, always fresh, outside cache middleware for speed)
+// Uses standard envelope (success, data, meta) via ApiResponseHelper
 Route::prefix('v1')->get('/health', function (Request $request) {
-    $requestId = $request->header('X-Request-ID') ?: (string) \Illuminate\Support\Str::uuid();
-    
     $health = [
         'status' => 'ok',
         'timestamp' => now()->toIso8601String(),
@@ -38,9 +38,8 @@ Route::prefix('v1')->get('/health', function (Request $request) {
             'status' => 'operational',
             'driver' => config('cache.default'),
         ],
-        'request_id' => $requestId,
     ];
-    
+
     try {
         DB::connection()->getPdo();
         $health['database']['status'] = 'connected';
@@ -48,10 +47,10 @@ Route::prefix('v1')->get('/health', function (Request $request) {
         $health['database']['status'] = 'disconnected';
         $health['database']['error'] = $e->getMessage();
     }
-    
+
     \Cache::put('health_check', 'ok', 1);
-    
-    return response()->json($health, 200);
+
+    return ApiResponseHelper::successResponse($health, null, [], 200, $request);
 });
 
 // Authentication routes

@@ -12,6 +12,7 @@ import { getChildColor } from '@/utils/childColorUtils';
 import { formatDurationMinutesForDisplay } from '@/utils/activitySelectionUtils';
 import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
 import { getMonthKey } from '@/utils/calendarRangeUtils';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 /** Normalise schedule date to YYYY-MM-DD (handles ISO strings from API). */
 function normaliseScheduleDate(date: string | undefined): string {
@@ -261,7 +262,7 @@ export default function ChildrenActivitiesCalendar({
       setSelectedDay(newDate);
       setViewMode('day');
     }
-  }, [selectedDate, switchToDayView, viewMode, currentMonth, handleMonthChange]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedDate, switchToDayView, viewMode, currentMonth, handleMonthChange]);  
   // Real-time clock state - updates every minute for accurate status
   const [currentTime, setCurrentTime] = useState(moment());
 
@@ -452,7 +453,7 @@ export default function ChildrenActivitiesCalendar({
     // Find earliest session start (same parsing as day view positioning)
     const getStartTop = (session: ChildActivitySession): number => {
       const normalisedDate = normaliseScheduleDate(session.date) || dateStr;
-      let m = moment(`${normalisedDate} ${session.startTime}`, ['YYYY-MM-DD HH:mm', 'YYYY-MM-DD HH:mm:ss'], false);
+      const m = moment(`${normalisedDate} ${session.startTime}`, ['YYYY-MM-DD HH:mm', 'YYYY-MM-DD HH:mm:ss'], false);
       if (!m.isValid() && session.startTime) {
         const t = moment(session.startTime.trim(), ['HH:mm', 'HH:mm:ss', 'h:mm A', 'h:mm:ss A'], false);
         if (t.isValid()) return t.hours() * ROW_HEIGHT + (t.minutes() / 60) * ROW_HEIGHT;
@@ -1053,7 +1054,7 @@ export default function ChildrenActivitiesCalendar({
                                 </div>
                                 {isNewChild(session.childId) && onBuyHoursForChild && (
                                   <div className="text-xs mt-1 flex items-center gap-2">
-                                    <span className="text-amber-600 dark:text-amber-400">No hours purchased yet</span>
+                                    <span className="text-amber-600 dark:text-amber-400">{EMPTY_STATE.NO_HOURS_PURCHASED_YET.title}</span>
                                     <button
                                       type="button"
                                       onClick={(e) => { e.stopPropagation(); onBuyHoursForChild(session.childId); }}
@@ -1507,7 +1508,7 @@ export default function ChildrenActivitiesCalendar({
                             </div>
                             {isNewChild(session.childId) && onBuyHoursForChild && (
                               <div className="text-[10px] mt-0.5 flex items-center gap-1.5 flex-wrap">
-                                <span className="text-amber-600 dark:text-amber-400">No hours purchased yet</span>
+                                <span className="text-amber-600 dark:text-amber-400">{EMPTY_STATE.NO_HOURS_PURCHASED_YET.title}</span>
                                 <button
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); onBuyHoursForChild(session.childId); }}

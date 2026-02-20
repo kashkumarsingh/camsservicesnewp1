@@ -76,7 +76,7 @@ export default function NewsletterSubscribe() {
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="px-6 py-3 bg-white text-[#0080FF] rounded-lg font-bold hover:bg-gray-100 transition-colors"
+          className="px-6 py-3 bg-white text-primary-blue rounded-lg font-bold hover:bg-gray-100 transition-colors"
         >
           Try Again
         </button>
@@ -113,8 +113,8 @@ export default function NewsletterSubscribe() {
                     ? 'border-2 border-red-500 focus:border-red-500 focus:ring-red-200 bg-red-50'
                     : emailValid
                     ? 'border-2 border-green-500 focus:border-green-500 focus:ring-green-200 bg-green-50'
-                    : 'border-2 border-gray-300 focus:border-[#0080FF] focus:ring-[#0080FF]'
-                  : 'border-2 border-gray-300 focus:border-[#0080FF] focus:ring-[#0080FF]'
+                    : 'border-2 border-gray-300 focus:border-primary-blue focus:ring-primary-blue'
+                  : 'border-2 border-gray-300 focus:border-primary-blue focus:ring-primary-blue'
               }`}
             />
             {touched && (
@@ -130,7 +130,7 @@ export default function NewsletterSubscribe() {
           <button
             type="submit"
             disabled={loading || !email.trim() || !!emailError}
-            className="px-6 py-3 bg-white text-[#0080FF] rounded-lg font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-white text-primary-blue rounded-lg font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Subscribing...' : 'Subscribe'}
           </button>

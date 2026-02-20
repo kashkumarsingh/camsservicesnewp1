@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
+import { ROUTES } from '@/utils/routes';
 
 export interface FAQItem {
   question: string;
@@ -43,7 +44,7 @@ const FAQAccordion: React.FC<FAQAccordionProps> = ({
         <div className="mb-6 text-center">
           {title && (
             <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2 flex items-center justify-center gap-2">
-              <HelpCircle className="text-[#0080FF]" size={28} />
+              <HelpCircle className="text-primary-blue" size={28} />
               {title}
             </h2>
           )}
@@ -65,7 +66,7 @@ const FAQAccordion: React.FC<FAQAccordionProps> = ({
                 border-2 rounded-xl transition-all duration-300
                 ${
                   isOpen
-                    ? 'border-[#0080FF] bg-blue-50 shadow-lg'
+                    ? 'border-primary-blue bg-blue-50 shadow-lg'
                     : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
                 }
               `}
@@ -78,7 +79,7 @@ const FAQAccordion: React.FC<FAQAccordionProps> = ({
                 <div className="flex-1 pr-4">
                   {/* Category Badge (if provided) */}
                   {faq.category && (
-                    <span className="inline-block px-3 py-1 bg-[#0080FF] text-white text-xs font-bold rounded-full mb-2">
+                    <span className="inline-block px-3 py-1 bg-primary-blue text-white text-xs font-bold rounded-full mb-2">
                       {faq.category}
                     </span>
                   )}
@@ -86,7 +87,7 @@ const FAQAccordion: React.FC<FAQAccordionProps> = ({
                   <h3
                     className={`
                       font-bold text-base sm:text-lg
-                      ${isOpen ? 'text-[#0080FF]' : 'text-gray-900'}
+                      ${isOpen ? 'text-primary-blue' : 'text-gray-900'}
                     `}
                   >
                     {faq.question}
@@ -99,7 +100,7 @@ const FAQAccordion: React.FC<FAQAccordionProps> = ({
                     flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300
                     ${
                       isOpen
-                        ? 'bg-[#0080FF] text-white rotate-180'
+                        ? 'bg-primary-blue text-white rotate-180'
                         : 'bg-gray-200 text-gray-600'
                     }
                   `}
@@ -133,15 +134,15 @@ const FAQAccordion: React.FC<FAQAccordionProps> = ({
         <p className="text-sm text-gray-600">
           Still have questions?{' '}
           <a
-            href="/contact"
-            className="text-[#0080FF] font-bold hover:underline"
+            href={ROUTES.CONTACT}
+            className="text-primary-blue font-bold hover:underline"
           >
             Contact our team
           </a>{' '}
           or call{' '}
           <a
             href="tel:+441234567890"
-            className="text-[#0080FF] font-bold hover:underline"
+            className="text-primary-blue font-bold hover:underline"
           >
             +44 123 456 7890
           </a>

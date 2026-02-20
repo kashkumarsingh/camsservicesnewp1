@@ -22,6 +22,7 @@ import { PackageDTO } from '@/core/application/packages/dto/PackageDTO';
 import { Clock, CheckCircle2, Sparkles, ArrowRight, TrendingUp } from 'lucide-react';
 import { formatCurrency } from '@/utils/currencyFormatter';
 import { formatHours } from '@/utils/formatHours';
+import { ROUTES } from '@/utils/routes';
 
 interface HeroPackageSelectionProps {
   packages: PackageDTO[];
@@ -112,7 +113,7 @@ const HeroPackageSelection: React.FC<HeroPackageSelectionProps> = ({
               {/* Popular Badge */}
               {isPopular && (
                 <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10">
-                  <div className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#1E3A5F] px-3 py-0.5 rounded-full text-[10px] font-bold shadow-lg flex items-center gap-1">
+                  <div className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-navy-blue px-3 py-0.5 rounded-full text-[10px] font-bold shadow-lg flex items-center gap-1">
                     <TrendingUp size={10} />
                     <span>POPULAR</span>
                   </div>
@@ -149,7 +150,7 @@ const HeroPackageSelection: React.FC<HeroPackageSelectionProps> = ({
                     w-full mt-2 py-2 px-3 rounded-lg font-bold text-xs
                     transition-all duration-300 flex items-center justify-center gap-1.5
                     ${isPopular
-                      ? 'bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#1E3A5F] hover:from-[#FFA500] hover:to-[#FF8C00] shadow-md'
+                      ? 'bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-navy-blue hover:from-[#FFA500] hover:to-[#FF8C00] shadow-md'
                       : 'bg-white/20 text-white border border-white/30 hover:bg-white/30 hover:border-white/50'
                     }
                   `}
@@ -176,7 +177,7 @@ const HeroPackageSelection: React.FC<HeroPackageSelectionProps> = ({
       {packages.length > maxDisplay && (
         <div className="mt-4 text-center">
           <button
-            onClick={() => router.push('/packages')}
+            onClick={() => router.push(ROUTES.PACKAGES)}
             className="text-white/80 hover:text-white text-xs font-semibold underline underline-offset-2 transition-colors"
             aria-label="View all packages"
           >

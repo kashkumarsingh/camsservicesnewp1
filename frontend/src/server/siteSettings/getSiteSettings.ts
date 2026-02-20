@@ -4,6 +4,8 @@ import { SiteSetting } from '@/core/domain/siteSettings/entities/SiteSetting';
 import { SiteSettingsDTO } from '@/core/application/siteSettings/dto/SiteSettingsDTO';
 import { SiteSettingsMapper } from '@/core/application/siteSettings/mappers/SiteSettingsMapper';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+import { CACHE_TAGS, REVALIDATION_TIMES } from '@/utils/revalidationConstants';
+import { ROUTES } from '@/utils/routes';
 
 /** Ensures the base URL ends with /api/v1 so requests hit Laravel's API routes. */
 function ensureApiV1Base(base: string): string {
@@ -51,12 +53,12 @@ const resolveApiBase = (): string => {
   // Render.com production
   const renderUrl = env.RENDER_EXTERNAL_URL;
   if (renderUrl && renderUrl.includes('onrender.com')) {
-    return 'https://cams-backend-1q6w.onrender.com/api/v1';
+    return 'https://cams-backend-oj5x.onrender.com/api/v1';
   }
 
   // Default: Docker service name for dev, Render for production
   return nodeEnv === 'production' 
-    ? 'https://cams-backend-1q6w.onrender.com/api/v1'
+    ? 'https://cams-backend-oj5x.onrender.com/api/v1'
     : 'http://backend:80/api/v1'; // Use Docker service name as default
 };
 
@@ -98,23 +100,23 @@ function buildFallbackSiteSettings(): SiteSetting {
     },
     navigation: {
       links: [
-        { href: '/about', label: 'Who We Are' },
-        { href: '/services', label: 'What We Do' },
-        { href: '/packages', label: 'Our Packages' },
-        { href: '/trainers', label: 'Meet Our Team' },
-        { href: '/blog', label: 'Blog' },
-        { href: '/contact', label: "Let's Connect" },
+        { href: ROUTES.ABOUT, label: 'Who We Are' },
+        { href: ROUTES.SERVICES, label: 'What We Do' },
+        { href: ROUTES.PACKAGES, label: 'Our Packages' },
+        { href: ROUTES.TRAINERS, label: 'Meet Our Team' },
+        { href: ROUTES.BLOG, label: 'Blog' },
+        { href: ROUTES.CONTACT, label: "Let's Connect" },
       ],
       logoPath: '/logos/cams-services-logo.webp',
     },
     footer: {
       quickLinks: [
-        { href: '/about', label: 'About Us' },
-        { href: '/services', label: 'Our Services' },
-        { href: '/packages', label: 'Packages' },
-        { href: '/trainers', label: 'Our Team' },
-        { href: '/blog', label: 'Blog & Resources' },
-        { href: '/faq', label: 'FAQs' },
+        { href: ROUTES.ABOUT, label: 'About Us' },
+        { href: ROUTES.SERVICES, label: 'Our Services' },
+        { href: ROUTES.PACKAGES, label: 'Packages' },
+        { href: ROUTES.TRAINERS, label: 'Our Team' },
+        { href: ROUTES.BLOG, label: 'Blog & Resources' },
+        { href: ROUTES.FAQ, label: 'FAQs' },
       ],
     },
     support: {
@@ -126,25 +128,25 @@ function buildFallbackSiteSettings(): SiteSetting {
         icon: 'heart',
         title: 'Personalized Care',
         description: "Tailored to your child's unique needs and goals",
-        gradient: 'from-[#0080FF] to-[#00D4FF]',
+        gradient: 'from-primary-blue to-light-blue-cyan',
       },
       {
         icon: 'trending-up',
         title: 'Proven Results',
         description: '95% of families see improvement within 4 weeks',
-        gradient: 'from-[#0080FF] to-[#00D4FF]',
+        gradient: 'from-primary-blue to-light-blue-cyan',
       },
       {
         icon: 'users',
         title: 'Expert Team',
         description: 'Highly qualified, DBS-checked professionals',
-        gradient: 'from-[#00D4FF] to-[#0080FF]',
+        gradient: 'from-light-blue-cyan to-primary-blue',
       },
       {
         icon: 'clock',
         title: 'Flexible Scheduling',
         description: 'Evenings, weekends, and custom timing available',
-        gradient: 'from-[#00D4FF] to-[#0080FF]',
+        gradient: 'from-light-blue-cyan to-primary-blue',
       },
     ],
     copyright: {
@@ -174,8 +176,8 @@ export async function getSiteSettings(): Promise<SiteSetting> {
           Accept: 'application/json',
         },
         next: {
-          revalidate: 3600,
-          tags: ['site-settings'],
+          revalidate: REVALIDATION_TIMES.SITE_SETTINGS,
+          tags: [CACHE_TAGS.SITE_SETTINGS],
         },
         signal: controller.signal,
       } as RequestInit);
@@ -193,18 +195,17 @@ export async function getSiteSettings(): Promise<SiteSetting> {
       const dto = (payload.data ?? payload) as SiteSettingsDTO;
 
       return SiteSettingsMapper.toDomain(dto);
-    } catch (fetchError: any) {
+    } catch (fetchError: unknown) {
       clearTimeout(timeoutId);
-      
-      // Handle abort (timeout) and other errors gracefully
-      if (fetchError?.name === 'AbortError' || fetchError?.message?.includes('timed out')) {
+      const err = fetchError as { name?: string; message?: string };
+      if (err?.name === 'AbortError' || err?.message?.includes('timed out')) {
         console.warn('[getSiteSettings] Request timed out, using fallback data.');
       } else {
         console.warn('[getSiteSettings] Failed to fetch site settings, using fallback data.', fetchError);
       }
       return buildFallbackSiteSettings();
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Handle any other errors
     console.warn('[getSiteSettings] Unexpected error, using fallback data.', error);
     return buildFallbackSiteSettings();

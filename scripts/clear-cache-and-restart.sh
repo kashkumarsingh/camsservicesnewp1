@@ -131,7 +131,7 @@ elif [ "$ENV" = "render" ]; then
     echo "For Render.com, you need to:"
     echo ""
     echo "1️⃣  Backend (via SSH or Render CLI):"
-    echo "   render ssh cams-backend-1q6w"
+    echo "   render ssh cams-backend-oj5x"
     echo "   php artisan config:clear"
     echo "   php artisan cache:clear"
     echo "   php artisan route:clear"
@@ -144,8 +144,8 @@ elif [ "$ENV" = "render" ]; then
     echo "   • Click 'Manual Deploy' → 'Clear build cache & deploy'"
     echo ""
     echo "Or use Render CLI:"
-    echo "   render services:restart cams-backend-1q6w"
-    echo "   render services:restart cams-frontend-1q6w"
+    echo "   render services:restart cams-backend-oj5x"
+    echo "   render services:restart cams-frontend-oj5x"
     echo ""
 fi
 

@@ -14,7 +14,7 @@ export default function TrainerSkeleton({ count = 1 }: TrainerSkeletonProps) {
   return (
     <>
       {Array.from({ length: count }, (_, i) => (
-        <div key={`trainer-skeleton-${i}`} className="rounded-[30px] border-2 border-gray-200 overflow-hidden bg-white shadow-md">
+        <div key={`trainer-skeleton-${i}`} className="rounded-card border-2 border-gray-200 overflow-hidden bg-white shadow-md">
           {/* Image Skeleton */}
           <div className="relative w-full aspect-[4/3] bg-gray-200 animate-pulse" />
           {/* Content Skeleton */}

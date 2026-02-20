@@ -7,6 +7,7 @@
 import Image from 'next/image';
 import Button from '@/components/ui/Button/Button';
 import { TrainerDTO } from '@/core/application/trainers';
+import { ROUTES } from '@/utils/routes';
 
 interface TrainerProfileProps {
   trainer: TrainerDTO;
@@ -14,7 +15,7 @@ interface TrainerProfileProps {
 
 export default function TrainerProfile({ trainer }: TrainerProfileProps) {
   return (
-    <article className="bg-white rounded-[30px] shadow-md hover:shadow-2xl border-2 border-gray-200 card-hover-lift transition-all duration-300 p-8">
+    <article className="bg-white rounded-card shadow-md hover:shadow-2xl border-2 border-gray-200 card-hover-lift transition-all duration-300 p-8">
       <div className="flex flex-col md:flex-row items-center md:items-center gap-6 mb-6">
         <div className="relative w-24 h-24 rounded-full overflow-hidden ring-4 ring-blue-100">
           <Image 
@@ -26,7 +27,7 @@ export default function TrainerProfile({ trainer }: TrainerProfileProps) {
           />
         </div>
         <div className="text-center md:text-left">
-          <h2 className="text-3xl font-extrabold text-[#1E3A5F] leading-tight">{trainer.name}</h2>
+          <h2 className="text-3xl font-extrabold text-navy-blue leading-tight">{trainer.name}</h2>
           <p className="text-gray-600 mt-1">{trainer.role}</p>
           <div className="mt-2 inline-flex items-center gap-2">
             <span className="text-amber-500 text-lg">{'★'.repeat(Math.round(trainer.rating))}</span>
@@ -59,7 +60,7 @@ export default function TrainerProfile({ trainer }: TrainerProfileProps) {
 
       {trainer.certifications.length > 0 && (
         <section className="mt-8">
-          <h3 className="text-2xl font-bold text-[#1E3A5F] mb-4">Certifications</h3>
+          <h3 className="text-2xl font-bold text-navy-blue mb-4">Certifications</h3>
           <ul className="list-disc list-inside text-gray-700 space-y-2">
             {trainer.certifications.map((certification, index) => (
               <li key={index}>{certification}</li>
@@ -70,10 +71,10 @@ export default function TrainerProfile({ trainer }: TrainerProfileProps) {
 
       {trainer.specialties.length > 0 && (
         <section className="mt-8">
-          <h3 className="text-2xl font-bold text-[#1E3A5F] mb-4">Specialties</h3>
+          <h3 className="text-2xl font-bold text-navy-blue mb-4">Specialties</h3>
           <div className="flex flex-wrap gap-3">
             {trainer.specialties.map((specialty, index) => (
-              <span key={index} className="bg-gradient-to-r from-[#0080FF] to-[#00D4FF] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-md">
+              <span key={index} className="bg-gradient-to-r from-primary-blue to-light-blue-cyan text-white px-4 py-2 rounded-full text-sm font-semibold shadow-md">
                 {specialty}
               </span>
             ))}
@@ -83,7 +84,7 @@ export default function TrainerProfile({ trainer }: TrainerProfileProps) {
 
       {trainer.capabilities.length > 0 && (
         <section className="mt-8">
-          <h3 className="text-2xl font-bold text-[#1E3A5F] mb-4">Capabilities</h3>
+          <h3 className="text-2xl font-bold text-navy-blue mb-4">Capabilities</h3>
           <div className="flex flex-wrap gap-2">
             {trainer.capabilities.map((capability, index) => (
               <span key={index} className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
@@ -95,7 +96,7 @@ export default function TrainerProfile({ trainer }: TrainerProfileProps) {
       )}
 
       <div className="mt-10 text-center">
-        <Button href="/contact" variant="primary" size="lg">
+        <Button href={ROUTES.CONTACT} variant="primary" size="lg">
           Contact {trainer.name}
         </Button>
       </div>

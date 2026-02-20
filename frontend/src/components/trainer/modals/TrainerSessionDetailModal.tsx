@@ -16,6 +16,7 @@ import { trainerScheduleRepository } from '@/infrastructure/http/trainer/Trainer
 import { getCurrentPositionOptional, reverseGeocode, getGoogleMapsSearchUrl } from '@/utils/locationUtils';
 import { trainerActivityRepository } from '@/infrastructure/http/trainer/TrainerActivityRepository';
 import type { ActivityLog, TimeEntry } from '@/core/application/trainer/types';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface TrainerSessionDetailModalProps {
   isOpen: boolean;
@@ -105,22 +106,24 @@ export default function TrainerSessionDetailModal({
           setCurrentActivityLoading(false);
           return;
         }
-        const assigned = (res.activities ?? []) as Array<{ id: number; name: string }>;
-        const available = (res.available_activities ?? []) as Array<{ id: number; name: string }>;
+        type ActivityOption = { id: number; name: string };
+        const assigned = (res.activities ?? []) as ActivityOption[];
+        const available = (res.available_activities ?? []) as ActivityOption[];
         const seen = new Set<number>();
-        const options: Array<{ id: number; name: string }> = [];
-        [...assigned, ...available].forEach((a) => {
+        const options: ActivityOption[] = [];
+        [...assigned, ...available].forEach((a: ActivityOption) => {
           if (!seen.has(a.id)) {
             seen.add(a.id);
             options.push({ id: a.id, name: a.name });
           }
         });
-        options.sort((a, b) => a.name.localeCompare(b.name));
+        options.sort((a: ActivityOption, b: ActivityOption) => a.name.localeCompare(b.name));
         setCurrentActivityOptions(options);
         const rawId = schedule.current_activity_id;
         const currentName = (schedule as { current_activity_name?: string })?.current_activity_name ?? null;
-        if (rawId != null && rawId !== '' && options.some((o) => o.id === Number(rawId))) {
-          setCurrentActivityId(Number(rawId));
+        const rawIdNum = typeof rawId === 'number' ? rawId : parseInt(String(rawId ?? ''), 10);
+        if (rawId != null && !Number.isNaN(rawIdNum) && options.some((o: ActivityOption) => o.id === rawIdNum)) {
+          setCurrentActivityId(rawIdNum);
           setCurrentActivityCustomName('');
         } else if (currentName && currentName.trim()) {
           setCurrentActivityId('custom');
@@ -180,7 +183,7 @@ export default function TrainerSessionDetailModal({
         const res = await trainerTimeEntryRepository.list({
           booking_schedule_id: session.scheduleId,
         });
-        setSessionTimeEntries(res.time_entries ?? []);
+        setSessionTimeEntries(res.timeEntries ?? []);
       } catch {
         setSessionTimeEntries([]);
       } finally {
@@ -489,7 +492,7 @@ export default function TrainerSessionDetailModal({
                     ) : (
                       <>
                         {activityLogs.length === 0 && !activityLogsError && (
-                          <p className="text-[11px] text-gray-500 py-2">No entries yet. Add a log to start the history.</p>
+                          <p className="text-2xs text-gray-500 py-2">{EMPTY_STATE.NO_ENTRIES_YET.message}</p>
                         )}
                         {activityLogsError && <p className="text-xs text-red-600">{activityLogsError}</p>}
                         {activityLogs.length > 0 && (
@@ -675,7 +678,7 @@ export default function TrainerSessionDetailModal({
                                     />
                                   )}
                                   {currentActivityOptions.length === 0 && currentActivityId !== 'custom' && !currentActivityLoading && (
-                                    <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-0.5">No activities in the system yet. Contact admin.</p>
+                                    <p className="text-2xs text-amber-600 dark:text-amber-400 mt-0.5">{EMPTY_STATE.NO_ACTIVITIES_IN_SYSTEM.message}</p>
                                   )}
                                 </div>
                                 <div>
@@ -836,7 +839,7 @@ export default function TrainerSessionDetailModal({
                           const refreshTimeEntries = async () => {
                             try {
                               const res = await trainerTimeEntryRepository.list({ booking_schedule_id: session.scheduleId });
-                              setSessionTimeEntries(res.time_entries ?? []);
+                              setSessionTimeEntries(res.timeEntries ?? []);
                             } catch {
                               setSessionTimeEntries([]);
                             }
@@ -907,7 +910,7 @@ export default function TrainerSessionDetailModal({
                     <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-0.5">
                       {sessionTimeEntries.map((e) => (
                         <li key={e.id}>
-                          {e.type === 'clock_in' ? 'In' : 'Out'} {e.clocked_at ? moment(e.clocked_at).format('h:mm A') : '—'}
+                          {e.type === 'clock_in' ? 'In' : 'Out'} {e.recordedAt ? moment(e.recordedAt).format('h:mm A') : '—'}
                         </li>
                       ))}
                     </ul>

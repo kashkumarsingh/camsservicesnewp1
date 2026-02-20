@@ -34,7 +34,7 @@ const ReviewParentInfo: React.FC<ReviewParentInfoProps> = ({ name, email, phone,
         {phone ? (
           <span className="text-gray-900">{phone}</span>
         ) : (
-          <Link href="/account" target="_blank" className="text-[#0080FF] hover:underline font-semibold text-xs">
+          <Link href="/account" target="_blank" className="text-primary-blue hover:underline font-semibold text-xs">
             Add phone →
           </Link>
         )}
@@ -46,7 +46,7 @@ const ReviewParentInfo: React.FC<ReviewParentInfoProps> = ({ name, email, phone,
           {address ? (
             <div className="text-gray-900">{address}</div>
           ) : (
-            <Link href="/account" target="_blank" className="text-[#0080FF] hover:underline font-semibold text-xs">
+            <Link href="/account" target="_blank" className="text-primary-blue hover:underline font-semibold text-xs">
               Add address →
             </Link>
           )}
@@ -58,7 +58,7 @@ const ReviewParentInfo: React.FC<ReviewParentInfoProps> = ({ name, email, phone,
         {postcode ? (
           <span className="text-gray-900 font-mono">{postcode}</span>
         ) : (
-          <Link href="/account" target="_blank" className="text-[#0080FF] hover:underline font-semibold text-xs">
+          <Link href="/account" target="_blank" className="text-primary-blue hover:underline font-semibold text-xs">
             Add postcode →
           </Link>
         )}
@@ -70,7 +70,7 @@ const ReviewParentInfo: React.FC<ReviewParentInfoProps> = ({ name, email, phone,
             {missingFields.includes('phone') && (
               <li className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
-                <Link href="/account" target="_blank" className="text-[#0080FF] hover:underline">
+                <Link href="/account" target="_blank" className="text-primary-blue hover:underline">
                   Add parent phone
                 </Link>
               </li>
@@ -78,7 +78,7 @@ const ReviewParentInfo: React.FC<ReviewParentInfoProps> = ({ name, email, phone,
             {missingFields.includes('address') && (
               <li className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
-                <Link href="/account" target="_blank" className="text-[#0080FF] hover:underline">
+                <Link href="/account" target="_blank" className="text-primary-blue hover:underline">
                   Add home address
                 </Link>
               </li>
@@ -86,7 +86,7 @@ const ReviewParentInfo: React.FC<ReviewParentInfoProps> = ({ name, email, phone,
             {missingFields.includes('postcode') && (
               <li className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
-                <Link href="/account" target="_blank" className="text-[#0080FF] hover:underline">
+                <Link href="/account" target="_blank" className="text-primary-blue hover:underline">
                   Add postcode
                 </Link>
               </li>

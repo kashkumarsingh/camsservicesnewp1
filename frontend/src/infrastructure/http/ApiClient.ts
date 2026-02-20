@@ -1,7 +1,11 @@
 /**
  * API Client
- * Centralized HTTP client for making API requests to Laravel backend
- * 
+ * Centralized HTTP client for making API requests to Laravel backend.
+ *
+ * Contract: See API_RESPONSE_CONTRACT.md (repo root). Backend returns
+ * { success, data, meta }; this client unwraps so callers receive `data` only
+ * (or { data, meta } for collection/paginated). All response keys are camelCase.
+ *
  * Features:
  * - Automatic authentication token handling
  * - Retry logic for failed requests
@@ -29,17 +33,34 @@ export interface ApiError {
   };
 }
 
+/**
+ * Backend envelope shape (before unwrap). All API responses use this.
+ * Key conversion and unwrap are centralised: backend BaseApiController::keysToCamelCase(),
+ * frontend ApiClient request().
+ */
+export interface ApiEnvelope<T> {
+  success: boolean;
+  data: T;
+  meta?: PaginationMeta & { timestamp?: string; version?: string; requestId?: string; count?: number };
+}
+
+/** Pagination meta from backend (camelCase). See BaseApiController::paginatedResponse(). */
+export interface PaginationMeta {
+  currentPage?: number;
+  lastPage?: number;
+  perPage?: number;
+  total?: number;
+  hasMore?: boolean;
+  prevPage?: number | null;
+  nextPage?: number | null;
+}
+
 export interface ApiResponse<T = unknown> {
   data: T;
   status: number;
   statusText: string;
   headers: Headers;
-  meta?: {
-    current_page?: number;
-    last_page?: number;
-    per_page?: number;
-    total?: number;
-  };
+  meta?: PaginationMeta;
 }
 
 export interface ApiClientConfig {
@@ -120,7 +141,7 @@ export class ApiClient {
           // Render.com production
           const renderUrl = process.env.RENDER_EXTERNAL_URL;
           if (renderUrl && renderUrl.includes('onrender.com')) {
-            return 'https://cams-backend-1q6w.onrender.com/api/v1';
+            return 'https://cams-backend-oj5x.onrender.com/api/v1';
           }
         }
       } else {
@@ -134,7 +155,7 @@ export class ApiClient {
           }
           // Render.com production: Extract backend domain from current URL and use matching backend
           if (origin.includes('onrender.com')) {
-            // Example: cams-frontend-1q6w.onrender.com → cams-backend-1q6w.onrender.com
+            // Example: cams-frontend-xxxx.onrender.com → cams-backend-xxxx.onrender.com
             // This is more robust than hardcoding the backend URL
             const parts = hostname.split('-');
             if (parts.length >= 2 && parts[parts.length - 1].includes('onrender')) {
@@ -143,7 +164,7 @@ export class ApiClient {
               return `https://${backendHost}/api/v1`;
             }
             // Fallback to hardcoded URL if pattern doesn't match
-            return 'https://cams-backend-1q6w.onrender.com/api/v1';
+            return 'https://cams-backend-oj5x.onrender.com/api/v1';
           }
         }
       }
@@ -271,10 +292,12 @@ export class ApiClient {
         fullUrl += (url.includes('?') ? '&' : '?') + search;
       }
 
+      // When caller passes Next.js cache options (next.revalidate/tags), do not set cache so ISR works
+      const hasNextCacheOptions = fetchOptions && 'next' in fetchOptions && (fetchOptions as RequestInit & { next?: unknown }).next != null;
       const config: RequestInit = {
         method,
-        // Avoid browser cache so dashboard and list data stay fresh without hard refresh
-        cache: 'no-store',
+        // Avoid browser cache for client/dashboard; server calls with next.revalidate use Next.js caching
+        ...(hasNextCacheOptions ? {} : { cache: 'no-store' as RequestCache }),
         // Send cookies for cross-origin requests (e.g. localhost:3000 → localhost:9080) so Sanctum can authenticate
         credentials: 'include',
         headers: {

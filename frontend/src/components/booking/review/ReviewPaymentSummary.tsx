@@ -44,7 +44,7 @@ const ReviewPaymentSummary: React.FC<ReviewPaymentSummaryProps> = ({
           <div className="space-y-3">
             <div>
               <div className="text-xs text-gray-600 mb-1">Package Price</div>
-              <div className="text-3xl font-bold text-[#0080FF]">£{packagePrice.toFixed(2)}</div>
+              <div className="text-3xl font-bold text-primary-blue">£{packagePrice.toFixed(2)}</div>
             </div>
             <div className="pt-3 border-t border-green-200">
               <div className="flex items-center justify-between">

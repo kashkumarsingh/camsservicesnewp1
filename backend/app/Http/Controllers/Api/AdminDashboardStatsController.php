@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingSchedule;
@@ -23,6 +24,7 @@ use Illuminate\Support\Carbon;
  */
 class AdminDashboardStatsController extends Controller
 {
+    use BaseApiController;
     /**
      * Handle the incoming request.
      */
@@ -264,49 +266,46 @@ class AdminDashboardStatsController extends Controller
             })
             ->count();
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'bookings' => [
-                    'total' => $totalBookings,
-                    'confirmed' => $confirmedBookings,
-                    'pending' => $pendingBookings,
-                    'cancelled' => $cancelledBookings,
-                    'trendPercent' => $bookingsTrendPercent,
-                ],
-                'users' => [
-                    'total' => $totalUsers,
-                    'parentsApproved' => $approvedParents,
-                    'parentsPendingApproval' => $pendingParentApprovals,
-                    'trendPercent' => $parentsTrendPercent,
-                ],
-                'trainers' => [
-                    'total' => $totalTrainers,
-                    'active' => $activeTrainers,
-                    'trendPercent' => $trainersTrendPercent,
-                ],
-                'alerts' => [
-                    'pendingSafeguardingConcerns' => $pendingSafeguardingConcerns,
-                    'pendingParentApprovals' => $pendingParentApprovals,
-                    'pendingChildChecklists' => $pendingChildChecklists,
-                    'pendingTrainerApplications' => $pendingTrainerApplications,
-                    'sessionsAwaitingTrainer' => $sessionsAwaitingTrainer,
-                    'sessionsAwaitingTrainerList' => $sessionsAwaitingTrainerList,
-                    'pendingPaymentsCount' => $pendingPaymentsCount,
-                    'pendingPaymentsList' => $pendingPaymentsList,
-                    'childrenWithZeroHoursCount' => $childrenWithZeroHoursCount,
-                    'childrenWithZeroHoursList' => $childrenWithZeroHoursList,
-                ],
-                'revenue' => [
-                    'thisMonth' => $revenueThisMonth,
-                    'lastMonth' => $revenueLastMonth,
-                    'trendPercent' => $revenueTrendPercent,
-                ],
-                'upcomingSessionsCount' => $upcomingSessionsCount,
-                'sparklineCounts' => $sparklineCounts,
-                'weekDayCounts' => $weekDayCounts,
-                'todaySessionsCount' => $todaySessionsCount,
+        return $this->successResponse([
+            'bookings' => [
+                'total' => $totalBookings,
+                'confirmed' => $confirmedBookings,
+                'pending' => $pendingBookings,
+                'cancelled' => $cancelledBookings,
+                'trendPercent' => $bookingsTrendPercent,
             ],
+            'users' => [
+                'total' => $totalUsers,
+                'parentsApproved' => $approvedParents,
+                'parentsPendingApproval' => $pendingParentApprovals,
+                'trendPercent' => $parentsTrendPercent,
+            ],
+            'trainers' => [
+                'total' => $totalTrainers,
+                'active' => $activeTrainers,
+                'trendPercent' => $trainersTrendPercent,
+            ],
+            'alerts' => [
+                'pendingSafeguardingConcerns' => $pendingSafeguardingConcerns,
+                'pendingParentApprovals' => $pendingParentApprovals,
+                'pendingChildChecklists' => $pendingChildChecklists,
+                'pendingTrainerApplications' => $pendingTrainerApplications,
+                'sessionsAwaitingTrainer' => $sessionsAwaitingTrainer,
+                'sessionsAwaitingTrainerList' => $sessionsAwaitingTrainerList,
+                'pendingPaymentsCount' => $pendingPaymentsCount,
+                'pendingPaymentsList' => $pendingPaymentsList,
+                'childrenWithZeroHoursCount' => $childrenWithZeroHoursCount,
+                'childrenWithZeroHoursList' => $childrenWithZeroHoursList,
+            ],
+            'revenue' => [
+                'thisMonth' => $revenueThisMonth,
+                'lastMonth' => $revenueLastMonth,
+                'trendPercent' => $revenueTrendPercent,
+            ],
+            'upcomingSessionsCount' => $upcomingSessionsCount,
+            'sparklineCounts' => $sparklineCounts,
+            'weekDayCounts' => $weekDayCounts,
+            'todaySessionsCount' => $todaySessionsCount,
         ]);
     }
 }

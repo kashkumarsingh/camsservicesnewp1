@@ -1,19 +1,38 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import SideCanvas from "@/components/ui/SideCanvas";
 import { BaseModal } from "@/components/ui/Modal";
-import { TableRowsSkeleton } from "@/components/ui/Skeleton";
-import { SKELETON_COUNTS } from "@/utils/skeletonConstants";
+import {
+  DataTable,
+  FilterPanel,
+  FilterSection,
+  FilterSelect,
+  FilterTriggerButton,
+  SearchInput,
+  type Column,
+  type SortDirection,
+} from "@/components/dashboard/universal";
+import {
+  RowActions,
+  ViewAction,
+  EditAction,
+  DeleteAction,
+  ApproveAction,
+  RejectAction,
+} from "@/components/dashboard/universal/RowActions";
+import Button from "@/components/ui/Button";
 import { useAdminChildren, type AdminChildRow } from "@/interfaces/web/hooks/dashboard/useAdminChildren";
 import { useAdminUsers } from "@/interfaces/web/hooks/dashboard/useAdminUsers";
 import { useLiveRefresh } from "@/core/liveRefresh/LiveRefreshContext";
 import { LIVE_REFRESH_ENABLED } from "@/utils/liveRefreshConstants";
 import type { CreateChildDTO, UpdateChildDTO } from "@/core/application/admin/dto/AdminChildDTO";
 import type { AdminChildChecklistDTO } from "@/core/application/admin/dto/AdminChildDTO";
-import { Download, Filter, Eye, Edit, Trash2, CheckCircle, XCircle, Users, ClipboardCheck, Loader2 } from "lucide-react";
+import { Download, CheckCircle, Users, ClipboardCheck, Loader2 } from "lucide-react";
 import { toastManager } from "@/utils/toast";
+import { EMPTY_STATE } from "@/utils/emptyStateConstants";
+import { DEFAULT_TABLE_SORT } from "@/utils/dashboardConstants";
 
 type ChildFormData = Partial<CreateChildDTO> & Partial<UpdateChildDTO>;
 
@@ -121,19 +140,26 @@ export const AdminChildrenPageClient: React.FC = () => {
   const searchParams = useSearchParams();
   // Filter state
   const [search, setSearch] = useState("");
+  const [sortKey, setSortKey] = useState<string | null>(DEFAULT_TABLE_SORT.sortKey);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(DEFAULT_TABLE_SORT.sortDirection);
   const [approvalStatusFilter, setApprovalStatusFilter] = useState<string>("");
   const [ageMinFilter, setAgeMinFilter] = useState<number | undefined>(undefined);
   const [ageMaxFilter, setAgeMaxFilter] = useState<number | undefined>(undefined);
   const [parentIdFilter, setParentIdFilter] = useState<string>("");
   const [hoursFilter, setHoursFilter] = useState<string>("");
-  
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const filterTriggerRef = useRef<HTMLButtonElement>(null);
+  const [stagedApprovalStatus, setStagedApprovalStatus] = useState<string>("");
+  const [stagedAgeMin, setStagedAgeMin] = useState<number | undefined>(undefined);
+  const [stagedAgeMax, setStagedAgeMax] = useState<number | undefined>(undefined);
+  const [stagedHours, setStagedHours] = useState<string>("");
+
   // UI state
   const [selectedChild, setSelectedChild] = useState<AdminChildRow | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isViewingDetails, setIsViewingDetails] = useState(false);
   const [isLinkingParent, setIsLinkingParent] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
   const [formData, setFormData] = useState<ChildFormData>({
     name: "",
     age: 0,
@@ -182,6 +208,163 @@ export const AdminChildrenPageClient: React.FC = () => {
   const parents = useMemo(
     () => users.filter((u) => u.role === "parent"),
     [users]
+  );
+
+  const hasActiveFilters =
+    approvalStatusFilter !== "" ||
+    ageMinFilter != null ||
+    ageMaxFilter != null ||
+    hoursFilter !== "";
+  const activeFilterCount =
+    (approvalStatusFilter ? 1 : 0) +
+    (ageMinFilter != null ? 1 : 0) +
+    (ageMaxFilter != null ? 1 : 0) +
+    (hoursFilter ? 1 : 0);
+  const hasStagedFilters =
+    stagedApprovalStatus !== "" ||
+    stagedAgeMin != null ||
+    stagedAgeMax != null ||
+    stagedHours !== "";
+  const stagedFilterCount =
+    (stagedApprovalStatus ? 1 : 0) +
+    (stagedAgeMin != null ? 1 : 0) +
+    (stagedAgeMax != null ? 1 : 0) +
+    (stagedHours ? 1 : 0);
+
+  useEffect(() => {
+    if (filterPanelOpen) {
+      setStagedApprovalStatus(approvalStatusFilter);
+      setStagedAgeMin(ageMinFilter);
+      setStagedAgeMax(ageMaxFilter);
+      setStagedHours(hoursFilter);
+    }
+  }, [filterPanelOpen, approvalStatusFilter, ageMinFilter, ageMaxFilter, hoursFilter]);
+
+  const handleApplyFilters = useCallback(() => {
+    setApprovalStatusFilter(stagedApprovalStatus);
+    setAgeMinFilter(stagedAgeMin);
+    setAgeMaxFilter(stagedAgeMax);
+    setHoursFilter(stagedHours);
+    setFilterPanelOpen(false);
+  }, [stagedApprovalStatus, stagedAgeMin, stagedAgeMax, stagedHours]);
+
+  const handleResetAllStaged = useCallback(() => {
+    setStagedApprovalStatus("");
+    setStagedAgeMin(undefined);
+    setStagedAgeMax(undefined);
+    setStagedHours("");
+  }, []);
+
+  const handleClearFilters = () => {
+    setApprovalStatusFilter("");
+    setAgeMinFilter(undefined);
+    setAgeMaxFilter(undefined);
+    setHoursFilter("");
+    setSearch("");
+  };
+
+  const sortedChildren = useMemo(() => {
+    const list = [...children];
+    const key = sortKey ?? DEFAULT_TABLE_SORT.sortKey;
+    const dir = sortDirection ?? DEFAULT_TABLE_SORT.sortDirection;
+    list.sort((a, b) => {
+      let aVal: string | number = "";
+      let bVal: string | number = "";
+      if (key === "name") {
+        aVal = a.name ?? "";
+        bVal = b.name ?? "";
+      } else if (key === "parentName") {
+        aVal = a.parentName ?? "";
+        bVal = b.parentName ?? "";
+      } else if (key === "age") {
+        aVal = a.age ?? 0;
+        bVal = b.age ?? 0;
+      } else if (key === "remainingHours") {
+        aVal = a.remainingHours ?? -1;
+        bVal = b.remainingHours ?? -1;
+      } else if (key === "approvalStatus") {
+        aVal = a.approvalStatus ?? "";
+        bVal = b.approvalStatus ?? "";
+      } else {
+        aVal = a.name ?? "";
+        bVal = b.name ?? "";
+      }
+      const cmp =
+        typeof aVal === "number" && typeof bVal === "number"
+          ? aVal - bVal
+          : String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
+      return dir === "asc" ? cmp : -cmp;
+    });
+    return list;
+  }, [children, sortKey, sortDirection]);
+
+  const handleSortChange = (key: string | null, dir: "asc" | "desc" | null) => {
+    setSortKey(key);
+    setSortDirection(dir ?? "asc");
+  };
+
+  const childColumns: Column<AdminChildRow>[] = useMemo(
+    () => [
+      { id: "name", header: "Child Name", sortable: true, accessor: (row) => row.name },
+      {
+        id: "checklistStatus",
+        header: "Checklist Status",
+        sortable: false,
+        accessor: (row) =>
+          row.hasChecklist ? (
+            <span
+              className={`inline-flex rounded-full px-2 py-0.5 text-2xs font-semibold ${
+                row.checklistCompleted
+                  ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+                  : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
+              }`}
+            >
+              {row.checklistCompleted ? "Complete" : "Pending"}
+            </span>
+          ) : (
+            <span className="inline-flex rounded-full px-2 py-0.5 text-2xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">
+              Missing
+            </span>
+          ),
+      },
+      {
+        id: "approvalStatus",
+        header: "Approval Status",
+        sortable: true,
+        accessor: (row) => (
+          <span
+            className={`inline-flex rounded-full px-2 py-0.5 text-2xs font-medium ${getApprovalBadgeClasses(
+              row.approvalStatus
+            )}`}
+          >
+            {row.approvalStatus}
+          </span>
+        ),
+      },
+      { id: "parentName", header: "Parent", sortable: true, accessor: (row) => row.parentName || "—" },
+      { id: "parentEmail", header: "Parent Email", sortable: false, accessor: (row) => row.parentEmail || "—" },
+      { id: "age", header: "Age", sortable: true, align: "right", accessor: (row) => row.age },
+      { id: "gender", header: "Gender", sortable: false, accessor: (row) => row.gender || "—" },
+      {
+        id: "remainingHours",
+        header: "Remaining hours",
+        sortable: true,
+        align: "right",
+        accessor: (row) =>
+          row.remainingHours != null ? (
+            <span
+              className={
+                row.remainingHours === 0 ? "font-semibold text-amber-600 dark:text-amber-400" : ""
+              }
+            >
+              {row.remainingHours}h
+            </span>
+          ) : (
+            "—"
+          ),
+      },
+    ],
+    []
   );
 
   // Initialise filters from query string (e.g. ?parentId=123, ?hours=0 from dashboard "X children with 0 hours")
@@ -490,31 +673,37 @@ export const AdminChildrenPageClient: React.FC = () => {
     <section className="space-y-4">
       {/* Header */}
       <header className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
-              Children Management
-            </h1>
-            <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-              You can only approve children with a <span className="font-semibold">Complete</span> checklist.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              <Filter className="h-3 w-3" />
-              {showFilters ? "Hide" : "Show"} Filters
-            </button>
-            <button
-              onClick={handleExport}
-              className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              <Download className="h-3 w-3" />
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+            Children Management
+          </h1>
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+            You can only approve children with a <span className="font-semibold">Complete</span> checklist.
+          </p>
+        </div>
+      </header>
+
+      {/* Toolbar: Search (left) + Filter + Export + New Child (right) */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search children…"
+          className="min-w-[160px] max-w-[320px] w-full md:w-auto flex-1"
+        />
+        <div className="flex flex-shrink-0 items-center gap-2">
+          <FilterTriggerButton
+              ref={filterTriggerRef}
+              hasActiveFilters={hasActiveFilters}
+              activeFilterCount={activeFilterCount}
+              onClick={() => setFilterPanelOpen(true)}
+            />
+            <Button type="button" size="sm" variant="bordered" onClick={handleExport} icon={<Download className="h-3.5 w-3.5" />}>
               Export CSV
-            </button>
-            <button
+            </Button>
+            <Button
+              size="sm"
+              variant="primary"
               onClick={() => {
                 setFormData({
                   name: "",
@@ -524,90 +713,87 @@ export const AdminChildrenPageClient: React.FC = () => {
                 });
                 setIsCreating(true);
               }}
-              className="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700"
             >
               + New Child
-            </button>
-          </div>
+            </Button>
         </div>
+      </div>
 
-        {/* Filters */}
-        {showFilters && (
-          <div className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-            <div>
-              <label htmlFor="search" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-                Search
-              </label>
-              <input
-                id="search"
-                type="text"
-                placeholder="Child name, parent name/email..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-              />
-            </div>
-            <div>
-              <label htmlFor="approvalStatus" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-                Approval Status
-              </label>
-              <select
-                id="approvalStatus"
-                value={approvalStatusFilter}
-                onChange={(e) => setApprovalStatusFilter(e.target.value)}
-                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-              >
-                <option value="">All</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="ageMin" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-                Min Age
-              </label>
-              <input
-                id="ageMin"
-                type="number"
-                min="0"
-                placeholder="Min"
-                value={ageMinFilter ?? ""}
-                onChange={(e) => setAgeMinFilter(e.target.value ? parseInt(e.target.value, 10) : undefined)}
-                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-              />
-            </div>
-            <div>
-              <label htmlFor="ageMax" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-                Max Age
-              </label>
-              <input
-                id="ageMax"
-                type="number"
-                min="0"
-                placeholder="Max"
-                value={ageMaxFilter ?? ""}
-                onChange={(e) => setAgeMaxFilter(e.target.value ? parseInt(e.target.value, 10) : undefined)}
-                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-              />
-            </div>
-            <div>
-              <label htmlFor="hoursFilter" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-                Remaining hours
-              </label>
-              <select
-                id="hoursFilter"
-                value={hoursFilter}
-                onChange={(e) => setHoursFilter(e.target.value)}
-                className="mt-1 h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-              >
-                <option value="">All</option>
-                <option value="0">0 hours only</option>
-              </select>
-            </div>
-          </div>
-        )}
-      </header>
+      <FilterPanel
+        isOpen={filterPanelOpen}
+        onClose={() => setFilterPanelOpen(false)}
+        onApply={handleApplyFilters}
+        onResetAll={handleResetAllStaged}
+        hasActiveFilters={hasStagedFilters}
+        activeFilterCount={stagedFilterCount}
+        title="Filter"
+        triggerRef={filterTriggerRef}
+      >
+        <FilterSection
+          title="Approval Status"
+          onReset={() => setStagedApprovalStatus("")}
+          isActive={stagedApprovalStatus !== ""}
+        >
+          <FilterSelect
+            label=""
+            value={stagedApprovalStatus}
+            onChange={setStagedApprovalStatus}
+            options={[
+              { label: "All", value: "" },
+              { label: "Pending", value: "pending" },
+              { label: "Approved", value: "approved" },
+              { label: "Rejected", value: "rejected" },
+            ]}
+            size="panel"
+          />
+        </FilterSection>
+        <FilterSection
+          title="Min Age"
+          onReset={() => setStagedAgeMin(undefined)}
+          isActive={stagedAgeMin != null}
+        >
+          <input
+            type="number"
+            min={0}
+            placeholder="Min"
+            value={stagedAgeMin ?? ""}
+            onChange={(e) => setStagedAgeMin(e.target.value ? parseInt(e.target.value, 10) : undefined)}
+            className="h-10 w-full rounded-md border border-slate-200 bg-white px-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+            aria-label="Min age"
+          />
+        </FilterSection>
+        <FilterSection
+          title="Max Age"
+          onReset={() => setStagedAgeMax(undefined)}
+          isActive={stagedAgeMax != null}
+        >
+          <input
+            type="number"
+            min={0}
+            placeholder="Max"
+            value={stagedAgeMax ?? ""}
+            onChange={(e) => setStagedAgeMax(e.target.value ? parseInt(e.target.value, 10) : undefined)}
+            className="h-10 w-full rounded-md border border-slate-200 bg-white px-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+            aria-label="Max age"
+          />
+        </FilterSection>
+        <FilterSection
+          title="Remaining hours"
+          onReset={() => setStagedHours("")}
+          isActive={stagedHours !== ""}
+        >
+          <FilterSelect
+            label=""
+            value={stagedHours}
+            onChange={setStagedHours}
+            options={[
+              { label: "All", value: "" },
+              { label: "0 hours only", value: "0" },
+            ]}
+            size="panel"
+          />
+        </FilterSection>
+      </FilterPanel>
 
       {/* Error display */}
       {error && (
@@ -632,240 +818,114 @@ export const AdminChildrenPageClient: React.FC = () => {
       )}
 
       {/* Children table */}
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="overflow-x-auto text-sm">
-          <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-            <thead className="bg-slate-50 dark:bg-slate-950/40">
-              <tr>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Child Name
-                </th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Checklist Status
-                </th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Approval Status
-                </th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Parent
-                </th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Parent Email
-                </th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Age
-                </th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Gender
-                </th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Remaining hours
-                </th>
-                <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-800 dark:bg-slate-900">
-              {loading ? (
-                <TableRowsSkeleton rowCount={SKELETON_COUNTS.TABLE_ROWS} colCount={9} />
-              ) : children.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={9}
-                    className="px-3 py-8 text-center text-xs text-slate-500 dark:text-slate-400"
-                  >
-                    No children found.
-                  </td>
-                </tr>
-              ) : (
-                children.map((child) => (
-                  <tr key={child.id} className="hover:bg-slate-50 dark:hover:bg-slate-950/40">
-                    <td className="whitespace-nowrap px-3 py-3 text-xs font-medium text-slate-900 dark:text-slate-50">
-                      {child.name}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-xs">
-                      {child.hasChecklist ? (
-                        <span
-                          className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                            child.checklistCompleted
-                              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
-                              : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
-                          }`}
-                        >
-                          {child.checklistCompleted ? "Complete" : "Pending"}
-                        </span>
-                      ) : (
-                        <span className="inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">
-                          Missing
-                        </span>
-                      )}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-xs">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${getApprovalBadgeClasses(
-                          child.approvalStatus
-                        )}`}
-                      >
-                        {child.approvalStatus}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-xs text-slate-700 dark:text-slate-200">
-                      {child.parentName || "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-xs text-slate-700 dark:text-slate-200">
-                      {child.parentEmail || "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-xs text-slate-700 dark:text-slate-200">
-                      {child.age}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-xs text-slate-700 dark:text-slate-200">
-                      {child.gender || "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-xs text-slate-700 dark:text-slate-200">
-                      {child.remainingHours != null ? (
-                        <span className={child.remainingHours === 0 ? "font-semibold text-amber-600 dark:text-amber-400" : ""}>
-                          {child.remainingHours}h
-                        </span>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-right text-xs">
-                      <div className="flex items-center justify-end gap-1">
-                        {/* Complete checklist: open modal to review content, then confirm to mark complete & approve */}
-                        {child.approvalStatus === "pending" &&
-                          child.hasChecklist &&
-                          !child.checklistCompleted && (
-                            <button
-                              onClick={() => handleOpenCompleteChecklist(child)}
-                              className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-[11px] font-medium text-blue-700 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-950/60"
-                              title="Review checklist then mark complete and approve child"
-                            >
-                              <ClipboardCheck className="h-3 w-3" />
-                              Complete checklist
-                            </button>
-                          )}
-                        {/* Approve (only when checklist already completed) */}
-                        {child.approvalStatus === "pending" && (
-                          <button
-                            onClick={() => handleApprove(child)}
-                            disabled={!child.checklistCompleted}
-                            className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700 hover:bg-emerald-100 disabled:opacity-50 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-950/60"
-                            title={
-                              child.checklistCompleted
-                                ? "Approve"
-                                : "Checklist must be completed before approval"
-                            }
-                          >
-                            <CheckCircle className="h-3 w-3" />
-                            Approve
-                          </button>
-                        )}
-                        {child.approvalStatus === "approved" && (
-                          <button
-                            type="button"
-                            disabled
-                            className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-400 opacity-60 cursor-not-allowed dark:bg-emerald-950/40"
-                            title="Already approved"
-                          >
-                            <CheckCircle className="h-3 w-3" />
-                            Approved
-                          </button>
-                        )}
-                        {child.approvalStatus === "rejected" && (
-                          <button
-                            onClick={() => handleApprove(child)}
-                            disabled={!child.checklistCompleted}
-                            className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700 hover:bg-emerald-100 disabled:opacity-50 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-950/60"
-                            title={
-                              child.checklistCompleted
-                                ? "Approve"
-                                : "Checklist must be completed before approval"
-                            }
-                          >
-                            <CheckCircle className="h-3 w-3" />
-                            Approve
-                          </button>
-                        )}
-
-                        {/* Reject button - always second where applicable */}
-                        {(child.approvalStatus === "pending" ||
-                          child.approvalStatus === "approved") && (
-                          <button
-                            onClick={() => handleReject(child)}
-                            className="inline-flex items-center gap-1 rounded-md bg-rose-50 px-2 py-1 text-[11px] font-medium text-rose-700 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-950/60"
-                            title="Reject"
-                          >
-                            <XCircle className="h-3 w-3" />
-                            Reject
-                          </button>
-                        )}
-
-                        {/* Notify Parent - always after Approve + Reject */}
-                        {(child.hasChecklist === false ||
-                          child.checklistCompleted === false) &&
-                          child.parentEmail && (
-                            <button
-                              onClick={() => handleNotifyParent(child)}
-                              className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-1 text-[11px] font-medium text-amber-700 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-950/60"
-                              title="Email parent a checklist reminder"
-                            >
-                              Notify Parent
-                            </button>
-                          )}
-                        <button
-                          onClick={() => handleViewDetails(child)}
-                          className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                          title="View Details"
-                        >
-                          <Eye className="h-3 w-3" />
-                        </button>
-                        <button
-                          onClick={() => handleEdit(child)}
-                          className="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2 py-1 text-[11px] font-medium text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:text-indigo-300 dark:hover:bg-indigo-950/60"
-                          title="Edit"
-                        >
-                          <Edit className="h-3 w-3" />
-                        </button>
-                        <button
-                          onClick={() => handleOpenLinkParent(child)}
-                          className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-[11px] font-medium text-blue-700 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-950/60"
-                          title="Link Parent"
-                        >
-                          <Users className="h-3 w-3" />
-                        </button>
-                        {child.parentId && (
-                          <button
-                            onClick={() =>
-                              router.push(
-                                `/dashboard/admin/parents?email=${encodeURIComponent(
-                                  child.parentEmail || "",
-                                )}`,
-                              )
-                            }
-                            className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                            title="View Parent"
-                          >
-                            View Parent
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleDelete(child)}
-                          className="inline-flex items-center gap-1 rounded-md bg-rose-50 px-2 py-1 text-[11px] font-medium text-rose-700 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-950/60"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DataTable<AdminChildRow>
+        columns={childColumns}
+        data={sortedChildren}
+        isLoading={loading}
+        error={error}
+        onRetry={() => void refetchChildren(true)}
+        emptyTitle={EMPTY_STATE.NO_CHILDREN_FOUND.title}
+        emptyMessage={EMPTY_STATE.NO_CHILDREN_FOUND.message}
+        searchable
+        searchPlaceholder="Search children…"
+        searchQuery={search}
+        onSearchQueryChange={setSearch}
+        sortable
+        sortKey={sortKey}
+        sortDirection={sortDirection}
+        onSortChange={handleSortChange}
+        renderRowActions={(child) => (
+          <RowActions>
+            {child.approvalStatus === "pending" && child.hasChecklist && !child.checklistCompleted && (
+              <Button
+                type="button"
+                size="sm"
+                variant="bordered"
+                onClick={(e) => {
+                  e?.stopPropagation();
+                  handleOpenCompleteChecklist(child);
+                }}
+                className="min-w-0 border-blue-300 bg-blue-50 p-1.5 text-blue-700 dark:border-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
+                aria-label="Complete checklist"
+                title="Complete checklist"
+              >
+                <ClipboardCheck className="h-3 w-3" />
+              </Button>
+            )}
+            {child.approvalStatus === "pending" && (
+              <ApproveAction
+                onClick={() => handleApprove(child)}
+                disabled={!child.checklistCompleted}
+                aria-label="Approve"
+              />
+            )}
+            {child.approvalStatus === "rejected" && (
+              <ApproveAction
+                onClick={() => handleApprove(child)}
+                disabled={!child.checklistCompleted}
+                aria-label="Approve"
+                title="Re-approve"
+              />
+            )}
+            {(child.approvalStatus === "pending" || child.approvalStatus === "approved") && (
+              <RejectAction onClick={() => handleReject(child)} aria-label="Reject" />
+            )}
+            {(child.hasChecklist === false || child.checklistCompleted === false) && child.parentEmail && (
+              <Button
+                type="button"
+                size="sm"
+                variant="bordered"
+                onClick={(e) => {
+                  e?.stopPropagation();
+                  handleNotifyParent(child);
+                }}
+                aria-label="Notify parent"
+                title="Notify parent"
+                className="min-w-0 p-1.5 text-2xs"
+              >
+                Notify
+              </Button>
+            )}
+            <ViewAction onClick={() => handleViewDetails(child)} aria-label="View details" title="View details" />
+            <EditAction onClick={() => handleEdit(child)} aria-label="Edit" />
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={(e) => {
+                e?.stopPropagation();
+                handleOpenLinkParent(child);
+              }}
+              aria-label="Link parent"
+              title="Link parent"
+              className="min-w-0 p-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
+              <Users className="h-3 w-3" />
+            </Button>
+            {child.parentId && (
+              <Button
+                type="button"
+                size="sm"
+                variant="bordered"
+                onClick={(e) => {
+                  e?.stopPropagation();
+                  router.push(
+                    `/dashboard/admin/parents?email=${encodeURIComponent(child.parentEmail ?? "")}`
+                  );
+                }}
+                aria-label="View parent"
+                title="View parent"
+                className="min-w-0 p-1.5 text-2xs"
+              >
+                View Parent
+              </Button>
+            )}
+            <DeleteAction onClick={() => handleDelete(child)} aria-label="Delete" />
+          </RowActions>
+        )}
+        onRowClick={(child) => handleViewDetails(child)}
+        responsive
+      />
 
       {/* Create/Edit SideCanvas */}
       <SideCanvas
@@ -1151,7 +1211,7 @@ export const AdminChildrenPageClient: React.FC = () => {
                   <dt className="text-slate-600 dark:text-slate-400">Status:</dt>
                   <dd>
                     <span
-                      className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${getApprovalBadgeClasses(
+                      className={`inline-flex rounded-full px-2 py-0.5 text-2xs font-medium ${getApprovalBadgeClasses(
                         selectedChild.approvalStatus
                       )}`}
                     >
@@ -1276,12 +1336,12 @@ export const AdminChildrenPageClient: React.FC = () => {
                         <span className="text-xs font-medium text-slate-900 dark:text-slate-50">
                           {booking.reference}
                         </span>
-                        <span className="text-[11px] text-slate-600 dark:text-slate-400">
+                        <span className="text-2xs text-slate-600 dark:text-slate-400">
                           {booking.status}
                         </span>
                       </div>
                       {booking.packageName && (
-                        <div className="mt-1 text-[11px] text-slate-600 dark:text-slate-400">
+                        <div className="mt-1 text-2xs text-slate-600 dark:text-slate-400">
                           {booking.packageName}
                         </div>
                       )}

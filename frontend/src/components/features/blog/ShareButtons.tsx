@@ -27,8 +27,8 @@ export default function ShareButtons({ title, className = '', showLabel = true }
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       {showLabel && (
-        <span className="flex items-center gap-2 text-sm font-semibold text-[#1E3A5F]">
-          <Share2 size={18} className="text-[#0080FF]" />
+        <span className="flex items-center gap-2 text-sm font-semibold text-navy-blue">
+          <Share2 size={18} className="text-primary-blue" />
           Share:
         </span>
       )}
@@ -36,7 +36,7 @@ export default function ShareButtons({ title, className = '', showLabel = true }
         href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-10 h-10 bg-[#0080FF]/10 hover:bg-[#0080FF] text-[#0080FF] hover:text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
+        className="w-10 h-10 bg-primary-blue/10 hover:bg-primary-blue text-primary-blue hover:text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
         aria-label="Share on Facebook"
       >
         <Facebook size={20} />
@@ -45,7 +45,7 @@ export default function ShareButtons({ title, className = '', showLabel = true }
         href={`https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-10 h-10 bg-[#0080FF]/10 hover:bg-[#0080FF] text-[#0080FF] hover:text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
+        className="w-10 h-10 bg-primary-blue/10 hover:bg-primary-blue text-primary-blue hover:text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
         aria-label="Share on Twitter"
       >
         <Twitter size={20} />
@@ -54,14 +54,14 @@ export default function ShareButtons({ title, className = '', showLabel = true }
         href={`https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-10 h-10 bg-[#0080FF]/10 hover:bg-[#0080FF] text-[#0080FF] hover:text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
+        className="w-10 h-10 bg-primary-blue/10 hover:bg-primary-blue text-primary-blue hover:text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
         aria-label="Share on LinkedIn"
       >
         <Linkedin size={20} />
       </a>
       <a
         href={`mailto:?subject=${shareTitle}&body=${shareUrl}`}
-        className="w-10 h-10 bg-[#0080FF]/10 hover:bg-[#0080FF] text-[#0080FF] hover:text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
+        className="w-10 h-10 bg-primary-blue/10 hover:bg-primary-blue text-primary-blue hover:text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
         aria-label="Share via Email"
       >
         <Mail size={20} />

@@ -2,13 +2,15 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\Api\ErrorCodes;
+use App\Support\ApiResponseHelper;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Ensure User Is Admin Middleware
- * 
+ *
  * Clean Architecture: Interface Layer
  * Purpose: Ensures user has admin or super_admin role
  * Location: backend/app/Http/Middleware/EnsureUserIsAdmin.php
@@ -25,27 +27,27 @@ class EnsureUserIsAdmin
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
-        
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Authentication required',
-                'errors' => [
-                    'authentication' => ['You must be logged in to access this resource.']
-                ]
-            ], 401);
+
+        if (! $user) {
+            return ApiResponseHelper::errorResponse(
+                'Authentication required',
+                401,
+                ErrorCodes::UNAUTHORIZED,
+                ['authentication' => ['You must be logged in to access this resource.']],
+                $request
+            );
         }
-        
-        if (!in_array($user->role, ['admin', 'super_admin'])) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized. Admin access required.',
-                'errors' => [
-                    'authorization' => ['You do not have permission to access this resource.']
-                ]
-            ], 403);
+
+        if (! in_array($user->role, ['admin', 'super_admin'])) {
+            return ApiResponseHelper::errorResponse(
+                'Unauthorized. Admin access required.',
+                403,
+                ErrorCodes::FORBIDDEN,
+                ['authorization' => ['You do not have permission to access this resource.']],
+                $request
+            );
         }
-        
+
         return $next($request);
     }
 }

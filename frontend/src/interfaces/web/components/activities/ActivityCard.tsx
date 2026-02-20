@@ -19,7 +19,7 @@ interface ActivityCardProps {
 export default function ActivityCard({ activity }: ActivityCardProps) {
   return (
     <Link href={`/activities/${activity.slug}`} className="group block">
-      <article className="bg-white rounded-[30px] border-2 border-gray-200 shadow-md hover:shadow-2xl transition-all duration-300 card-hover-lift md:hover:rotate-3 overflow-hidden h-full flex flex-col">
+      <article className="bg-white rounded-card border-2 border-gray-200 shadow-md hover:shadow-2xl transition-all duration-300 card-hover-lift md:hover:rotate-3 overflow-hidden h-full flex flex-col">
         {/* Image */}
         <div className="relative w-full h-48 overflow-hidden">
           <Image
@@ -29,7 +29,7 @@ export default function ActivityCard({ activity }: ActivityCardProps) {
             className="object-cover group-hover:scale-110 transition-transform duration-500"
           />
           {activity.category && (
-            <div className="absolute top-4 left-4 bg-[#0080FF]/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold">
+            <div className="absolute top-4 left-4 bg-primary-blue/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold">
               {activity.category}
             </div>
           )}
@@ -38,7 +38,7 @@ export default function ActivityCard({ activity }: ActivityCardProps) {
         {/* Content */}
         <div className="flex-1 p-6 flex flex-col">
           {/* Title */}
-          <h3 className="text-xl font-heading font-bold text-[#1E3A5F] mb-3 group-hover:text-[#0080FF] transition-colors duration-300">
+          <h3 className="text-xl font-heading font-bold text-navy-blue mb-3 group-hover:text-primary-blue transition-colors duration-300">
             {activity.name}
           </h3>
 

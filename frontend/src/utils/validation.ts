@@ -32,10 +32,10 @@ const UK_PHONE_REGEX = /^(?:\+44|0)(?:\d{10,11})$/;
 const NAME_REGEX = /^[a-zA-Z\s'-]{2,100}$/;
 
 /**
- * Full name validation (first + last)
- * Requires at least 2 words (first name and last name)
+ * Full name validation (first + last); exported for reuse.
+ * Requires at least 2 words (first name and last name).
  */
-const FULL_NAME_REGEX = /^[a-zA-Z\s'-]{2,}\s+[a-zA-Z\s'-]{2,}$/;
+export const FULL_NAME_REGEX = /^[a-zA-Z\s'-]{2,}\s+[a-zA-Z\s'-]{2,}$/;
 
 /**
  * Validate email address

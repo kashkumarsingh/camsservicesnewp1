@@ -81,7 +81,7 @@ const HorizontalCalendar: React.FC<HorizontalCalendarProps> = ({
       const scrollPosition = selectedIndex * dayWidth - container.clientWidth / 2 + dayWidth / 2;
       container.scrollTo({ left: Math.max(0, scrollPosition), behavior: 'smooth' });
     }
-  }, [selectedDate, days]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedDate, days]);  
 
   const scrollLeft = () => {
     scrollContainerRef.current?.scrollBy({ left: -200, behavior: 'smooth' });
@@ -151,12 +151,12 @@ const HorizontalCalendar: React.FC<HorizontalCalendarProps> = ({
                   day.isDisabled
                     ? 'bg-gray-100 border-2 border-gray-300 text-gray-400 opacity-60 cursor-not-allowed'
                     : day.isSelected
-                    ? 'bg-gradient-to-br from-[#0080FF] to-[#00D4FF] text-white shadow-lg scale-105 cursor-pointer'
+                    ? 'bg-gradient-to-br from-primary-blue to-light-blue-cyan text-white shadow-lg scale-105 cursor-pointer'
                     : day.isToday && !day.isBooked
-                    ? 'bg-blue-50 border-2 border-[#0080FF] text-[#0080FF] cursor-pointer'
+                    ? 'bg-blue-50 border-2 border-primary-blue text-primary-blue cursor-pointer'
                     : day.isBooked
                     ? 'bg-gray-100 border-2 border-gray-300 text-gray-400 opacity-60 cursor-not-allowed'
-                    : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-[#0080FF] hover:bg-blue-50 cursor-pointer'
+                    : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-primary-blue hover:bg-blue-50 cursor-pointer'
                 }
               `}
               title={
@@ -196,7 +196,7 @@ const HorizontalCalendar: React.FC<HorizontalCalendarProps> = ({
 
               {/* Today indicator */}
               {day.isToday && !day.isSelected && (
-                <div className="absolute bottom-1 w-1.5 h-1.5 bg-[#0080FF] rounded-full" />
+                <div className="absolute bottom-1 w-1.5 h-1.5 bg-primary-blue rounded-full" />
               )}
               {markedDates.includes(day.dateString) && (
                 <div className={`absolute -bottom-1.5 w-2 h-2 rounded-full ${day.isSelected ? 'bg-white' : 'bg-green-500'}`} />

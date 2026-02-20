@@ -8,6 +8,8 @@ import { TrainerSlug } from '@/core/domain/trainers/valueObjects/TrainerSlug';
 import { TrainerCapability } from '@/core/domain/trainers/valueObjects/TrainerCapability';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+import { extractList } from '@/infrastructure/http/responseHelpers';
+import { CACHE_TAGS, REVALIDATION_TIMES } from '@/utils/revalidationConstants';
 
 /**
  * Remote API Response Format
@@ -176,8 +178,12 @@ export class ApiTrainerRepository implements ITrainerRepository {
   }
 
   async findBySlug(slug: string): Promise<Trainer | null> {
+    const isServerSide = typeof window === 'undefined';
+    const requestOptions: RequestInit | undefined = isServerSide
+      ? { next: { revalidate: REVALIDATION_TIMES.CONTENT_PAGE, tags: [CACHE_TAGS.TRAINERS, CACHE_TAGS.TRAINER_SLUG(slug)] } }
+      : undefined;
     try {
-      const response = await apiClient.get<RemoteTrainerResponse>(API_ENDPOINTS.TRAINER_BY_SLUG(slug));
+      const response = await apiClient.get<RemoteTrainerResponse>(API_ENDPOINTS.TRAINER_BY_SLUG(slug), requestOptions);
 
       if (Array.isArray(response.data)) {
         return response.data.length > 0 ? this.toDomain(response.data[0]) : null;
@@ -195,9 +201,13 @@ export class ApiTrainerRepository implements ITrainerRepository {
   }
 
   async findAll(): Promise<Trainer[]> {
+    const isServerSide = typeof window === 'undefined';
+    const requestOptions: RequestInit | undefined = isServerSide
+      ? { next: { revalidate: REVALIDATION_TIMES.CONTENT_PAGE, tags: [CACHE_TAGS.TRAINERS] } }
+      : undefined;
     try {
-      const response = await apiClient.get<RemoteTrainerResponse[]>(API_ENDPOINTS.TRAINERS);
-      return (Array.isArray(response.data) ? response.data : []).map(item => this.toDomain(item));
+      const response = await apiClient.get<RemoteTrainerResponse[] | { data: RemoteTrainerResponse[]; meta?: unknown }>(API_ENDPOINTS.TRAINERS, requestOptions);
+      return extractList(response).map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to fetch trainers: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -205,8 +215,8 @@ export class ApiTrainerRepository implements ITrainerRepository {
 
   async findAvailable(): Promise<Trainer[]> {
     try {
-      const response = await apiClient.get<RemoteTrainerResponse[]>(`${API_ENDPOINTS.TRAINERS}?available=true`);
-      return (Array.isArray(response.data) ? response.data : []).map(item => this.toDomain(item));
+      const response = await apiClient.get<RemoteTrainerResponse[] | { data: RemoteTrainerResponse[]; meta?: unknown }>(`${API_ENDPOINTS.TRAINERS}?available=true`);
+      return extractList(response).map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to fetch available trainers: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -218,8 +228,8 @@ export class ApiTrainerRepository implements ITrainerRepository {
     }
 
     try {
-      const response = await apiClient.get<RemoteTrainerResponse[]>(`${API_ENDPOINTS.TRAINERS}?capability=${encodeURIComponent(capability)}`);
-      return (Array.isArray(response.data) ? response.data : []).map(item => this.toDomain(item));
+      const response = await apiClient.get<RemoteTrainerResponse[] | { data: RemoteTrainerResponse[]; meta?: unknown }>(`${API_ENDPOINTS.TRAINERS}?capability=${encodeURIComponent(capability)}`);
+      return extractList(response).map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to find trainers by capability: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -227,8 +237,8 @@ export class ApiTrainerRepository implements ITrainerRepository {
 
   async findBySpecialty(specialty: string): Promise<Trainer[]> {
     try {
-      const response = await apiClient.get<RemoteTrainerResponse[]>(`${API_ENDPOINTS.TRAINERS}?specialty=${encodeURIComponent(specialty)}`);
-      return (Array.isArray(response.data) ? response.data : []).map(item => this.toDomain(item));
+      const response = await apiClient.get<RemoteTrainerResponse[] | { data: RemoteTrainerResponse[]; meta?: unknown }>(`${API_ENDPOINTS.TRAINERS}?specialty=${encodeURIComponent(specialty)}`);
+      return extractList(response).map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to find trainers by specialty: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -236,8 +246,8 @@ export class ApiTrainerRepository implements ITrainerRepository {
 
   async search(query: string): Promise<Trainer[]> {
     try {
-      const response = await apiClient.get<RemoteTrainerResponse[]>(`${API_ENDPOINTS.TRAINERS}?search=${encodeURIComponent(query)}`);
-      return (Array.isArray(response.data) ? response.data : []).map(item => this.toDomain(item));
+      const response = await apiClient.get<RemoteTrainerResponse[] | { data: RemoteTrainerResponse[]; meta?: unknown }>(`${API_ENDPOINTS.TRAINERS}?search=${encodeURIComponent(query)}`);
+      return extractList(response).map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to search trainers: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }

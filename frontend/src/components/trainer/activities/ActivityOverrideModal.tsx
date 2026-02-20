@@ -113,7 +113,7 @@ export default function ActivityOverrideModal({
               onChange={(e) => setActivityCount(parseInt(String(e.target.value), 10) || 1)}
               required
               disabled={saving}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-[#0080FF] disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-primary-blue disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -131,7 +131,7 @@ export default function ActivityOverrideModal({
               required
               disabled={saving}
               placeholder="e.g., Parent requested 6-hour session to count as 1 activity instead of 2"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0080FF] focus:border-[#0080FF] disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-primary-blue disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
             <p className="text-xs text-gray-500 mt-1">
               Minimum 10 characters. Explain why you're overriding the calculated activity count.

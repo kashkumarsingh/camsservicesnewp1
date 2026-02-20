@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Actions\TrainerAvailability\GetTrainerAvailabilityDatesAction;
 use App\Actions\TrainerAvailability\SetTrainerAvailabilityDatesAction;
+use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use App\Models\Trainer;
 use Carbon\Carbon;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Validator;
  */
 class TrainerAvailabilityDatesController extends Controller
 {
+    use BaseApiController;
     public function __construct(
         private readonly GetTrainerAvailabilityDatesAction $getDates,
         private readonly SetTrainerAvailabilityDatesAction $setDates
@@ -44,11 +46,7 @@ class TrainerAvailabilityDatesController extends Controller
             'date_to' => ['required', 'date', 'after_or_equal:date_from'],
         ]);
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         $result = $this->getDates->execute(
@@ -57,19 +55,13 @@ class TrainerAvailabilityDatesController extends Controller
             Carbon::parse($request->date_to)
         );
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'dates' => $result['dates'],
-                'unavailable_dates' => $result['unavailable_dates'],
-            ],
-            'meta' => [
-                'date_from' => $result['date_from'],
-                'date_to' => $result['date_to'],
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse([
+            'dates' => $result['dates'],
+            'unavailable_dates' => $result['unavailable_dates'],
+        ], null, [
+            'date_from' => $result['date_from'],
+            'date_to' => $result['date_to'],
+        ]);
     }
 
     /**
@@ -94,11 +86,7 @@ class TrainerAvailabilityDatesController extends Controller
             'unavailable_dates.*' => ['date', 'date_format:Y-m-d'],
         ]);
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         try {
@@ -110,29 +98,15 @@ class TrainerAvailabilityDatesController extends Controller
                 $request->input('unavailable_dates', [])
             );
         } catch (\InvalidArgumentException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
+            return $this->errorResponse($e->getMessage(), null, [], 422);
         } catch (\RuntimeException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 503);
+            return $this->errorResponse($e->getMessage(), null, [], 503);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Availability updated.',
-            'data' => [
-                'dates' => $result['dates'],
-                'unavailable_dates' => $result['unavailable_dates'],
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse([
+            'dates' => $result['dates'],
+            'unavailable_dates' => $result['unavailable_dates'],
+        ], 'Availability updated.');
     }
 
     /**
@@ -142,15 +116,12 @@ class TrainerAvailabilityDatesController extends Controller
     {
         $user = Auth::user();
         if (! $user) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
+            return $this->unauthorizedResponse();
         }
 
         $trainer = Trainer::where('user_id', $user->id)->first();
         if (! $trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+            return $this->notFoundResponse('Trainer profile');
         }
 
         return $trainer;

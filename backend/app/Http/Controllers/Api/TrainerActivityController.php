@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
+use App\Http\Controllers\Api\ErrorCodes;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\BookingSchedule;
@@ -21,6 +23,7 @@ use Illuminate\Support\Facades\Validator;
  */
 class TrainerActivityController extends Controller
 {
+    use BaseApiController;
     /**
      * Get session activities with calculation info
      * 
@@ -34,11 +37,8 @@ class TrainerActivityController extends Controller
         // Get trainer model linked to this user
         $trainerModel = \App\Models\Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         // Verify schedule belongs to trainer
@@ -53,11 +53,13 @@ class TrainerActivityController extends Controller
             ])
             ->first();
 
-        if (!$schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or not assigned to this trainer.',
-            ], 404);
+        if (! $schedule) {
+            return $this->errorResponse(
+                'Schedule not found or not assigned to this trainer.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
         // Get assigned activities with pivot data
@@ -75,67 +77,60 @@ class TrainerActivityController extends Controller
         // Calculate activity count
         $calculatedCount = $schedule->calculateActivityCount();
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'schedule' => [
-                    'id' => $schedule->id,
-                    'date' => $schedule->date->format('Y-m-d'),
-                    'start_time' => $schedule->start_time,
-                    'end_time' => $schedule->end_time,
-                    'duration_hours' => (float) $schedule->duration_hours,
-                    'activity_count' => $schedule->activity_count,
-                    'is_activity_override' => $schedule->is_activity_override,
-                    'activity_override_reason' => $schedule->activity_override_reason,
-                    'activity_status' => $schedule->activity_status,
-                    'activity_confirmed_at' => $schedule->activity_confirmed_at?->toIso8601String(),
-                    'calculated_activity_count' => $calculatedCount,
-                    'current_activity_id' => $schedule->current_activity_id,
-                    'current_activity_name' => $schedule->currentActivity?->name,
-                    'location' => $schedule->location,
-                    'current_activity_updates' => $schedule->currentActivityUpdates->map(fn ($u) => [
-                        'id' => $u->id,
-                        'activity_name' => $u->activity_name,
-                        'location' => $u->location,
-                        'at' => $u->created_at->format('g:i A'),
-                    ])->values()->all(),
-                    'package' => [
-                        'id' => $schedule->booking->package->id,
-                        'name' => $schedule->booking->package->name,
-                        'hours_per_activity' => (float) ($schedule->booking->package->hours_per_activity ?? 3.0),
-                        'allow_activity_override' => $schedule->booking->package->allow_activity_override ?? true,
-                    ],
+        return $this->successResponse([
+            'schedule' => [
+                'id' => $schedule->id,
+                'date' => $schedule->date->format('Y-m-d'),
+                'start_time' => $schedule->start_time,
+                'end_time' => $schedule->end_time,
+                'duration_hours' => (float) $schedule->duration_hours,
+                'activity_count' => $schedule->activity_count,
+                'is_activity_override' => $schedule->is_activity_override,
+                'activity_override_reason' => $schedule->activity_override_reason,
+                'activity_status' => $schedule->activity_status,
+                'activity_confirmed_at' => $schedule->activity_confirmed_at?->toIso8601String(),
+                'calculated_activity_count' => $calculatedCount,
+                'current_activity_id' => $schedule->current_activity_id,
+                'current_activity_name' => $schedule->currentActivity?->name,
+                'location' => $schedule->location,
+                'current_activity_updates' => $schedule->currentActivityUpdates->map(fn ($u) => [
+                    'id' => $u->id,
+                    'activity_name' => $u->activity_name,
+                    'location' => $u->location,
+                    'at' => $u->created_at->format('g:i A'),
+                ])->values()->all(),
+                'package' => [
+                    'id' => $schedule->booking->package->id,
+                    'name' => $schedule->booking->package->name,
+                    'hours_per_activity' => (float) ($schedule->booking->package->hours_per_activity ?? 3.0),
+                    'allow_activity_override' => $schedule->booking->package->allow_activity_override ?? true,
                 ],
-                'activities' => $assignedActivities->map(function ($activity) {
-                    return [
-                        'id' => $activity->id,
-                        'name' => $activity->name,
-                        'slug' => $activity->slug,
-                        'description' => $activity->description,
-                        'duration_hours' => (float) $activity->pivot->duration_hours,
-                        'order' => $activity->pivot->order,
-                        'notes' => $activity->pivot->notes,
-                        'assignment_status' => $activity->pivot->assignment_status,
-                        'assigned_at' => $activity->pivot->assigned_at?->toIso8601String(),
-                        'confirmed_at' => $activity->pivot->confirmed_at?->toIso8601String(),
-                    ];
-                }),
-                'available_activities' => $availableActivities->map(function ($activity) {
-                    return [
-                        'id' => $activity->id,
-                        'name' => $activity->name,
-                        'slug' => $activity->slug,
-                        'description' => $activity->description,
-                        'image_url' => null,
-                        'difficulty_level' => null,
-                    ];
-                }),
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            'activities' => $assignedActivities->map(function ($activity) {
+                return [
+                    'id' => $activity->id,
+                    'name' => $activity->name,
+                    'slug' => $activity->slug,
+                    'description' => $activity->description,
+                    'duration_hours' => (float) $activity->pivot->duration_hours,
+                    'order' => $activity->pivot->order,
+                    'notes' => $activity->pivot->notes,
+                    'assignment_status' => $activity->pivot->assignment_status,
+                    'assigned_at' => $activity->pivot->assigned_at?->toIso8601String(),
+                    'confirmed_at' => $activity->pivot->confirmed_at?->toIso8601String(),
+                ];
+            }),
+            'available_activities' => $availableActivities->map(function ($activity) {
+                return [
+                    'id' => $activity->id,
+                    'name' => $activity->name,
+                    'slug' => $activity->slug,
+                    'description' => $activity->description,
+                    'image_url' => null,
+                    'difficulty_level' => null,
+                ];
+            }),
+        ]);
     }
 
     /**
@@ -151,11 +146,8 @@ class TrainerActivityController extends Controller
         // Get trainer model linked to this user
         $trainerModel = \App\Models\Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         // Verify schedule belongs to trainer
@@ -164,11 +156,13 @@ class TrainerActivityController extends Controller
             ->with('booking.package')
             ->first();
 
-        if (!$schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or not assigned to this trainer.',
-            ], 404);
+        if (! $schedule) {
+            return $this->errorResponse(
+                'Schedule not found or not assigned to this trainer.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
         $validator = Validator::make($request->all(), [
@@ -179,11 +173,7 @@ class TrainerActivityController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         // Check if activity already assigned
@@ -192,10 +182,12 @@ class TrainerActivityController extends Controller
             ->first();
 
         if ($existing) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Activity already assigned to this session.',
-            ], 422);
+            return $this->errorResponse(
+                'Activity already assigned to this session.',
+                ErrorCodes::VALIDATION_ERROR,
+                [],
+                422
+            );
         }
 
         // Get activity
@@ -219,10 +211,8 @@ class TrainerActivityController extends Controller
             $schedule->save();
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Activity assigned successfully.',
-            'data' => [
+        return $this->successResponse(
+            [
                 'schedule' => [
                     'id' => $schedule->id,
                     'activity_status' => $schedule->activity_status,
@@ -235,11 +225,10 @@ class TrainerActivityController extends Controller
                     'assigned_at' => $scheduleActivity->assigned_at->toIso8601String(),
                 ],
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 201);
+            'Activity assigned successfully.',
+            [],
+            201
+        );
     }
 
     /**
@@ -255,11 +244,8 @@ class TrainerActivityController extends Controller
         // Get trainer model linked to this user
         $trainerModel = \App\Models\Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         // Verify schedule belongs to trainer
@@ -272,11 +258,13 @@ class TrainerActivityController extends Controller
             ])
             ->first();
 
-        if (!$schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or not assigned to this trainer.',
-            ], 404);
+        if (! $schedule) {
+            return $this->errorResponse(
+                'Schedule not found or not assigned to this trainer.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
         $validator = Validator::make($request->all(), [
@@ -286,11 +274,7 @@ class TrainerActivityController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         // Get activities to confirm (if specific IDs provided, otherwise confirm all assigned)
@@ -304,10 +288,12 @@ class TrainerActivityController extends Controller
         $activities = $query->get();
 
         if ($activities->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No activities found to confirm. Please assign activities first.',
-            ], 422);
+            return $this->errorResponse(
+                'No activities found to confirm. Please assign activities first.',
+                ErrorCodes::VALIDATION_ERROR,
+                [],
+                422
+            );
         }
 
         DB::transaction(function () use ($activities, $schedule, $request) {
@@ -325,10 +311,8 @@ class TrainerActivityController extends Controller
             event(new \App\Events\ActivityConfirmed($schedule, $activities));
         });
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Activities confirmed. Parent has been notified.',
-            'data' => [
+        return $this->successResponse(
+            [
                 'schedule' => [
                     'id' => $schedule->id,
                     'activity_status' => $schedule->activity_status,
@@ -344,11 +328,8 @@ class TrainerActivityController extends Controller
                 }),
                 'notification_sent' => true,
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            'Activities confirmed. Parent has been notified.'
+        );
     }
 
     /**
@@ -364,11 +345,8 @@ class TrainerActivityController extends Controller
         // Get trainer model linked to this user
         $trainerModel = \App\Models\Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         // Verify schedule belongs to trainer
@@ -377,20 +355,19 @@ class TrainerActivityController extends Controller
             ->with('booking.package')
             ->first();
 
-        if (!$schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or not assigned to this trainer.',
-            ], 404);
+        if (! $schedule) {
+            return $this->errorResponse(
+                'Schedule not found or not assigned to this trainer.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
         // Check if override is allowed
         $package = $schedule->booking->package;
-        if (!$package->allow_activity_override) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Activity override is not allowed for this package.',
-            ], 403);
+        if (! $package->allow_activity_override) {
+            return $this->forbiddenResponse('Activity override is not allowed for this package.');
         }
 
         $validator = Validator::make($request->all(), [
@@ -399,11 +376,7 @@ class TrainerActivityController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         // Override activity count
@@ -412,10 +385,8 @@ class TrainerActivityController extends Controller
             $request->override_reason
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Activity count overridden successfully.',
-            'data' => [
+        return $this->successResponse(
+            [
                 'schedule' => [
                     'id' => $schedule->id,
                     'activity_count' => $schedule->activity_count,
@@ -424,11 +395,8 @@ class TrainerActivityController extends Controller
                     'calculated_activity_count' => $schedule->calculateActivityCount(),
                 ],
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            'Activity count overridden successfully.'
+        );
     }
 
     /**
@@ -444,11 +412,8 @@ class TrainerActivityController extends Controller
         // Get trainer model linked to this user
         $trainerModel = \App\Models\Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         // Verify schedule belongs to trainer
@@ -456,20 +421,20 @@ class TrainerActivityController extends Controller
             ->where('trainer_id', $trainerModel->id)
             ->first();
 
-        if (!$schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or not assigned to this trainer.',
-            ], 404);
+        if (! $schedule) {
+            return $this->errorResponse(
+                'Schedule not found or not assigned to this trainer.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
         // Reset to calculated
         $schedule->resetActivityCount();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Activity count reset to calculated value.',
-            'data' => [
+        return $this->successResponse(
+            [
                 'schedule' => [
                     'id' => $schedule->id,
                     'activity_count' => $schedule->activity_count,
@@ -477,11 +442,8 @@ class TrainerActivityController extends Controller
                     'activity_override_reason' => $schedule->activity_override_reason,
                 ],
             ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            'Activity count reset to calculated value.'
+        );
     }
 
     /**
@@ -497,11 +459,8 @@ class TrainerActivityController extends Controller
         // Get trainer model linked to this user
         $trainerModel = \App\Models\Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainerModel) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainerModel) {
+            return $this->notFoundResponse('Trainer profile');
         }
 
         // Verify schedule belongs to trainer
@@ -509,11 +468,13 @@ class TrainerActivityController extends Controller
             ->where('trainer_id', $trainerModel->id)
             ->first();
 
-        if (!$schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or not assigned to this trainer.',
-            ], 404);
+        if (! $schedule) {
+            return $this->errorResponse(
+                'Schedule not found or not assigned to this trainer.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                [],
+                404
+            );
         }
 
         // Find and delete activity assignment
@@ -521,11 +482,8 @@ class TrainerActivityController extends Controller
             ->where('id', $activityId)
             ->first();
 
-        if (!$scheduleActivity) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Activity assignment not found.',
-            ], 404);
+        if (! $scheduleActivity) {
+            return $this->notFoundResponse('Activity assignment');
         }
 
         $scheduleActivity->delete();
@@ -537,14 +495,7 @@ class TrainerActivityController extends Controller
             $schedule->save();
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Activity removed successfully.',
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse([], 'Activity removed successfully.');
     }
 }
 

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import type { Shift, AvailabilityEntry } from '@/core/trainer/domain/entities/TrainerSchedule';
 import { Clock, MapPin, MessageSquare } from 'lucide-react';
 import styles from './ScheduleListView.module.css';
+import { EmptyState } from '@/components/dashboard/universal/EmptyState';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface ScheduleListViewProps {
   shifts: Shift[];
@@ -30,7 +32,11 @@ export function ScheduleListView({
   showPay = true,
 }: ScheduleListViewProps) {
   if (!shifts.length && !availability.length) {
-    return <div className={styles.emptyState}>No shifts or availability records for this period.</div>;
+    return (
+      <div className={styles.emptyState}>
+        <EmptyState title={EMPTY_STATE.NO_SHIFTS_OR_AVAILABILITY.title} message={EMPTY_STATE.NO_SHIFTS_OR_AVAILABILITY.message} />
+      </div>
+    );
   }
 
   const groupedShifts = shifts.reduce<Record<string, Shift[]>>((acc, shift) => {
@@ -47,7 +53,11 @@ export function ScheduleListView({
   ).sort();
 
   if (viewMode === 'available') {
-    return <div className={styles.emptyState}>No available shifts yet – this will be populated from the backend.</div>;
+    return (
+      <div className={styles.emptyState}>
+        <EmptyState title={EMPTY_STATE.NO_AVAILABLE_SHIFTS_YET.title} message={EMPTY_STATE.NO_AVAILABLE_SHIFTS_YET.message} />
+      </div>
+    );
   }
 
   const shiftDetailBasePath = basePath ?? '/dashboard/trainer/schedule';

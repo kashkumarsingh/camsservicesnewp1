@@ -8,7 +8,7 @@ import { useBooking } from '@/interfaces/web/hooks/booking/useBooking';
 import { bookingDTOToVisitorBooking, VisitorBooking } from '@/interfaces/web/utils/bookingRetrievalAdapter';
 
 export default function RetrieveBookingPage() {
-  const router = useRouter();
+  const _router = useRouter();
   const searchParams = useSearchParams();
   const [retrievedBooking, setRetrievedBooking] = useState<VisitorBooking | null>(null);
   const [packageSlug, setPackageSlug] = useState<string | null>(null);
@@ -20,16 +20,17 @@ export default function RetrieveBookingPage() {
   // Use booking domain hook to fetch booking by reference
   const { booking, loading, error } = useBooking(undefined, reference || undefined);
 
-  // Check for reference in URL and fetch booking
+  // Sync reference from URL (defer to avoid setState-in-effect)
   useEffect(() => {
-    if (reference) {
-      setReferenceFromUrl(reference);
-    }
+    if (!reference) return;
+    const id = setTimeout(() => setReferenceFromUrl(reference), 0);
+    return () => clearTimeout(id);
   }, [reference]);
 
-  // Convert BookingDTO to VisitorBooking when booking is loaded
+  // Convert BookingDTO to VisitorBooking when booking is loaded (defer to avoid setState-in-effect)
   useEffect(() => {
-    if (booking) {
+    if (!booking) return;
+    const id = setTimeout(() => {
       try {
         const visitorBooking = bookingDTOToVisitorBooking(booking);
         setRetrievedBooking(visitorBooking);
@@ -37,28 +38,30 @@ export default function RetrieveBookingPage() {
       } catch (err) {
         console.error('Error converting booking:', err);
       }
-    }
+    }, 0);
+    return () => clearTimeout(id);
   }, [booking]);
 
-  // Fallback to localStorage if API booking not found (for backward compatibility)
+  // Fallback to localStorage if API booking not found (defer to avoid setState-in-effect)
   useEffect(() => {
-    if (reference && !booking && !loading && !error) {
+    if (!reference || booking || loading || error) return;
+    const id = setTimeout(() => {
       try {
-        const storedData = 
-          typeof window !== 'undefined' 
+        const storedData =
+          typeof window !== 'undefined'
             ? (window.localStorage.getItem('cams_booking_' + reference) ||
                window.sessionStorage.getItem('cams_booking_' + reference))
             : null;
-        
         if (storedData) {
-          const booking: VisitorBooking = JSON.parse(storedData);
-          setRetrievedBooking(booking);
-          setPackageSlug(booking.packageSlug || null);
+          const parsed: VisitorBooking = JSON.parse(storedData);
+          setRetrievedBooking(parsed);
+          setPackageSlug(parsed.packageSlug || null);
         }
       } catch (err) {
         console.error('Error loading booking from storage:', err);
       }
-    }
+    }, 0);
+    return () => clearTimeout(id);
   }, [reference, booking, loading, error]);
 
   const handleBookingRetrieved = (booking: VisitorBooking) => {

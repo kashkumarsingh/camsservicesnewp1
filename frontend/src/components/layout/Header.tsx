@@ -8,6 +8,7 @@ import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 import AuthButtons from './AuthButtons';
 import { ThemeToggle } from '@/components/theme';
 import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/utils/routes';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -69,14 +70,14 @@ const Header: React.FC = () => {
   }, []);
 
   const navLinks = [
-    { href: '/about', label: 'Who We Are' },
-    { href: '/services', label: 'What We Do' },
-    { href: '/packages', label: 'Our Packages' },
-    { href: '/trainers', label: 'Our Team' },
-    { href: '/blog', label: 'Blog' },
-    { href: '/faq', label: 'FAQ' },
-    { href: '/policies', label: 'Policies' },
-    { href: '/contact', label: "Let's Connect" },
+    { href: ROUTES.ABOUT, label: 'Who We Are' },
+    { href: ROUTES.SERVICES, label: 'What We Do' },
+    { href: ROUTES.PACKAGES, label: 'Our Packages' },
+    { href: ROUTES.TRAINERS, label: 'Our Team' },
+    { href: ROUTES.BLOG, label: 'Blog' },
+    { href: ROUTES.FAQ, label: 'FAQ' },
+    { href: ROUTES.POLICIES, label: 'Policies' },
+    { href: ROUTES.CONTACT, label: "Let's Connect" },
   ];
 
   return (

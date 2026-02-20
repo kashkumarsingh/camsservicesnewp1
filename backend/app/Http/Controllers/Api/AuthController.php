@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
+use App\Http\Controllers\Api\ErrorCodes;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -22,6 +24,7 @@ use Illuminate\Validation\ValidationException;
  */
 class AuthController extends Controller
 {
+    use BaseApiController;
     /**
      * Register a new user (parent/guardian)
      * 
@@ -46,11 +49,7 @@ class AuthController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors(),
-                ], 422);
+                return $this->validationErrorResponse($validator->errors()->toArray());
             }
 
             // Use database transaction to ensure atomicity
@@ -95,10 +94,8 @@ class AuthController extends Controller
                     throw $tokenError;
                 }
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Registration successful. Your account is pending admin approval.',
-                    'data' => [
+                return $this->successResponse(
+                    [
                         'user' => [
                             'id' => $user->id,
                             'name' => $user->name,
@@ -111,34 +108,11 @@ class AuthController extends Controller
                         'access_token' => $token,
                         'token_type' => 'Bearer',
                     ],
-                    'meta' => [
-                        'timestamp' => now()->toIso8601String(),
-                        'version' => 'v1',
-                    ],
-                ], 201);
+                    'Registration successful. Your account is pending admin approval.',
+                    [],
+                    201
+                );
             });
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Registration successful. Your account is pending admin approval.',
-                'data' => [
-                    'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'phone' => $user->phone,
-                        'role' => $user->role,
-                        'approval_status' => $user->approval_status,
-                        'created_at' => $user->created_at->toIso8601String(),
-                    ],
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
-                ],
-                'meta' => [
-                    'timestamp' => now()->toIso8601String(),
-                    'version' => 'v1',
-                ],
-            ], 201);
         } catch (\Illuminate\Database\QueryException $e) {
             $errorInfo = $e->errorInfo ?? [];
             $errorMessage = $e->getMessage();
@@ -171,30 +145,19 @@ class AuthController extends Controller
             } elseif (str_contains($errorMessage, 'foreign key constraint')) {
                 $userFriendlyMessage = 'Database constraint error. Please contact support.';
             } elseif (str_contains($errorMessage, 'Duplicate entry') || str_contains($errorMessage, 'UNIQUE constraint')) {
-                // Return 422 for duplicate email (validation error, not server error)
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => [
-                        'email' => ['The email has already been taken.']
-                    ],
-                ], 422);
+                return $this->validationErrorResponse(
+                    ['email' => ['The email has already been taken.']]
+                );
             } elseif (str_contains($errorMessage, 'personal_access_tokens') || str_contains($errorMessage, 'token')) {
                 $userFriendlyMessage = 'Authentication system error. Please contact support.';
             }
 
-            $response = [
-                'success' => false,
-                'message' => $userFriendlyMessage,
-                'errors' => [],
-            ];
-            
-            // Include debug info if in debug mode
-            if (config('app.debug')) {
-                $response['debug'] = $debugInfo;
-            }
-            
-            return response()->json($response, 500);
+            return $this->errorResponse(
+                $userFriendlyMessage,
+                ErrorCodes::DATABASE_ERROR,
+                [],
+                500
+            );
         } catch (\Exception $e) {
             Log::error('Registration error', [
                 'error' => $e->getMessage(),
@@ -203,11 +166,7 @@ class AuthController extends Controller
                 'request_data' => $request->except(['password', 'password_confirmation']),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred during registration. Please try again.',
-                'errors' => [],
-            ], 500);
+            return $this->serverErrorResponse('An error occurred during registration. Please try again.');
         }
     }
 
@@ -228,11 +187,13 @@ class AuthController extends Controller
 
             $user = User::where('email', $request->email)->first();
 
-            if (!$user || !Hash::check($request->password, $user->password)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid credentials',
-                ], 401);
+            if (! $user || ! Hash::check($request->password, $user->password)) {
+                return $this->errorResponse(
+                    'Invalid credentials',
+                    ErrorCodes::AUTHENTICATION_FAILED,
+                    [],
+                    401
+                );
             }
 
             // Create access token
@@ -245,16 +206,11 @@ class AuthController extends Controller
                     'trace' => $tokenError->getTraceAsString(),
                 ]);
                 
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Authentication failed. Please try again.',
-                ], 500);
+                return $this->serverErrorResponse('Authentication failed. Please try again.');
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Login successful',
-                'data' => [
+            return $this->successResponse(
+                [
                     'user' => [
                         'id' => $user->id,
                         'name' => $user->name,
@@ -265,17 +221,10 @@ class AuthController extends Controller
                     'access_token' => $token,
                     'token_type' => 'Bearer',
                 ],
-                'meta' => [
-                    'timestamp' => now()->toIso8601String(),
-                    'version' => 'v1',
-                ],
-            ], 200);
+                'Login successful'
+            );
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
+            return $this->validationErrorResponse($e->errors());
         } catch (\Exception $e) {
             Log::error('Login error', [
                 'error' => $e->getMessage(),
@@ -284,10 +233,7 @@ class AuthController extends Controller
                 'request_data' => $request->except(['password']),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Server Error',
-            ], 500);
+            return $this->serverErrorResponse('Server Error');
         }
     }
 
@@ -301,38 +247,28 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthenticated',
-            ], 401);
+        if (! $user) {
+            return $this->unauthorizedResponse('Unauthenticated');
         }
 
         try {
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'phone' => $user->phone,
-                        'address' => $user->address,
-                        'postcode' => $user->postcode,
-                        'role' => $user->role,
-                        'approval_status' => $user->approval_status,
-                        'approved_at' => $user->approved_at?->toIso8601String(),
-                        'rejected_at' => $user->rejected_at?->toIso8601String(),
-                        'rejection_reason' => $user->rejection_reason,
-                        'can_book' => $user->canBook(),
-                        'created_at' => $user->created_at->toIso8601String(),
-                    ],
+            return $this->successResponse([
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'address' => $user->address,
+                    'postcode' => $user->postcode,
+                    'role' => $user->role,
+                    'approval_status' => $user->approval_status,
+                    'approved_at' => $user->approved_at?->toIso8601String(),
+                    'rejected_at' => $user->rejected_at?->toIso8601String(),
+                    'rejection_reason' => $user->rejection_reason,
+                    'can_book' => $user->canBook(),
+                    'created_at' => $user->created_at->toIso8601String(),
                 ],
-                'meta' => [
-                    'timestamp' => now()->toIso8601String(),
-                    'version' => 'v1',
-                ],
-            ], 200);
+            ]);
         } catch (\Throwable $e) {
             Log::error('Auth user endpoint error', [
                 'error' => $e->getMessage(),
@@ -341,10 +277,7 @@ class AuthController extends Controller
                 'user_id' => $user->id ?? null,
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Unable to load user. Please try again.',
-            ], 500);
+            return $this->serverErrorResponse('Unable to load user. Please try again.');
         }
     }
 
@@ -358,14 +291,7 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Logged out successfully',
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse([], 'Logged out successfully');
     }
 }
 

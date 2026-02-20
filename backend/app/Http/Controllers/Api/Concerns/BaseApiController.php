@@ -2,42 +2,36 @@
 
 namespace App\Http\Controllers\Api\Concerns;
 
-use App\Http\Controllers\Api\ErrorCodes;
+use App\Support\ApiResponseHelper;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 
 /**
  * BaseApiController Trait
- * 
- * FAANG-level API response standardization
- * Provides consistent response formatting, error handling, and metadata
- * 
- * All API controllers should use this trait for consistent responses
+ *
+ * FAANG-level API response standardization.
+ * - Single contract: all response payload keys are camelCase (centralized here).
+ * - Controllers may pass snake_case arrays (e.g. from Eloquent); output is normalized.
+ * - Never return response()->json() directly; use successResponse, collectionResponse,
+ *   paginatedResponse, errorResponse, etc. See API_RESPONSE_CONTRACT.md (repo root).
  */
 trait BaseApiController
 {
     /**
-     * Generate or retrieve request ID for tracing
+     * Recursively convert array keys to camelCase. Single place for API key convention.
+     *
+     * @param  mixed  $data  Array, Arrayable, or scalar
+     * @return mixed
      */
-    protected function getRequestId(Request $request): string
+    protected function keysToCamelCase(mixed $data): mixed
     {
-        // Check if request ID already exists (from middleware)
-        $requestId = $request->header('X-Request-ID');
-        
-        if ($requestId) {
-            return $requestId;
-        }
-        
-        // Generate new request ID
-        return (string) Str::uuid();
+        return ApiResponseHelper::keysToCamelCase($data);
     }
 
     /**
      * Standard success response
-     * 
+     *
      * @param mixed $data Response data
      * @param string|null $message Optional success message
      * @param array $meta Additional metadata
@@ -50,32 +44,12 @@ trait BaseApiController
         array $meta = [],
         int $statusCode = 200
     ): JsonResponse {
-        $request = request();
-        $requestId = $this->getRequestId($request);
-        
-        $response = [
-            'success' => true,
-            'data' => $data,
-        ];
-        
-        if ($message) {
-            $response['message'] = $message;
-        }
-        
-        $response['meta'] = array_merge([
-            'timestamp' => now()->toIso8601String(),
-            'version' => 'v1',
-            'requestId' => $requestId,
-        ], $meta);
-        
-        return response()->json($response, $statusCode)
-            ->header('X-Request-ID', $requestId)
-            ->header('API-Version', 'v1');
+        return ApiResponseHelper::successResponse($data, $message, $meta, $statusCode, request());
     }
 
     /**
      * Standard error response
-     * 
+     *
      * @param string $message Error message
      * @param string|null $errorCode Machine-readable error code
      * @param array $errors Field-level validation errors
@@ -88,36 +62,12 @@ trait BaseApiController
         array $errors = [],
         int $statusCode = 400
     ): JsonResponse {
-        $request = request();
-        $requestId = $this->getRequestId($request);
-        
-        $response = [
-            'success' => false,
-            'message' => $message,
-        ];
-        
-        if (!empty($errors)) {
-            $response['errors'] = $errors;
-        }
-        
-        $response['meta'] = [
-            'timestamp' => now()->toIso8601String(),
-            'version' => 'v1',
-            'requestId' => $requestId,
-        ];
-        
-        if ($errorCode) {
-            $response['meta']['errorCode'] = $errorCode;
-        }
-        
-        return response()->json($response, $statusCode)
-            ->header('X-Request-ID', $requestId)
-            ->header('API-Version', 'v1');
+        return ApiResponseHelper::errorResponse($message, $statusCode, $errorCode, $errors, request());
     }
 
     /**
      * Standard paginated response
-     * 
+     *
      * @param LengthAwarePaginator $paginator
      * @param string|null $message Optional success message
      * @param array $additionalMeta Additional metadata
@@ -128,36 +78,7 @@ trait BaseApiController
         ?string $message = null,
         array $additionalMeta = []
     ): JsonResponse {
-        $request = request();
-        $requestId = $this->getRequestId($request);
-        
-        $response = [
-            'success' => true,
-            'data' => $paginator->getCollection(),
-        ];
-        
-        if ($message) {
-            $response['message'] = $message;
-        }
-        
-        $response['meta'] = array_merge([
-            'timestamp' => now()->toIso8601String(),
-            'version' => 'v1',
-            'requestId' => $requestId,
-            'pagination' => [
-                'currentPage' => $paginator->currentPage(),
-                'perPage' => $paginator->perPage(),
-                'total' => $paginator->total(),
-                'lastPage' => $paginator->lastPage(),
-                'hasMore' => $paginator->hasMorePages(),
-                'prevPage' => $paginator->currentPage() > 1 ? $paginator->currentPage() - 1 : null,
-                'nextPage' => $paginator->hasMorePages() ? $paginator->currentPage() + 1 : null,
-            ],
-        ], $additionalMeta);
-        
-        return response()->json($response, 200)
-            ->header('X-Request-ID', $requestId)
-            ->header('API-Version', 'v1');
+        return ApiResponseHelper::paginatedResponse($paginator, $message, $additionalMeta, request());
     }
 
     /**
@@ -181,17 +102,12 @@ trait BaseApiController
      */
     protected function emptyResponse(int $statusCode = 204): JsonResponse
     {
-        $request = request();
-        $requestId = $this->getRequestId($request);
-
-        return response()->json([], $statusCode)
-            ->header('X-Request-ID', $requestId)
-            ->header('API-Version', 'v1');
+        return ApiResponseHelper::emptyResponse($statusCode, request());
     }
 
     /**
      * Standard collection response (non-paginated list)
-     * 
+     *
      * @param Collection|array $collection
      * @param string|null $message Optional success message
      * @param array $additionalMeta Additional metadata
@@ -202,51 +118,23 @@ trait BaseApiController
         ?string $message = null,
         array $additionalMeta = []
     ): JsonResponse {
-        $request = request();
-        $requestId = $this->getRequestId($request);
-        
-        $data = $collection instanceof Collection ? $collection->values() : $collection;
-        $count = $collection instanceof Collection ? $collection->count() : count($collection);
-        
-        $response = [
-            'success' => true,
-            'data' => $data,
-        ];
-        
-        if ($message) {
-            $response['message'] = $message;
-        }
-        
-        $response['meta'] = array_merge([
-            'timestamp' => now()->toIso8601String(),
-            'version' => 'v1',
-            'requestId' => $requestId,
-            'count' => $count,
-        ], $additionalMeta);
-        
-        return response()->json($response, 200)
-            ->header('X-Request-ID', $requestId)
-            ->header('API-Version', 'v1');
+        return ApiResponseHelper::collectionResponse($collection, $message, $additionalMeta, request());
     }
 
     /**
      * Standard not found response
-     * 
+     *
      * @param string $resource Resource name (e.g., "Package", "Booking")
      * @return JsonResponse
      */
     protected function notFoundResponse(string $resource = 'Resource'): JsonResponse
     {
-        return $this->errorResponse(
-            message: "{$resource} not found",
-            errorCode: ErrorCodes::RESOURCE_NOT_FOUND,
-            statusCode: 404
-        );
+        return ApiResponseHelper::notFoundResponse($resource, request());
     }
 
     /**
      * Standard validation error response
-     * 
+     *
      * @param array $errors Validation errors (field => [messages])
      * @param string|null $message Custom error message
      * @return JsonResponse
@@ -255,47 +143,34 @@ trait BaseApiController
         array $errors,
         ?string $message = null
     ): JsonResponse {
-        return $this->errorResponse(
-            message: $message ?? 'Validation failed',
-            errorCode: ErrorCodes::VALIDATION_ERROR,
-            errors: $errors,
-            statusCode: 422
-        );
+        return ApiResponseHelper::validationErrorResponse($errors, $message, request());
     }
 
     /**
      * Standard unauthorized response
-     * 
+     *
      * @param string|null $message Custom error message
      * @return JsonResponse
      */
     protected function unauthorizedResponse(?string $message = null): JsonResponse
     {
-        return $this->errorResponse(
-            message: $message ?? 'Unauthorized. Please provide a valid access token.',
-            errorCode: ErrorCodes::UNAUTHORIZED,
-            statusCode: 401
-        );
+        return ApiResponseHelper::unauthorizedResponse($message, request());
     }
 
     /**
      * Standard forbidden response
-     * 
+     *
      * @param string|null $message Custom error message
      * @return JsonResponse
      */
     protected function forbiddenResponse(?string $message = null): JsonResponse
     {
-        return $this->errorResponse(
-            message: $message ?? "Forbidden. You don't have permission to access this resource.",
-            errorCode: ErrorCodes::FORBIDDEN,
-            statusCode: 403
-        );
+        return ApiResponseHelper::forbiddenResponse($message, request());
     }
 
     /**
      * Standard server error response
-     * 
+     *
      * @param string|null $message Custom error message
      * @param string|null $errorCode Machine-readable error code
      * @return JsonResponse
@@ -304,11 +179,7 @@ trait BaseApiController
         ?string $message = null,
         ?string $errorCode = null
     ): JsonResponse {
-        return $this->errorResponse(
-            message: $message ?? 'An unexpected error occurred. Please try again later.',
-            errorCode: $errorCode ?? ErrorCodes::INTERNAL_SERVER_ERROR,
-            statusCode: 500
-        );
+        return ApiResponseHelper::serverErrorResponse($message, $errorCode, request());
     }
 }
 

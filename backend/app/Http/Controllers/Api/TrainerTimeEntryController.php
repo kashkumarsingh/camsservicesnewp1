@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Contracts\Notifications\INotificationDispatcher;
+use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Api\LiveRefreshController;
 use App\Http\Controllers\Controller;
 use App\Models\BookingSchedule;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Validator;
  */
 class TrainerTimeEntryController extends Controller
 {
+    use BaseApiController;
     /**
      * Get time entries for the authenticated trainer.
      *
@@ -36,10 +38,7 @@ class TrainerTimeEntryController extends Controller
 
         $trainer = \App\Models\Trainer::where('user_id', $user->id)->first();
         if (! $trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+            return $this->notFoundResponse('Trainer profile');
         }
 
         $query = TimeEntry::where('trainer_id', $trainer->id)
@@ -64,12 +63,10 @@ class TrainerTimeEntryController extends Controller
         $perPage = min((int) $request->get('per_page', 50), 100);
         $entries = $query->paginate($perPage);
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'time_entries' => $entries->items(),
-            ],
-            'meta' => [
+        return $this->successResponse(
+            ['time_entries' => $entries->items()],
+            null,
+            [
                 'pagination' => [
                     'current_page' => $entries->currentPage(),
                     'per_page' => $entries->perPage(),
@@ -78,10 +75,8 @@ class TrainerTimeEntryController extends Controller
                     'from' => $entries->firstItem(),
                     'to' => $entries->lastItem(),
                 ],
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+            ]
+        );
     }
 
     /**
@@ -110,10 +105,7 @@ class TrainerTimeEntryController extends Controller
 
         $trainer = \App\Models\Trainer::where('user_id', $user->id)->first();
         if (! $trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+            return $this->notFoundResponse('Trainer profile');
         }
 
         $schedule = BookingSchedule::where('id', $scheduleId)
@@ -121,10 +113,7 @@ class TrainerTimeEntryController extends Controller
             ->first();
 
         if (! $schedule) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found or not assigned to this trainer.',
-            ], 404);
+            return $this->notFoundResponse('Schedule');
         }
 
         $validator = Validator::make($request->all(), [
@@ -136,11 +125,7 @@ class TrainerTimeEntryController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         $data = $validator->validated();
@@ -181,17 +166,9 @@ class TrainerTimeEntryController extends Controller
             );
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => $type === TimeEntry::TYPE_CLOCK_IN ? 'Clocked in successfully.' : 'Clocked out successfully.',
-            'data' => [
-                'time_entry' => $timeEntry,
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 201);
+        $message = $type === TimeEntry::TYPE_CLOCK_IN ? 'Clocked in successfully.' : 'Clocked out successfully.';
+
+        return $this->successResponse(['time_entry' => $timeEntry], $message, [], 201);
     }
 }
 

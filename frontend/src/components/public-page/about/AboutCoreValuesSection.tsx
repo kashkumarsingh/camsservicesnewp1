@@ -17,7 +17,7 @@ function getIcon(name?: string): IconComponent {
   return ICON_MAP[name.toLowerCase().trim()] ?? Heart;
 }
 
-const GRADIENTS = ['from-[#FF6B6B] to-[#FF8E8E]', 'from-[#0080FF] to-[#00D4FF]', 'from-[#7FFF00] to-[#00FF00]'];
+const GRADIENTS = ['from-[#FF6B6B] to-[#FF8E8E]', 'from-primary-blue to-light-blue-cyan', 'from-[#7FFF00] to-[#00FF00]'];
 
 export interface CoreValueItem {
   icon?: string;
@@ -47,13 +47,13 @@ export default function AboutCoreValuesSection({ sectionTitle, sectionSubtitle, 
           {items.map((val, i) => {
             const IconComponent = getIcon(val.icon);
             return (
-              <div key={i} className="p-6 sm:p-8 rounded-[30px] border border-gray-200 card-hover-lift transition-all duration-300 flex flex-col justify-between bg-white md:hover:rotate-3 group">
+              <div key={i} className="p-6 sm:p-8 rounded-card border border-gray-200 card-hover-lift transition-all duration-300 flex flex-col justify-between bg-white md:hover:rotate-3 group">
                 <div>
                   <div className={`relative w-20 h-20 bg-gradient-to-br ${GRADIENTS[i]} rounded-full flex items-center justify-center mb-5 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     <IconComponent className="text-white" size={36} />
                   </div>
-                  <h3 className="text-2xl font-bold text-[#1E3A5F] mb-3 group-hover:text-[#0080FF] transition-colors">{val.title}</h3>
-                  <p className="text-[#1E3A5F] leading-relaxed">{val.description}</p>
+                  <h3 className="text-2xl font-bold text-navy-blue mb-3 group-hover:text-primary-blue transition-colors">{val.title}</h3>
+                  <p className="text-navy-blue leading-relaxed">{val.description}</p>
                 </div>
               </div>
             );

@@ -6,6 +6,7 @@ import type { TrainerBooking } from '@/core/application/trainer/types';
 import { Calendar, Users, Package, ArrowRight, Plus, Clock, AlertCircle } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { getTrainerChildDisplayName } from '@/utils/trainerPrivacy';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface BookingsListProps {
   bookings: TrainerBooking[];
@@ -45,7 +46,7 @@ export default function BookingsList({ bookings, onBookingClick }: BookingsListP
     if (sessionCount === 0) {
       return { 
         needs: true, 
-        reason: 'No sessions booked yet - Book first session',
+        reason: `${EMPTY_STATE.NO_SESSIONS_BOOKED_YET.title} - Book first session`,
         priority: 'high' 
       };
     }
@@ -114,12 +115,12 @@ export default function BookingsList({ bookings, onBookingClick }: BookingsListP
 
                   <div className="flex items-center gap-6 text-sm text-gray-600 mb-3 flex-wrap">
                     <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-[#0080FF]" />
+                      <Calendar className="h-4 w-4 text-primary-blue" />
                       <span>{booking.schedules?.length || 0} session{(booking.schedules?.length || 0) !== 1 ? 's' : ''}</span>
                     </div>
                     {nextSession && (
                       <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-[#0080FF]" />
+                        <Clock className="h-4 w-4 text-primary-blue" />
                         <span>
                           Next: {new Date(nextSession.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} at {nextSession.start_time}
                         </span>
@@ -127,7 +128,7 @@ export default function BookingsList({ bookings, onBookingClick }: BookingsListP
                     )}
                     {nextSession?.activities && nextSession.activities.length > 0 && (
                       <div className="flex items-center gap-2">
-                        <Package className="h-4 w-4 text-[#0080FF]" />
+                        <Package className="h-4 w-4 text-primary-blue" />
                         <span>{nextSession.activities.map(a => a.name).join(', ')}</span>
                       </div>
                     )}
@@ -163,7 +164,7 @@ export default function BookingsList({ bookings, onBookingClick }: BookingsListP
               <div className="px-6 pb-4 border-t border-gray-200 pt-4">
                 <Button 
                   onClick={() => onBookingClick?.(booking.id)}
-                  className="w-full bg-gradient-to-r from-[#0080FF] to-[#00D4FF] hover:from-[#0066CC] hover:to-[#00B8E6] text-white font-semibold flex items-center justify-center gap-2"
+                  className="w-full bg-gradient-to-r from-primary-blue to-light-blue-cyan hover:from-primary-blue/90 hover:to-light-blue-cyan/90 text-white font-semibold flex items-center justify-center gap-2"
                   size="lg"
                 >
                   <Plus className="h-5 w-5" />

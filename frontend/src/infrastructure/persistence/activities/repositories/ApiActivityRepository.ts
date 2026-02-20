@@ -9,6 +9,7 @@ import { Activity } from '@/core/domain/activities/entities/Activity';
 import { ActivitySlug } from '@/core/domain/activities/valueObjects/ActivitySlug';
 import { ActivityTrainer } from '@/core/domain/activities/entities/Activity';
 import { apiClient } from '@/infrastructure/http/ApiClient';
+import { extractList } from '@/infrastructure/http/responseHelpers';
 
 /**
  * Laravel API Response Format
@@ -146,15 +147,8 @@ export class ApiActivityRepository implements IActivityRepository {
 
   async findAll(): Promise<Activity[]> {
     try {
-      const response = await apiClient.get<{ data: LaravelActivityResponse[] }>(this.endpoint);
-      const payload = response.data;
-      const raw: LaravelActivityResponse[] = Array.isArray(payload)
-        ? payload
-        : Array.isArray((payload as any).data)
-          ? (payload as any).data
-          : [];
-
-      return raw.map(item => this.toDomain(item));
+      const response = await apiClient.get<LaravelActivityResponse[] | { data: LaravelActivityResponse[]; meta?: unknown }>(this.endpoint);
+      return extractList(response).map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to fetch activities: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -162,15 +156,8 @@ export class ApiActivityRepository implements IActivityRepository {
 
   async findPublished(): Promise<Activity[]> {
     try {
-      const response = await apiClient.get<{ data: LaravelActivityResponse[] }>(this.endpoint);
-      const payload = response.data;
-      const raw: LaravelActivityResponse[] = Array.isArray(payload)
-        ? payload
-        : Array.isArray((payload as any).data)
-          ? (payload as any).data
-          : [];
-
-      return raw.map(item => this.toDomain(item));
+      const response = await apiClient.get<LaravelActivityResponse[] | { data: LaravelActivityResponse[]; meta?: unknown }>(this.endpoint);
+      return extractList(response).map(item => this.toDomain(item));
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.error('Failed to fetch published activities:', error);
@@ -180,18 +167,10 @@ export class ApiActivityRepository implements IActivityRepository {
 
   async findByCategory(category: string): Promise<Activity[]> {
     try {
-      const response = await apiClient.get<{ data: LaravelActivityResponse[] }>(
+      const response = await apiClient.get<LaravelActivityResponse[] | { data: LaravelActivityResponse[]; meta?: unknown }>(
         `${this.endpoint}?category=${encodeURIComponent(category)}`
       );
-
-      const payload = response.data;
-      const raw: LaravelActivityResponse[] = Array.isArray(payload)
-        ? payload
-        : Array.isArray((payload as any).data)
-          ? (payload as any).data
-          : [];
-
-      return raw.map(item => this.toDomain(item));
+      return extractList(response).map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to find activities by category: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -199,18 +178,10 @@ export class ApiActivityRepository implements IActivityRepository {
 
   async findByTrainer(trainerId: number): Promise<Activity[]> {
     try {
-      const response = await apiClient.get<{ data: LaravelActivityResponse[] }>(
+      const response = await apiClient.get<LaravelActivityResponse[] | { data: LaravelActivityResponse[]; meta?: unknown }>(
         `${this.endpoint}?trainer_id=${trainerId}`
       );
-
-      const payload = response.data;
-      const raw: LaravelActivityResponse[] = Array.isArray(payload)
-        ? payload
-        : Array.isArray((payload as any).data)
-          ? (payload as any).data
-          : [];
-
-      return raw.map(item => this.toDomain(item));
+      return extractList(response).map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to find activities by trainer: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -218,18 +189,10 @@ export class ApiActivityRepository implements IActivityRepository {
 
   async search(query: string): Promise<Activity[]> {
     try {
-      const response = await apiClient.get<{ data: LaravelActivityResponse[] }>(
+      const response = await apiClient.get<LaravelActivityResponse[] | { data: LaravelActivityResponse[]; meta?: unknown }>(
         `${this.endpoint}?search=${encodeURIComponent(query)}`
       );
-
-      const payload = response.data;
-      const raw: LaravelActivityResponse[] = Array.isArray(payload)
-        ? payload
-        : Array.isArray((payload as any).data)
-          ? (payload as any).data
-          : [];
-
-      return raw.map(item => this.toDomain(item));
+      return extractList(response).map(item => this.toDomain(item));
     } catch (error) {
       throw new Error(`Failed to search activities: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }

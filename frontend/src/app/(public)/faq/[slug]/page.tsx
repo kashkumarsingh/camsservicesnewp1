@@ -6,6 +6,10 @@ import CTASection from '@/components/shared/CTASection';
 import { FAQItem } from '@/interfaces/web/components/faq';
 import { GetFAQItemUseCase } from '@/core/application/faq/useCases/GetFAQItemUseCase';
 import { faqRepository } from '@/infrastructure/persistence/faq';
+import { ROUTES } from '@/utils/routes';
+
+/** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
+export const revalidate = 1800;
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -53,17 +57,17 @@ export default async function FAQDetailsPage({ params }: Props) {
           muted
           playsInline
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0080FF]/30 to-[#00D4FF]/20 z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/30 to-light-blue-cyan/20 z-10"></div>
         <div className="absolute inset-0 z-10 opacity-10" style={{ backgroundImage: "url('/svgs/question-pattern.svg')", backgroundRepeat: "repeat", backgroundSize: "40px 40px" }}></div>
         <div className="relative z-20 text-center max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-heading font-extrabold mb-6 leading-tight tracking-tight heading-text-shadow">
             {faq.title}
           </h1>
           <div className="flex flex-col sm:flex-row justify-center gap-5 mt-10">
-            <Button href="/contact" variant="superPlayful" size="lg" className="shadow-lg" withArrow>
+            <Button href={ROUTES.CONTACT} variant="superPlayful" size="lg" className="shadow-lg" withArrow>
               Contact Us
             </Button>
-            <Button href="/faq" variant="outline" size="lg" className="shadow-lg" withArrow>
+            <Button href={ROUTES.FAQ} variant="outline" size="lg" className="shadow-lg" withArrow>
               View All FAQs
             </Button>
           </div>
@@ -81,8 +85,8 @@ export default async function FAQDetailsPage({ params }: Props) {
       <CTASection
         title="Still Have Questions?"
         subtitle="Our team is here to help! Contact us and we'll answer any questions you have."
-        primaryCTA={{ text: "Contact Us Today", href: "/contact" }}
-        secondaryCTA={{ text: "View Our Services", href: "/services" }}
+        primaryCTA={{ text: "Contact Us Today", href: ROUTES.CONTACT }}
+        secondaryCTA={{ text: "View Our Services", href: ROUTES.SERVICES }}
         variant="default"
       />
     </div>

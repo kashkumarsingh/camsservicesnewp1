@@ -65,7 +65,7 @@ export default function SessionCalendarGrid({
     const endDate = endOfMonth.clone().endOf('week');
 
     const days: Moment[] = [];
-    let day = startDate.clone();
+    const day = startDate.clone();
 
     while (day.isSameOrBefore(endDate)) {
       days.push(day.clone());
@@ -141,7 +141,7 @@ export default function SessionCalendarGrid({
             <ChevronLeft className="w-5 h-5 text-gray-600" />
           </button>
           
-          <h3 className="text-2xl font-bold text-[#1E3A5F]">
+          <h3 className="text-2xl font-bold text-navy-blue">
             {currentMonth.format('MMMM YYYY')}
           </h3>
           

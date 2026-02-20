@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\BookingSchedule;
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\Auth;
  */
 class ParentScheduleDetailController extends Controller
 {
+    use BaseApiController;
+
     /**
      * Show session detail for the given schedule (activity logs, current activity, clock in/out).
      * Schedule must belong to the authenticated parent's confirmed, paid booking.
@@ -27,7 +30,7 @@ class ParentScheduleDetailController extends Controller
     {
         $user = Auth::user();
         if (! $user) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
+            return $this->unauthorizedResponse();
         }
 
         $schedule = BookingSchedule::query()
@@ -41,7 +44,7 @@ class ParentScheduleDetailController extends Controller
             ->first();
 
         if (! $schedule) {
-            return response()->json(['message' => 'Schedule not found or access denied.'], 404);
+            return $this->notFoundResponse('Schedule');
         }
 
         $activityLogs = ActivityLog::query()
@@ -113,7 +116,7 @@ class ParentScheduleDetailController extends Controller
             ->values()
             ->all();
 
-        return response()->json([
+        $data = [
             'schedule' => [
                 'id' => $schedule->id,
                 'current_activity_id' => $schedule->current_activity_id,
@@ -123,6 +126,8 @@ class ParentScheduleDetailController extends Controller
             ],
             'activity_logs' => $logItems->values()->all(),
             'time_entries' => $timeEntries,
-        ]);
+        ];
+
+        return $this->successResponse($data);
     }
 }

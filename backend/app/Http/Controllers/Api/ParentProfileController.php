@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\Validator;
  */
 class ParentProfileController extends Controller
 {
+    use BaseApiController;
+
     /**
      * Get the authenticated parent's profile.
      */
@@ -23,29 +26,19 @@ class ParentProfileController extends Controller
     {
         $user = $request->user();
 
-        if (!$user || $user->role !== 'parent') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Only parents can access this endpoint.',
-            ], 403);
+        if (! $user || $user->role !== 'parent') {
+            return $this->forbiddenResponse('Only parents can access this endpoint.');
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'profile' => [
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'address' => $user->address,
-                    'postcode' => $user->postcode,
-                ],
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ]);
+        $profile = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'address' => $user->address,
+            'postcode' => $user->postcode,
+        ];
+
+        return $this->successResponse(['profile' => $profile]);
     }
 
     /**
@@ -55,11 +48,8 @@ class ParentProfileController extends Controller
     {
         $user = $request->user();
 
-        if (!$user || $user->role !== 'parent') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Only parents can update this profile.',
-            ], 403);
+        if (! $user || $user->role !== 'parent') {
+            return $this->forbiddenResponse('Only parents can update this profile.');
         }
 
         $validator = Validator::make($request->all(), [
@@ -70,21 +60,11 @@ class ParentProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         // Update all provided fields, including null values (to clear fields)
-        // Use array_key_exists to check if key exists in request, even if value is null
-        $updateData = [
-            'name' => $request->input('name'),
-        ];
-
-        // Always update phone, address, postcode if they're in the request (even if null)
-        // Use array_key_exists instead of has() because has() returns false for null values
+        $updateData = ['name' => $request->input('name')];
         if (array_key_exists('phone', $request->all())) {
             $updateData['phone'] = $request->input('phone') ?: null;
         }
@@ -96,27 +76,17 @@ class ParentProfileController extends Controller
         }
 
         $user->update($updateData);
-        
-        // Refresh the model to get updated values
         $user->refresh();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Profile updated successfully.',
-            'data' => [
-                'profile' => [
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'address' => $user->address,
-                    'postcode' => $user->postcode,
-                ],
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ]);
+        $profile = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'address' => $user->address,
+            'postcode' => $user->postcode,
+        ];
+
+        return $this->successResponse(['profile' => $profile], 'Profile updated successfully.');
     }
 }
 

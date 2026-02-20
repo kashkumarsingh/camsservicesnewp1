@@ -67,7 +67,7 @@ export class ChildrenRepository {
 
     if (!Array.isArray(children)) {
       if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
+         
         console.warn(
           '[ChildrenRepository] Unexpected children payload shape:',
           response.data

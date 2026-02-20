@@ -18,7 +18,7 @@ export function useCalendarGrid(currentMonth: Moment): Moment[] {
     const endDate = endOfMonth.clone().endOf('week');
 
     const days: Moment[] = [];
-    let day = startDate.clone();
+    const day = startDate.clone();
 
     while (day.isSameOrBefore(endDate)) {
       days.push(day.clone());

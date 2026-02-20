@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Calendar, Clock, Share2, Facebook, Twitter, Linkedin, Mail } from 'lucide-react';
 import { BlogPostDTO } from '@/core/application/blog';
 import Button from '@/components/ui/Button';
+import { ROUTES } from '@/utils/routes';
 
 interface BlogSidebarProps {
   currentPost: BlogPostDTO;
@@ -29,9 +30,9 @@ export default function BlogSidebar({ currentPost, relatedPosts, recentPosts, ca
   return (
     <aside className="space-y-8">
       {/* Social Share */}
-      <div className="bg-white p-6 rounded-[20px] shadow-md border border-gray-100">
-        <h3 className="text-lg font-bold text-[#1E3A5F] mb-4 flex items-center gap-2">
-          <Share2 size={20} className="text-[#0080FF]" />
+      <div className="bg-white p-6 rounded-card shadow-md border border-gray-100">
+        <h3 className="text-lg font-bold text-navy-blue mb-4 flex items-center gap-2">
+          <Share2 size={20} className="text-primary-blue" />
           Share This Article
         </h3>
         <div className="flex flex-wrap gap-3">
@@ -74,8 +75,8 @@ export default function BlogSidebar({ currentPost, relatedPosts, recentPosts, ca
 
       {/* Related Posts */}
       {relatedPosts.length > 0 && (
-        <div className="bg-white p-6 rounded-[20px] shadow-md border border-gray-100">
-          <h3 className="text-lg font-bold text-[#1E3A5F] mb-4">Related Articles</h3>
+        <div className="bg-white p-6 rounded-card shadow-md border border-gray-100">
+          <h3 className="text-lg font-bold text-navy-blue mb-4">Related Articles</h3>
           <div className="space-y-4">
             {relatedPosts.slice(0, 3).map((post) => (
               <Link
@@ -95,7 +96,7 @@ export default function BlogSidebar({ currentPost, relatedPosts, recentPosts, ca
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-semibold text-[#1E3A5F] group-hover:text-[#0080FF] transition-colors line-clamp-2 mb-1">
+                    <h4 className="text-sm font-semibold text-navy-blue group-hover:text-primary-blue transition-colors line-clamp-2 mb-1">
                       {post.title}
                     </h4>
                     <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -125,14 +126,14 @@ export default function BlogSidebar({ currentPost, relatedPosts, recentPosts, ca
 
       {/* Recent Posts */}
       {recentPosts.length > 0 && (
-        <div className="bg-white p-6 rounded-[20px] shadow-md border border-gray-100">
-          <h3 className="text-lg font-bold text-[#1E3A5F] mb-4">Recent Posts</h3>
+        <div className="bg-white p-6 rounded-card shadow-md border border-gray-100">
+          <h3 className="text-lg font-bold text-navy-blue mb-4">Recent Posts</h3>
           <ul className="space-y-3">
             {recentPosts.slice(0, 5).map((post) => (
               <li key={post.id}>
                 <Link
                   href={`/blog/${post.slug}`}
-                  className="block text-sm font-medium text-[#1E3A5F] hover:text-[#0080FF] transition-colors line-clamp-2"
+                  className="block text-sm font-medium text-navy-blue hover:text-primary-blue transition-colors line-clamp-2"
                 >
                   {post.title}
                 </Link>
@@ -153,14 +154,14 @@ export default function BlogSidebar({ currentPost, relatedPosts, recentPosts, ca
 
       {/* Categories */}
       {categories.length > 0 && (
-        <div className="bg-white p-6 rounded-[20px] shadow-md border border-gray-100">
-          <h3 className="text-lg font-bold text-[#1E3A5F] mb-4">Categories</h3>
+        <div className="bg-white p-6 rounded-card shadow-md border border-gray-100">
+          <h3 className="text-lg font-bold text-navy-blue mb-4">Categories</h3>
           <ul className="space-y-2">
             {categories.map((category) => (
               <li key={category.id}>
                 <Link
                   href={`/blog?category=${category.slug}`}
-                  className="flex items-center justify-between text-sm text-gray-700 hover:text-[#0080FF] transition-colors py-1"
+                  className="flex items-center justify-between text-sm text-gray-700 hover:text-primary-blue transition-colors py-1"
                 >
                   <span>{category.name}</span>
                   {category.count !== undefined && (
@@ -176,12 +177,12 @@ export default function BlogSidebar({ currentPost, relatedPosts, recentPosts, ca
       )}
 
       {/* Quick CTA */}
-      <div className="bg-gradient-to-br from-[#0080FF] to-[#00D4FF] p-6 rounded-[20px] text-white">
+      <div className="bg-gradient-to-br from-primary-blue to-light-blue-cyan p-6 rounded-card text-white">
         <h3 className="text-lg font-bold mb-2">Need Support?</h3>
         <p className="text-sm opacity-90 mb-4">
-          Get expert guidance for your child's SEN needs.
+          Get expert guidance for your child&apos;s SEN needs.
         </p>
-        <Button href="/contact" variant="secondary" size="sm" className="w-full" withArrow>
+        <Button href={ROUTES.CONTACT} variant="secondary" size="sm" className="w-full" withArrow>
           Book FREE Consultation
         </Button>
       </div>

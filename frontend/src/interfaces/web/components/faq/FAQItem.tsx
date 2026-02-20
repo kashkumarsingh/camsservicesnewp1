@@ -2,11 +2,13 @@
  * FAQ Item Component
  * 
  * Displays a single FAQ item in detail.
+ * CMS rich-text content is rendered via RichTextBlock (sanitised).
  */
 
 'use client';
 
 import { useFAQItem } from '../../hooks/faq/useFAQItem';
+import { RichTextBlock } from '@/components/shared/public-page';
 
 interface FAQItemProps {
   slug: string;
@@ -42,10 +44,10 @@ export default function FAQItem({ slug, incrementViews = true }: FAQItemProps) {
 
   return (
     <article className="max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4 text-[#1E3A5F]">{faq.title}</h1>
-      <div
-        className="prose lg:prose-xl max-w-none text-[#1E3A5F]"
-        dangerouslySetInnerHTML={{ __html: faq.content }}
+      <h1 className="text-3xl font-bold mb-4 text-navy-blue">{faq.title}</h1>
+      <RichTextBlock
+        content={faq.content}
+        proseClassName="prose lg:prose-xl max-w-none text-navy-blue"
       />
     </article>
   );

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ShoppingBag, Bell, Settings, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
+import { ROUTES } from '@/utils/routes';
 
 interface TrainerTopNavigationProps {
   /** Callback when back arrow is clicked */
@@ -54,12 +55,12 @@ export default function TrainerTopNavigation({
   };
 
   const navLinks = [
-    { href: '/about', label: 'Who We Are' },
-    { href: '/services', label: 'What We Do' },
-    { href: '/packages', label: 'Our Packages' },
-    { href: '/blog', label: 'Blog' },
-    { href: '/contact', label: "Let's Connect" },
-    { href: '/dashboard/trainer', label: 'Dashboard' },
+    { href: ROUTES.ABOUT, label: 'Who We Are' },
+    { href: ROUTES.SERVICES, label: 'What We Do' },
+    { href: ROUTES.PACKAGES, label: 'Our Packages' },
+    { href: ROUTES.BLOG, label: 'Blog' },
+    { href: ROUTES.CONTACT, label: "Let's Connect" },
+    { href: ROUTES.DASHBOARD_TRAINER, label: 'Dashboard' },
   ];
 
   return (

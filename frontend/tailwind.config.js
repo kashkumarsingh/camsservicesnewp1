@@ -12,6 +12,12 @@ module.exports = {
         sans: ['var(--font-kid-body)', 'sans-serif'],
         heading: ['var(--font-kid-heading)', 'sans-serif'],
       },
+      fontSize: {
+        '2xs': ['0.6875rem', { lineHeight: '1rem' }], // 11px
+      },
+      borderRadius: {
+        card: '30px',
+      },
       colors: {
         primary: '#00AEEF',
         secondary: '#231F20',

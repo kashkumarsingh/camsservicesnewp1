@@ -18,7 +18,7 @@ export default function AccordionSection({ id, title, children, defaultOpen = fa
       <div className="border-2 border-gray-200 rounded-xl overflow-hidden bg-white hover:border-gray-300 transition-all duration-300">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full flex justify-between items-center py-4 px-6 text-left font-semibold text-[#1E3A5F] hover:bg-gray-50 focus:outline-none transition-colors duration-200"
+          className="w-full flex justify-between items-center py-4 px-6 text-left font-semibold text-navy-blue hover:bg-gray-50 focus:outline-none transition-colors duration-200"
         >
           <span className="text-base md:text-lg">{title}</span>
           <ChevronDown
@@ -29,7 +29,7 @@ export default function AccordionSection({ id, title, children, defaultOpen = fa
         </button>
         {isOpen && (
           <div className="px-6 pb-4 pt-2 border-t border-gray-100">
-            <div className="text-[#1E3A5F] leading-relaxed text-sm md:text-base">
+            <div className="text-navy-blue leading-relaxed text-sm md:text-base">
               {children}
             </div>
           </div>

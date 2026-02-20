@@ -105,7 +105,7 @@ export class ApiPaymentRepository implements IPaymentRepository {
         const response = await apiClient.get<{ success: boolean; data: { payments?: RemotePaymentResponse[] } }>(
           API_ENDPOINTS.BOOKING_BY_ID(payableId)
         );
-        
+        // Single-resource (booking) with nested payments; not a list endpoint — extractList does not apply. See .cursorrules LIST EXTRACTION.
         const payments = response.data.data?.payments || [];
         return payments.map((payment) => this.toDTO(payment));
       }

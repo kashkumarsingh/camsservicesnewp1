@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use App\Models\Trainer;
 use App\Models\TrainerEmergencyContact;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Validator;
  */
 class TrainerEmergencyContactController extends Controller
 {
+    use BaseApiController;
     /**
      * List emergency contacts for the authenticated trainer.
      */
@@ -25,23 +27,14 @@ class TrainerEmergencyContactController extends Controller
     {
         $trainer = $this->getTrainerForUser($request);
         if (! $trainer) {
-            return $this->trainerNotFoundResponse();
+            return $this->notFoundResponse('Trainer profile');
         }
 
         $contacts = $trainer->emergencyContacts()
             ->orderBy('created_at', 'asc')
             ->get(['id', 'name', 'relationship', 'phone', 'email']);
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'emergency_contacts' => $contacts,
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse(['emergency_contacts' => $contacts]);
     }
 
     /**
@@ -62,26 +55,17 @@ class TrainerEmergencyContactController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         $contact = $trainer->emergencyContacts()->create($validator->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Emergency contact added successfully',
-            'data' => [
-                'emergency_contact' => $contact->only(['id', 'name', 'relationship', 'phone', 'email']),
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 201);
+        return $this->successResponse(
+            ['emergency_contact' => $contact->only(['id', 'name', 'relationship', 'phone', 'email'])],
+            'Emergency contact added successfully',
+            [],
+            201
+        );
     }
 
     /**
@@ -91,15 +75,12 @@ class TrainerEmergencyContactController extends Controller
     {
         $trainer = $this->getTrainerForUser($request);
         if (! $trainer) {
-            return $this->trainerNotFoundResponse();
+            return $this->notFoundResponse('Trainer profile');
         }
 
         $contact = $trainer->emergencyContacts()->where('id', $id)->first();
         if (! $contact) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Emergency contact not found.',
-            ], 404);
+            return $this->notFoundResponse('Emergency contact');
         }
 
         $validator = Validator::make($request->all(), [
@@ -110,26 +91,15 @@ class TrainerEmergencyContactController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
 
         $contact->update($validator->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Emergency contact updated successfully',
-            'data' => [
-                'emergency_contact' => $contact->only(['id', 'name', 'relationship', 'phone', 'email']),
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse(
+            ['emergency_contact' => $contact->only(['id', 'name', 'relationship', 'phone', 'email'])],
+            'Emergency contact updated successfully'
+        );
     }
 
     /**
@@ -139,27 +109,17 @@ class TrainerEmergencyContactController extends Controller
     {
         $trainer = $this->getTrainerForUser($request);
         if (! $trainer) {
-            return $this->trainerNotFoundResponse();
+            return $this->notFoundResponse('Trainer profile');
         }
 
         $contact = $trainer->emergencyContacts()->where('id', $id)->first();
         if (! $contact) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Emergency contact not found.',
-            ], 404);
+            return $this->notFoundResponse('Emergency contact');
         }
 
         $contact->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Emergency contact deleted successfully',
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+        return $this->successResponse([], 'Emergency contact deleted successfully');
     }
 
     /**
@@ -170,14 +130,6 @@ class TrainerEmergencyContactController extends Controller
         $user = $request->user();
 
         return Trainer::where('user_id', $user->id)->first();
-    }
-
-    protected function trainerNotFoundResponse(): JsonResponse
-    {
-        return response()->json([
-            'success' => false,
-            'message' => 'Trainer profile not found. Please contact admin.',
-        ], 404);
     }
 }
 

@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import Section from '@/components/layout/Section';
 import Button from '@/components/ui/Button';
 import PackageDetailsDisplay from '@/components/features/packages/PackageDetailsDisplay';
@@ -15,8 +14,7 @@ import { packageRepository } from '@/infrastructure/persistence/packages';
 import { ListTestimonialsUseCase, type TestimonialDTO } from '@/core/application/testimonials';
 import { testimonialRepository } from '@/infrastructure/persistence/testimonials';
 import type { PackageTrainerSummary } from '@/core/domain/packages/entities/Package';
-
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://camsservice.co.uk';
+import { ROUTES } from '@/utils/routes';
 
 type TrainerCardInfo = {
   trainer: PackageTrainerSummary;
@@ -46,12 +44,13 @@ const TRUST_INDICATOR_ICON_MAP: Record<string, React.ComponentType<{ size?: numb
   clock: Clock,
 };
 
+/** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
+export const revalidate = 1800;
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const headersList = await headers();
-  const host = headersList.get('host');
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (host ? `${protocol}://${host}` : undefined);
 
   const getPackageUseCase = new GetPackageUseCase(packageRepository);
   let pkg = null;
@@ -71,8 +70,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const totalWeeksLabel = `${pkg.totalWeeks}-week programme`;
   const description = `Explore the ${pkg.name} package: ${pkg.hours} total hours across a ${totalWeeksLabel} designed to support your child with personalized SEN sessions.`;
-  const canonicalUrl = baseUrl ? `${baseUrl}/packages/${pkg.slug}` : undefined;
-  const imageUrl = baseUrl ? `${baseUrl}/og-images/og-image.jpg` : '/og-images/og-image.jpg';
+  const canonicalUrl = `${BASE_URL}/packages/${pkg.slug}`;
+  const imageUrl = `${BASE_URL}/og-images/og-image.jpg`;
 
   return {
     title: `${pkg.name} Package | ${totalWeeksLabel}`,
@@ -314,7 +313,7 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
               <Button href={`/dashboard/parent?package=${encodeURIComponent(pkg.slug)}`} variant="primary" size="lg" withArrow>
                 Buy package
               </Button>
-              <Button href="/packages" variant="outline" size="lg" withArrow>
+              <Button href={ROUTES.PACKAGES} variant="outline" size="lg" withArrow>
                 Compare packages
               </Button>
             </div>
@@ -541,7 +540,7 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
 
                   if (trainer.slug) {
                     return (
-                      <Link key={trainer.id} href={`/trainers/${trainer.slug}`}>
+                      <Link key={trainer.id} href={ROUTES.TRAINER_BY_SLUG(trainer.slug)}>
                         {card}
                       </Link>
                     );
@@ -806,7 +805,7 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
               <Button href={`/dashboard/parent?package=${encodeURIComponent(pkg.slug)}`} variant="primary" size="lg" withArrow>
                 Buy package
               </Button>
-              <Button href="/contact" variant="outline" size="lg">
+              <Button href={ROUTES.CONTACT} variant="outline" size="lg">
                 Have questions?
               </Button>
             </div>

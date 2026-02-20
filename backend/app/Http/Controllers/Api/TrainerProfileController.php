@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use App\Models\Trainer;
 use Illuminate\Http\JsonResponse;
@@ -20,6 +21,7 @@ use Illuminate\Support\Str;
  */
 class TrainerProfileController extends Controller
 {
+    use BaseApiController;
     /**
      * Get trainer profile
      * 
@@ -33,45 +35,35 @@ class TrainerProfileController extends Controller
         // Get trainer model linked to this user
         $trainer = Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainer) {
+            return $this->notFoundResponse('Trainer profile');
         }
-        
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'profile' => [
-                    'id' => $trainer->id,
-                    'name' => $trainer->name,
-                    'slug' => $trainer->slug,
-                    'role' => $trainer->role,
-                    'bio' => $trainer->bio,
-                    'full_description' => $trainer->full_description,
-                    'image' => $trainer->image,
-                    'rating' => (float) $trainer->rating,
-                    'total_reviews' => $trainer->total_reviews,
-                    'specialties' => $trainer->specialties ?? [],
-                    'certifications' => $trainer->certifications ?? [],
-                    'experience_years' => $trainer->experience_years,
-                    'availability_notes' => $trainer->availability_notes,
-                    'home_postcode' => $trainer->home_postcode,
-                    'travel_radius_km' => $trainer->travel_radius_km,
-                    'service_area_postcodes' => $trainer->service_area_postcodes ?? [],
-                    'preferred_age_groups' => $trainer->preferred_age_groups ?? [],
-                    'availability_preferences' => $trainer->availability_preferences ?? [],
-                    'is_active' => $trainer->is_active,
-                    'created_at' => $trainer->created_at->toIso8601String(),
-                    'updated_at' => $trainer->updated_at->toIso8601String(),
-                ],
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+
+        $profile = [
+            'id' => $trainer->id,
+            'name' => $trainer->name,
+            'slug' => $trainer->slug,
+            'role' => $trainer->role,
+            'bio' => $trainer->bio,
+            'full_description' => $trainer->full_description,
+            'image' => $trainer->image,
+            'rating' => (float) $trainer->rating,
+            'total_reviews' => $trainer->total_reviews,
+            'specialties' => $trainer->specialties ?? [],
+            'certifications' => $trainer->certifications ?? [],
+            'experience_years' => $trainer->experience_years,
+            'availability_notes' => $trainer->availability_notes,
+            'home_postcode' => $trainer->home_postcode,
+            'travel_radius_km' => $trainer->travel_radius_km,
+            'service_area_postcodes' => $trainer->service_area_postcodes ?? [],
+            'preferred_age_groups' => $trainer->preferred_age_groups ?? [],
+            'availability_preferences' => $trainer->availability_preferences ?? [],
+            'is_active' => $trainer->is_active,
+            'created_at' => $trainer->created_at->toIso8601String(),
+            'updated_at' => $trainer->updated_at->toIso8601String(),
+        ];
+
+        return $this->successResponse(['profile' => $profile]);
     }
     
     /**
@@ -87,13 +79,10 @@ class TrainerProfileController extends Controller
         // Get trainer model linked to this user
         $trainer = Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found. Please contact admin.',
-            ], 404);
+        if (! $trainer) {
+            return $this->notFoundResponse('Trainer profile');
         }
-        
+
         $validator = Validator::make($request->all(), [
             'name' => ['sometimes', 'required', 'string', 'max:100'],
             'role' => ['sometimes', 'string', 'max:100'],
@@ -113,13 +102,9 @@ class TrainerProfileController extends Controller
         ]);
         
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
-        
+
         // Update allowed fields
         $allowedFields = [
             'name',
@@ -149,36 +134,28 @@ class TrainerProfileController extends Controller
         }
         
         $trainer->update($updateData);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Profile updated successfully',
-            'data' => [
-                'profile' => [
-                    'id' => $trainer->id,
-                    'name' => $trainer->name,
-                    'slug' => $trainer->slug,
-                    'role' => $trainer->role,
-                    'bio' => $trainer->bio,
-                    'full_description' => $trainer->full_description,
-                    'specialties' => $trainer->specialties ?? [],
-                    'experience_years' => $trainer->experience_years,
-                    'availability_notes' => $trainer->availability_notes,
-                    'home_postcode' => $trainer->home_postcode,
-                    'travel_radius_km' => $trainer->travel_radius_km,
-                    'service_area_postcodes' => $trainer->service_area_postcodes ?? [],
-                    'preferred_age_groups' => $trainer->preferred_age_groups ?? [],
-                    'availability_preferences' => $trainer->availability_preferences ?? [],
-                    'updated_at' => $trainer->updated_at->toIso8601String(),
-                ],
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+
+        $profile = [
+            'id' => $trainer->id,
+            'name' => $trainer->name,
+            'slug' => $trainer->slug,
+            'role' => $trainer->role,
+            'bio' => $trainer->bio,
+            'full_description' => $trainer->full_description,
+            'specialties' => $trainer->specialties ?? [],
+            'experience_years' => $trainer->experience_years,
+            'availability_notes' => $trainer->availability_notes,
+            'home_postcode' => $trainer->home_postcode,
+            'travel_radius_km' => $trainer->travel_radius_km,
+            'service_area_postcodes' => $trainer->service_area_postcodes ?? [],
+            'preferred_age_groups' => $trainer->preferred_age_groups ?? [],
+            'availability_preferences' => $trainer->availability_preferences ?? [],
+            'updated_at' => $trainer->updated_at->toIso8601String(),
+        ];
+
+        return $this->successResponse(['profile' => $profile], 'Profile updated successfully');
     }
-    
+
     /**
      * Upload profile image
      * 
@@ -192,23 +169,16 @@ class TrainerProfileController extends Controller
         // Get trainer model linked to this user
         $trainer = Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found.',
-            ], 404);
+        if (! $trainer) {
+            return $this->notFoundResponse('Trainer profile');
         }
-        
+
         $validator = Validator::make($request->all(), [
             'image' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'], // 2MB max
         ]);
-        
+
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
         
         // Delete old image if exists
@@ -226,21 +196,13 @@ class TrainerProfileController extends Controller
         
         // Return full URL for the image
         $imageUrl = url('/storage/trainers/' . $filename);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Image uploaded successfully',
-            'data' => [
-                'image' => $imageUrl,
-                'image_path' => $imagePath,
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+
+        return $this->successResponse(
+            ['image' => $imageUrl, 'image_path' => $imagePath],
+            'Image uploaded successfully'
+        );
     }
-    
+
     /**
      * Upload qualification/certification document
      * 
@@ -254,13 +216,10 @@ class TrainerProfileController extends Controller
         // Get trainer model linked to this user
         $trainer = Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found.',
-            ], 404);
+        if (! $trainer) {
+            return $this->notFoundResponse('Trainer profile');
         }
-        
+
         $validator = Validator::make($request->all(), [
             'file' => ['required', 'file', 'mimes:pdf,jpeg,jpg,png', 'max:5120'], // 5MB max
             'name' => ['required', 'string', 'max:100'],
@@ -270,13 +229,9 @@ class TrainerProfileController extends Controller
         ]);
         
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
-        
+
         // Store file
         $filePath = $request->file('file')->store('trainers/qualifications', 'public');
         
@@ -302,21 +257,13 @@ class TrainerProfileController extends Controller
         ];
         
         $trainer->update(['certifications' => $certifications]);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Qualification uploaded successfully',
-            'data' => [
-                'certification' => end($certifications),
-                'certifications' => $certifications,
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+
+        return $this->successResponse(
+            ['certification' => end($certifications), 'certifications' => $certifications],
+            'Qualification uploaded successfully'
+        );
     }
-    
+
     /**
      * Delete qualification/certification
      * 
@@ -331,13 +278,10 @@ class TrainerProfileController extends Controller
         // Get trainer model linked to this user
         $trainer = Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found.',
-            ], 404);
+        if (! $trainer) {
+            return $this->notFoundResponse('Trainer profile');
         }
-        
+
         $certifications = $trainer->certifications ?? [];
         
         // Find and remove certification
@@ -349,20 +293,13 @@ class TrainerProfileController extends Controller
         $certifications = array_values($certifications);
         
         $trainer->update(['certifications' => $certifications]);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Qualification deleted successfully',
-            'data' => [
-                'certifications' => $certifications,
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+
+        return $this->successResponse(
+            ['certifications' => $certifications],
+            'Qualification deleted successfully'
+        );
     }
-    
+
     /**
      * Update availability preferences
      * 
@@ -376,24 +313,17 @@ class TrainerProfileController extends Controller
         // Get trainer model linked to this user
         $trainer = Trainer::where('user_id', $user->id)->first();
         
-        if (!$trainer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Trainer profile not found.',
-            ], 404);
+        if (! $trainer) {
+            return $this->notFoundResponse('Trainer profile');
         }
-        
+
         $validator = Validator::make($request->all(), [
             'availability_preferences' => ['required', 'array'],
             'availability_notes' => ['sometimes', 'nullable', 'string', 'max:1000'],
         ]);
-        
+
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->validationErrorResponse($validator->errors()->toArray());
         }
         
         $updateData = [
@@ -405,19 +335,11 @@ class TrainerProfileController extends Controller
         }
         
         $trainer->update($updateData);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Availability updated successfully',
-            'data' => [
-                'availability_preferences' => $trainer->availability_preferences ?? [],
-                'availability_notes' => $trainer->availability_notes,
-            ],
-            'meta' => [
-                'timestamp' => now()->toIso8601String(),
-                'version' => 'v1',
-            ],
-        ], 200);
+
+        return $this->successResponse([
+            'availability_preferences' => $trainer->availability_preferences ?? [],
+            'availability_notes' => $trainer->availability_notes,
+        ], 'Availability updated successfully');
     }
 }
 

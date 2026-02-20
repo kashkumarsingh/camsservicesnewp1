@@ -4,6 +4,8 @@ import React, { useState, useRef } from 'react';
 import { trainerActivityLogRepository } from '@/infrastructure/http/trainer/TrainerActivityLogRepository';
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import { EmptyState } from '@/components/dashboard/universal/EmptyState';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface PhotoUploadProps {
   activityLogId?: number;
@@ -139,11 +141,11 @@ export default function PhotoUpload({
       )}
 
       {uploadedPhotos.length === 0 && (
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-          <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-sm text-gray-600 mb-2">No photos uploaded yet</p>
-          <p className="text-xs text-gray-500">Click "Upload Photos" to add photos</p>
-        </div>
+        <EmptyState
+          title={EMPTY_STATE.NO_PHOTOS_UPLOADED_YET.title}
+          message={EMPTY_STATE.NO_PHOTOS_UPLOADED_YET.message}
+          className="border-2 border-dashed border-gray-300 rounded-lg p-8"
+        />
       )}
     </div>
   );

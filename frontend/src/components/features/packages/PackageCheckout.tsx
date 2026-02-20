@@ -30,6 +30,7 @@ import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { formatCurrency } from '@/utils/currencyFormatter';
 import type { PaymentMethod, PaymentStatus } from '@/infrastructure/services/payment';
 import { parentProfileRepository } from '@/infrastructure/http/parent/ParentProfileRepository';
+import { ROUTES } from '@/utils/routes';
 
 interface PackageCheckoutProps {
   packageName: string;
@@ -292,7 +293,7 @@ export default function PackageCheckout({
 
         // Development-only logging to verify payload before API call
         if (process.env.NODE_ENV === 'development') {
-          // eslint-disable-next-line no-console
+           
           console.log(
             '[PackageCheckout] Temporary booking payload:',
             bookingData,
@@ -554,7 +555,7 @@ export default function PackageCheckout({
         {/* Header */}
         <div className="mb-6">
           <Link 
-            href="/packages" 
+            href={ROUTES.PACKAGES} 
             className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600 transition-colors mb-4"
           >
             <ArrowLeft size={16} />

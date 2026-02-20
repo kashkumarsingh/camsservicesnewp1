@@ -222,7 +222,7 @@ class AdminTrainerController extends Controller
 
             return $this->successResponse($data);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return $this->notFoundResponse('Trainer not found.');
+            return $this->notFoundResponse('Trainer');
         } catch (\Exception $e) {
             Log::error('Error retrieving admin trainer', [
                 'id' => $id,
@@ -401,7 +401,7 @@ class AdminTrainerController extends Controller
 
             return $this->successResponse($data, 'Trainer updated successfully.');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return $this->notFoundResponse('Trainer not found.');
+            return $this->notFoundResponse('Trainer');
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
             return $this->validationErrorResponse($e->errors());
@@ -453,7 +453,7 @@ class AdminTrainerController extends Controller
                 'image_path' => $imagePath,
             ], 'Trainer image uploaded successfully.');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return $this->notFoundResponse('Trainer not found.');
+            return $this->notFoundResponse('Trainer');
         } catch (\Exception $e) {
             Log::error('Error uploading trainer image (admin)', [
                 'id' => $id,
@@ -514,7 +514,7 @@ class AdminTrainerController extends Controller
                 'certifications' => $certifications,
             ], 'Qualification uploaded successfully.');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return $this->notFoundResponse('Trainer not found.');
+            return $this->notFoundResponse('Trainer');
         } catch (\Exception $e) {
             Log::error('Error uploading trainer qualification (admin)', [
                 'id' => $id,
@@ -557,7 +557,7 @@ class AdminTrainerController extends Controller
                 'certifications' => $certifications,
             ], 'Qualification deleted successfully.');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return $this->notFoundResponse('Trainer not found.');
+            return $this->notFoundResponse('Trainer');
         } catch (\Exception $e) {
             Log::error('Error deleting trainer qualification (admin)', [
                 'id' => $id,
@@ -603,7 +603,7 @@ class AdminTrainerController extends Controller
 
             return $this->successResponse(null, 'Trainer deleted successfully.');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return $this->notFoundResponse('Trainer not found.');
+            return $this->notFoundResponse('Trainer');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error deleting trainer', [
@@ -646,7 +646,7 @@ class AdminTrainerController extends Controller
 
             return $this->successResponse($data, $message);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return $this->notFoundResponse('Trainer not found.');
+            return $this->notFoundResponse('Trainer');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->validationErrorResponse($e->errors());
         } catch (\Exception $e) {
@@ -781,10 +781,7 @@ class AdminTrainerController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to export trainers.',
-            ], 500);
+            return $this->serverErrorResponse('Failed to export trainers.');
         }
     }
 
@@ -865,15 +862,14 @@ class AdminTrainerController extends Controller
             ];
         });
 
-        return response()->json([
-            'success' => true,
-            'data' => ['trainers' => $result->values()],
-            'meta' => [
+        return $this->successResponse(
+            ['trainers' => $result->values()],
+            null,
+            [
                 'dateFrom' => $dateFrom->format('Y-m-d'),
                 'dateTo' => $dateTo->format('Y-m-d'),
-                'timestamp' => now()->toIso8601String(),
-            ],
-        ], 200);
+            ]
+        );
     }
 
     /**
@@ -890,7 +886,7 @@ class AdminTrainerController extends Controller
 
         $trainer = Trainer::find($id);
         if (! $trainer) {
-            return $this->notFoundResponse('Trainer not found.');
+            return $this->notFoundResponse('Trainer');
         }
 
         $result = $this->getTrainerAvailabilityDates->execute(
@@ -899,18 +895,17 @@ class AdminTrainerController extends Controller
             Carbon::parse($request->date_to)
         );
 
-        return response()->json([
-            'success' => true,
-            'data' => [
+        return $this->successResponse(
+            [
                 'dates' => $result['dates'],
                 'unavailable_dates' => $result['unavailable_dates'],
             ],
-            'meta' => [
+            null,
+            [
                 'date_from' => $result['date_from'],
                 'date_to' => $result['date_to'],
-                'timestamp' => now()->toIso8601String(),
-            ],
-        ], 200);
+            ]
+        );
     }
 
     /**
@@ -977,15 +972,14 @@ class AdminTrainerController extends Controller
             ];
         });
 
-        return response()->json([
-            'success' => true,
-            'data' => ['trainers' => $result->values()],
-            'meta' => [
+        return $this->successResponse(
+            ['trainers' => $result->values()],
+            null,
+            [
                 'date_from' => $dateFrom->format('Y-m-d'),
                 'date_to' => $dateTo->format('Y-m-d'),
-                'timestamp' => now()->toIso8601String(),
-            ],
-        ], 200);
+            ]
+        );
     }
 
     /**
@@ -1002,7 +996,7 @@ class AdminTrainerController extends Controller
 
         $trainer = Trainer::find($id);
         if (! $trainer) {
-            return $this->notFoundResponse('Trainer not found.');
+            return $this->notFoundResponse('Trainer');
         }
 
         $dateFrom = Carbon::parse($request->date_from)->startOfDay();
@@ -1043,17 +1037,16 @@ class AdminTrainerController extends Controller
             }
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => [
+        return $this->successResponse(
+            [
                 'approved_dates' => array_values(array_unique($approvedDates)),
                 'pending_dates' => array_values(array_unique($pendingDates)),
             ],
-            'meta' => [
+            null,
+            [
                 'date_from' => $dateFrom->format('Y-m-d'),
                 'date_to' => $dateTo->format('Y-m-d'),
-                'timestamp' => now()->toIso8601String(),
-            ],
-        ], 200);
+            ]
+        );
     }
 }

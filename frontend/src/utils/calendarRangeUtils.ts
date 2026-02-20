@@ -102,7 +102,7 @@ export function getMonthCalendarGrid(monthKey: string): string[][] {
   const last = new Date(y, m, 0);
   const startMonday = getMonday(first);
   const lastDayStr = `${y}-${String(m).padStart(2, '0')}-${String(last.getDate()).padStart(2, '0')}`;
-  const endSunday = getWeekEnd(getMonday(lastDayStr));
+  const endSunday = getWeekEnd(getMonday(new Date(lastDayStr + 'T12:00:00')));
   const rows: string[][] = [];
   const d = new Date(startMonday + 'T12:00:00');
   const endDate = new Date(endSunday + 'T12:00:00');

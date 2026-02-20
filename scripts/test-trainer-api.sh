@@ -7,7 +7,7 @@
 # 
 # Example:
 #   ./scripts/test-trainer-api.sh http://localhost:9080/api/v1
-#   ./scripts/test-trainer-api.sh https://cams-backend-1q6w.onrender.com/api/v1
+#   ./scripts/test-trainer-api.sh https://cams-backend-oj5x.onrender.com/api/v1
 
 set -e
 

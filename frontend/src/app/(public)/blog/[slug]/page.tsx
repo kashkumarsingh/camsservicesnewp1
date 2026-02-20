@@ -8,9 +8,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, User, Clock, ArrowLeft } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import { RichTextBlock } from '@/components/shared/public-page';
 import BlogSidebar from './BlogSidebar';
+import { ROUTES } from '@/utils/routes';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://camsservice.co.uk';
+
+/** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
+export const revalidate = 1800;
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -178,7 +183,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             {/* Main Content */}
             <div className="lg:col-span-2">
           {/* Back Button */}
-          <Link href="/blog">
+          <Link href={ROUTES.BLOG}>
             <Button variant="bordered" size="sm" className="mb-8">
               <ArrowLeft size={16} className="mr-2" />
               Back to Blog
@@ -243,9 +248,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           )}
 
           {/* Content */}
-          <div
-            className="prose prose-lg max-w-none prose-headings:text-[#1E3A5F] prose-p:text-gray-700 prose-a:text-[#0080FF] prose-a:no-underline hover:prose-a:underline prose-strong:text-[#1E3A5F] prose-code:text-[#0080FF] prose-pre:bg-gray-900 prose-pre:text-white"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+          <RichTextBlock
+            content={post.content}
+            proseClassName="prose prose-lg max-w-none prose-headings:text-navy-blue prose-p:text-gray-700 prose-a:text-primary-blue prose-a:no-underline hover:prose-a:underline prose-strong:text-navy-blue prose-code:text-primary-blue prose-pre:bg-gray-900 prose-pre:text-white"
           />
 
           {/* Author Bio */}
@@ -262,7 +267,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   />
                 )}
                 <div>
-                  <h3 className="text-xl font-bold text-[#1E3A5F] mb-2">
+                  <h3 className="text-xl font-bold text-navy-blue mb-2">
                     {post.author.name}
                   </h3>
                   {post.author.bio && (
@@ -274,16 +279,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           )}
 
           {/* CTA */}
-          <div className="mt-12 p-8 bg-gradient-to-r from-[#0080FF] to-[#00D4FF] rounded-[30px] text-white text-center">
+          <div className="mt-12 p-8 bg-gradient-to-r from-primary-blue to-light-blue-cyan rounded-card text-white text-center">
             <h3 className="text-2xl font-bold mb-4">Ready to Take Action?</h3>
             <p className="mb-6 text-lg opacity-90">
               Reading is great, but real change happens with expert support.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button href="/contact" variant="secondary" size="lg" withArrow>
+              <Button href={ROUTES.CONTACT} variant="secondary" size="lg" withArrow>
                 Book FREE Consultation
               </Button>
-              <Button href="/packages" variant="outline" size="lg" withArrow>
+              <Button href={ROUTES.PACKAGES} variant="outline" size="lg" withArrow>
                 View Our Packages
               </Button>
             </div>

@@ -26,7 +26,7 @@ export default function ConditionalPriceDisplay({
 
   return (
     <div>
-      <div className="text-3xl font-extrabold bg-gradient-to-r from-[#0080FF] to-[#00D4FF] bg-clip-text text-transparent">
+      <div className="text-3xl font-extrabold bg-gradient-to-r from-primary-blue to-light-blue-cyan bg-clip-text text-transparent">
         {formatCurrency(price)}
       </div>
       {showSavings && (

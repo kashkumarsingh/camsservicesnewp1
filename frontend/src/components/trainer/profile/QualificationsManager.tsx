@@ -5,6 +5,8 @@ import { trainerProfileRepository } from '@/infrastructure/http/trainer/TrainerP
 import type { TrainerProfile, TrainerCertification, UploadQualificationRequest } from '@/core/application/trainer/types';
 import { Upload, X, FileText, Trash2, Save, Plus } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import { EmptyState } from '@/components/dashboard/universal/EmptyState';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface QualificationsManagerProps {
   profile: TrainerProfile;
@@ -170,11 +172,11 @@ export default function QualificationsManager({ profile, onUpdate, onError }: Qu
           </h4>
 
           {certifications.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No qualifications uploaded yet</p>
-              <p className="text-sm text-gray-500 mt-1">Upload your first qualification above</p>
-            </div>
+            <EmptyState
+              title={EMPTY_STATE.NO_QUALIFICATIONS_UPLOADED_YET.title}
+              message={EMPTY_STATE.NO_QUALIFICATIONS_UPLOADED_YET.message}
+              className="py-12 bg-gray-50 rounded-lg"
+            />
           ) : (
             <div className="space-y-3">
               {certifications.map((cert) => (
@@ -183,7 +185,7 @@ export default function QualificationsManager({ profile, onUpdate, onError }: Qu
                   className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-center gap-4 flex-1">
-                    <FileText className="h-8 w-8 text-[#0080FF]" />
+                    <FileText className="h-8 w-8 text-primary-blue" />
                     <div>
                       <h5 className="font-medium text-gray-900">{cert.name}</h5>
                       <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
@@ -198,7 +200,7 @@ export default function QualificationsManager({ profile, onUpdate, onError }: Qu
                           href={cert.file_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-sm text-[#0080FF] hover:underline mt-1 inline-block"
+                          className="text-sm text-primary-blue hover:underline mt-1 inline-block"
                         >
                           View Document →
                         </a>

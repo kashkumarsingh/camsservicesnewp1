@@ -11,6 +11,7 @@ import ServiceCard from './ServiceCard';
 import { ServiceFilterOptions } from '@/core/application/services';
 import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
 import { ServiceSkeleton } from '@/components/ui/Skeleton';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 interface ServiceListProps {
   filterOptions?: ServiceFilterOptions;
@@ -38,7 +39,7 @@ export default function ServiceList({ filterOptions }: ServiceListProps) {
   if (services.length === 0) {
     return (
       <div className="py-8 text-center">
-        <p className="text-sm text-slate-600">No services found.</p>
+        <p className="text-sm text-slate-600">{EMPTY_STATE.NO_SERVICES_FOUND.title}</p>
       </div>
     );
   }

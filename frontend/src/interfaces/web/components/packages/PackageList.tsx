@@ -13,6 +13,7 @@ import PackageCard from './PackageCard';
 import { PackageFilterOptions } from '@/core/application/packages';
 import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
 import { PackageSkeleton } from '@/components/ui/Skeleton';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 import { usePackageRecommendations } from '@/interfaces/web/hooks/packages/usePackageRecommendations';
 
 interface PackageListProps {
@@ -86,7 +87,7 @@ export default function PackageList({ filterOptions }: PackageListProps) {
   if (packages.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-slate-600 text-sm">No packages found.</p>
+        <p className="text-slate-600 text-sm">{EMPTY_STATE.NO_PACKAGES_FOUND.title}</p>
       </div>
     );
   }
