@@ -62,10 +62,9 @@ services:
         value: database
       - key: QUEUE_CONNECTION
         value: database
-      # When using dedicated cams-queue-worker, set to false so only the worker runs jobs
+      # Queue and scheduler run in-container (Render free plan does not allow worker or cron services; use starter+ to add them)
       - key: RUN_QUEUE_IN_CONTAINER
-        value: "false"
-      # Scheduler runs in-container (Render cron does not support plan: free; use starter+ if you add a cron service)
+        value: "true"
       - key: RUN_SCHEDULER_IN_CONTAINER
         value: "true"
       - key: SESSION_LIFETIME
@@ -268,67 +267,9 @@ services:
       - key: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
         sync: false
 
-  # Queue worker – processes database queue (required for jobs; backend has RUN_QUEUE_IN_CONTAINER=false)
-  - type: worker
-    name: cams-queue-worker
-    runtime: docker
-    plan: free
-    region: oregon
-    dockerfilePath: backend/Dockerfile
-    dockerContext: backend
-    envVars:
-      - key: RUN_MODE
-        value: worker
-      - key: APP_KEY
-        sync: false
-      - key: APP_ENV
-        value: production
-      - key: DB_CONNECTION
-        value: pgsql
-      - key: DB_HOST
-        fromDatabase:
-          name: cams-database
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: cams-database
-          property: port
-      - key: DB_DATABASE
-        fromDatabase:
-          name: cams-database
-          property: database
-      - key: DB_USERNAME
-        fromDatabase:
-          name: cams-database
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: cams-database
-          property: password
-      - key: QUEUE_CONNECTION
-        value: database
-      - key: BROADCAST_CONNECTION
-        value: reverb
-      - key: REVERB_APP_ID
-        value: "1"
-      - key: REVERB_APP_KEY
-        sync: false
-      - key: REVERB_APP_SECRET
-        sync: false
-      - key: REVERB_HOST
-        fromService:
-          type: web
-          name: cams-reverb
-          property: host
-      - key: REVERB_PORT
-        fromService:
-          type: web
-          name: cams-reverb
-          property: port
-
-  # Scheduler: not defined as a separate cron service (Render cron does not support plan: free).
-  # Laravel schedule:run runs in-container on cams-backend (RUN_SCHEDULER_IN_CONTAINER=true).
-  # To use a dedicated cron job, add a cron service with plan: starter (or higher) and set RUN_SCHEDULER_IN_CONTAINER=false on backend.
+  # Queue worker and scheduler: not defined as separate services (Render free plan does not allow worker or cron).
+  # Both run in-container on cams-backend (RUN_QUEUE_IN_CONTAINER=true, RUN_SCHEDULER_IN_CONTAINER=true).
+  # Upgrade to starter (or higher) to add dedicated cams-queue-worker and/or cams-scheduler cron.
 
 # Database Service - PostgreSQL (Render Free Tier)
 # Free tier: database is deleted after 90 days of inactivity. Upgrade to paid or back up before expiry.
