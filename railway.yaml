@@ -22,7 +22,9 @@
 # Root Directory: backend (same as backend; use RUN_MODE=reverb)
 # Create a second service from same repo, Root Directory: backend.
 # Set RUN_MODE=reverb and same APP_KEY/DB/Reverb credentials as backend.
-# No separate railway.toml needed unless you want a custom healthcheck (Reverb has no HTTP by default).
+# IMPORTANT: Reverb does not serve HTTP (only WebSocket). Use backend/railway-reverb.toml for cams-reverb:
+#   Railway Dashboard → cams-reverb → Settings → set "Config File Path" to: railway-reverb.toml
+# If Railway has no config path setting, healthcheck is removed from backend/railway.toml so both services deploy.
 
 # --- 3. Frontend (Next.js) ---
 # Root Directory: frontend

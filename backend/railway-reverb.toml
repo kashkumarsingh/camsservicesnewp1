@@ -1,0 +1,12 @@
+# Railway config for CAMS Reverb (WebSocket only — no HTTP, so no healthcheck)
+# Use this for the cams-reverb service: in Railway Dashboard → cams-reverb → Settings
+# set "Config File Path" (or "Configuration path") to: railway-reverb.toml
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+watchPatterns = ["composer.json", "composer.lock", "*.php", "docker-entrypoint.sh", "railway.toml", "railway-reverb.toml"]
+
+[deploy]
+restartPolicyType = "ALWAYS"
+# No healthcheckPath — Reverb does not serve HTTP, so /health would never respond

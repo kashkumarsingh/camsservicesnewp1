@@ -7,6 +7,6 @@ dockerfilePath = "Dockerfile"
 watchPatterns = ["composer.json", "composer.lock", "*.php", "docker-entrypoint.sh", "nginx.conf", "railway.toml"]
 
 [deploy]
-healthcheckPath = "/health"
-healthcheckTimeout = 300
+# Healthcheck omitted: cams-reverb (RUN_MODE=reverb) does not serve HTTP, so /health would fail.
+# Both cams-backend and cams-reverb use this file; deploy succeeds when container starts.
 restartPolicyType = "ALWAYS"
