@@ -14,7 +14,7 @@ services:
     runtime: docker
     plan: free
     region: oregon  # Same region as frontend and Reverb to minimise latency
-    # no healthCheckPath — Render uses TCP port check instead (passes as soon as Nginx listens; forgiving on startup)
+    healthCheckPath: /health  # Nginx serves directly (no PHP); passes once Nginx is up
     dockerfilePath: backend/Dockerfile
     dockerContext: backend
     envVars:

@@ -1,0 +1,12 @@
+# Railway config for CAMS Frontend (Next.js)
+# Set this service's Root Directory to "frontend" in Railway Dashboard.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+watchPatterns = ["package.json", "package-lock.json", "src/**", "next.config.js", "tailwind.config.js", "railway.toml"]
+
+[deploy]
+healthcheckPath = "/api/health"
+healthcheckTimeout = 300
+restartPolicyType = "ALWAYS"

@@ -1,0 +1,12 @@
+# Railway config for CAMS Backend (Laravel API)
+# Set this service's Root Directory to "backend" in Railway Dashboard.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+watchPatterns = ["composer.json", "composer.lock", "*.php", "docker-entrypoint.sh", "nginx.conf", "railway.toml"]
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "ALWAYS"
