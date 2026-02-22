@@ -24,7 +24,7 @@
     "postinstall": "node scripts/postinstall.js",
     "validate": "node scripts/validate.js",
     "check-segments": "bash scripts/check-segment-config.sh",
-    "prebuild": "bash scripts/check-segment-config.sh && npm install baseline-browser-mapping@latest --save-dev || true"
+    "prebuild": "bash scripts/check-segment-config.sh"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^5.4.1",
