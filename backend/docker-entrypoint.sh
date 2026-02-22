@@ -12,7 +12,7 @@ fi
 if [ "$RUN_MODE" = "reverb" ]; then
     export REVERB_PORT="${PORT:-8080}"
     export REVERB_HOST="${REVERB_HOST:-0.0.0.0}"
-    echo "Reverb mode → starting WebSocket server on port $REVERB_PORT (Render WSS)"
+    echo "Reverb mode → starting WebSocket server on port $REVERB_PORT (Railway WSS)"
     exec php artisan reverb:start
 fi
 
