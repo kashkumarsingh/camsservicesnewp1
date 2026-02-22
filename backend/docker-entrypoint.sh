@@ -147,13 +147,13 @@ echo "Web mode → starting bootstrap in background, then Nginx in foreground (d
 (
     set +e
     echo "[background] Waiting for database..."
-    MAX_RETRIES=40
+    MAX_RETRIES=60
     COUNT=0
     DB_READY=0
     until php artisan db:monitor >/dev/null 2>&1; do
         COUNT=$((COUNT + 1))
         if [ $COUNT -ge $MAX_RETRIES ]; then
-            echo "[background] DB not ready after ${MAX_RETRIES} attempts — continuing anyway (migrations skipped). Set DB_* in Render if this persists."
+            echo "[background] DB not ready after ${MAX_RETRIES} attempts — continuing anyway (migrations skipped). Set DB_* in Railway if this persists."
             DB_READY=0
             break
         fi
@@ -164,13 +164,20 @@ echo "Web mode → starting bootstrap in background, then Nginx in foreground (d
     fi
     if [ "$DB_READY" = "1" ]; then
         echo "[background] Database connected. Running migrations..."
-        set +e
-        php artisan migrate --force --no-interaction 2>&1
-        MIGRATION_EXIT=$?
-        set -e
+        MIGRATION_EXIT=1
+        for ATTEMPT in 1 2 3; do
+            set +e
+            php artisan migrate --force --no-interaction 2>&1
+            MIGRATION_EXIT=$?
+            set -e
+            if [ $MIGRATION_EXIT -eq 0 ]; then
+                break
+            fi
+            echo "[background] Migrations attempt $ATTEMPT failed (exit $MIGRATION_EXIT). Retrying in 15s..."
+            sleep 15
+        done
         if [ $MIGRATION_EXIT -ne 0 ]; then
-            sleep 2
-            php artisan migrate --force --no-interaction 2>&1 || true
+            echo "[background] Migrations failed after 3 attempts. Continuing startup; run migrate manually if needed."
         fi
     fi
     php artisan config:clear || true
