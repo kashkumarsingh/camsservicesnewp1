@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 /**
- * Render health check (Laravel fallback; Nginx serves /health directly so this may not be hit).
+ * Health check (Laravel fallback; Nginx serves /health directly so this may not be hit).
  * Plain text is faster than JSON. No DB, no auth, no middleware.
  * Full health (with DB) remains at GET /api/v1/health for monitoring.
  */

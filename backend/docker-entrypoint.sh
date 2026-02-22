@@ -3,12 +3,12 @@ set -e
 
 # Fail fast with clear message if APP_KEY is missing (Laravel will crash on first request otherwise)
 if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:..." ]; then
-    echo "FATAL: APP_KEY is not set. Set it in Render Dashboard → cams-backend → Environment."
+    echo "FATAL: APP_KEY is not set. Set it in Railway (or your host) → cams-backend → Variables."
     echo "Generate with: php artisan key:generate --show"
     exit 1
 fi
 
-# Reverb-only mode (Render WebSocket service): listen on PORT, use ping for keepalive
+# Reverb-only mode (Railway WebSocket service): listen on PORT, use ping for keepalive
 if [ "$RUN_MODE" = "reverb" ]; then
     export REVERB_PORT="${PORT:-8080}"
     export REVERB_HOST="${REVERB_HOST:-0.0.0.0}"
@@ -27,16 +27,13 @@ run_migrations() {
 
 echo "Starting CAMS Backend..."
 
-# PORT is always provided by Railway/Render/Fly.io
+# PORT is provided by Railway (or your host)
 export PORT=${PORT:-80}
 
-# Smart APP_URL detection (Railway → Render → Fallback)
+# Smart APP_URL detection (Railway → Fallback)
 if [ -n "$RAILWAY_PUBLIC_DOMAIN" ]; then
     export APP_URL="https://$RAILWAY_PUBLIC_DOMAIN"
     echo "Railway detected → APP_URL = $APP_URL"
-elif [ -n "$RENDER_EXTERNAL_URL" ]; then
-    export APP_URL=$(echo "$RENDER_EXTERNAL_URL" | sed 's|^http://|https://|')
-    echo "Render detected → APP_URL = $APP_URL"
 else
     export APP_URL="${APP_URL:-http://localhost}"
     echo "Fallback → APP_URL = $APP_URL"
@@ -46,31 +43,6 @@ fi
 export CACHE_DRIVER=${CACHE_DRIVER:-database}
 export SESSION_DRIVER=${SESSION_DRIVER:-database}
 export QUEUE_CONNECTION=${QUEUE_CONNECTION:-database}
-
-# Auto-configure session domain for Render.com (fixes 419 CSRF errors)
-if [ -n "$RENDER_EXTERNAL_URL" ]; then
-    # Extract domain from Render URL (e.g., https://cams-backend-oj5x.onrender.com)
-    RENDER_DOMAIN=$(echo "$RENDER_EXTERNAL_URL" | sed 's|https\?://||' | sed 's|/.*||')
-    # Use EXACT domain (not .onrender.com) for better browser cookie compatibility
-    # Some browsers reject cookies with wildcard domains like .onrender.com
-    if echo "$RENDER_DOMAIN" | grep -q "\.onrender\.com$"; then
-        # If SESSION_DOMAIN not explicitly set, use exact domain for better compatibility
-        if [ -z "$SESSION_DOMAIN" ]; then
-            export SESSION_DOMAIN="$RENDER_DOMAIN"
-            echo "Render detected → SESSION_DOMAIN = $SESSION_DOMAIN (exact domain for cookie compatibility)"
-        else
-            echo "Render detected → SESSION_DOMAIN = $SESSION_DOMAIN (using explicit value)"
-        fi
-    fi
-    # Auto-configure Sanctum stateful domains if not set
-    if [ -z "$SANCTUM_STATEFUL_DOMAINS" ]; then
-        # Try to detect frontend URL from environment or use backend domain
-        FRONTEND_DOMAIN="${FRONTEND_URL:-$RENDER_DOMAIN}"
-        FRONTEND_DOMAIN=$(echo "$FRONTEND_DOMAIN" | sed 's|https\?://||' | sed 's|/.*||')
-        export SANCTUM_STATEFUL_DOMAINS="$FRONTEND_DOMAIN,$RENDER_DOMAIN"
-        echo "Auto-configured → SANCTUM_STATEFUL_DOMAINS = $SANCTUM_STATEFUL_DOMAINS"
-    fi
-fi
 
 # Auto-configure session domain for Railway
 if [ -n "$RAILWAY_PUBLIC_DOMAIN" ]; then
@@ -107,7 +79,7 @@ NGINX_TMP=$(mktemp)
 envsubst '$PORT' < /etc/nginx/http.d/default.conf > "$NGINX_TMP"
 mv "$NGINX_TMP" /etc/nginx/http.d/default.conf
 
-# Worker-only mode (Render): needs DB and migrations before running queue:work
+# Worker-only mode (Railway): needs DB and migrations before running queue:work
 if [ "$RUN_MODE" = "worker" ]; then
     echo "Waiting for database..."
     MAX_RETRIES=40
@@ -124,7 +96,7 @@ if [ "$RUN_MODE" = "worker" ]; then
     exec php artisan queue:work database --sleep=3 --tries=3 --timeout=90 --verbose --no-interaction
 fi
 
-# Scheduler-only mode (Render cron): needs DB, then run schedule:run once
+# Scheduler-only mode (Railway cron): needs DB, then run schedule:run once
 if [ "$RUN_MODE" = "scheduler" ]; then
     echo "Waiting for database..."
     MAX_RETRIES=40

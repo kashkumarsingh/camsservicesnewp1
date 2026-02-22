@@ -63,7 +63,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'content-admin' => \App\Http\Middleware\EnsureUserCanManageContent::class,
         ]);
         
-        // Trust proxies for HTTPS detection behind Render.com/load balancers
+        // Trust proxies for HTTPS detection behind Railway/load balancers
         // This ensures request()->secure() works correctly
         $middleware->trustProxies(at: '*');
         

@@ -36,8 +36,6 @@ return [
         // Allow all localhost ports for development
         '#^http://localhost:\d+$#',
         '#^http://127\.0\.0\.1:\d+$#',
-        // Allow all Render.com subdomains
-        '#^https://.*\.onrender\.com$#',
         // Allow all Railway.app subdomains
         '#^https://.*\.railway\.app$#',
         // Allow all Vercel preview and production deployments

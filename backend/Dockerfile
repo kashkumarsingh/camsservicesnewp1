@@ -60,7 +60,7 @@ FROM base AS production
 # Copy nginx config
 COPY nginx.conf /etc/nginx/http.d/default.conf
 
-# Expose port (Render.com will use PORT env var)
+# Expose port (Railway/host uses PORT env var)
 EXPOSE 80
 
 # Use entrypoint script to handle readiness checks and startup

@@ -166,7 +166,7 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
     };
   }, [user?.id, user?.role]);
 
-  // Polling fallback when WebSocket/Reverb is not available (e.g. Render) – same refetch behaviour
+  // Polling fallback when WebSocket/Reverb is not available – same refetch behaviour
   const refreshAllRef = useRef(refreshAll);
   refreshAllRef.current = refreshAll;
   useEffect(() => {

@@ -4,19 +4,18 @@
  * Purpose: Parent, trainer, and admin dashboards update (notification bell, bookings,
  * schedules) without the user pressing "Refresh" or reloading the page.
  *
- * Strategy (works locally with Reverb and on Render without Reverb):
+ * Strategy (works locally with Reverb and in production with/without Reverb):
  * - When Reverb is configured (NEXT_PUBLIC_LIVE_REFRESH_WEBSOCKET_ENABLED + key + wsHost):
  *   Echo subscribes to live-refresh.{userId} / live-refresh.admin; backend broadcasts
  *   trigger refetch per context (real-time).
- * - When Reverb is NOT configured (e.g. Render without a Reverb service):
- *   Polling fallback runs: all live-refresh contexts are invalidated on an interval
- *   while the tab is visible, so notification bell and dashboards still update.
+ * - When Reverb is NOT configured: polling fallback runs; all live-refresh contexts
+ *   are invalidated on an interval while the tab is visible.
  * - Manual invalidate(context) and refreshAll() always work.
  */
 export const LIVE_REFRESH_ENABLED = true;
 
 /**
- * Polling fallback interval (ms) when WebSocket/Reverb is not available (e.g. Render).
+ * Polling fallback interval (ms) when WebSocket/Reverb is not available.
  * Only runs while the tab is visible. Same order as LIVE_UPDATE_POLL_INTERVAL_MS.
  */
 export const LIVE_REFRESH_POLL_FALLBACK_INTERVAL_MS = 45_000;

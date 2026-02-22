@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone", // Required for Docker/Render (frontend Dockerfile copies .next/standalone)
+  output: "standalone", // Required for Docker (frontend Dockerfile copies .next/standalone)
   reactStrictMode: true,
 
   images: {
@@ -8,10 +8,8 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "placehold.co" },
       { protocol: "http", hostname: "localhost", pathname: "**/storage/**" },
-      // CMS images (Laravel storage) — dev uses localhost above; prod uses backend origin
-      { protocol: "https", hostname: "cams-backend.onrender.com", pathname: "**/storage/**" },
-      { protocol: "https", hostname: "cams-backend-oj5x.onrender.com", pathname: "**/storage/**" },
-      // If you use a custom API domain or CDN for images, add it here (no wildcards in hostname).
+      // CMS images (Laravel storage) — dev: localhost; prod: Railway backend
+      { protocol: "https", hostname: "cams-backend-production-759f.up.railway.app", pathname: "**/storage/**" },
     ],
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,

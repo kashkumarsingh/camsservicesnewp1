@@ -31,17 +31,12 @@ const getApiBase = (): string => {
   // Runtime fallback: Detect environment
   if (typeof window !== 'undefined' && window.location) {
     const hostname = window.location.hostname;
-    const origin = window.location.origin;
-    
     // Local development: localhost, 127.0.0.1, or local IP
     if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.') || hostname.startsWith('10.') || hostname.startsWith('172.')) {
       return 'http://localhost:9080/api/v1';
     }
-    
-    // Render.com production
-    if (origin.includes('onrender.com')) {
-      return 'https://cams-backend-oj5x.onrender.com/api/v1';
-    }
+    // Production (Vercel etc.): backend on Railway
+    return 'https://cams-backend-production-759f.up.railway.app/api/v1';
   }
   
   // Default: localhost for development

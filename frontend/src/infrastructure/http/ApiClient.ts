@@ -138,33 +138,22 @@ export class ApiClient {
             return 'http://localhost:9080/api/v1';
           }
           
-          // Render.com production
-          const renderUrl = process.env.RENDER_EXTERNAL_URL;
-          if (renderUrl && renderUrl.includes('onrender.com')) {
-            return 'https://cams-backend-oj5x.onrender.com/api/v1';
+          // Production: backend on Railway
+          if (nodeEnv === 'production') {
+            return 'https://cams-backend-production-759f.up.railway.app/api/v1';
           }
         }
       } else {
         // Client-side: Check window.location
         if (typeof window !== 'undefined' && window.location) {
           const hostname = window.location.hostname;
-          const origin = window.location.origin;
           // Local development: localhost, 127.0.0.1, or local IP
           if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.') || hostname.startsWith('10.') || hostname.startsWith('172.')) {
             return 'http://localhost:9080/api/v1';
           }
-          // Render.com production: Extract backend domain from current URL and use matching backend
-          if (origin.includes('onrender.com')) {
-            // Example: cams-frontend-xxxx.onrender.com → cams-backend-xxxx.onrender.com
-            // This is more robust than hardcoding the backend URL
-            const parts = hostname.split('-');
-            if (parts.length >= 2 && parts[parts.length - 1].includes('onrender')) {
-              // Replace 'frontend' with 'backend' in the domain
-              const backendHost = hostname.replace('cams-frontend', 'cams-backend');
-              return `https://${backendHost}/api/v1`;
-            }
-            // Fallback to hardcoded URL if pattern doesn't match
-            return 'https://cams-backend-oj5x.onrender.com/api/v1';
+          // Vercel or any non-localhost: backend on Railway
+          if (hostname.endsWith('.vercel.app') || hostname.includes('.')) {
+            return 'https://cams-backend-production-759f.up.railway.app/api/v1';
           }
         }
       }

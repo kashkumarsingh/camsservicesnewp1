@@ -133,24 +133,19 @@ function getLogoUrl(logoPath: string | undefined): string {
           return apiUrl.replace('/api/v1', '').replace(/\/$/, '');
         }
       } catch (e) {
-        console.warn('[getLogoUrl] Failed to read NEXT_PUBLIC_API_URL, using Render backend');
+        console.warn('[getLogoUrl] Failed to read NEXT_PUBLIC_API_URL, using Railway backend');
       }
     }
     
     // Runtime fallback: Detect environment
     if (typeof window !== 'undefined' && window.location) {
       const hostname = window.location.hostname;
-      const origin = window.location.origin;
-      
       // Local development: localhost, 127.0.0.1, or local IP
       if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.') || hostname.startsWith('10.') || hostname.startsWith('172.')) {
         return 'http://localhost:9080';
       }
-      
-      // Render.com production
-      if (origin.includes('onrender.com')) {
-        return 'https://cams-backend-oj5x.onrender.com';
-      }
+      // Production (Vercel etc.): backend on Railway
+      return 'https://cams-backend-production-759f.up.railway.app';
     }
     
     // Default: localhost for development
@@ -173,7 +168,7 @@ function getLogoUrl(logoPath: string | undefined): string {
     return defaultLogo;
   }
   
-  // Construct URL: https://cams-backend-oj5x.onrender.com/storage/logos/{filename}
+  // Construct URL: {backendUrl}/storage/logos/{filename} (Railway in production)
   const fullUrl = `${backendUrl}/storage/logos/${filename}`;
   
   // Validate URL format

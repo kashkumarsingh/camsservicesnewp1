@@ -49,17 +49,14 @@ const resolveApiBase = (): string => {
   if (nodeEnv === 'development' || env.LOCAL_DEV === 'true') {
     return 'http://localhost:9080/api/v1';
   }
-  
-  // Render.com production
-  const renderUrl = env.RENDER_EXTERNAL_URL;
-  if (renderUrl && renderUrl.includes('onrender.com')) {
-    return 'https://cams-backend-oj5x.onrender.com/api/v1';
+
+  // Production: backend on Railway
+  if (nodeEnv === 'production') {
+    return 'https://cams-backend-production-759f.up.railway.app/api/v1';
   }
 
-  // Default: Docker service name for dev, Render for production
-  return nodeEnv === 'production' 
-    ? 'https://cams-backend-oj5x.onrender.com/api/v1'
-    : 'http://backend:80/api/v1'; // Use Docker service name as default
+  // Default: Docker service name for dev
+  return 'http://backend:80/api/v1';
 };
 
 function buildFallbackSiteSettings(): SiteSetting {
