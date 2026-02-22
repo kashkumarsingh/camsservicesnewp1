@@ -32,9 +32,24 @@ export class AuthRepository {
   }
 
   /**
+   * Ensure Sanctum CSRF cookie is set (required for cross-origin login e.g. Vercel → Railway).
+   * Safe to call every time; no-op if already has cookie or non-browser.
+   */
+  private async ensureSanctumCsrfCookie(): Promise<void> {
+    if (typeof window === 'undefined') return;
+    try {
+      const origin = apiClient.getBaseOrigin();
+      await fetch(`${origin}/sanctum/csrf-cookie`, { method: 'GET', credentials: 'include' });
+    } catch {
+      // Non-fatal; login may still work with token-only auth
+    }
+  }
+
+  /**
    * Login user
    */
   async login(data: LoginRequest): Promise<AuthResponse> {
+    await this.ensureSanctumCsrfCookie();
     // ApiClient unwraps the response, so response.data is the actual data object
     // Backend returns: { success: true, data: { user: {...}, access_token: "...", token_type: "Bearer" } }
     // ApiClient returns: { data: { user: {...}, access_token: "...", token_type: "Bearer" } }

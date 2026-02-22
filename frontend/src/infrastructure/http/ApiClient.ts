@@ -12,6 +12,10 @@
  * - Comprehensive error handling
  * - Request/response interceptors
  * - Type-safe responses
+ *
+ * Vercel: Do not set NEXT_PUBLIC_API_URL to the Vercel app URL. Use the backend URL
+ * (e.g. Railway) or leave unset so the client talks to the backend directly; otherwise
+ * auth requests go through Next.js rewrites and the Authorization header is not forwarded.
  */
 
 // Type declaration for Node.js process (available in Next.js runtime)
@@ -181,14 +185,29 @@ export class ApiClient {
     const defaultServerUrl = runtimeFallback || 'http://backend:80/api/v1'; // Docker service name
     const defaultClientUrl = runtimeFallback || 'http://localhost:9080/api/v1'; // Browser uses localhost
     let finalClientUrl = ensureApiV1Base(clientApiUrl || runtimeFallback || defaultClientUrl);
-    const finalServerUrl = ensureApiV1Base(serverApiUrl || runtimeFallback || defaultServerUrl);
 
-    // In the browser in development, use same-origin /api/v1 so Next.js rewrites proxy to the backend (avoids CORS)
-    const nodeEnvForProxy = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV) || 'production';
-    if (!isServerSide && nodeEnvForProxy === 'development' && typeof window !== 'undefined' && window.location?.origin) {
-      finalClientUrl = `${window.location.origin}/api/v1`;
+    // Vercel: always use backend URL in the browser. Next.js rewrites do not forward
+    // Authorization, so same-origin API calls get 401 and login fails. Ignore NEXT_PUBLIC_API_URL
+    // when hosted on Vercel so auth and all API calls go straight to Railway.
+    if (!isServerSide && typeof window !== 'undefined' && window.location?.hostname?.endsWith('.vercel.app')) {
+      const backendUrl = runtimeFallback || 'https://cams-backend-production-759f.up.railway.app/api/v1';
+      finalClientUrl = ensureApiV1Base(backendUrl);
+    } else if (!isServerSide && typeof window !== 'undefined' && runtimeFallback) {
+      // Any other host: avoid same-origin proxy (same bug as Vercel)
+      try {
+        const resolvedOrigin = new URL(finalClientUrl).origin;
+        if (resolvedOrigin === window.location.origin) {
+          finalClientUrl = ensureApiV1Base(runtimeFallback);
+        }
+      } catch {
+        // ignore invalid URL
+      }
     }
 
+    const finalServerUrl = ensureApiV1Base(serverApiUrl || runtimeFallback || defaultServerUrl);
+
+    // In dev we use the backend URL directly (no same-origin proxy) so the browser sends
+    // Authorization and cookies to the backend; the Next.js proxy can strip headers.
     this.baseURL = config.baseURL ? ensureApiV1Base(config.baseURL) : (isServerSide ? finalServerUrl : finalClientUrl);
     
     // Log the resolved baseURL for debugging (only in development)
@@ -211,6 +230,13 @@ export class ApiClient {
     this.retryDelay = config.retryDelay || 500; // Faster retry delay
     this.getAuthToken = config.getAuthToken;
     this.onError = config.onError;
+  }
+
+  /**
+   * Backend origin (base URL without /api/v1) for Sanctum CSRF cookie etc.
+   */
+  getBaseOrigin(): string {
+    return this.baseURL.replace(/\/api\/v1\/?$/, '').replace(/\/$/, '');
   }
 
   /**
