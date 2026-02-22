@@ -40,6 +40,8 @@ return [
         '#^https://.*\.onrender\.com$#',
         // Allow all Railway.app subdomains
         '#^https://.*\.railway\.app$#',
+        // Allow all Vercel preview and production deployments
+        '#^https://.*\.vercel\.app$#',
     ],
 
     'allowed_headers' => ['*'],
