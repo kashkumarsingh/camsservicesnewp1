@@ -73,11 +73,13 @@ export class ApiBookingRepository implements IBookingRepository {
     try {
       // Collection responses from ApiClient may be:
       // - A plain array: BookingDTO[]
-      // - An object: { data: BookingDTO[]; meta: {...} }
+      // - An object: { data: BookingDTO[]; meta?: {...} }
       const response = await apiClient.get<BookingsPayload>(API_ENDPOINTS.BOOKINGS);
       const bookings = toBookingList(response.data);
-      if (bookings.length === 0 && response.data && !Array.isArray(response.data) && typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-         
+      const payload = response.data;
+      const isObject = payload && typeof payload === 'object' && !Array.isArray(payload);
+      const hasDataArray = isObject && 'data' in payload && Array.isArray((payload as { data?: unknown }).data);
+      if (bookings.length === 0 && isObject && !hasDataArray && typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
         console.warn('[ApiBookingRepository] Unexpected bookings payload shape in findAll:', response.data);
       }
       return bookings;

@@ -78,6 +78,34 @@ docker compose exec backend php artisan db:seed
 # Admin dashboard: http://localhost:4300/dashboard/admin (Next.js; log in with an admin account)
 ```
 
+### Real-time updates (Reverb / WebSocket)
+
+For live notification bell and dashboard updates without refreshing the page:
+
+1. **Backend** – Ensure `backend/.env` has Reverb settings (copy from `backend/.env.example` if needed):
+   - `BROADCAST_CONNECTION=reverb`
+   - `REVERB_APP_KEY=local-dev-key`
+   - `REVERB_APP_SECRET=local-dev-secret`
+   - `REVERB_HOST=0.0.0.0`
+   - `REVERB_PORT=8080`
+
+2. **Start Reverb** (from project root):
+   ```bash
+   ./scripts/start-reverb.sh
+   ```
+   Or from backend: `cd backend && php artisan reverb:start`. Reverb listens on port **8080**.
+
+3. **Frontend** – Ensure `frontend/.env.local` has (see `frontend/env.template` or `frontend/env.reverb.example`):
+   - `NEXT_PUBLIC_LIVE_REFRESH_WEBSOCKET_ENABLED=true`
+   - `NEXT_PUBLIC_REVERB_APP_KEY=local-dev-key`
+   - `NEXT_PUBLIC_REVERB_WS_HOST=localhost`
+   - `NEXT_PUBLIC_REVERB_WS_PORT=8080`
+   - `NEXT_PUBLIC_REVERB_SCHEME=http`
+
+4. Restart the Next.js dev server after changing env vars. With backend API, Reverb, and frontend all running, the dashboard will receive real-time updates.
+
+**Docker:** If you use `docker compose`, the `reverb` service runs Reverb for you; ensure `backend/.env` has the same Reverb vars and the frontend uses `NEXT_PUBLIC_REVERB_WS_HOST=localhost` (port 8080 is published).
+
 ## 🏗️ Architecture
 
 This project follows **Clean Architecture** principles:

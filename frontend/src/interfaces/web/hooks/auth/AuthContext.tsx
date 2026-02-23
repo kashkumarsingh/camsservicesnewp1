@@ -15,7 +15,7 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { authRepository } from '@/infrastructure/http/auth/AuthRepository';
 import { clearAuthToken } from '@/infrastructure/http/auth/authTokenProvider';
 import { childrenRepository } from '@/infrastructure/http/children/ChildrenRepository';
@@ -67,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [unauthenticatedReason, setUnauthenticatedReason] = useState<UnauthenticatedReason>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   const loadUser = useCallback(async () => {
     if (isLoggingOut) return;
@@ -80,7 +81,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (!hasToken) {
       setUnauthenticatedReason('no_token');
-      if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development' && !hasWarnedNoTokenThisSession) {
+      const isProtectedPath = Boolean(pathname && (pathname.startsWith('/dashboard') || pathname.startsWith('/account')));
+      if (isProtectedPath && typeof process !== 'undefined' && process.env?.NODE_ENV === 'development' && !hasWarnedNoTokenThisSession) {
         hasWarnedNoTokenThisSession = true;
         console.warn('[useAuth] No auth token in localStorage or cookie — not fetching user. Use the same host for login and dashboard (e.g. always http://localhost:4300, not 127.0.0.1).');
       }
@@ -163,7 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [isLoggingOut]);
+  }, [isLoggingOut, pathname]);
 
   useEffect(() => {
     loadUser();

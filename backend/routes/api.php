@@ -88,8 +88,8 @@ Route::prefix('v1')->group(function () {
         // Centralised live-refresh (context versions for parents, trainers, admin – no browser refresh)
         Route::get('live-refresh', [\App\Http\Controllers\Api\LiveRefreshController::class, 'index']);
 
-        // Broadcasting auth for Echo private channels (Reverb/Pusher). Uses same channel rules as routes/channels.php.
-        Route::post('broadcasting/auth', [\Illuminate\Broadcasting\BroadcastController::class, 'authenticate']);
+        // Broadcasting auth for Echo private channels (Reverb/Pusher). Uses Sanctum so Bearer token works; channel rules in routes/channels.php.
+        Route::post('broadcasting/auth', [\App\Http\Controllers\Api\BroadcastAuthController::class, 'authenticate']);
 
         // Dashboard Stats (Parent)
         Route::get('/dashboard/stats', \App\Http\Controllers\Api\DashboardStatsController::class);
