@@ -245,8 +245,8 @@ function getTodayScheduleSummary(bookings: TrainerBooking[]): TodayScheduleSumma
   return {
     nextSession: {
       date: primary.schedule.date,
-      startTime: primary.schedule.start_time,
-      endTime: primary.schedule.end_time,
+      startTime: primary.schedule.start_time ?? primary.schedule.startTime ?? '',
+      endTime: primary.schedule.end_time ?? primary.schedule.endTime ?? '',
       childName: primary.childName,
       childId: primary.childId,
       activities: primary.activities,
@@ -416,8 +416,9 @@ export default function TrainerDashboardPageClient() {
     const map = new Map<number, string>();
     bookings.forEach((booking) => {
       booking.participants?.forEach((p) => {
-        if (p.childId ?? p.child_id && p.name) {
-          map.set(p.childId ?? p.child_id, p.name);
+        const id = p.childId ?? p.child_id;
+        if (id != null && p.name) {
+          map.set(id, p.name);
         }
       });
     });
@@ -949,8 +950,8 @@ export default function TrainerDashboardPageClient() {
         const pickupAddress = buildSessionAddress(schedule.location, booking.parent);
         summaries.push({
           date: schedule.date,
-          startTime: schedule.start_time,
-          endTime: schedule.end_time,
+          startTime: schedule.start_time ?? schedule.startTime ?? '',
+          endTime: schedule.end_time ?? schedule.endTime ?? '',
           childName,
           childId,
           activities,
@@ -993,8 +994,8 @@ export default function TrainerDashboardPageClient() {
         const pickupAddress = buildSessionAddress(schedule.location, booking.parent);
         summaries.push({
           date: schedule.date,
-          startTime: schedule.start_time,
-          endTime: schedule.end_time,
+          startTime: schedule.start_time ?? schedule.startTime ?? '',
+          endTime: schedule.end_time ?? schedule.endTime ?? '',
           childName,
           childId,
           activities,

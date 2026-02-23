@@ -49,8 +49,8 @@ export default function AttendanceModal({
         
         initialAttendance[participant.id] = {
           attended: existingAttendance?.attended ?? true,
-          arrival_time: existingAttendance?.arrival_time?.substring(0, 5) ?? schedule.start_time.substring(0, 5),
-          departure_time: existingAttendance?.departure_time?.substring(0, 5) ?? schedule.end_time.substring(0, 5),
+          arrival_time: existingAttendance?.arrival_time?.substring(0, 5) ?? (schedule.start_time ?? schedule.startTime ?? '').substring(0, 5),
+          departure_time: existingAttendance?.departure_time?.substring(0, 5) ?? (schedule.end_time ?? schedule.endTime ?? '').substring(0, 5),
           notes: existingAttendance?.notes ?? '',
         };
       });
@@ -119,7 +119,7 @@ export default function AttendanceModal({
               })}
             </p>
             <p className="text-sm text-gray-600">
-              Time: {schedule.start_time.substring(0, 5)} - {schedule.end_time.substring(0, 5)}
+              Time: {(schedule.start_time ?? schedule.startTime ?? '').substring(0, 5)} - {(schedule.end_time ?? schedule.endTime ?? '').substring(0, 5)}
             </p>
           </div>
 

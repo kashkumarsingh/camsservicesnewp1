@@ -141,6 +141,7 @@ export class ApiClient {
       );
     }
 
+    // Log only in development; never log base URL or env details in production.
     if (env('NODE_ENV') === 'development') {
       console.log('[ApiClient] initialised', {
         isServer,

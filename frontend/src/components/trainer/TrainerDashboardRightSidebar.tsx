@@ -50,8 +50,9 @@ export default function TrainerDashboardRightSidebar({
 
     bookings.forEach((booking) => {
       booking.participants?.forEach((participant) => {
-        if (participant.childId ?? participant.child_id) {
-          traineeIds.add(participant.childId ?? participant.child_id);
+        const id = participant.childId ?? participant.child_id;
+        if (id != null) {
+          traineeIds.add(id);
         }
       });
 

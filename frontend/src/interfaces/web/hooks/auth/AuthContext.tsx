@@ -262,7 +262,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loadError,
       unauthenticatedReason,
       isAuthenticated: !!user,
-      isApproved: (user?.approvalStatus?.toLowerCase() === APPROVAL_STATUS.APPROVED) ?? false,
+      isApproved: user?.approvalStatus?.toLowerCase() === APPROVAL_STATUS.APPROVED,
       hasApprovedChildren: approvedChildren.length > 0,
       canBook: (user?.approvalStatus?.toLowerCase() === APPROVAL_STATUS.APPROVED) && approvedChildren.length > 0,
       register,

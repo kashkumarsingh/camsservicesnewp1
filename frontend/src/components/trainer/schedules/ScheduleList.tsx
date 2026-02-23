@@ -71,7 +71,10 @@ export default function ScheduleList({ schedules, onScheduleClick }: ScheduleLis
               {dateSchedules.map((schedule) => (
                 <div
                   key={schedule.id}
-                  onClick={() => onScheduleClick?.(schedule.bookingId ?? schedule.booking_id)}
+                  onClick={() => {
+                  const bid = schedule.bookingId ?? schedule.booking_id;
+                  if (bid != null) onScheduleClick?.(bid);
+                }}
                   className={`block px-6 py-4 hover:bg-gray-50 transition-colors ${onScheduleClick ? 'cursor-pointer' : ''}`}
                 >
                   <div className="flex items-start justify-between">

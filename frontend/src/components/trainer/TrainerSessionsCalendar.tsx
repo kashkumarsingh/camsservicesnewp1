@@ -153,7 +153,7 @@ export default function TrainerSessionsCalendar({
       // Get child display name from participants (first participant used as primary trainee).
       // Business rule: trainers must never see the full legal name.
       const childName = getTrainerChildDisplayName(booking.participants?.[0]?.name);
-      const childId = booking.participants?.[0]?.childId ?? booking.participants?.[0]?.child_id || 0;
+      const childId = (booking.participants?.[0]?.childId ?? booking.participants?.[0]?.child_id) ?? 0;
 
       // If a trainee visibility filter is active, skip bookings that do not
       // involve any of the visible trainees. This mirrors the "My Trainees"
@@ -182,8 +182,8 @@ export default function TrainerSessionsCalendar({
 
         sessions.push({
           date: schedule.date,
-          startTime: schedule.start_time,
-          endTime: schedule.end_time,
+          startTime: schedule.start_time ?? schedule.startTime ?? '',
+          endTime: schedule.end_time ?? schedule.endTime ?? '',
           childName,
           childId,
           activities,

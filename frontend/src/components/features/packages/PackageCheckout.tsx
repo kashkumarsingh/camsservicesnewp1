@@ -248,7 +248,7 @@ export default function PackageCheckout({
         const childFirstName = childNameParts[0] ?? childRawName ?? 'Child';
         const childLastName = childNameParts.slice(1).join(' ') || childFirstName || 'Child';
 
-        const rawDob = childPayload.date_of_birth ?? childPayload.dateOfBirth ?? null;
+        const rawDob = childPayload.dateOfBirth ?? null;
         let dobDate: Date;
         if (rawDob) {
           dobDate = new Date(rawDob);

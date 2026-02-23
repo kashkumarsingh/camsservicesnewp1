@@ -29,8 +29,8 @@ export default function ActivityLogTimeline({
     const aDate = a.activity_date || '';
     const bDate = b.activity_date || '';
     if (aDate !== bDate) return bDate.localeCompare(aDate);
-    const aTime = (a as { startTime?: string }).startTime ?? a.start_time || (a as { createdAt?: string }).createdAt ?? a.created_at || '';
-    const bTime = (b as { startTime?: string }).startTime ?? b.start_time || (b as { createdAt?: string }).createdAt ?? b.created_at || '';
+    const aTime = ((a as { startTime?: string }).startTime ?? a.start_time) || ((a as { createdAt?: string }).createdAt ?? a.created_at) || '';
+    const bTime = ((b as { startTime?: string }).startTime ?? b.start_time) || ((b as { createdAt?: string }).createdAt ?? b.created_at) || '';
     return bTime.localeCompare(aTime);
   });
 

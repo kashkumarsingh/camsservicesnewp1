@@ -273,30 +273,7 @@ export interface UpdateAvailabilityRequest {
   availability_notes?: string | null;
 }
 
-// Phase 2: Schedule Management Types
-export interface TrainerSchedule {
-  id: number;
-  booking_id: number;
-  date: string;
-  start_time: string;
-  end_time: string;
-  status: string;
-  booking: {
-    id: number;
-    reference: string;
-    package: {
-      id: number;
-      name: string;
-      slug: string;
-    };
-  };
-  activities: Array<{
-    id: number;
-    name: string;
-    slug: string;
-  }>;
-  attendance?: ScheduleAttendance[];
-}
+// Phase 2: Schedule Management — uses same TrainerSchedule as above (single declaration)
 
 export interface ScheduleAttendance {
   id: number;
@@ -388,13 +365,17 @@ export interface CreateNoteResponse {
   note: TrainerNote;
 }
 
-// Phase 3: Activity Logging Types
+// Phase 3: Activity Logging Types (API returns camelCase after BaseApiController)
 export interface ActivityLog {
   id: number;
   trainer_id: number;
   child_id: number;
+  /** camelCase from API */
+  childId?: number;
   booking_id?: number | null;
+  bookingId?: number | null;
   booking_schedule_id?: number | null;
+  bookingScheduleId?: number | null;
   activity_name: string;
   description?: string | null;
   notes?: string | null;
@@ -404,7 +385,9 @@ export interface ActivityLog {
   status: 'in_progress' | 'completed' | 'needs_attention';
   activity_date: string;
   start_time?: string | null;
+  startTime?: string | null;
   end_time?: string | null;
+  endTime?: string | null;
   duration_minutes?: number | null;
   photos?: string[];
   videos?: string[];
@@ -416,6 +399,8 @@ export interface ActivityLog {
   editable_until?: string | null;
   created_at: string;
   updated_at: string;
+  createdAt?: string;
+  updatedAt?: string;
   child?: {
     id: number;
     name: string;

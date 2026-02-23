@@ -88,15 +88,13 @@ export default function TrainerDashboardLeftSidebar({
     
     bookings.forEach((booking) => {
       booking.participants?.forEach((participant) => {
-        if (participant.childId ?? participant.child_id) {
-          const traineeId = participant.childId ?? participant.child_id;
-          if (!traineeMap.has(traineeId)) {
-            traineeMap.set(traineeId, {
-              id: traineeId,
-              name: participant.name,
-              upcomingCount: 0,
-            });
-          }
+        const traineeId = participant.childId ?? participant.child_id;
+        if (traineeId != null && !traineeMap.has(traineeId)) {
+          traineeMap.set(traineeId, {
+            id: traineeId,
+            name: participant.name,
+            upcomingCount: 0,
+          });
         }
       });
     });
@@ -109,8 +107,9 @@ export default function TrainerDashboardLeftSidebar({
           const sessionDate = moment(`${schedule.date} ${schedule.start_time}`, 'YYYY-MM-DD HH:mm');
           if (sessionDate.isAfter(now)) {
             booking.participants?.forEach((participant) => {
-              if (participant.childId ?? participant.child_id) {
-                const trainee = traineeMap.get(participant.childId ?? participant.child_id);
+              const id = participant.childId ?? participant.child_id;
+              if (id != null) {
+                const trainee = traineeMap.get(id);
                 if (trainee) {
                   trainee.upcomingCount++;
                 }
@@ -167,7 +166,7 @@ export default function TrainerDashboardLeftSidebar({
         const sessionDate = moment(`${schedule.date} ${schedule.start_time}`, 'YYYY-MM-DD HH:mm');
         if (sessionDate.isAfter(now) && sessionDate.isBefore(nextWeek)) {
           const traineeName = booking.participants?.[0]?.name || 'Trainee';
-          const traineeId = booking.participants?.[0]?.childId ?? booking.participants?.[0]?.child_id || 0;
+          const traineeId = (booking.participants?.[0]?.childId ?? booking.participants?.[0]?.child_id) ?? 0;
 
           // Respect trainee visibility filter: if specific trainees are
           // selected in "My Trainees", only show upcoming sessions for those
@@ -183,8 +182,8 @@ export default function TrainerDashboardLeftSidebar({
           
           sessions.push({
             date: schedule.date,
-            startTime: schedule.start_time,
-            endTime: schedule.end_time,
+            startTime: schedule.start_time ?? schedule.startTime ?? '',
+            endTime: schedule.end_time ?? schedule.endTime ?? '',
             traineeName,
             traineeId,
             activities,

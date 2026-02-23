@@ -80,8 +80,8 @@ export default function ActivityLogDetailModal({
         <ActivityLogForm
           childId={log.childId ?? log.child_id}
           childName={log.child?.name || 'Child'}
-          bookingId={log.bookingId ?? log.booking_id || undefined}
-          bookingScheduleId={log.bookingScheduleId ?? log.booking_schedule_id || undefined}
+          bookingId={(log.bookingId ?? log.booking_id) ?? undefined}
+          bookingScheduleId={(log.bookingScheduleId ?? log.booking_schedule_id) ?? undefined}
           initialData={log}
           onSuccess={handleUpdate}
           onCancel={() => setEditing(false)}
@@ -122,7 +122,7 @@ export default function ActivityLogDetailModal({
             </span>
             {(log.startTime ?? log.start_time) && (log.endTime ?? log.end_time) && (<span className="inline-flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5 shrink-0" />
-                {(log.startTime ?? log.start_time).substring(0, 5)}–{(log.endTime ?? log.end_time).substring(0, 5)}
+                {(log.startTime ?? log.start_time)!.substring(0, 5)}–{(log.endTime ?? log.end_time)!.substring(0, 5)}
               </span>
             )}
           </div>

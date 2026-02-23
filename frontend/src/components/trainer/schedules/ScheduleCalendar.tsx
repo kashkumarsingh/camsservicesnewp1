@@ -107,7 +107,7 @@ export default function ScheduleCalendar({
                         borderLeft: `3px solid ${themeColors.primaryBlue}`,
                         color: '#1f2937',
                       }}
-                      title={`${schedule.start_time.substring(0, 5)} - ${schedule.end_time.substring(0, 5)} session`}
+                      title={`${(schedule.start_time ?? schedule.startTime ?? '').substring(0, 5)} - ${(schedule.end_time ?? schedule.endTime ?? '').substring(0, 5)} session`}
                     >
                       <div className="flex items-center gap-0.5">
                         <span className="font-semibold text-gray-900 truncate text-[10px]">
