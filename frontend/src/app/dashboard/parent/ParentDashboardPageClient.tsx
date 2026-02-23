@@ -1662,7 +1662,7 @@ export default function ParentDashboardPageClient() {
   }
 
   const getStatusBanner = () => {
-if (user.approval_status === APPROVAL_STATUS.PENDING) {
+if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
         return {
         type: 'warning',
         icon: AlertCircle,
@@ -1671,16 +1671,16 @@ if (user.approval_status === APPROVAL_STATUS.PENDING) {
       };
     }
     
-    if (user.approval_status === APPROVAL_STATUS.REJECTED) {
+    if (user.approvalStatus === APPROVAL_STATUS.REJECTED) {
       return {
         type: 'error',
         icon: XCircle,
         title: 'Account Not Approved',
-        message: user.rejection_reason || 'Your registration was not approved. Please contact us for more information.',
+        message: user.rejectionReason || 'Your registration was not approved. Please contact us for more information.',
       };
     }
     
-    if (user.approval_status === APPROVAL_STATUS.APPROVED && !hasApprovedChildren) {
+    if (user.approvalStatus === APPROVAL_STATUS.APPROVED && !hasApprovedChildren) {
       return {
         type: 'info',
         icon: Users,

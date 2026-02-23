@@ -33,7 +33,10 @@ export interface TrainerBooking {
 
 export interface TrainerParticipant {
   id: number;
-  child_id?: number | null; // Phase 3: Activity logging integration
+  /** From API (camelCase). Use childId when reading. */
+  childId?: number | null;
+  /** @deprecated Use childId. Kept for backward compat if API ever sends snake_case. */
+  child_id?: number | null;
   name: string;
   age: number | null;
   medical_info?: string | null; // Legacy field from booking_participants
@@ -53,10 +56,14 @@ export interface TrainerParticipant {
 
 export interface TrainerSchedule {
   id: number;
-  booking_id: number;
+  /** From API (camelCase). Prefer when reading. */
+  bookingId?: number;
+  booking_id?: number;
   date: string;
-  start_time: string;
-  end_time: string;
+  startTime?: string;
+  start_time?: string;
+  endTime?: string;
+  end_time?: string;
   status: string;
   trainer_assignment_status?: string | null;
   /** Session/venue address (where to go). Prefer over parent address when present. */

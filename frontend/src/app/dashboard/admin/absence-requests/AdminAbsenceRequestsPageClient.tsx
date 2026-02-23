@@ -231,7 +231,7 @@ export function AdminAbsenceRequestsPageClient() {
               </div>
             ) : null}
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Submitted {formatSubmittedAt(selectedRequest.created_at)}
+              Submitted {formatSubmittedAt((selectedRequest as { createdAt?: string }).createdAt ?? (selectedRequest as { created_at?: string }).created_at)}
             </p>
             <div className="border-t border-slate-200 pt-4 dark:border-slate-700">
               <label htmlFor="absence-reject-reason" className="text-xs font-medium text-slate-600 dark:text-slate-400">

@@ -30,31 +30,34 @@ function normaliseChildFromApi(raw: RemoteChild): Child {
   const flags = getChildChecklistFlags(raw);
   return {
     id: Number(raw.id),
-    user_id: Number((raw as { user_id?: number }).user_id ?? (raw as { userId?: number }).userId ?? 0),
+    userId: Number((raw as { user_id?: number }).user_id ?? (raw as { userId?: number }).userId ?? 0),
     name: String(raw.name ?? ''),
     age: Number(raw.age),
-    date_of_birth: raw.date_of_birth != null ? String(raw.date_of_birth) : (raw as { dateOfBirth?: string }).dateOfBirth != null ? String((raw as { dateOfBirth: string }).dateOfBirth) : undefined,
+    dateOfBirth: raw.date_of_birth != null ? String(raw.date_of_birth) : (raw as { dateOfBirth?: string }).dateOfBirth != null ? String((raw as { dateOfBirth: string }).dateOfBirth) : undefined,
     gender: (raw.gender ?? (raw as { gender?: string }).gender) as Child['gender'],
     address: raw.address != null ? String(raw.address) : undefined,
     postcode: raw.postcode != null ? String(raw.postcode) : undefined,
     city: raw.city != null ? String(raw.city) : undefined,
     region: raw.region != null ? String(raw.region) : undefined,
-    approval_status: (flags.approvalStatus || raw.approval_status || (raw as { approvalStatus?: string }).approvalStatus || 'pending') as Child['approval_status'],
-    approved_at: (raw.approved_at ?? (raw as { approvedAt?: string }).approvedAt) as string | undefined,
-    rejected_at: (raw.rejected_at ?? (raw as { rejectedAt?: string }).rejectedAt) as string | undefined,
-    rejection_reason: (raw.rejection_reason ?? (raw as { rejectionReason?: string }).rejectionReason) as string | undefined,
-    has_checklist: flags.hasChecklist,
-    checklist_completed: flags.checklistCompleted,
-    created_at: String(raw.created_at ?? (raw as { createdAt?: string }).createdAt ?? ''),
-    can_archive: raw.can_archive as boolean | undefined ?? (raw as { canArchive?: boolean }).canArchive,
-    can_delete: raw.can_delete as boolean | undefined ?? (raw as { canDelete?: boolean }).canDelete,
+    approvalStatus: (flags.approvalStatus || raw.approval_status || (raw as { approvalStatus?: string }).approvalStatus || 'pending') as Child['approvalStatus'],
+    approvedAt: (raw.approved_at ?? (raw as { approvedAt?: string }).approvedAt) as string | undefined,
+    rejectedAt: (raw.rejected_at ?? (raw as { rejectedAt?: string }).rejectedAt) as string | undefined,
+    rejectionReason: (raw.rejection_reason ?? (raw as { rejectionReason?: string }).rejectionReason) as string | undefined,
+    hasChecklist: flags.hasChecklist,
+    checklistCompleted: flags.checklistCompleted,
+    specialEducationalNeeds:
+      (raw as { specialEducationalNeeds?: string }).specialEducationalNeeds ??
+      (raw as { special_educational_needs?: string }).special_educational_needs,
+    createdAt: String(raw.created_at ?? (raw as { createdAt?: string }).createdAt ?? ''),
+    canArchive: (raw.can_archive as boolean | undefined) ?? (raw as { canArchive?: boolean }).canArchive,
+    canDelete: (raw.can_delete as boolean | undefined) ?? (raw as { canDelete?: boolean }).canDelete,
   };
 }
 
 export class ChildrenRepository {
   /**
    * Get all children for authenticated user.
-   * Normalises response to Child[] (snake_case) and supports both snake_case and camelCase from the API.
+   * Normalises response to Child[] (camelCase) and supports both snake_case and camelCase from the API.
    */
   async list(): Promise<Child[]> {
     // ApiClient unwraps: backend { success, data: { children } } -> response.data may be { data: { children }, meta } or { children }
@@ -86,11 +89,10 @@ export class ChildrenRepository {
     // ApiClient unwraps the response, so response.data is the actual data object
     // Backend returns: { success: true, data: { child: {...} } }
     // ApiClient returns: { data: { child: {...} } }
-    const response = await apiClient.get<{ child: Child }>(
+    const response = await apiClient.get<{ child: RemoteChild }>(
       API_ENDPOINTS.CHILD_BY_ID(id)
     );
-    
-    return response.data.child;
+    return normaliseChildFromApi(response.data.child as RemoteChild);
   }
 
   /**
@@ -100,12 +102,11 @@ export class ChildrenRepository {
     // ApiClient unwraps the response, so response.data is the actual data object
     // Backend returns: { success: true, data: { child: {...} } }
     // ApiClient returns: { data: { child: {...} } }
-    const response = await apiClient.post<{ child: Child }>(
+    const response = await apiClient.post<{ child: RemoteChild }>(
       API_ENDPOINTS.CHILDREN,
       data
     );
-    
-    return response.data.child;
+    return normaliseChildFromApi(response.data.child as RemoteChild);
   }
 
   /**
@@ -115,12 +116,11 @@ export class ChildrenRepository {
     // ApiClient unwraps the response, so response.data is the actual data object
     // Backend returns: { success: true, data: { child: {...} } }
     // ApiClient returns: { data: { child: {...} } }
-    const response = await apiClient.put<{ child: Child }>(
+    const response = await apiClient.put<{ child: RemoteChild }>(
       API_ENDPOINTS.CHILD_BY_ID(id),
       data
     );
-    
-    return response.data.child;
+    return normaliseChildFromApi(response.data.child as RemoteChild);
   }
 
   /**

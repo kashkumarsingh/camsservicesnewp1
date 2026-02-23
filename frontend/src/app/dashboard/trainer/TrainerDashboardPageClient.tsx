@@ -200,7 +200,7 @@ function getTodayScheduleSummary(bookings: TrainerBooking[]): TodayScheduleSumma
       const isUpcoming = now.isBefore(startMoment);
 
       const childName = getTrainerChildDisplayName(booking.participants?.[0]?.name);
-      const childId = booking.participants?.[0]?.child_id ?? 0;
+      const childId = booking.participants?.[0]?.childId ?? booking.participants?.[0]?.child_id ?? 0;
       const activities = schedule.activities?.map((a) => a.name) ?? [];
 
       sessions.push({
@@ -416,8 +416,8 @@ export default function TrainerDashboardPageClient() {
     const map = new Map<number, string>();
     bookings.forEach((booking) => {
       booking.participants?.forEach((p) => {
-        if (p.child_id && p.name) {
-          map.set(p.child_id, p.name);
+        if (p.childId ?? p.child_id && p.name) {
+          map.set(p.childId ?? p.child_id, p.name);
         }
       });
     });
@@ -679,13 +679,13 @@ export default function TrainerDashboardPageClient() {
       return;
     }
 
-    if (!loading && user && user.role === 'trainer' && user.approval_status !== 'approved') {
+    if (!loading && user && user.role === 'trainer' && user.approvalStatus !== 'approved') {
       return;
     }
   }, [loading, isAuthenticated, user, router]);
 
   const fetchBookings = useCallback(async (silent = false) => {
-    if (!user || user.role !== 'trainer' || user.approval_status !== 'approved') {
+    if (!user || user.role !== 'trainer' || user.approvalStatus !== 'approved') {
       return;
     }
 
@@ -747,7 +747,7 @@ export default function TrainerDashboardPageClient() {
   }, [fetchAvailabilityForMonth, fetchBookings]);
 
   const fetchProfile = useCallback(async () => {
-    if (!user || user.role !== 'trainer' || user.approval_status !== 'approved') {
+    if (!user || user.role !== 'trainer' || user.approvalStatus !== 'approved') {
       return;
     }
 
@@ -765,7 +765,7 @@ export default function TrainerDashboardPageClient() {
   }, [user]);
 
   useEffect(() => {
-    if (loading || !user || user.role !== 'trainer' || user.approval_status !== 'approved') {
+    if (loading || !user || user.role !== 'trainer' || user.approvalStatus !== 'approved') {
       return;
     }
 
@@ -814,15 +814,15 @@ export default function TrainerDashboardPageClient() {
   // Centralised live refresh: refetch when backend reports changes to bookings or trainer_schedules
   const trainerRefetch = useCallback(() => fetchBookings(true), [fetchBookings]);
   useLiveRefresh('bookings', trainerRefetch, {
-    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approval_status === 'approved',
+    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approvalStatus === 'approved',
   });
   useLiveRefresh('trainer_schedules', trainerRefetch, {
-    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approval_status === 'approved',
+    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approvalStatus === 'approved',
   });
 
   // Load trainer profile so we can derive availability-based capacity
   useEffect(() => {
-    if (loading || !user || user.role !== 'trainer' || user.approval_status !== 'approved') {
+    if (loading || !user || user.role !== 'trainer' || user.approvalStatus !== 'approved') {
       return;
     }
 
@@ -943,7 +943,7 @@ export default function TrainerDashboardPageClient() {
         }
 
         const childName = getTrainerChildDisplayName(booking.participants?.[0]?.name);
-        const childId = booking.participants?.[0]?.child_id ?? 0;
+        const childId = booking.participants?.[0]?.childId ?? booking.participants?.[0]?.child_id ?? 0;
         const activities = schedule.activities?.map((a) => a.name) ?? [];
 
         const pickupAddress = buildSessionAddress(schedule.location, booking.parent);
@@ -987,7 +987,7 @@ export default function TrainerDashboardPageClient() {
         if (schedule.status === 'cancelled' || !datesInRangeSet.has(schedule.date)) return;
 
         const childName = getTrainerChildDisplayName(booking.participants?.[0]?.name);
-        const childId = booking.participants?.[0]?.child_id ?? 0;
+        const childId = booking.participants?.[0]?.childId ?? booking.participants?.[0]?.child_id ?? 0;
         const activities = schedule.activities?.map((a) => a.name) ?? [];
 
         const pickupAddress = buildSessionAddress(schedule.location, booking.parent);
@@ -1072,7 +1072,7 @@ export default function TrainerDashboardPageClient() {
 
     // For trainers who are not yet approved, we want to show the "pending/not approved"
     // screen instead of keeping them on a perpetual skeleton.
-    if (user.approval_status !== 'approved') {
+    if (user.approvalStatus !== 'approved') {
       setHasInitialLoadCompleted(true);
       return;
     }
@@ -1093,16 +1093,16 @@ export default function TrainerDashboardPageClient() {
     return null;
   }
 
-  if (user.approval_status !== 'approved') {
+  if (user.approvalStatus !== 'approved') {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
           <AlertCircle className="mx-auto mb-4 h-16 w-16 text-amber-500" aria-hidden />
           <h1 className="mb-2 text-2xl font-semibold text-slate-900 dark:text-slate-50">
-            {user.approval_status === 'pending' ? 'Account Pending Approval' : 'Account Not Approved'}
+            {user.approvalStatus === 'pending' ? 'Account Pending Approval' : 'Account Not Approved'}
           </h1>
           <p className="mb-6 text-slate-600 dark:text-slate-400">
-            {user.approval_status === 'pending'
+            {user.approvalStatus === 'pending'
               ? 'Your trainer account is pending admin approval. You\'ll be notified once approved.'
               : 'Your trainer account was not approved. Please contact us for more information.'}
           </p>

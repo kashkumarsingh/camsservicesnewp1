@@ -29,8 +29,8 @@ export default function ActivityLogTimeline({
     const aDate = a.activity_date || '';
     const bDate = b.activity_date || '';
     if (aDate !== bDate) return bDate.localeCompare(aDate);
-    const aTime = a.start_time || a.created_at || '';
-    const bTime = b.start_time || b.created_at || '';
+    const aTime = (a as { startTime?: string }).startTime ?? a.start_time || (a as { createdAt?: string }).createdAt ?? a.created_at || '';
+    const bTime = (b as { startTime?: string }).startTime ?? b.start_time || (b as { createdAt?: string }).createdAt ?? b.created_at || '';
     return bTime.localeCompare(aTime);
   });
 
@@ -44,10 +44,10 @@ export default function ActivityLogTimeline({
           aria-hidden
         />
         {sorted.map((log, index) => {
-          const timeStr = log.start_time
-            ? moment(log.start_time, ['HH:mm:ss', 'HH:mm']).format('h:mm A')
-            : log.created_at
-              ? moment(log.created_at).format('h:mm A')
+          const timeStr = (log as { startTime?: string }).startTime ?? log.start_time
+            ? moment((log as { startTime?: string }).startTime ?? log.start_time, ['HH:mm:ss', 'HH:mm']).format('h:mm A')
+            : (log as { createdAt?: string }).createdAt ?? log.created_at
+              ? moment((log as { createdAt?: string }).createdAt ?? log.created_at).format('h:mm A')
               : null;
           const snippet = [log.description, log.notes].filter(Boolean).map((s) => (s || '').trim()).find((s) => s.length > 0);
           const preview = snippet ? (snippet.length > 50 ? `${snippet.slice(0, 50)}…` : snippet) : null;

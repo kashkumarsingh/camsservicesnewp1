@@ -54,7 +54,7 @@ export default function CompleteChecklistModal({
       setIsLoadingChecklist(false);
       return;
     }
-    if (!child.has_checklist) {
+    if (!child.hasChecklist) {
       setFormData(initialFormData);
       setIsLoadingChecklist(false);
       return;
@@ -82,7 +82,7 @@ export default function CompleteChecklistModal({
     return () => {
       cancelled = true;
     };
-  }, [isOpen, child?.id, child?.has_checklist]);
+  }, [isOpen, child?.id, child?.hasChecklist]);
 
   if (!isOpen) return null;
 

@@ -8,6 +8,12 @@
 
 import { apiClient } from '../ApiClient';
 import { API_ENDPOINTS } from '../apiEndpoints';
+import {
+  getAuthToken,
+  setAuthToken,
+  clearAuthToken,
+  hasAuthToken,
+} from './authTokenProvider';
 import type { RegisterRequest, LoginRequest, AuthResponse, User } from '@/core/application/auth/types';
 
 export class AuthRepository {
@@ -15,19 +21,16 @@ export class AuthRepository {
    * Register a new user
    */
   async register(data: RegisterRequest): Promise<AuthResponse> {
-    // ApiClient unwraps the response, so response.data is the actual data object
-    // Backend returns: { success: true, data: { user: {...}, access_token: "...", token_type: "Bearer" } }
-    // ApiClient returns: { data: { user: {...}, access_token: "...", token_type: "Bearer" } }
+    // ApiClient unwraps the response; backend keysToCamelCase so data has accessToken, tokenType
     const response = await apiClient.post<AuthResponse>(
       API_ENDPOINTS.AUTH_REGISTER,
       data
     );
-    
-    // Store token
-    if (response.data.access_token) {
-      localStorage.setItem('auth_token', response.data.access_token);
+
+    if (response.data.accessToken) {
+      setAuthToken(response.data.accessToken);
     }
-    
+
     return response.data;
   }
 
@@ -50,19 +53,16 @@ export class AuthRepository {
    */
   async login(data: LoginRequest): Promise<AuthResponse> {
     await this.ensureSanctumCsrfCookie();
-    // ApiClient unwraps the response, so response.data is the actual data object
-    // Backend returns: { success: true, data: { user: {...}, access_token: "...", token_type: "Bearer" } }
-    // ApiClient returns: { data: { user: {...}, access_token: "...", token_type: "Bearer" } }
+    // ApiClient unwraps the response; backend keysToCamelCase so data has accessToken, tokenType
     const response = await apiClient.post<AuthResponse>(
       API_ENDPOINTS.AUTH_LOGIN,
       data
     );
-    
-    // Store token
-    if (response.data.access_token) {
-      localStorage.setItem('auth_token', response.data.access_token);
+
+    if (response.data.accessToken) {
+      setAuthToken(response.data.accessToken);
     }
-    
+
     return response.data;
   }
 
@@ -90,26 +90,22 @@ export class AuthRepository {
     try {
       await apiClient.post(API_ENDPOINTS.AUTH_LOGOUT);
     } finally {
-      // Always clear tokens, even if API call fails
-      localStorage.removeItem('auth_token');
+      clearAuthToken();
     }
   }
 
   /**
-   * Get auth token from storage
+   * Get auth token (delegates to authTokenProvider).
    */
   getToken(): string | null {
-    if (typeof window === 'undefined') {
-      return null;
-    }
-    return localStorage.getItem('auth_token');
+    return getAuthToken();
   }
 
   /**
-   * Check if user is authenticated
+   * Check if user is authenticated (token present).
    */
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    return hasAuthToken();
   }
 }
 

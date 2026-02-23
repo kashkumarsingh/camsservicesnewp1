@@ -71,7 +71,7 @@ export default function ScheduleList({ schedules, onScheduleClick }: ScheduleLis
               {dateSchedules.map((schedule) => (
                 <div
                   key={schedule.id}
-                  onClick={() => onScheduleClick?.(schedule.booking_id)}
+                  onClick={() => onScheduleClick?.(schedule.bookingId ?? schedule.booking_id)}
                   className={`block px-6 py-4 hover:bg-gray-50 transition-colors ${onScheduleClick ? 'cursor-pointer' : ''}`}
                 >
                   <div className="flex items-start justify-between">
@@ -89,7 +89,7 @@ export default function ScheduleList({ schedules, onScheduleClick }: ScheduleLis
                         <div className="flex items-center gap-2">
                           <Clock className="h-4 w-4" />
                           <span>
-                            {schedule.start_time.substring(0, 5)} - {schedule.end_time.substring(0, 5)}
+                            {(schedule.startTime ?? schedule.start_time ?? '').substring(0, 5)} - {(schedule.endTime ?? schedule.end_time ?? '').substring(0, 5)}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">

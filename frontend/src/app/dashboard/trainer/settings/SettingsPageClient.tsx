@@ -33,14 +33,14 @@ export default function SettingsPageClient() {
       return;
     }
 
-    if (!authLoading && user && user.role === 'trainer' && user.approval_status !== 'approved') {
+    if (!authLoading && user && user.role === 'trainer' && user.approvalStatus !== 'approved') {
       router.push('/dashboard/trainer');
       return;
     }
   }, [authLoading, isAuthenticated, user, router]);
 
   useEffect(() => {
-    if (authLoading || !user || user.role !== 'trainer' || user.approval_status !== 'approved') {
+    if (authLoading || !user || user.role !== 'trainer' || user.approvalStatus !== 'approved') {
       return;
     }
 
@@ -82,7 +82,7 @@ export default function SettingsPageClient() {
     return null;
   }
 
-  if (user.approval_status !== 'approved') {
+  if (user.approvalStatus !== 'approved') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">

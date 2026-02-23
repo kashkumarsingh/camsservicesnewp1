@@ -581,7 +581,7 @@ export default function ParentCleanRightSidebar({
   /** Child created_at for "Added today" / "new" labelling. */
   const getChildCreatedAt = (childId: number) => {
     const c = approvedChildren.find((x) => x.id === childId);
-    const raw = c?.created_at ?? (c as { createdAt?: string })?.createdAt;
+    const raw = c?.createdAt ?? (c as { created_at?: string })?.created_at;
     return raw ? moment(raw) : null;
   };
   const isNewWithinDays = (childId: number, days: number) => {

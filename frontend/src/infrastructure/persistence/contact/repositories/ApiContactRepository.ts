@@ -123,8 +123,8 @@ export class ApiNewsletterRepository implements INewsletterRepository {
       active: response.active,
       subscribedAt: response.subscribed_at,
       unsubscribedAt: response.unsubscribed_at,
-      createdAt: response.created_at,
-      updatedAt: response.updated_at,
+      createdAt: (response as { createdAt?: string }).createdAt ?? response.created_at,
+      updatedAt: (response as { updatedAt?: string }).updatedAt ?? response.updated_at,
     });
   }
 

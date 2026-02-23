@@ -449,7 +449,7 @@ export default function ParentOverviewPageClient() {
       };
     });
     const combined = [...approvedRows, ...pendingRows];
-    const createdAtByChildId = new Map(children.map((c) => [c.id, c.created_at ?? ""]));
+    const createdAtByChildId = new Map(children.map((c) => [c.id, c.createdAt ?? ""]));
     return [...combined].sort((a, b) => {
       const dateA = createdAtByChildId.get(a.id) ?? "";
       const dateB = createdAtByChildId.get(b.id) ?? "";

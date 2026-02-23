@@ -4,60 +4,9 @@ import { SiteSetting } from '@/core/domain/siteSettings/entities/SiteSetting';
 import { SiteSettingsDTO } from '@/core/application/siteSettings/dto/SiteSettingsDTO';
 import { SiteSettingsMapper } from '@/core/application/siteSettings/mappers/SiteSettingsMapper';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+import { getApiBaseUrl } from '@/infrastructure/http/apiBaseUrl';
 import { CACHE_TAGS, REVALIDATION_TIMES } from '@/utils/revalidationConstants';
 import { ROUTES } from '@/utils/routes';
-
-/** Ensures the base URL ends with /api/v1 so requests hit Laravel's API routes. */
-function ensureApiV1Base(base: string): string {
-  const trimmed = base.replace(/\/$/, '');
-  if (trimmed.endsWith('/api/v1')) {
-    return trimmed;
-  }
-  return `${trimmed}/api/v1`;
-}
-
-const resolveApiBase = (): string => {
-  // Server-side: process is always available (Node.js environment)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const env = (globalThis as any).process?.env || (typeof process !== 'undefined' ? process.env : {});
-  
-  // Priority 1: API_URL (for server-side in Docker, may be backend base only e.g. http://backend:80)
-  const serverBase = env.API_URL?.replace(/\/$/, '');
-  if (serverBase) {
-    return ensureApiV1Base(serverBase);
-  }
-
-  // Priority 2: NEXT_PUBLIC_API_URL (fallback, but usually for client-side)
-  const publicBase = env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
-  if (publicBase) {
-    return ensureApiV1Base(publicBase);
-  }
-
-  // Priority 3: Runtime fallback - Detect environment
-  const nodeEnv = env.NODE_ENV || 'development';
-  
-  // Check if we're in Docker (Docker sets HOSTNAME to container name)
-  const hostname = env.HOSTNAME || '';
-  const isDocker = hostname.includes('kidzrunz') || env.DOCKER === 'true';
-  
-  // Docker Compose: use service name for internal communication
-  if (isDocker && nodeEnv === 'development') {
-    return 'http://backend:80/api/v1';
-  }
-  
-  // Local development (not in Docker): use localhost
-  if (nodeEnv === 'development' || env.LOCAL_DEV === 'true') {
-    return 'http://localhost:9080/api/v1';
-  }
-
-  // Production: backend on Railway
-  if (nodeEnv === 'production') {
-    return 'https://cams-backend-production-759f.up.railway.app/api/v1';
-  }
-
-  // Default: Docker service name for dev
-  return 'http://backend:80/api/v1';
-};
 
 function buildFallbackSiteSettings(): SiteSetting {
   const dto: SiteSettingsDTO = {
@@ -158,7 +107,7 @@ function buildFallbackSiteSettings(): SiteSetting {
 export async function getSiteSettings(): Promise<SiteSetting> {
   try {
     // Resolve API URL at runtime, not at module load time
-    const apiBase = resolveApiBase();
+    const apiBase = getApiBaseUrl({ serverSide: true });
     const siteSettingsUrl = `${apiBase}${API_ENDPOINTS.SITE_SETTINGS}`;
     
     // Use Next.js fetch with timeout via AbortController

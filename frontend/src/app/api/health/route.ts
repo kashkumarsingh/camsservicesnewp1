@@ -8,11 +8,12 @@
  */
 
 import { NextResponse } from 'next/server';
+import { getApiBaseUrl } from '@/infrastructure/http/apiBaseUrl';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 
 export async function GET() {
   try {
-    const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9080/api/v1';
+    const baseURL = getApiBaseUrl({ serverSide: true });
     
     // Try to ping the Laravel API
     let apiStatus = 'unknown';

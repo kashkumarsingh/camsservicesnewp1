@@ -29,14 +29,14 @@ export default function BookingsListPageClient() {
       return;
     }
 
-    if (!authLoading && user && user.role === 'trainer' && user.approval_status !== 'approved') {
+    if (!authLoading && user && user.role === 'trainer' && user.approvalStatus !== 'approved') {
       router.push('/dashboard/trainer');
       return;
     }
   }, [authLoading, isAuthenticated, user, router]);
 
   const fetchBookings = useCallback(async (silent = false) => {
-    if (!user || user.role !== 'trainer' || user.approval_status !== 'approved') return;
+    if (!user || user.role !== 'trainer' || user.approvalStatus !== 'approved') return;
     try {
       if (!silent) {
         setLoading(true);
@@ -53,16 +53,16 @@ export default function BookingsListPageClient() {
   }, [user]);
 
   useEffect(() => {
-    if (authLoading || !user || user.role !== 'trainer' || user.approval_status !== 'approved') return;
+    if (authLoading || !user || user.role !== 'trainer' || user.approvalStatus !== 'approved') return;
     fetchBookings();
   }, [authLoading, user, fetchBookings]);
 
   const trainerBookingsRefetch = useCallback(() => fetchBookings(true), [fetchBookings]);
   useLiveRefresh('bookings', trainerBookingsRefetch, {
-    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approval_status === 'approved',
+    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approvalStatus === 'approved',
   });
   useLiveRefresh('trainer_schedules', trainerBookingsRefetch, {
-    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approval_status === 'approved',
+    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approvalStatus === 'approved',
   });
 
   if (authLoading || loading) {

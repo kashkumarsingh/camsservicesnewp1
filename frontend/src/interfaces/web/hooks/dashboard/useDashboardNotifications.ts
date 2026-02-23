@@ -108,7 +108,7 @@ export function useDashboardNotifications(options?: { unreadOnly?: boolean }) {
     [options?.unreadOnly]
   );
 
-  // Fetch when we have an authenticated user; clear state when we don't
+  // Single fetch when user is available. Deps use primitive user?.id only so we don't refetch when user object reference changes.
   useEffect(() => {
     if (user?.id) {
       fetchNotifications();
@@ -117,15 +117,6 @@ export function useDashboardNotifications(options?: { unreadOnly?: boolean }) {
       setNotifications([]);
       setUnreadCount(0);
     }
-  }, [user?.id, fetchNotifications]);
-
-  // Sync again after a short delay when user becomes available (catches auth race: shell mounts before user is set)
-  useEffect(() => {
-    if (!user?.id) return;
-    const t = window.setTimeout(() => {
-      fetchNotifications(true);
-    }, 800);
-    return () => window.clearTimeout(t);
   }, [user?.id, fetchNotifications]);
 
   // Refetch when window regains focus so admins see new notifications (e.g. checklist submitted)

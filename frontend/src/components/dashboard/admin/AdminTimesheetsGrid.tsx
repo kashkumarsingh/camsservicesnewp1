@@ -239,7 +239,7 @@ export function AdminTimesheetsGrid() {
       const id = String(trainerId);
       return (
         absenceRequests.find(
-          (r) => String(r.trainer_id) === id && r.date_from <= dateStr && dateStr <= r.date_to
+          (r) => String((r as { trainerId?: string }).trainerId ?? r.trainer_id) === id && ((r as { dateFrom?: string }).dateFrom ?? r.date_from) <= dateStr && dateStr <= ((r as { dateTo?: string }).dateTo ?? r.date_to)
         ) ?? null
       );
     },
@@ -594,7 +594,7 @@ export function AdminTimesheetsGrid() {
                 </div>
               </div>
             ) : null}
-            <p className="text-xs text-slate-500 dark:text-slate-400">Submitted {formatSubmittedAt(panelRequest.created_at)}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Submitted {formatSubmittedAt((panelRequest as { createdAt?: string }).createdAt ?? (panelRequest as { created_at?: string }).created_at)}</p>
             <div className="border-t border-slate-200 pt-4 dark:border-slate-700">
               <label htmlFor="timesheets-reject-reason" className="text-xs font-medium text-slate-600 dark:text-slate-400">
                 Rejection reason (optional)

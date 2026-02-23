@@ -4,6 +4,7 @@ import "./globals.css";
 import '@/utils/moment-locales';
 import ConditionalPublicLayout from '@/components/layout/ConditionalPublicLayout';
 import { ThemeProvider, ThemeScript } from '@/components/theme';
+import { AuthProvider } from '@/interfaces/web/hooks/auth/useAuth';
 import PerformanceFix from '@/utils/performanceFix';
 
 const fredoka = Fredoka({
@@ -77,8 +78,10 @@ export default function RootLayout({
       >
         <ThemeScript />
         <ThemeProvider>
-          <PerformanceFix />
-          <ConditionalPublicLayout>{children}</ConditionalPublicLayout>
+          <AuthProvider>
+            <PerformanceFix />
+            <ConditionalPublicLayout>{children}</ConditionalPublicLayout>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

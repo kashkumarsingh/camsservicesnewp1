@@ -59,7 +59,7 @@ export default function ParentChildrenPageClient() {
       { packageName: string; remainingHours: number; totalHours: number }
     >();
     children.forEach((child) => {
-      if (child.approval_status !== 'approved') return;
+      if (child.approvalStatus !== 'approved') return;
       const active = getActiveBookingForChild(bookings, child.id);
       if (!active) return;
       const totalHours = active.totalHours ?? 0;
@@ -224,7 +224,7 @@ export default function ParentChildrenPageClient() {
 
   // Get status badge for a child
   const getStatusBadge = (child: typeof children[0]) => {
-    if (child.approval_status === 'approved') {
+    if (child.approvalStatus === 'approved') {
       return (
         <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
           <CheckCircle size={12} />
@@ -233,9 +233,9 @@ export default function ParentChildrenPageClient() {
       );
     }
 
-    if (child.approval_status === 'pending') {
+    if (child.approvalStatus === 'pending') {
       // Check checklist status
-      if (child.has_checklist !== true) {
+      if (child.hasChecklist !== true) {
         return (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-medium text-orange-700 dark:bg-orange-900/30 dark:text-orange-400">
             <Clock size={12} />
@@ -244,7 +244,7 @@ export default function ParentChildrenPageClient() {
         );
       }
 
-      if (child.checklist_completed !== true) {
+      if (child.checklistCompleted !== true) {
         return (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
             <Clock size={12} />
@@ -261,7 +261,7 @@ export default function ParentChildrenPageClient() {
       );
     }
 
-    if (child.approval_status === 'rejected') {
+    if (child.approvalStatus === 'rejected') {
       return (
         <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
           <XCircle size={12} />
@@ -278,8 +278,8 @@ export default function ParentChildrenPageClient() {
     const actions = [];
 
     // Complete or update checklist (when pending and checklist not yet approved)
-    const needsChecklist = child.approval_status === 'pending' && child.has_checklist !== true;
-    const canUpdateChecklist = child.approval_status === 'pending' && child.has_checklist === true && child.checklist_completed !== true;
+    const needsChecklist = child.approvalStatus === 'pending' && child.hasChecklist !== true;
+    const canUpdateChecklist = child.approvalStatus === 'pending' && child.hasChecklist === true && child.checklistCompleted !== true;
     if (needsChecklist || canUpdateChecklist) {
       actions.push(
         <Button
@@ -308,7 +308,7 @@ export default function ParentChildrenPageClient() {
     );
 
     // Buy package / Top up (only if approved): "Top up" opens modal when 0h left; else "Buy package" goes to dashboard
-    if (child.approval_status === 'approved') {
+    if (child.approvalStatus === 'approved') {
       const summary = childPackageSummary.get(child.id);
       const hasActivePackage = summary !== undefined;
       const needsTopUp = hasActivePackage && summary.remainingHours <= 0;
@@ -328,7 +328,7 @@ export default function ParentChildrenPageClient() {
     }
 
     // Book session (only if approved)
-    if (child.approval_status === 'approved') {
+    if (child.approvalStatus === 'approved') {
       actions.push(
         <Button
           key="book"
@@ -419,9 +419,9 @@ export default function ParentChildrenPageClient() {
                   </h3>
                   <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-600 dark:text-slate-400">
                     {child.age && <span>Age {child.age}</span>}
-                    {child.date_of_birth && (
+                    {child.dateOfBirth && (
                       <span className="text-xs">
-                        (DOB: {moment(child.date_of_birth).format('DD/MM/YYYY')})
+                        (DOB: {moment(child.dateOfBirth).format('DD/MM/YYYY')})
                       </span>
                     )}
                   </div>
@@ -430,7 +430,7 @@ export default function ParentChildrenPageClient() {
               </div>
 
               {/* Package status (approved children only) – so parents see if child has active package and hours */}
-              {child.approval_status === 'approved' && (
+              {child.approvalStatus === 'approved' && (
                 <div className="mb-4 rounded-md bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-xs">
                   {(() => {
                     const summary = childPackageSummary.get(child.id);
@@ -476,26 +476,26 @@ export default function ParentChildrenPageClient() {
               )}
 
               {/* Special educational needs */}
-              {child.special_educational_needs && (
+              {child.specialEducationalNeeds && (
                 <div className="mb-4 rounded-md bg-blue-50 p-3 text-xs text-slate-700 dark:bg-blue-900/30 dark:text-slate-300">
-                  <span className="font-medium">SEN:</span> {child.special_educational_needs}
+                  <span className="font-medium">SEN:</span> {child.specialEducationalNeeds}
                 </div>
               )}
 
               {/* Rejection reason */}
-              {child.approval_status === 'rejected' && child.rejection_reason && (
+              {child.approvalStatus === 'rejected' && child.rejectionReason && (
                 <div className="mb-4 rounded-md bg-red-50 p-3 text-xs text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                  <span className="font-medium">Reason:</span> {child.rejection_reason}
+                  <span className="font-medium">Reason:</span> {child.rejectionReason}
                 </div>
               )}
 
               {/* Checklist status + CTA */}
-              {child.approval_status === 'pending' && (
+              {child.approvalStatus === 'pending' && (
                 <div className="mb-4 flex flex-col gap-2">
                   <div className="text-xs text-slate-600 dark:text-slate-400">
-                    {child.has_checklist !== true ? (
+                    {child.hasChecklist !== true ? (
                       <span>Complete the checklist so we can approve this child and you can book sessions.</span>
-                    ) : child.checklist_completed !== true ? (
+                    ) : child.checklistCompleted !== true ? (
                       <span>Checklist submitted and awaiting review. You can update it below if needed.</span>
                     ) : (
                       <span>Checklist approved. Final account approval is pending.</span>

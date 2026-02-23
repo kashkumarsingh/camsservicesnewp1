@@ -34,7 +34,7 @@ export default function BookingDetailPageClient({ bookingId }: BookingDetailPage
       return;
     }
 
-    if (!authLoading && user && user.role === 'trainer' && user.approval_status !== 'approved') {
+    if (!authLoading && user && user.role === 'trainer' && user.approvalStatus !== 'approved') {
       router.push('/dashboard/trainer');
       return;
     }
@@ -55,24 +55,24 @@ export default function BookingDetailPageClient({ bookingId }: BookingDetailPage
   }, [bookingId]);
 
   useEffect(() => {
-    if (authLoading || !user || user.role !== 'trainer' || user.approval_status !== 'approved') {
+    if (authLoading || !user || user.role !== 'trainer' || user.approvalStatus !== 'approved') {
       return;
     }
     void fetchBooking();
   }, [authLoading, user, fetchBooking]);
 
   const trainerBookingDetailRefetch = useCallback(() => {
-    if (user && user.role === 'trainer' && user.approval_status === 'approved') {
+    if (user && user.role === 'trainer' && user.approvalStatus === 'approved') {
       void trainerBookingRepository.get(parseInt(bookingId)).then(setBooking).catch((err: unknown) => {
         setError(err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : 'Failed to load booking details');
       });
     }
   }, [bookingId, user]);
   useLiveRefresh('bookings', trainerBookingDetailRefetch, {
-    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approval_status === 'approved',
+    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approvalStatus === 'approved',
   });
   useLiveRefresh('trainer_schedules', trainerBookingDetailRefetch, {
-    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approval_status === 'approved',
+    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approvalStatus === 'approved',
   });
 
   if (authLoading || loading) {

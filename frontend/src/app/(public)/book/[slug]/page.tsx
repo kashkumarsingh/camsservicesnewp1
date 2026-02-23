@@ -167,8 +167,8 @@ export default async function BookPackagePage({ params }: Props) {
       travelRadiusKm: t.travel_radius_km,
       serviceAreaPostcodes: t.service_area_postcodes,
       serviceRegions: t.service_regions,
-      createdAt: t.created_at,
-      updatedAt: t.updated_at,
+      createdAt: (t as { createdAt?: string }).createdAt ?? t.created_at,
+      updatedAt: (t as { updatedAt?: string }).updatedAt ?? t.updated_at,
     }));
     
     bookingTrainers = trainers.map(mapTrainerToLegacy);

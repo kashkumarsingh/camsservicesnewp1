@@ -369,7 +369,7 @@ export default function BuyHoursModal({
         return;
       }
       const childDob =
-        selectedChild.date_of_birth ||
+        selectedChild.dateOfBirth ||
         (() => {
           const d = new Date();
           d.setFullYear(d.getFullYear() - (selectedChild.age ?? 0));

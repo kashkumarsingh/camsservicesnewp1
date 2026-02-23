@@ -5,6 +5,7 @@
  * Purpose: Type definitions for authentication domain
  */
 
+/** User from API; backend sends camelCase after keysToCamelCase. */
 export interface User {
   id: number;
   name: string;
@@ -12,37 +13,38 @@ export interface User {
   phone?: string;
   address?: string;
   postcode?: string;
-  county?: string; // User's county/region
+  county?: string;
   role: 'parent' | 'trainer' | 'admin' | 'super_admin' | 'editor';
-  approval_status: 'pending' | 'approved' | 'rejected';
-  approved_at?: string;
-  rejected_at?: string;
-  rejection_reason?: string;
-  can_book?: boolean;
-  created_at: string;
+  approvalStatus: 'pending' | 'approved' | 'rejected';
+  approvedAt?: string;
+  rejectedAt?: string;
+  rejectionReason?: string;
+  canBook?: boolean;
+  createdAt: string;
 }
 
+/** Child from API / ChildrenRepository; backend sends camelCase. */
 export interface Child {
   id: number;
-  user_id: number;
+  userId: number;
   name: string;
   age: number;
-  date_of_birth?: string;
+  dateOfBirth?: string;
   gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
   address?: string;
   postcode?: string;
   city?: string;
   region?: string;
-  approval_status: 'pending' | 'approved' | 'rejected';
-  approved_at?: string;
-  rejected_at?: string;
-  rejection_reason?: string;
-  has_checklist: boolean;
-  checklist_completed: boolean;
-  special_educational_needs?: string;
-  created_at: string;
-  can_archive?: boolean;
-  can_delete?: boolean;
+  approvalStatus: 'pending' | 'approved' | 'rejected';
+  approvedAt?: string;
+  rejectedAt?: string;
+  rejectionReason?: string;
+  hasChecklist: boolean;
+  checklistCompleted: boolean;
+  specialEducationalNeeds?: string;
+  createdAt: string;
+  canArchive?: boolean;
+  canDelete?: boolean;
 }
 
 /**
@@ -131,10 +133,11 @@ export interface LoginRequest {
   password: string;
 }
 
+/** API returns camelCase after backend keysToCamelCase. */
 export interface AuthResponse {
   user: User;
-  access_token: string;
-  token_type: string;
+  accessToken: string;
+  tokenType: string;
 }
 
 export interface CreateChildRequest {

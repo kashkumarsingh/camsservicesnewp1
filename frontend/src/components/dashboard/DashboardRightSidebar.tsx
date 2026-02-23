@@ -257,7 +257,7 @@ export default function DashboardRightSidebar({
                   {c.name}
                 </span>
                 <span className="text-xs text-[#5f6368] dark:text-gray-400 truncate max-w-[60%]">
-                  {c.rejection_reason || 'No reason provided.'}
+                  {c.rejectionReason || 'No reason provided.'}
                 </span>
                 {onCompleteChecklist && (
                   <button
@@ -372,7 +372,7 @@ export default function DashboardRightSidebar({
                           )}
                           <span className="text-xs font-medium tabular-nums shrink-0 text-[#5f6368] dark:text-gray-400">{childHour.remainingHours.toFixed(1)}h left</span>
                           <button type="button" onClick={(e) => { e.stopPropagation(); setTooltipChildId(tooltipChildId === childHour.childId ? null : childHour.childId); }} onMouseEnter={() => { if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current); setTooltipChildId(childHour.childId); }} onMouseLeave={() => { tooltipTimeoutRef.current = setTimeout(() => setTooltipChildId(null), 200); }} className="p-1 hover:bg-[#e8eaed] dark:hover:bg-gray-600 rounded-full text-[#5f6368] hover:text-[#202124] dark:hover:text-gray-200 transition-colors" aria-label="View package details (tooltip)"><Info size={12} /></button>
-                          {child?.can_delete && onRemoveChild && <button type="button" onClick={(e) => { e.stopPropagation(); setRemoveConfirmChildId(childHour.childId); }} disabled={isRemoving} className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full text-[#5f6368] hover:text-[#d93025] flex-shrink-0 disabled:opacity-50 transition-colors" aria-label={`Remove ${childHour.childName}`} title="Remove child"><Trash2 size={12} /></button>}
+                          {child?.canDelete && onRemoveChild && <button type="button" onClick={(e) => { e.stopPropagation(); setRemoveConfirmChildId(childHour.childId); }} disabled={isRemoving} className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full text-[#5f6368] hover:text-[#d93025] flex-shrink-0 disabled:opacity-50 transition-colors" aria-label={`Remove ${childHour.childName}`} title="Remove child"><Trash2 size={12} /></button>}
                         </div>
                         <div className="flex items-center gap-2 flex-wrap mt-1">
                           <button type="button" onClick={() => setModalChildId(childHour.childId)} className="flex items-center gap-1.5 text-xs text-[#5f6368] dark:text-gray-400 hover:text-[#1a73e8] dark:hover:text-blue-400 transition text-left">

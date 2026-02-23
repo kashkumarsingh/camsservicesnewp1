@@ -39,6 +39,7 @@ function isTodayDashboardRequest(f: AdminBookingsFilters): boolean {
 
 export function useAdminBookings(initialFilters?: AdminBookingsFilters) {
   const { user } = useAuth();
+  const userId = user?.id;
   const syncEnabled = useDashboardSyncEnabled();
   const [bookings, setBookings] = useState<AdminBookingDTO[]>([]);
   const [loading, setLoading] = useState(true);
@@ -116,9 +117,9 @@ export function useAdminBookings(initialFilters?: AdminBookingsFilters) {
         const count = response.data.meta?.total_count || mapped.length;
         setTotalCount(count);
 
-        if (syncEnabled && user && isTodayDashboardRequest(activeFilters) && activeFilters.session_date_from) {
+        if (syncEnabled && userId && isTodayDashboardRequest(activeFilters) && activeFilters.session_date_from) {
           dashboardSyncStore.setAdminTodayBookings(
-            user.id,
+            userId,
             activeFilters.session_date_from,
             mapped,
             count
@@ -135,7 +136,7 @@ export function useAdminBookings(initialFilters?: AdminBookingsFilters) {
         }
       }
     },
-    [filters, syncEnabled, user],
+    [filters, syncEnabled, userId],
   );
 
   /**
@@ -425,10 +426,12 @@ export function useAdminBookings(initialFilters?: AdminBookingsFilters) {
     fetchBookings(newFilters, true);
   }, [fetchBookings]);
 
-  // Initial fetch: cache-first when sync enabled and this is the "today" dashboard request
+  // Initial fetch: cache-first when sync enabled and this is the "today" dashboard request.
+  // Deps use user?.id only (primitive) so we don't refetch when user object reference changes.
+  // Note: Multiple GET /admin/bookings requests are expected when multiple components use this hook with different filters (e.g. overview "today" + schedule grid).
   useEffect(() => {
-    if (syncEnabled && user && isTodayDashboardRequest(filters) && filters.session_date_from) {
-      const cached = dashboardSyncStore.getAdminTodayBookings(user.id, filters.session_date_from);
+    if (syncEnabled && userId != null && isTodayDashboardRequest(filters) && filters.session_date_from) {
+      const cached = dashboardSyncStore.getAdminTodayBookings(userId, filters.session_date_from);
       if (cached?.bookings != null) {
         setBookings(cached.bookings as AdminBookingDTO[]);
         setTotalCount(cached.totalCount);
@@ -437,11 +440,11 @@ export function useAdminBookings(initialFilters?: AdminBookingsFilters) {
         return;
       }
     }
-    if (syncEnabled && !user) return;
+    if (syncEnabled && userId == null) return;
     void fetchBookings();
     // Intentionally omit fetchBookings to avoid re-running when it changes; we only run on sync/user change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [syncEnabled, user?.id]);
+  }, [syncEnabled, userId]);
 
   return {
     bookings,

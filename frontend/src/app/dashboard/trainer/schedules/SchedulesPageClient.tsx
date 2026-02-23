@@ -56,14 +56,14 @@ export default function SchedulesPageClient() {
       return;
     }
 
-    if (!authLoading && user && user.role === 'trainer' && user.approval_status !== 'approved') {
+    if (!authLoading && user && user.role === 'trainer' && user.approvalStatus !== 'approved') {
       router.push('/dashboard/trainer');
       return;
     }
   }, [authLoading, isAuthenticated, user, router]);
 
   useEffect(() => {
-    if (authLoading || !user || user.role !== 'trainer' || user.approval_status !== 'approved') {
+    if (authLoading || !user || user.role !== 'trainer' || user.approvalStatus !== 'approved') {
       return;
     }
 
@@ -88,17 +88,17 @@ export default function SchedulesPageClient() {
   }, [authLoading, user, selectedMonth, selectedYear]);
 
   const schedulesRefetch = useCallback(() => {
-    if (!user || user.role !== 'trainer' || user.approval_status !== 'approved') return;
+    if (!user || user.role !== 'trainer' || user.approvalStatus !== 'approved') return;
     trainerScheduleRepository
       .list({ month: selectedMonth, year: selectedYear })
       .then((response) => setSchedules(response.schedules))
       .catch(() => {});
   }, [user, selectedMonth, selectedYear]);
   useLiveRefresh('trainer_schedules', schedulesRefetch, {
-    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approval_status === 'approved',
+    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approvalStatus === 'approved',
   });
   useLiveRefresh('bookings', schedulesRefetch, {
-    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approval_status === 'approved',
+    enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approvalStatus === 'approved',
   });
 
   const closeConfirmationPanel = () => {

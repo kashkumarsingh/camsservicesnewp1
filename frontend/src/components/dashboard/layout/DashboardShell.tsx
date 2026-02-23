@@ -267,7 +267,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
       // ignore
     }
   }, []);
-  const { user, loading, loadError, refresh, logout } = useAuth();
+  const { user, loading, loadError, unauthenticatedReason, refresh, logout } = useAuth();
   const sectionRole = getSectionRole(user);
   const isServerLoadError = loadError != null && (loadError.status >= 500 || loadError.status === 0);
 
@@ -303,13 +303,27 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
 
   // Redirect unauthenticated users to login (preserve intended destination)
   // Do not redirect when we have a 5xx/network error — show Retry instead
+  // Short delay avoids redirecting before token/auth has had a chance to run (hydration / Strict Mode)
   useEffect(() => {
     if (loading) return;
     if (!user && isServerLoadError) return; // Show error UI with Retry
     if (!user) {
       const redirect = encodeURIComponent(pathname);
-      router.replace(`${ROUTES.LOGIN}?redirect=${redirect}`);
-      return;
+      if (typeof process !== "undefined" && process.env?.NODE_ENV === "development") {
+        const reason =
+          unauthenticatedReason === "no_token"
+            ? "no auth token in localStorage (log in first)"
+            : unauthenticatedReason === "unauthorized"
+              ? "session expired or invalid token (getCurrentUser returned 401/403)"
+              : "no user";
+        console.warn(
+          `[Dashboard] Redirecting to login for ${pathname}: ${reason}. After login you will return here.`
+        );
+      }
+      const timeoutId = setTimeout(() => {
+        router.replace(`${ROUTES.LOGIN}?redirect=${redirect}`);
+      }, 80);
+      return () => clearTimeout(timeoutId);
     }
     // If on role-picker page, redirect to role-specific dashboard
     if (pathname === "/dashboard") {
@@ -320,7 +334,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
     if (!canAccessRoute(user, pathname)) {
       router.replace(getDashboardRoute(user));
     }
-  }, [loading, user, isServerLoadError, pathname, router]);
+  }, [loading, user, isServerLoadError, unauthenticatedReason, pathname, router]);
 
   const isActive = (href: string) => {
     if (href === "/dashboard/parent" || href === "/dashboard/trainer" || href === "/dashboard/admin") {

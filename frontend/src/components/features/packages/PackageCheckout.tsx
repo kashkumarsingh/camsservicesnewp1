@@ -100,7 +100,7 @@ export default function PackageCheckout({
       setLoadingChildren(true);
       try {
         const children = await childrenRepository.list();
-        const approved = children.filter(child => child.approval_status === 'approved');
+        const approved = children.filter(child => child.approvalStatus === 'approved');
         setApprovedChildren(approved);
 
         // Check for active packages for each child (with expiry dates)

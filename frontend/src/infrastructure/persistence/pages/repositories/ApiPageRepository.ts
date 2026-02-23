@@ -61,8 +61,8 @@ export class ApiPageRepository implements IPageRepository {
       coreValuesSectionTitle: data.coreValuesSectionTitle ?? undefined,
       coreValuesSectionSubtitle: data.coreValuesSectionSubtitle ?? undefined,
       safeguarding: data.safeguarding ?? undefined,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
+      createdAt: (data as { createdAt?: string }).createdAt ?? data.created_at,
+      updatedAt: (data as { updatedAt?: string }).updatedAt ?? data.updated_at,
     });
   }
 

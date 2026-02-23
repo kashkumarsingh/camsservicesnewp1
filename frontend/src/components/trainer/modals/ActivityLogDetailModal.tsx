@@ -78,10 +78,10 @@ export default function ActivityLogDetailModal({
         size="xl"
       >
         <ActivityLogForm
-          childId={log.child_id}
+          childId={log.childId ?? log.child_id}
           childName={log.child?.name || 'Child'}
-          bookingId={log.booking_id || undefined}
-          bookingScheduleId={log.booking_schedule_id || undefined}
+          bookingId={log.bookingId ?? log.booking_id || undefined}
+          bookingScheduleId={log.bookingScheduleId ?? log.booking_schedule_id || undefined}
           initialData={log}
           onSuccess={handleUpdate}
           onCancel={() => setEditing(false)}
@@ -120,10 +120,9 @@ export default function ActivityLogDetailModal({
                 year: 'numeric',
               })}
             </span>
-            {log.start_time && log.end_time && (
-              <span className="inline-flex items-center gap-1">
+            {(log.startTime ?? log.start_time) && (log.endTime ?? log.end_time) && (<span className="inline-flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5 shrink-0" />
-                {log.start_time.substring(0, 5)}–{log.end_time.substring(0, 5)}
+                {(log.startTime ?? log.start_time).substring(0, 5)}–{(log.endTime ?? log.end_time).substring(0, 5)}
               </span>
             )}
           </div>
@@ -249,9 +248,9 @@ export default function ActivityLogDetailModal({
 
         {/* Meta */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
-          <span>Logged {formatDateTimeShort(log.created_at)}</span>
-          {log.updated_at !== log.created_at && (
-            <span>Updated {formatDateTimeShort(log.updated_at)}</span>
+          <span>Logged {formatDateTimeShort(log.createdAt ?? log.created_at)}</span>
+          {(log.updatedAt ?? log.updated_at) !== (log.createdAt ?? log.created_at) && (
+            <span>Updated {formatDateTimeShort(log.updatedAt ?? log.updated_at)}</span>
           )}
           {log.is_editable && log.editable_until ? (
             <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">

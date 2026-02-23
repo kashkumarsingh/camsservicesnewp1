@@ -71,7 +71,7 @@ export class ApiTrainerApplicationRepository implements ITrainerApplicationRepos
     return {
       id: String(response.id),
       status: response.status as TrainerApplicationDTO['status'],
-      createdAt: response.created_at,
+      createdAt: (response as { createdAt?: string }).createdAt ?? response.created_at,
     };
   }
 

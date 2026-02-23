@@ -3,11 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-
-// Type declaration for Node.js process (available in Next.js runtime)
-declare const process: {
-  env: Record<string, string | undefined>;
-} | undefined;
+import { usePathname } from 'next/navigation';
+import { getApiBaseUrl } from '@/infrastructure/http/apiBaseUrl';
 import { 
   MessageCircle,
   Phone, 
@@ -123,36 +120,8 @@ function getLogoUrl(logoPath: string | undefined): string {
   
   // Otherwise, it's a backend storage path - convert to full URL
   // Backend storage files are served at /storage/{path}
-  // Resolve backend URL from NEXT_PUBLIC_API_URL at runtime
-  const getBackendUrl = (): string => {
-    if (typeof window !== 'undefined' && typeof process !== 'undefined' && process.env) {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-        if (apiUrl) {
-          // Remove /api/v1 suffix if present, and trailing slashes
-          return apiUrl.replace('/api/v1', '').replace(/\/$/, '');
-        }
-      } catch (e) {
-        console.warn('[getLogoUrl] Failed to read NEXT_PUBLIC_API_URL, using Railway backend');
-      }
-    }
-    
-    // Runtime fallback: Detect environment
-    if (typeof window !== 'undefined' && window.location) {
-      const hostname = window.location.hostname;
-      // Local development: localhost, 127.0.0.1, or local IP
-      if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.') || hostname.startsWith('10.') || hostname.startsWith('172.')) {
-        return 'http://localhost:9080';
-      }
-      // Production (Vercel etc.): backend on Railway
-      return 'https://cams-backend-production-759f.up.railway.app';
-    }
-    
-    // Default: localhost for development
-    return 'http://localhost:9080';
-  };
-  
-  const backendUrl = getBackendUrl();
+  const apiBase = getApiBaseUrl({ serverSide: false });
+  const backendUrl = apiBase.replace(/\/api\/v1\/?$/, '').replace(/\/$/, '');
   
   // Files are stored in storage/app/logos/{filename}
   // Extract just the filename (remove any directory prefixes)
@@ -186,11 +155,15 @@ interface FooterClientProps {
 }
 
 const FooterClient: React.FC<FooterClientProps> = ({ settings }) => {
-  // Fetch services for dynamic footer links (limit to 6 most recent/popular)
-  const { services: footerServices, loading: servicesLoading } = useServices({ 
+  const pathname = usePathname();
+  const isAuthPage = pathname === '/login' || pathname === '/register';
+
+  // Fetch services for dynamic footer links (skip on login/register to avoid unnecessary API calls)
+  const { services: footerServices, loading: servicesLoading } = useServices({
     limit: 6,
     sortBy: 'views',
-    sortOrder: 'desc'
+    sortOrder: 'desc',
+    enabled: !isAuthPage,
   });
   // Fetch published policies for footer legal links
   const { policies: footerPolicies, loading: policiesLoading } = usePolicies({ 

@@ -7,6 +7,8 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
+import { getAuthToken } from '@/infrastructure/http/auth/authTokenProvider';
+import { getApiBaseUrl } from '@/infrastructure/http/apiBaseUrl';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 import {
   LIVE_REFRESH_CONTEXTS_LIST,
@@ -46,8 +48,17 @@ function notifyContext(context: LiveRefreshContextType): void {
   });
 }
 
+/** Echo instance type for private channels and disconnect. */
+type EchoInstance = {
+  private: (ch: string) => {
+    listen: (ev: string, cb: (payload: { contexts?: string[] }) => void) => void;
+  };
+  disconnect: () => void;
+};
+
 export function LiveRefreshProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const echoRef = useRef<EchoInstance | null>(null);
 
   const subscribe = useCallback(
     (context: LiveRefreshContextType, refetch: RefetchFn) => {
@@ -70,10 +81,22 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
     LIVE_REFRESH_CONTEXTS_LIST.forEach((ctx) => notifyContext(ctx as LiveRefreshContextType));
   }, []);
 
-  // WebSocket (Echo) when Reverb is configured – real-time live refresh
+  // WebSocket (Echo) when Reverb is configured – one connection per user, stored in ref.
+  // Deps are primitives only (user?.id, user?.role) so we don't reconnect when user object reference changes.
+  const userId = user?.id;
+  const userRole = user?.role;
+
   useEffect(() => {
-    if (!LIVE_REFRESH_HAS_WEBSOCKET_CONFIG || !user?.id) {
-      if (typeof window !== 'undefined' && user?.id && process.env.NODE_ENV === 'development') {
+    if (!LIVE_REFRESH_HAS_WEBSOCKET_CONFIG || userId == null) {
+      if (echoRef.current) {
+        try {
+          echoRef.current.disconnect();
+        } catch {
+          // ignore
+        }
+        echoRef.current = null;
+      }
+      if (typeof window !== 'undefined' && userId != null && process.env.NODE_ENV === 'development') {
         const missing = [
           !LIVE_REFRESH_WEBSOCKET_ENABLED && 'NEXT_PUBLIC_LIVE_REFRESH_WEBSOCKET_ENABLED=true',
           !LIVE_REFRESH_WEBSOCKET_CONFIG.key && 'NEXT_PUBLIC_REVERB_APP_KEY',
@@ -89,17 +112,21 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
       return;
     }
 
-    let echo: {
-      private: (ch: string) => {
-        listen: (ev: string, cb: (payload: { contexts?: string[] }) => void) => void;
-      };
-      disconnect: () => void;
-    } | null = null;
+    // Disconnect any existing instance so we only ever have one Echo per effect run.
+    if (echoRef.current) {
+      try {
+        echoRef.current.disconnect();
+      } catch {
+        // ignore
+      }
+      echoRef.current = null;
+    }
+
+    let cancelled = false;
 
     const connect = async () => {
-      const token =
-        typeof window !== 'undefined' ? window.localStorage.getItem('auth_token') : null;
-      if (!token) return;
+      const token = getAuthToken();
+      if (!token || cancelled) return;
 
       const [EchoModule, PusherModule] = await Promise.all([
         import('laravel-echo'),
@@ -109,15 +136,12 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
       const PusherConstructor =
         (PusherModule as unknown as { default: typeof import('pusher-js') }).default ?? PusherModule;
 
-      const baseUrl =
-        typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL
-          ? String(process.env.NEXT_PUBLIC_API_URL).replace(/\/api\/v1\/?$/, '')
-          : '';
-      const authEndpoint = baseUrl ? `${baseUrl}/api/v1/broadcasting/auth` : '';
+      const apiBase = getApiBaseUrl({ serverSide: false });
+      const authEndpoint = apiBase ? `${apiBase}/broadcasting/auth` : '';
 
       (window as unknown as { Pusher: typeof PusherConstructor }).Pusher = PusherConstructor;
 
-      echo = new Echo({
+      const echo = new Echo({
         broadcaster: 'reverb',
         key: LIVE_REFRESH_WEBSOCKET_CONFIG.key,
         wsHost: LIVE_REFRESH_WEBSOCKET_CONFIG.wsHost,
@@ -132,9 +156,16 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
             Accept: 'application/json',
           },
         },
-      });
+      }) as EchoInstance;
 
-      const channelName = `live-refresh.${user.id}`;
+      // If effect was cleaned up while we were creating Echo, disconnect the new instance so we don't leave a ghost connection.
+      if (cancelled) {
+        echo.disconnect();
+        return;
+      }
+      echoRef.current = echo;
+
+      const channelName = `live-refresh.${userId}`;
       echo.private(channelName).listen('.LiveRefreshContextsUpdated', (payload: { contexts?: string[] }) => {
         const contexts = payload?.contexts ?? [];
         contexts.forEach((ctx) => {
@@ -144,8 +175,7 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
         });
       });
 
-      const isAdmin = isAdminRole(user.role);
-      if (isAdmin) {
+      if (isAdminRole(userRole)) {
         echo.private('live-refresh.admin').listen('.LiveRefreshContextsUpdated', (payload: { contexts?: string[] }) => {
           const contexts = payload?.contexts ?? [];
           contexts.forEach((ctx) => {
@@ -160,17 +190,23 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
     void connect();
 
     return () => {
-      if (echo && typeof echo.disconnect === 'function') {
-        echo.disconnect();
+      cancelled = true;
+      if (echoRef.current) {
+        try {
+          echoRef.current.disconnect();
+        } catch {
+          // ignore
+        }
+        echoRef.current = null;
       }
     };
-  }, [user?.id, user?.role]);
+  }, [userId, userRole]);
 
   // Polling fallback when WebSocket/Reverb is not available – same refetch behaviour
   const refreshAllRef = useRef(refreshAll);
   refreshAllRef.current = refreshAll;
   useEffect(() => {
-    if (!user?.id || LIVE_REFRESH_HAS_WEBSOCKET_CONFIG) return;
+    if (userId == null || LIVE_REFRESH_HAS_WEBSOCKET_CONFIG) return;
 
     let intervalId: ReturnType<typeof setInterval> | null = null;
 
@@ -201,7 +237,7 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
       document.removeEventListener('visibilitychange', onVisibilityChange);
       if (intervalId !== null) clearInterval(intervalId);
     };
-  }, [user?.id]);
+  }, [userId]);
 
   const value: LiveRefreshContextValue = { subscribe, invalidate, refreshAll };
 

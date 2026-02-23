@@ -10,7 +10,7 @@ interface ParticipantCardProps {
 }
 
 export default function ParticipantCard({ participant, bookingId }: ParticipantCardProps) {
-  const childId = participant.child_id;
+  const childId = participant.childId ?? participant.child_id;
 
   return (
     <div className="border border-gray-200 rounded-lg p-4">

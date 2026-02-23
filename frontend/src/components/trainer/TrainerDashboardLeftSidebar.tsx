@@ -88,8 +88,8 @@ export default function TrainerDashboardLeftSidebar({
     
     bookings.forEach((booking) => {
       booking.participants?.forEach((participant) => {
-        if (participant.child_id) {
-          const traineeId = participant.child_id;
+        if (participant.childId ?? participant.child_id) {
+          const traineeId = participant.childId ?? participant.child_id;
           if (!traineeMap.has(traineeId)) {
             traineeMap.set(traineeId, {
               id: traineeId,
@@ -109,8 +109,8 @@ export default function TrainerDashboardLeftSidebar({
           const sessionDate = moment(`${schedule.date} ${schedule.start_time}`, 'YYYY-MM-DD HH:mm');
           if (sessionDate.isAfter(now)) {
             booking.participants?.forEach((participant) => {
-              if (participant.child_id) {
-                const trainee = traineeMap.get(participant.child_id);
+              if (participant.childId ?? participant.child_id) {
+                const trainee = traineeMap.get(participant.childId ?? participant.child_id);
                 if (trainee) {
                   trainee.upcomingCount++;
                 }
@@ -167,7 +167,7 @@ export default function TrainerDashboardLeftSidebar({
         const sessionDate = moment(`${schedule.date} ${schedule.start_time}`, 'YYYY-MM-DD HH:mm');
         if (sessionDate.isAfter(now) && sessionDate.isBefore(nextWeek)) {
           const traineeName = booking.participants?.[0]?.name || 'Trainee';
-          const traineeId = booking.participants?.[0]?.child_id || 0;
+          const traineeId = booking.participants?.[0]?.childId ?? booking.participants?.[0]?.child_id || 0;
 
           // Respect trainee visibility filter: if specific trainees are
           // selected in "My Trainees", only show upcoming sessions for those

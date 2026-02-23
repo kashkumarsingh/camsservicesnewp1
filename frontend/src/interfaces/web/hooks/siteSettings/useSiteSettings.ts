@@ -10,38 +10,7 @@
 import { useState, useEffect } from 'react';
 import { SiteSettingsDTO } from '@/core/application/siteSettings/dto/SiteSettingsDTO';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
-
-/** Ensures the base URL ends with /api/v1 so requests hit Laravel's API routes. */
-function ensureApiV1Base(base: string): string {
-  const trimmed = base.replace(/\/$/, '');
-  if (trimmed.endsWith('/api/v1')) {
-    return trimmed;
-  }
-  return `${trimmed}/api/v1`;
-}
-
-const getApiBase = (): string => {
-  if (typeof window !== 'undefined' && typeof process !== 'undefined' && process.env) {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
-    if (apiUrl) {
-      return ensureApiV1Base(apiUrl);
-    }
-  }
-  
-  // Runtime fallback: Detect environment
-  if (typeof window !== 'undefined' && window.location) {
-    const hostname = window.location.hostname;
-    // Local development: localhost, 127.0.0.1, or local IP
-    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.') || hostname.startsWith('10.') || hostname.startsWith('172.')) {
-      return 'http://localhost:9080/api/v1';
-    }
-    // Production (Vercel etc.): backend on Railway
-    return 'https://cams-backend-production-759f.up.railway.app/api/v1';
-  }
-  
-  // Default: localhost for development
-  return 'http://localhost:9080/api/v1';
-};
+import { getApiBaseUrl } from '@/infrastructure/http/apiBaseUrl';
 
 export function useSiteSettings() {
   const [settings, setSettings] = useState<SiteSettingsDTO | null>(null);
@@ -54,8 +23,7 @@ export function useSiteSettings() {
         setLoading(true);
         setError(null);
 
-        // Resolve API URL at runtime, not at module load time
-        const apiBase = getApiBase();
+        const apiBase = getApiBaseUrl({ serverSide: false });
         const siteSettingsUrl = `${apiBase}${API_ENDPOINTS.SITE_SETTINGS}`;
 
         const response = await fetch(siteSettingsUrl, {

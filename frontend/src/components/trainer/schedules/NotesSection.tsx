@@ -207,7 +207,7 @@ export default function NotesSection({ scheduleId }: NotesSectionProps) {
                   )}
                 </div>
                 <span className="text-xs text-gray-500">
-                  {new Date(note.created_at).toLocaleDateString('en-GB', {
+                  {new Date((note as { createdAt?: string }).createdAt ?? (note as { created_at?: string }).created_at ?? 0).toLocaleDateString('en-GB', {
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric',
