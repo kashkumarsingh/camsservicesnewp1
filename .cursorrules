@@ -74,6 +74,14 @@ Cursor must:
 | **CI/CD** | GitHub Actions latest |
 
 # ---------------------------------------------------------------------------
+# LARAVEL DOCUMENTATION (USE CURRENT VERSION ONLY)
+# ---------------------------------------------------------------------------
+- **Always use Laravel 12.x documentation** when referencing, citing, or implementing Laravel features.
+- **Canonical base URL:** https://laravel.com/docs/12.x/
+- Do **not** use older doc versions (11.x, 10.x, 9.x, 8.x) for implementation guidance unless a specific legacy constraint is documented in the project.
+- When linking to Laravel docs in comments or documentation, use the 12.x URL (e.g. https://laravel.com/docs/12.x/broadcasting, https://laravel.com/docs/12.x/sanctum).
+
+# ---------------------------------------------------------------------------
 # SYSTEM ARCHITECTURE OVERVIEW
 # ---------------------------------------------------------------------------
 - **Frontend:** Next.js (LTS) + TypeScript + Tailwind CSS

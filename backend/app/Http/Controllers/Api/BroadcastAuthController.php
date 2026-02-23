@@ -23,13 +23,14 @@ class BroadcastAuthController extends Controller
      */
     public function authenticate(Request $request)
     {
-        $user = $request->user('sanctum');
+        // Use the user already set by auth:sanctum middleware (Bearer token).
+        $user = $request->user();
 
         if (! $user) {
-            return response()->json(['message' => 'Unauthenticated.'], 403);
+            return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        // Ensure the request resolves the Sanctum user when Broadcast runs channel callbacks.
+        // Ensure the request resolves the user when Broadcast runs channel callbacks.
         $request->setUserResolver(fn () => $user);
 
         return Broadcast::auth($request);

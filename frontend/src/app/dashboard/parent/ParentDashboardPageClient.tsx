@@ -1661,6 +1661,45 @@ export default function ParentDashboardPageClient() {
     return null;
   }
 
+  // Unapproved parents: show only pending/rejected screen (no full dashboard) until admin approves
+  if (user.role === USER_ROLE.PARENT && user.approvalStatus !== APPROVAL_STATUS.APPROVED) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          {user.approvalStatus === APPROVAL_STATUS.PENDING ? (
+            <>
+              <AlertCircle className="mx-auto mb-4 h-16 w-16 text-amber-500" aria-hidden />
+              <h1 className="mb-2 text-2xl font-semibold text-slate-900 dark:text-slate-50">
+                Account Pending Approval
+              </h1>
+              <p className="mb-6 text-slate-600 dark:text-slate-400">
+                Your registration is pending admin approval. You&apos;ll be notified once approved.
+              </p>
+            </>
+          ) : (
+            <>
+              <XCircle className="mx-auto mb-4 h-16 w-16 text-rose-500" aria-hidden />
+              <h1 className="mb-2 text-2xl font-semibold text-slate-900 dark:text-slate-50">
+                Account Not Approved
+              </h1>
+              <p className="mb-6 text-slate-600 dark:text-slate-400">
+                {user.rejectionReason || 'Your registration was not approved. Please contact us for more information.'}
+              </p>
+            </>
+          )}
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <Button onClick={() => router.push(ROUTES.HOME)} className="w-full sm:w-auto">
+              Go to Homepage
+            </Button>
+            <Button variant="bordered" onClick={() => logout()} className="w-full sm:w-auto">
+              Sign out
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const getStatusBanner = () => {
 if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
         return {
