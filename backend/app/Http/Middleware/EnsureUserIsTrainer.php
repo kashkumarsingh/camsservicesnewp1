@@ -29,23 +29,23 @@ class EnsureUserIsTrainer
         $user = $request->user();
 
         if (! $user) {
-            return ApiResponseHelper::errorResponse(
+            return apiResponseWithCors($request, ApiResponseHelper::errorResponse(
                 'Authentication required',
                 401,
                 ErrorCodes::UNAUTHORIZED,
                 ['authentication' => ['You must be logged in to access this resource.']],
                 $request
-            );
+            ));
         }
 
         if ($user->role !== 'trainer') {
-            return ApiResponseHelper::errorResponse(
+            return apiResponseWithCors($request, ApiResponseHelper::errorResponse(
                 'Unauthorized. Trainer access required.',
                 403,
                 ErrorCodes::FORBIDDEN,
                 ['authorization' => ['You do not have permission to access this resource. Trainer role required.']],
                 $request
-            );
+            ));
         }
 
         if ($user->approval_status !== 'approved') {
@@ -55,13 +55,13 @@ class EnsureUserIsTrainer
                 default => 'Your trainer account is not approved.',
             };
 
-            return ApiResponseHelper::errorResponse(
+            return apiResponseWithCors($request, ApiResponseHelper::errorResponse(
                 $statusMessage,
                 403,
                 ErrorCodes::FORBIDDEN,
                 ['approvalStatus' => [$statusMessage]],
                 $request
-            );
+            ));
         }
 
         return $next($request);

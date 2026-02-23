@@ -29,23 +29,23 @@ class EnsureUserCanManageContent
         $user = $request->user();
 
         if (! $user) {
-            return ApiResponseHelper::errorResponse(
+            return apiResponseWithCors($request, ApiResponseHelper::errorResponse(
                 'Authentication required',
                 401,
                 ErrorCodes::UNAUTHORIZED,
                 ['authentication' => ['You must be logged in to access this resource.']],
                 $request
-            );
+            ));
         }
 
         if (! in_array($user->role, ['admin', 'super_admin', 'editor'], true)) {
-            return ApiResponseHelper::errorResponse(
+            return apiResponseWithCors($request, ApiResponseHelper::errorResponse(
                 'Unauthorized. Content editor access required.',
                 403,
                 ErrorCodes::FORBIDDEN,
                 ['authorization' => ['You do not have permission to manage public content.']],
                 $request
-            );
+            ));
         }
 
         return $next($request);

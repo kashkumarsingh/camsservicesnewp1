@@ -32,13 +32,13 @@ class RequireApproval
         $user = $request->user();
 
         if (! $user) {
-            return ApiResponseHelper::errorResponse(
+            return apiResponseWithCors($request, ApiResponseHelper::errorResponse(
                 'Authentication required. Please login to continue.',
                 401,
                 ErrorCodes::UNAUTHORIZED,
                 ['authentication' => ['You must be logged in to access this resource.']],
                 $request
-            );
+            ));
         }
 
         // Allow GET requests (viewing) for pending users - they should see their existing bookings
@@ -52,13 +52,13 @@ class RequireApproval
                 default => 'Your account is not approved for booking packages.',
             };
 
-            return ApiResponseHelper::errorResponse(
+            return apiResponseWithCors($request, ApiResponseHelper::errorResponse(
                 $statusMessage,
                 403,
                 ErrorCodes::FORBIDDEN,
                 ['approvalStatus' => [$statusMessage]],
                 $request
-            );
+            ));
         }
 
         // For write operations (POST/PUT/DELETE), check if user has at least one approved child
@@ -66,13 +66,13 @@ class RequireApproval
             $approvedChildren = $user->approvedChildren()->count();
 
             if ($approvedChildren === 0) {
-                return ApiResponseHelper::errorResponse(
+                return apiResponseWithCors($request, ApiResponseHelper::errorResponse(
                     'You need at least one approved child to book packages.',
                     403,
                     ErrorCodes::FORBIDDEN,
                     ['children' => ['No approved children found. Please add children and wait for admin approval.']],
                     $request
-                );
+                ));
             }
         }
 

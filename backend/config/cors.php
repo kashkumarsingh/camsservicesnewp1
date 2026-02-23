@@ -19,9 +19,13 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => array_filter([
-        env('FRONTEND_URL'),
-        env('APP_URL'),
+    'allowed_origins' => array_filter(array_merge(
+        [
+            env('FRONTEND_URL'),
+            env('APP_URL'),
+            env('CORS_ALLOWED_ORIGINS'), // Railway/Vercel: set to frontend origin if needed
+        ],
+        [
         // WSL local frontend
         'http://localhost:4300',
         // Direct npm run dev
@@ -30,7 +34,8 @@ return [
         'http://127.0.0.1:3000',
         // Docker frontend (when using --profile frontend)
         'http://frontend:3000',
-    ]),
+        ]
+    )),
 
     'allowed_origins_patterns' => [
         // Allow all localhost ports for development

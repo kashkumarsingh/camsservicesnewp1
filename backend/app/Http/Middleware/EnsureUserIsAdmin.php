@@ -29,23 +29,23 @@ class EnsureUserIsAdmin
         $user = $request->user();
 
         if (! $user) {
-            return ApiResponseHelper::errorResponse(
+            return apiResponseWithCors($request, ApiResponseHelper::errorResponse(
                 'Authentication required',
                 401,
                 ErrorCodes::UNAUTHORIZED,
                 ['authentication' => ['You must be logged in to access this resource.']],
                 $request
-            );
+            ));
         }
 
         if (! in_array($user->role, ['admin', 'super_admin'])) {
-            return ApiResponseHelper::errorResponse(
+            return apiResponseWithCors($request, ApiResponseHelper::errorResponse(
                 'Unauthorized. Admin access required.',
                 403,
                 ErrorCodes::FORBIDDEN,
                 ['authorization' => ['You do not have permission to access this resource.']],
                 $request
-            );
+            ));
         }
 
         return $next($request);
