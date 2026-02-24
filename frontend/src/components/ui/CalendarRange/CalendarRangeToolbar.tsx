@@ -106,24 +106,41 @@ export function CalendarRangeToolbar({
   const thisWeekButtonClass =
     'rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-300 dark:hover:bg-indigo-900/50';
 
+  const tabBaseClass =
+    'rounded-t-lg border-b-2 px-3 py-2 text-sm font-medium transition-colors min-h-[44px] sm:min-h-0 sm:py-1.5';
+  const tabInactiveClass =
+    'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-600';
+  const tabActiveClass =
+    'border-primary-blue text-primary-blue dark:border-primary-blue dark:text-primary-blue bg-white dark:bg-slate-900 -mb-px';
+
   return (
     <div className={`flex flex-wrap items-center gap-2 ${className}`}>
-      <label htmlFor={periodSelectId} className="sr-only">
-        {periodSelectLabel}
-      </label>
-      <select
-        id={periodSelectId}
-        value={period}
-        onChange={(e) => handlePeriodChange(e.target.value as CalendarPeriod)}
-        className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+      {/* Month | Week | Day tabs */}
+      <div
+        role="tablist"
         aria-label={periodSelectLabel}
+        id={periodSelectId}
+        className="inline-flex rounded-lg border border-slate-200 bg-slate-100/80 p-0.5 dark:border-slate-700 dark:bg-slate-800/80"
       >
-        {CALENDAR_PERIOD_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+        {CALENDAR_PERIOD_OPTIONS.map((opt) => {
+          const isActive = period === opt.value;
+          const tabLabel = opt.value === '1_month' ? 'Month' : opt.value === '1_week' ? 'Week' : 'Day';
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={`${periodSelectId}-panel`}
+              id={`${periodSelectId}-tab-${opt.value}`}
+              onClick={() => handlePeriodChange(opt.value)}
+              className={`${tabBaseClass} ${isActive ? tabActiveClass : tabInactiveClass}`}
+            >
+              {tabLabel}
+            </button>
+          );
+        })}
+      </div>
 
       {/* Month: Prev | [label ▼] | Next */}
       {period === '1_month' && (

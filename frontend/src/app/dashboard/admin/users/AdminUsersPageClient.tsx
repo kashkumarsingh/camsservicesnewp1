@@ -3,6 +3,7 @@
 import React, { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import SideCanvas from "@/components/ui/SideCanvas";
 import {
+  Breadcrumbs,
   DataTable,
   FilterPanel,
   FilterSection,
@@ -14,6 +15,9 @@ import {
 } from "@/components/dashboard/universal";
 import { RowActions, EditAction, DeleteAction, ApproveAction, RejectAction } from "@/components/dashboard/universal/RowActions";
 import Button from "@/components/ui/Button";
+import Link from "next/link";
+import { ROUTES } from "@/utils/routes";
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from "@/utils/appConstants";
 import { useAdminUsers, type AdminUserRow } from "@/interfaces/web/hooks/dashboard/useAdminUsers";
 import type { CreateUserDTO, UpdateUserDTO } from "@/core/application/admin/dto/AdminUserDTO";
 import { Download } from "lucide-react";
@@ -302,6 +306,20 @@ export const AdminUsersPageClient: React.FC = () => {
   return (
     <section className="space-y-4">
       <header className="space-y-1">
+        <Breadcrumbs
+          items={[
+            { label: "Admin", href: ROUTES.DASHBOARD_ADMIN },
+            { label: "Admin & internal users" },
+          ]}
+          trailing={
+            <Link
+              href={ROUTES.DASHBOARD_ADMIN}
+              className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+            >
+              {BACK_TO_ADMIN_DASHBOARD_LABEL}
+            </Link>
+          }
+        />
         <h1 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50">
           Admin &amp; internal users
         </h1>

@@ -19,7 +19,6 @@ import {
   Users,
   TrendingUp,
   Settings,
-  CalendarDays,
   CalendarCheck,
   UserCheck,
   Activity,
@@ -73,7 +72,6 @@ const ROLE_SECTIONS: RoleSection[] = [
     baseHref: "/dashboard/parent",
     items: [
       { label: "Overview", href: "/dashboard/parent", icon: LayoutDashboard },
-      { label: "Schedule session", href: "/dashboard/parent/schedule", icon: CalendarDays },
       { label: "Booked hours and packages", href: "/dashboard/parent/bookings", icon: Calendar },
       { label: "My Children", href: "/dashboard/parent/children", icon: Users },
       { label: "Progress", href: "/dashboard/parent/progress", icon: TrendingUp },
@@ -196,7 +194,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
       ? (searchParams.get("tab") === "more" ? "more" : "schedule")
       : null;
 
-  /** Parent mobile top bar title: reflects current page (Overview / Schedule session / Children / Booked hours and packages / Progress). */
+  /** Parent mobile top bar title: reflects current page (Overview / Children / Booked hours and packages / Progress). */
   const parentMobileTitle = pathname.startsWith("/dashboard/parent")
     ? pathname.startsWith("/dashboard/parent/children")
       ? "Children"
@@ -204,11 +202,9 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
         ? "Booked hours and packages"
         : pathname.startsWith("/dashboard/parent/progress")
           ? "Progress"
-          : pathname.startsWith("/dashboard/parent/schedule")
-            ? "Schedule session"
-            : pathname === "/dashboard/parent" && parentTab === "hours"
-              ? "Hours"
-              : "Overview"
+          : pathname === "/dashboard/parent" && parentTab === "hours"
+            ? "Hours"
+            : "Overview"
     : "";
 
   /** Trainer mobile top bar title: reflects current page (Overview / Schedule / Settings). */
@@ -377,12 +373,17 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
   // Before we've read localStorage, show collapsed UI so sidebar never "widens then shrinks"
   const sidebarEffectivelyCollapsed = !sidebarHydrated || sidebarCollapsed;
 
+  /** Shared container so header and main content align – fluid width, same horizontal padding. */
+  const contentContainerClass = "w-full px-4 sm:px-6 lg:px-8";
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
-      {/* Top bar – minimal on parent mobile: [☰] Schedule [⋮]; full bar on desktop/other roles */}
-      <header className="sticky top-0 z-40 border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-slate-900/80">
-        <div className="flex h-11 w-full items-center justify-between gap-3 px-3 sm:px-4 lg:px-6">
+      {/* Top bar – content aligned with main container */}
+      <header className="sticky top-0 z-sticky border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-slate-900/80">
+        <div className={contentContainerClass}>
+          <div className="flex h-11 w-full items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
+            {sectionRole !== "parent" && (
             <button
               type="button"
               className="shrink-0 inline-flex items-center justify-center rounded-lg p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 lg:hidden"
@@ -391,6 +392,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
             >
               <Menu className="h-5 w-5" />
             </button>
+            )}
             {/* Parent/Trainer mobile: center shows current page title */}
             {sectionRole === "parent" ? (
               <span className="md:hidden flex-1 text-center text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
@@ -435,6 +437,32 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                   />
                 </div>
               </Link>
+            )}
+            {/* Parent: horizontal header nav (replaces sidebar on desktop) */}
+            {sectionRole === "parent" && (
+              <nav
+                className="hidden md:flex items-center gap-0.5 ml-2 border-l border-slate-200 dark:border-slate-700 pl-4"
+                aria-label="Parent dashboard navigation"
+              >
+                {ROLE_SECTIONS.find((s) => s.role === "parent")?.items.map((item) => {
+                  const active = isActive(item.href);
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors whitespace-nowrap ${
+                        active
+                          ? "bg-primary-blue/10 text-primary-blue dark:bg-primary-blue/20 dark:text-primary-blue font-semibold"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200"
+                      }`}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
             )}
           </div>
 
@@ -488,7 +516,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               {notificationsOpen && (
                 <>
                   <div
-                    className="fixed inset-0 z-40 bg-transparent"
+                    className="fixed inset-0 z-sticky bg-transparent"
                     aria-hidden="true"
                     onClick={() => setNotificationsOpen(false)}
                   />
@@ -614,7 +642,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               {userMenuOpen && (
                 <>
                   <div
-                    className="fixed inset-0 z-40 bg-transparent"
+                    className="fixed inset-0 z-sticky bg-transparent"
                     aria-hidden="true"
                     onClick={() => setUserMenuOpen(false)}
                   />
@@ -678,15 +706,16 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
             </div>
           </div>
         </div>
+        </div>
       </header>
 
-      {/* Body: grid on desktop so sidebar column width is fixed by layout (no flex reflow); flex on mobile */}
+      {/* Body: for parent, no sidebar (nav in header); for others, grid with sidebar */}
       <div
-        className={`flex flex-1 lg:grid ${
-          sidebarEffectivelyCollapsed ? "lg:grid-cols-[4rem_minmax(0,1fr)]" : "lg:grid-cols-[20rem_minmax(0,1fr)]"
+        className={`flex flex-1 ${sectionRole === "parent" ? "" : "lg:grid"} ${
+          sectionRole === "parent" ? "" : sidebarEffectivelyCollapsed ? "lg:grid-cols-[4rem_minmax(0,1fr)]" : "lg:grid-cols-[20rem_minmax(0,1fr)]"
         }`}
       >
-        {sidebarOpen && (
+        {sectionRole !== "parent" && sidebarOpen && (
           <div
             className="fixed inset-0 top-11 z-20 bg-slate-900/50 backdrop-blur-sm lg:hidden"
             onClick={() => setSidebarOpen(false)}
@@ -694,6 +723,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
           />
         )}
 
+        {sectionRole !== "parent" && (
         <aside
           className={`fixed inset-y-0 left-0 z-30 flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pt-11 transition-[transform,width] duration-200 ease-out lg:static lg:translate-x-0 lg:w-full ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
@@ -771,8 +801,9 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
             ))}
           </nav>
         </aside>
+        )}
 
-        {/* Main content area – bottom padding on mobile = bottom nav height + safe area (parent/trainer) */}
+        {/* Main content area – same container as header so content aligns */}
         <main
           className={`min-w-0 flex-1 ${
             sectionRole === "parent" || sectionRole === "trainer"
@@ -780,15 +811,17 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               : ""
           }`}
         >
-          <div className="min-w-0 pt-6 sm:pt-8">
-            <div className="min-w-0 space-y-6 pl-0 pr-2 sm:pl-1 sm:pr-3 lg:pl-2 lg:pr-4 pb-8">
-              {children}
+          <div className={contentContainerClass}>
+            <div className="min-w-0 pt-6 sm:pt-8">
+              <div className="min-w-0 space-y-6 pb-8">
+                {children}
+              </div>
             </div>
           </div>
         </main>
       </div>
 
-      {/* Parent bottom nav – mobile only: Overview, Schedule session, Children */}
+      {/* Parent bottom nav – mobile only: Overview, Booked hours, Children */}
       {sectionRole === "parent" && (
         <nav
           className="lg:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pb-[env(safe-area-inset-bottom,0px)]"
@@ -807,15 +840,15 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               <span>Overview</span>
             </Link>
             <Link
-              href={ROUTES.DASHBOARD_PARENT_SCHEDULE}
+              href={ROUTES.DASHBOARD_PARENT_BOOKINGS}
               className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] ${
-                pathname.startsWith(ROUTES.DASHBOARD_PARENT_SCHEDULE)
+                pathname.startsWith(ROUTES.DASHBOARD_PARENT_BOOKINGS)
                   ? "text-blue-600 dark:text-blue-400"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
             >
-              <CalendarDays className="h-5 w-5 shrink-0" aria-hidden />
-              <span>Schedule</span>
+              <Calendar className="h-5 w-5 shrink-0" aria-hidden />
+              <span>Bookings</span>
             </Link>
             <Link
               href={ROUTES.DASHBOARD_PARENT_CHILDREN}

@@ -3,6 +3,7 @@
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import SideCanvas from '@/components/ui/SideCanvas';
 import {
+  Breadcrumbs,
   DataTable,
   FilterPanel,
   FilterSection,
@@ -14,6 +15,9 @@ import {
 } from '@/components/dashboard/universal';
 import { RowActions, ViewAction, EditAction, DeleteAction } from '@/components/dashboard/universal/RowActions';
 import Button from '@/components/ui/Button';
+import Link from 'next/link';
+import { ROUTES } from '@/utils/routes';
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/utils/appConstants';
 import { Switch } from '@/components/ui/Switch';
 import { useAdminPages } from '@/interfaces/web/hooks/admin/useAdminPages';
 import type { AdminPageDTO, CreatePageDTO } from '@/core/application/admin/dto/AdminPageDTO';
@@ -267,6 +271,20 @@ export const AdminPublicPagesPageClient: React.FC = () => {
     <section className="space-y-4">
       {/* Header */}
       <header className="space-y-3">
+        <Breadcrumbs
+          items={[
+            { label: 'Admin', href: ROUTES.DASHBOARD_ADMIN },
+            { label: 'Public Pages' },
+          ]}
+          trailing={
+            <Link
+              href={ROUTES.DASHBOARD_ADMIN}
+              className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+            >
+              {BACK_TO_ADMIN_DASHBOARD_LABEL}
+            </Link>
+          }
+        />
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
             Public Pages Management

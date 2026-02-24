@@ -125,7 +125,7 @@ export default function TrainerSessionConfirmationPanel({
       {/* Backdrop */}
       <div
         role="presentation"
-        className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-200 ${
+        className={`fixed inset-0 z-overlay bg-black/30 transition-opacity duration-200 ${
           isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
         onClick={onClose}
@@ -135,7 +135,7 @@ export default function TrainerSessionConfirmationPanel({
       {/* Panel */}
       <aside
         aria-label="Session confirmation"
-        className={`fixed top-0 right-0 z-50 h-full w-full max-w-md border-l border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900 transition-transform duration-200 ease-out ${
+        className={`fixed top-0 right-0 z-overlay h-full w-full max-w-md border-l border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900 transition-transform duration-200 ease-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >

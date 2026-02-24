@@ -97,12 +97,14 @@ export default function ParentOverviewPageClient() {
             );
             const data = response.data as { success?: boolean; message?: string } | undefined;
             if (data && !data.success) {
+              hasShownPurchaseToastRef.current = true;
               toastManager.error(
                 "Payment could not be confirmed. Your payment was received; the booking may update shortly."
               );
             }
           } catch (err) {
             console.error("[ParentOverview] Failed to confirm payment from session:", err);
+            hasShownPurchaseToastRef.current = true;
             toastManager.error(
               "Payment was received but we could not confirm it. Your booking may update shortly—check back in a moment."
             );
@@ -855,7 +857,7 @@ export default function ParentOverviewPageClient() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Link
-              href="/dashboard/parent/schedule?open=booking"
+              href="/dashboard/parent?open=booking"
               className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
               title="Open calendar and book a session"
             >
@@ -961,7 +963,7 @@ export default function ParentOverviewPageClient() {
             </button>
           ) : (
             <Link
-              href="/dashboard/parent/schedule"
+              href="/dashboard/parent"
               className="flex flex-col gap-1 rounded-none border-b border-r border-slate-200 bg-slate-50 px-4 py-3.5 text-left transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-800 lg:border-b-0"
               title="Open calendar to book or view sessions"
             >
@@ -979,7 +981,7 @@ export default function ParentOverviewPageClient() {
 
           {/* Sessions this week */}
           <Link
-            href="/dashboard/parent/schedule"
+            href="/dashboard/parent"
             className="flex flex-col gap-1 rounded-none border-b border-r border-slate-200 bg-white px-4 py-3.5 text-left transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800/50 lg:border-b-0"
             title="View your full schedule"
           >
@@ -1014,7 +1016,7 @@ export default function ParentOverviewPageClient() {
             </button>
           ) : (
             <Link
-              href="/dashboard/parent/schedule"
+              href="/dashboard/parent"
               className="flex flex-col gap-1 rounded-none border-b border-r border-slate-200 bg-white px-4 py-3.5 text-left transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800/50 lg:border-b-0"
               title="View schedule and book sessions"
             >
@@ -1087,7 +1089,7 @@ export default function ParentOverviewPageClient() {
               )}
               {approvedChildren.length > 0 && (
                 <Link
-                  href="/dashboard/parent/schedule"
+                  href="/dashboard/parent"
                   className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-0.5"
                   title="Open calendar to book sessions"
                 >
@@ -1192,7 +1194,7 @@ export default function ParentOverviewPageClient() {
               Latest activity
             </h2>
             <Link
-              href="/dashboard/parent/schedule"
+              href="/dashboard/parent"
               className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline shrink-0 inline-flex items-center gap-0.5"
               title="View full schedule and book sessions"
             >
@@ -1208,7 +1210,7 @@ export default function ParentOverviewPageClient() {
               <p className="text-xs text-slate-600 dark:text-slate-400">{EMPTY_STATE.NO_SESSIONS_YET.title}</p>
               {approvedChildren.length > 0 && totalRemainingHours > 0 && (
                 <Link
-                  href={`/dashboard/parent/schedule?open=booking&childId=${approvedChildren[0].id}`}
+                  href={`/dashboard/parent?open=booking&childId=${approvedChildren[0].id}`}
                   className="mt-2 inline-flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
                   title="Open calendar to book a session"
                 >
@@ -1277,7 +1279,7 @@ export default function ParentOverviewPageClient() {
               </ul>
               {latestActivitySessions.length > 3 && (
                 <Link
-                  href="/dashboard/parent/schedule"
+                  href="/dashboard/parent"
                   className="mt-2 flex items-center justify-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:hover:bg-slate-800"
                   title="View full schedule"
                 >
@@ -1367,7 +1369,7 @@ export default function ParentOverviewPageClient() {
                         : { label: "Buy hours", href: null as string | null, onClick: () => handleBuyHours(c.id) }
                       : {
                           label: "Book session",
-                          href: `/dashboard/parent/schedule?open=booking&childId=${c.id}`,
+                          href: `/dashboard/parent?open=booking&childId=${c.id}`,
                           onClick: undefined as undefined,
                         };
                   const statusVariant =

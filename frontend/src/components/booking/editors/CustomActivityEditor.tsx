@@ -128,7 +128,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
   return (
     <>
       {/* MODAL OVERLAY - Full screen with backdrop */}
-      <div className="fixed inset-0 z-[1000] overflow-y-auto" aria-labelledby="custom-activity-modal" role="dialog" aria-modal="true">
+      <div className="fixed inset-0 z-overlay overflow-y-auto" aria-labelledby="custom-activity-modal" role="dialog" aria-modal="true">
         <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
           {/* Background overlay - click to close */}
           <div

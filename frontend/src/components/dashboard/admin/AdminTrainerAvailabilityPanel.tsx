@@ -69,7 +69,7 @@ export function AdminTrainerAvailabilityPanel({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex justify-end"
+      className="fixed inset-0 z-overlay flex justify-end"
       aria-modal="true"
       role="dialog"
       aria-label={`Availability for ${trainer.name}`}

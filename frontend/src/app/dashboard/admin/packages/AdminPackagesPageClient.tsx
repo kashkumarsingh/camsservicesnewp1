@@ -8,6 +8,7 @@ import { toastManager } from '@/utils/toast';
 import { getActiveBadgeClasses } from '@/utils/statusBadgeHelpers';
 import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 import {
+  Breadcrumbs,
   DataTable,
   FilterPanel,
   FilterSection,
@@ -19,6 +20,9 @@ import {
 } from '@/components/dashboard/universal';
 import { RowActions, EditAction, DeleteAction } from '@/components/dashboard/universal/RowActions';
 import Button from '@/components/ui/Button';
+import Link from 'next/link';
+import { ROUTES } from '@/utils/routes';
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/utils/appConstants';
 import { DEFAULT_TABLE_SORT } from '@/utils/dashboardConstants';
 
 type PackageFormData = CreatePackageDTO | UpdatePackageDTO;
@@ -251,6 +255,20 @@ export const AdminPackagesPageClient: React.FC = () => {
   return (
     <section className="space-y-4">
       <header className="space-y-1">
+        <Breadcrumbs
+          items={[
+            { label: 'Admin', href: ROUTES.DASHBOARD_ADMIN },
+            { label: 'Packages' },
+          ]}
+          trailing={
+            <Link
+              href={ROUTES.DASHBOARD_ADMIN}
+              className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+            >
+              {BACK_TO_ADMIN_DASHBOARD_LABEL}
+            </Link>
+          }
+        />
         <h1 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50">
           Packages
         </h1>

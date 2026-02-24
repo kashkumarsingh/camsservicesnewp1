@@ -3,7 +3,9 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import moment from 'moment';
-import { AlertTriangle, CheckCircle, Calendar, ChevronRight, ChevronDown, ChevronUp, Plus, UserPlus, Clock, Ban, Filter, LayoutGrid, List, BarChart3, MoreVertical, CalendarDays, X } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Calendar, ChevronRight, ChevronDown, Plus, UserPlus, Clock, Ban, Filter, LayoutGrid, List, BarChart3, MoreVertical, CalendarDays, X } from 'lucide-react';
+import { BaseModal } from '@/components/ui/Modal';
+import { SideCanvas } from '@/components/ui/SideCanvas';
 import { getChildColor } from '@/utils/childColorUtils';
 import type { Child } from '@/core/application/auth/types';
 import type { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
@@ -83,6 +85,8 @@ interface ParentCleanRightSidebarProps {
   hoursLoading?: boolean;
   /** When "standalone", renders as main content (no sidebar border/sticky/bg). Use on Overview when this is the only column. */
   variant?: 'sidebar' | 'standalone';
+  /** When false, hide the "Next up" / Upcoming Sessions block (e.g. when shown in left column of three-column layout). */
+  showNextUp?: boolean;
 }
 
 interface ChildHoursSummary {
@@ -175,10 +179,12 @@ const ALERT_STYLES: Record<
 interface AlertCardProps {
   alert: SidebarAlert;
   onDismiss: () => void;
-  onBuyHours?: () => void;
+  /** For hours alerts: "Top up" when child has a package (totalHours > 0), "Buy hours" when first purchase. */
+  actionLabel?: 'Buy hours' | 'Top up';
+  onAction?: () => void;
 }
 
-function AlertCard({ alert, onDismiss, onBuyHours }: AlertCardProps) {
+function AlertCard({ alert, onDismiss, actionLabel, onAction }: AlertCardProps) {
   const style = ALERT_STYLES[alert.severity];
   return (
     <div
@@ -192,13 +198,13 @@ function AlertCard({ alert, onDismiss, onBuyHours }: AlertCardProps) {
             <span className={`text-sm ${style.title}`}>{alert.title}</span>
           </div>
           <p className={`text-xs mt-1 ${style.message}`}>{alert.description}</p>
-          {onBuyHours && (
+          {actionLabel && onAction && (
             <button
               type="button"
-              onClick={onBuyHours}
+              onClick={onAction}
               className="text-xs font-medium text-blue-600 dark:text-blue-400 mt-1.5 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded"
             >
-              Buy hours →
+              {actionLabel} →
             </button>
           )}
         </div>
@@ -440,6 +446,7 @@ export default function ParentCleanRightSidebar({
   onAddChild,
   hoursLoading = false,
   variant = 'sidebar',
+  showNextUp = true,
 }: ParentCleanRightSidebarProps) {
   const filteredChildIds = useMemo(() => {
     if (!visibleChildIds || visibleChildIds.length === 0) {
@@ -563,8 +570,13 @@ export default function ParentCleanRightSidebar({
   const [perChildSort, setPerChildSort] = useState<PerChildSort>('hours_remaining');
   const [perChildFilterLowOnly, setPerChildFilterLowOnly] = useState(false);
   const [perChildView, setPerChildView] = useState<PerChildView>('cards');
-  /** Per-child breakdown collapsed by default so critical info fits without scrolling (1366x768). */
-  const [showPerChildBreakdown, setShowPerChildBreakdown] = useState(false);
+  /** Hours-per-child breakdown shown in a side panel so parents can see the full view. */
+  const [showBreakdownPanel, setShowBreakdownPanel] = useState(false);
+  /** Close breakdown panel then run action (e.g. open Buy Hours). */
+  const closeBreakdownThen = (fn: () => void) => () => {
+    setShowBreakdownPanel(false);
+    fn();
+  };
 
   /** Tick every 60s so NEXT UP countdown badges update and session-today alerts disappear after end time. */
   const [countdownTick, setCountdownTick] = useState(0);
@@ -953,8 +965,8 @@ export default function ParentCleanRightSidebar({
         </div>
       )}
 
-      {/* 3. Next up – compact so critical info fits without scrolling (1366x768) */}
-      {upcomingSessions.length > 0 && (
+      {/* 3. Next up – compact so critical info fits without scrolling (1366x768); hidden when showNextUp false (e.g. three-column layout left column) */}
+      {showNextUp && upcomingSessions.length > 0 && (
         <NextUpSection
           sessions={upcomingSessions}
           getCountdownLabel={getCountdownLabel}
@@ -965,9 +977,9 @@ export default function ParentCleanRightSidebar({
         />
       )}
 
-      {/* 4. Alerts – moved up from bottom so parents see them without scrolling */}
+      {/* 4. Alerts – separate card so it reads clearly apart from the Hours card below */}
       {hasAlerts ? (
-        <div className="bg-white rounded-xl border border-gray-200 dark:border-gray-700 p-3">
+        <div className="rounded-xl border-2 border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10 shadow-sm p-3">
           <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-wide mb-2 flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-gray-500" aria-hidden />
             ALERTS
@@ -978,14 +990,25 @@ export default function ParentCleanRightSidebar({
             )}
           </h3>
           <div className="space-y-2">
-            {visibleAlerts.map((alert) => (
-              <AlertCard
-                key={alert.id}
-                alert={alert}
-                onDismiss={() => setDismissedAlertIds((prev) => new Set(prev).add(alert.id))}
-                onBuyHours={alert.kind === 'hours' && alert.childId ? () => onBuyHoursForChild(alert.childId!) : undefined}
-              />
-            ))}
+            {visibleAlerts.map((alert) => {
+              const hoursSummary = alert.kind === 'hours' && alert.childId ? childHours.find((c) => c.childId === alert.childId) : undefined;
+              const useTopUp = hoursSummary && hoursSummary.totalHours > 0 && onTopUpChild;
+              const actionLabel = alert.kind === 'hours' && alert.childId
+                ? (useTopUp ? 'Top up' : 'Buy hours')
+                : undefined;
+              const onAction = alert.kind === 'hours' && alert.childId
+                ? (useTopUp ? () => onTopUpChild!(alert.childId!) : () => onBuyHoursForChild(alert.childId!))
+                : undefined;
+              return (
+                <AlertCard
+                  key={alert.id}
+                  alert={alert}
+                  onDismiss={() => setDismissedAlertIds((prev) => new Set(prev).add(alert.id))}
+                  actionLabel={actionLabel}
+                  onAction={onAction}
+                />
+              );
+            })}
           </div>
         </div>
       ) : (() => {
@@ -1004,12 +1027,13 @@ export default function ParentCleanRightSidebar({
         ) : null;
       })()}
 
-      {/* 5. Hours – big number + progress; per-child behind "View breakdown" */}
-      <div id="dashboard-hours-section" className="bg-white rounded-xl border border-gray-200 dark:border-gray-700 p-4 lg:p-5">
+      {/* 5. Hours card – clearly separate box: 8.0h, left to book sessions, etc. */}
+      <div id="dashboard-hours-section" className={`bg-white rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-4 lg:p-5 ${hasAlerts ? 'mt-6' : ''}`}>
         {hoursLoading ? (
           <div className="py-2" aria-busy="true" aria-label="Loading hours">
             <div className="h-12 w-24 rounded bg-gray-200 dark:bg-gray-600 animate-pulse" />
             <div className="mt-3 h-4 w-48 rounded bg-gray-100 dark:bg-gray-700 animate-pulse" />
+            <div className="mt-4 h-2 w-full rounded bg-gray-100 dark:bg-gray-700 animate-pulse" />
             <div className="mt-6 space-y-3">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex items-center justify-between gap-2 py-2">
@@ -1021,8 +1045,7 @@ export default function ParentCleanRightSidebar({
           </div>
         ) : (
         <>
-        {/* One headline: big number + single line */}
-        <div className="mb-4">
+        <div className="mb-0">
           <div className="flex items-baseline gap-2">
             <span
               className={`text-4xl sm:text-5xl xl:text-6xl font-extrabold tabular-nums transition-colors duration-300 ${
@@ -1052,10 +1075,33 @@ export default function ParentCleanRightSidebar({
               {totalBookedHours.toFixed(1)}h used of {totalPackageHours.toFixed(1)}h total
             </p>
           )}
+        </div>
 
-          {/* BY CHILD: who has the hours + intelligent action (Top up vs Buy hours) */}
-          {childHoursWithMeta.length > 0 && (
-            <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
+        {totalPackageHours > 0 && (
+          <div className="mt-4" role="progressbar" aria-valuenow={remainingPercent} aria-valuemin={0} aria-valuemax={100} aria-label="Package hours remaining">
+            <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ease-out ${
+                  remainingPercent > 75
+                    ? 'bg-green-500 dark:bg-green-600'
+                    : remainingPercent > 25
+                      ? 'bg-blue-500 dark:bg-blue-600'
+                      : remainingPercent > 10
+                        ? 'bg-yellow-500 dark:bg-yellow-600'
+                        : 'bg-red-500 dark:bg-red-600'
+                }`}
+                style={{ width: `${remainingPercent}%` }}
+              />
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
+              {remainingPercent}% remaining
+            </p>
+          </div>
+        )}
+
+        {/* By child – same card, below the big number */}
+        {childHoursWithMeta.length > 0 && (
+            <>
               <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">By child</p>
               <ul className="space-y-1.5" role="list" aria-label="Hours per child">
                 {childHoursWithMeta.map((c) => {
@@ -1086,7 +1132,6 @@ export default function ParentCleanRightSidebar({
                   );
                 })}
               </ul>
-              {/* Summary: who needs top-up vs buy hours (business-rule intelligent list) */}
               {(newChildren.length > 0 || depletedChildren.length > 0) && (
                 <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600 space-y-2">
                   {depletedChildren.length > 0 && (
@@ -1108,51 +1153,31 @@ export default function ParentCleanRightSidebar({
                   Total: {totalRemainingHours.toFixed(1)}h active of {totalPackageHours.toFixed(1)}h purchased
                 </p>
               )}
-            </div>
+            </>
           )}
-        </div>
 
-        {/* Single progress bar + one label */}
-        {totalPackageHours > 0 && (
-          <div className="mb-4" role="progressbar" aria-valuenow={remainingPercent} aria-valuemin={0} aria-valuemax={100} aria-label="Package hours remaining">
-            <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ease-out ${
-                  remainingPercent > 75
-                    ? 'bg-green-500 dark:bg-green-600'
-                    : remainingPercent > 25
-                      ? 'bg-blue-500 dark:bg-blue-600'
-                      : remainingPercent > 10
-                        ? 'bg-yellow-500 dark:bg-yellow-600'
-                        : 'bg-red-500 dark:bg-red-600'
-                }`}
-                style={{ width: `${remainingPercent}%` }}
-              />
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
-              {remainingPercent}% remaining
-            </p>
-          </div>
-        )}
-
-        {/* 6. Per-child breakdown – collapsed by default so critical info fits without scrolling */}
-        <div className="mb-4">
+        {/* Per-child breakdown – open in side panel so parents can see the full view */}
+        <div className={childHoursWithMeta.length > 0 ? 'mt-4' : ''}>
           <button
             type="button"
-            onClick={() => setShowPerChildBreakdown((v) => !v)}
+            onClick={() => setShowBreakdownPanel(true)}
             className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 border border-gray-200 dark:border-gray-600"
-            aria-expanded={showPerChildBreakdown}
+            aria-haspopup="dialog"
+            aria-expanded={false}
           >
-            {showPerChildBreakdown ? (
-              <>Hide breakdown <ChevronUp className="w-4 h-4" aria-hidden /></>
-            ) : (
-              <>View breakdown <ChevronDown className="w-4 h-4" aria-hidden /></>
-            )}
+            View breakdown <ChevronDown className="w-4 h-4" aria-hidden />
           </button>
         </div>
 
-        {showPerChildBreakdown && (
-        <>
+        <SideCanvas
+          isOpen={showBreakdownPanel}
+          onClose={() => setShowBreakdownPanel(false)}
+          title="Hours per child"
+          description="Per-child hours, low-hours warnings and quick actions"
+          widthClassName="sm:w-[420px] md:w-[480px]"
+          closeLabel="Close breakdown panel"
+        >
+          <div className="space-y-6 pb-2">
         {/* Low Hours Warning – inside breakdown only when not already shown at top (0h banner) */}
         {childHoursWithMeta.length > 0 && (depletedChildren.length > 0 || newChildren.length > 0 || criticalChildren.length > 0 || urgentChildren.length > 0 || warningChildren.length > 0) && (
           <div
@@ -1184,7 +1209,7 @@ export default function ParentCleanRightSidebar({
                         <button
                           key={c.childId}
                           type="button"
-                          onClick={() => onBuyHoursForChild(c.childId)}
+                          onClick={closeBreakdownThen(() => onBuyHoursForChild(c.childId))}
                           className="px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700"
                         >
                           Buy Hours for {c.childName}
@@ -1207,7 +1232,7 @@ export default function ParentCleanRightSidebar({
                         <button
                           key={c.childId}
                           type="button"
-                          onClick={() => (onTopUpChild ? onTopUpChild(c.childId) : onBuyHoursForChild(c.childId))}
+                          onClick={closeBreakdownThen(() => (onTopUpChild ? onTopUpChild(c.childId) : onBuyHoursForChild(c.childId)))}
                           className="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700"
                         >
                           Top up for {c.childName}
@@ -1237,11 +1262,11 @@ export default function ParentCleanRightSidebar({
                 </ul>
                 <button
                   type="button"
-                  onClick={() =>
+                  onClick={closeBreakdownThen(() =>
                     criticalChildren.length === 1
                       ? (criticalChildren[0].totalHours > 0 && onTopUpChild ? onTopUpChild(criticalChildren[0].childId) : onBuyHoursForChild(criticalChildren[0].childId))
                       : onOpenGenericBuyHours()
-                  }
+                  )}
                   className="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700"
                 >
                   {criticalChildren.length === 1 && criticalChildren[0].totalHours > 0 && onTopUpChild ? 'Top up' : 'Buy hours'}
@@ -1267,11 +1292,11 @@ export default function ParentCleanRightSidebar({
                 </ul>
                 <button
                   type="button"
-                  onClick={() =>
+                  onClick={closeBreakdownThen(() =>
                     urgentChildren.length === 1
                       ? (urgentChildren[0].totalHours > 0 && onTopUpChild ? onTopUpChild(urgentChildren[0].childId) : onBuyHoursForChild(urgentChildren[0].childId))
                       : onOpenGenericBuyHours()
-                  }
+                  )}
                   className="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700"
                 >
                   {urgentChildren.length === 1 && urgentChildren[0].totalHours > 0 && onTopUpChild ? 'Top up' : 'Buy more hours'}
@@ -1297,11 +1322,11 @@ export default function ParentCleanRightSidebar({
                 </ul>
                 <button
                   type="button"
-                  onClick={() =>
+                  onClick={closeBreakdownThen(() =>
                     warningChildren.length === 1
                       ? (warningChildren[0].totalHours > 0 && onTopUpChild ? onTopUpChild(warningChildren[0].childId) : onBuyHoursForChild(warningChildren[0].childId))
                       : onOpenGenericBuyHours()
-                  }
+                  )}
                   className="px-3 py-1.5 rounded-lg text-sm font-medium bg-amber-600 text-white hover:bg-amber-700"
                 >
                   {warningChildren.length === 1 && warningChildren[0].totalHours > 0 && onTopUpChild ? 'Top up' : 'View packages'}
@@ -1378,7 +1403,7 @@ export default function ParentCleanRightSidebar({
               {onAddChild && (
                 <button
                   type="button"
-                  onClick={onAddChild}
+                  onClick={closeBreakdownThen(onAddChild)}
                   className="w-full py-2.5 rounded-lg font-medium text-sm bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
                 >
                   Add child
@@ -1453,7 +1478,7 @@ export default function ParentCleanRightSidebar({
                           {c.totalHours === 0 && (
                             <button
                               type="button"
-                              onClick={() => onBuyHoursForChild(c.childId)}
+                              onClick={closeBreakdownThen(() => onBuyHoursForChild(c.childId))}
                               className="min-h-[36px] px-2 py-1.5 text-[11px] font-medium text-blue-600 dark:text-blue-400"
                             >
                               Buy hours
@@ -1462,7 +1487,7 @@ export default function ParentCleanRightSidebar({
                           {onBookSession && c.remainingHours > 0 && (
                             <button
                               type="button"
-                              onClick={() => onBookSession(c.childId)}
+                              onClick={closeBreakdownThen(() => onBookSession(c.childId))}
                               className="min-h-[36px] px-2 py-1.5 text-[11px] font-medium text-blue-600 dark:text-blue-400"
                             >
                               Book
@@ -1471,7 +1496,7 @@ export default function ParentCleanRightSidebar({
                           {c.totalHours > 0 && c.remainingHours <= 0 && (
                             <button
                               type="button"
-                              onClick={() => (onTopUpChild ? onTopUpChild(c.childId) : onBuyHoursForChild(c.childId))}
+                              onClick={closeBreakdownThen(() => (onTopUpChild ? onTopUpChild(c.childId) : onBuyHoursForChild(c.childId)))}
                               className="min-h-[36px] px-2 py-1.5 text-[11px] font-medium text-blue-600 dark:text-blue-400"
                             >
                               {onTopUpChild ? 'Top up' : 'Buy hours'}
@@ -1575,7 +1600,7 @@ export default function ParentCleanRightSidebar({
                         {c.totalHours === 0 && (
                           <button
                             type="button"
-                            onClick={() => onBuyHoursForChild(c.childId)}
+                            onClick={closeBreakdownThen(() => onBuyHoursForChild(c.childId))}
                             className="min-h-[44px] flex-1 px-4 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700"
                           >
                             Buy hours
@@ -1585,7 +1610,7 @@ export default function ParentCleanRightSidebar({
                         {onTopUpChild && c.remainingHours <= 0 && c.totalHours > 0 && (
                           <button
                             type="button"
-                            onClick={() => onTopUpChild(c.childId)}
+                            onClick={closeBreakdownThen(() => onTopUpChild(c.childId))}
                             className="min-h-[44px] flex-1 px-4 py-2.5 rounded-lg text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                           >
                             Top up
@@ -1595,7 +1620,7 @@ export default function ParentCleanRightSidebar({
                         {onBookSession && c.remainingHours > 0 && (
                           <button
                             type="button"
-                            onClick={() => onBookSession(c.childId)}
+                            onClick={closeBreakdownThen(() => onBookSession(c.childId))}
                             className="min-h-[44px] flex-1 px-4 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700"
                           >
                             Book session
@@ -1621,7 +1646,7 @@ export default function ParentCleanRightSidebar({
           <div className="mt-4 space-y-2">
             <button
               type="button"
-              onClick={handleBuyMoreHoursClick}
+              onClick={closeBreakdownThen(handleBuyMoreHoursClick)}
               className="w-full min-h-[44px] py-3 rounded-lg font-semibold text-sm bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
             >
               <Plus className="w-5 h-5" aria-hidden />
@@ -1642,7 +1667,7 @@ export default function ParentCleanRightSidebar({
                     {onAddChild && (
                       <button
                         type="button"
-                        onClick={onAddChild}
+                        onClick={closeBreakdownThen(onAddChild)}
                         className="mt-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
                       >
                         Add child
@@ -1690,10 +1715,10 @@ export default function ParentCleanRightSidebar({
             )}
           </div>
         )}
+          </div>
+        </SideCanvas>
         </>
         )}
-      </>
-      )}
       </div>
 
       {/* Checklist submitted or profile under review (so parent doesn't see "ALL CLEAR" and get confused) */}

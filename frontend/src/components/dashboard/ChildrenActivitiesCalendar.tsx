@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import moment, { Moment } from 'moment';
-import { Activity, Calendar, Users, Clock, CheckCircle, X, ChevronLeft, ChevronRight, MapPin, User, FileText, Package, Circle, Square, CheckSquare, GripVertical, XCircle } from 'lucide-react';
+import { Activity, Users, Clock, CheckCircle, X, ChevronLeft, ChevronRight, MapPin, User, FileText, Package, Circle, Square, CheckSquare, GripVertical, XCircle } from 'lucide-react';
 import { BookingCalendar } from '@/components/ui/Calendar';
 import { calendarUtils } from '@/components/ui/Calendar/useCalendarGrid';
 import { BookingDTO } from '@/core/application/booking';
@@ -93,6 +93,8 @@ interface ChildrenActivitiesCalendarProps {
   calendarPeriod?: CalendarPeriod;
   /** Anchor date from toolbar: single day (1_day), Monday of week (1_week), or 1st of month (1_month). */
   calendarAnchor?: string;
+  /** When true, do not render Past/Live/Upcoming in the legend (e.g. when parent shows them inline with toolbar). */
+  hideStatusLegend?: boolean;
 }
 
 /**
@@ -128,6 +130,7 @@ export default function ChildrenActivitiesCalendar({
   onBuyHoursForChild,
   calendarPeriod,
   calendarAnchor,
+  hideStatusLegend = false,
 }: ChildrenActivitiesCalendarProps) {
   const newChildIdSet = useMemo(() => new Set(newChildIds), [newChildIds]);
   const isNewChild = useCallback((childId: number) => newChildIdSet.has(childId), [newChildIdSet]);
@@ -614,85 +617,7 @@ export default function ChildrenActivitiesCalendar({
 
   return (
     <div id="children-activities-calendar" className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 ${paddingClass}`}>
-      {/* Header - Clear and Helpful - Responsive */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
-        <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
-          <div>
-            <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Scheduled Sessions
-            </h2>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500 hidden sm:block">
-              {onRescheduleRequest
-                ? 'Click any date to book. Drag a session to another date or time to reschedule.'
-                : 'Click any date to book a session'}
-            </p>
-          </div>
-        </div>
-        {/* View Mode Toggle - Google Calendar style - Responsive */}
-        <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 sm:p-1">
-          <button
-            type="button"
-            onClick={() => {
-              setViewMode('month');
-              // If switching from day view, update currentMonth to match the selected day's month
-              // This preserves the user's navigation context when switching views
-              if (selectedDay && !selectedDay.isSame(currentMonth, 'month')) {
-                handleMonthChange(selectedDay.clone().startOf('month'));
-              }
-              setSelectedDay(null);
-            }}
-            className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-md transition-colors ${
-              viewMode === 'month'
-                ? 'bg-white text-gray-900 dark:bg-gray-600 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
-            }`}
-          >
-            Month
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              // When switching to week view, always jump to the current running week
-              // so that both the main calendar and mini calendar stay in sync.
-              const today = moment().startOf('day');
-              const weekStart = today.clone().isoWeekday(1).startOf('day');
-              setViewMode('week');
-              setCurrentWeek(weekStart);
-              handleMonthChange(today);
-              onDateChange?.(today.format('YYYY-MM-DD'));
-            }}
-            className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-md transition-colors ${
-              viewMode === 'week'
-                ? 'bg-white text-gray-900 dark:bg-gray-600 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
-            }`}
-          >
-            Week
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              // When switching to day view, always jump straight to today
-              // and keep the mini calendar selection in sync.
-              const today = moment();
-              setViewMode('day');
-              setSelectedDay(today);
-              handleMonthChange(today);
-              onDateChange?.(today.format('YYYY-MM-DD'));
-            }}
-            className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-md transition-colors ${
-              viewMode === 'day'
-                ? 'bg-white text-gray-900 dark:bg-gray-600 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
-            }`}
-          >
-            Day
-          </button>
-        </div>
-      </div>
-
-      {/* Legend - Balanced - Responsive (only show child names when 2+ children) */}
+      {/* Legend. View mode (month/week/day) is driven by parent toolbar (1 month / 1 week / 1 day) when calendarPeriod + calendarAnchor are provided. */}
       <div className="mb-2 sm:mb-3 flex flex-wrap items-center gap-x-2 sm:gap-x-3 gap-y-1.5 sm:gap-y-2 text-[10px] sm:text-xs pb-2 sm:pb-3 border-b border-gray-200 dark:border-gray-700">
         {/* Children - inline: only when 2+ children to avoid redundant label */}
         {uniqueChildren.length >= 2 && (
@@ -712,8 +637,8 @@ export default function ChildrenActivitiesCalendar({
           </>
         )}
 
-        {/* Status legend: only when there are sessions (past, live, or upcoming) */}
-        {filteredSessions.length > 0 && (
+        {/* Status legend: only when there are sessions and not hidden (e.g. parent shows inline with toolbar) */}
+        {!hideStatusLegend && filteredSessions.length > 0 && (
           <>
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-gray-400 opacity-60" />
@@ -762,7 +687,7 @@ export default function ChildrenActivitiesCalendar({
 
       {/* Reschedule confirm modal (drag-to-reschedule) */}
       {reschedulePending && onRescheduleRequest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="reschedule-confirm-title">
+        <div className="fixed inset-0 z-overlay flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="reschedule-confirm-title">
           <div className="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 p-4">
             <h2 id="reschedule-confirm-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
               Reschedule session?

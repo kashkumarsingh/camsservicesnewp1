@@ -42,7 +42,8 @@ export const ROUTES = {
   DASHBOARD_PARENT_CHILDREN: '/dashboard/parent/children',
   DASHBOARD_PARENT_PROGRESS: '/dashboard/parent/progress',
   DASHBOARD_PARENT_SETTINGS: '/dashboard/parent/settings',
-  DASHBOARD_PARENT_SCHEDULE: '/dashboard/parent/schedule',
+  /** Schedule merged into Overview; kept for redirect compatibility. Use DASHBOARD_PARENT for calendar. */
+  DASHBOARD_PARENT_SCHEDULE: '/dashboard/parent',
 
   // Trainer
   DASHBOARD_TRAINER: '/dashboard/trainer',

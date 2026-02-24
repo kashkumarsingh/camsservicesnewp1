@@ -291,7 +291,7 @@ export default function BaseModal({
 
   return (
     <div 
-      className={`fixed inset-0 z-[1000] flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 ${
+      className={`fixed inset-0 z-overlay flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 ${
         isMobile ? 'p-0' : ''
       }`}
       onClick={(e) => {

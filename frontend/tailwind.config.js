@@ -18,6 +18,13 @@ module.exports = {
       borderRadius: {
         card: '30px',
       },
+      /** Modal/overlay z-index scale. Use these instead of arbitrary z-[999]. Sticky: 40, Dropdown: 50, Overlay/Modal: 1000, Toast: 9999. */
+      zIndex: {
+        sticky: '40',
+        dropdown: '50',
+        overlay: '1000',
+        toast: '9999',
+      },
       colors: {
         primary: '#00AEEF',
         secondary: '#231F20',

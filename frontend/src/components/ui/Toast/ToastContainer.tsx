@@ -25,7 +25,7 @@ export default function ToastContainer({ toasts, onDismiss }: ToastContainerProp
 
   return (
     <div
-      className="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"
+      className="fixed top-4 right-4 z-toast flex flex-col gap-2 pointer-events-none"
       aria-live="polite"
       aria-atomic="true"
     >

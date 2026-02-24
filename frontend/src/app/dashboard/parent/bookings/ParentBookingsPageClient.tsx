@@ -192,7 +192,7 @@ export default function ParentBookingsPageClient() {
         sortKey={sortKey}
         sortDirection={sortDirection}
         onSortChange={handleSortChange}
-        onAddClick={() => router.push('/dashboard/parent/schedule?open=booking')}
+        onAddClick={() => router.push('/dashboard/parent?open=booking')}
         addLabel="New booking"
         responsive
         renderRowActions={(row) => (

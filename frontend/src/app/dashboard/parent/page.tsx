@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import React from "react";
-import ParentOverviewPageClient from "./ParentOverviewPageClient";
+import ParentDashboardPageClient from "./ParentDashboardPageClient";
 
 export const metadata: Metadata = {
   title: "Parent Dashboard - CAMS Services",
@@ -8,9 +8,9 @@ export const metadata: Metadata = {
 };
 
 /**
- * Parent dashboard Overview: hours, upcoming sessions, alerts, quick actions (content that was in the right sidebar).
+ * Parent dashboard Overview: three-column calendar layout (left: mini calendar, upcoming sessions, my children; center: scheduled sessions; right: hours, per child, pending actions).
  */
 export default function ParentDashboardOverviewPage() {
-  return <ParentOverviewPageClient />;
+  return <ParentDashboardPageClient />;
 }
 

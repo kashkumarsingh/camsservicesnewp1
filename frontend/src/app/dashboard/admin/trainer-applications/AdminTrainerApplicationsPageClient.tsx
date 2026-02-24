@@ -4,8 +4,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+import { Breadcrumbs } from '@/components/dashboard/universal';
 import { EmptyState } from '@/components/dashboard/universal/EmptyState';
 import { RowActions, ApproveAction, RejectAction } from '@/components/dashboard/universal/RowActions';
+import Link from 'next/link';
+import { ROUTES } from '@/utils/routes';
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/utils/appConstants';
 import { Loader2 } from 'lucide-react';
 import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
@@ -122,22 +126,27 @@ export function AdminTrainerApplicationsPageClient() {
 
   return (
     <section className="space-y-4">
-      <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
-            Trainer applications
-          </h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Review and approve or reject new trainer applications. Approved applications create a trainer profile and can receive a login email.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => router.push('/dashboard/admin')}
-          className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-300"
-        >
-          ← Back to overview
-        </button>
+      <header className="space-y-1">
+        <Breadcrumbs
+          items={[
+            { label: 'Admin', href: ROUTES.DASHBOARD_ADMIN },
+            { label: 'Trainer applications' },
+          ]}
+          trailing={
+            <Link
+              href={ROUTES.DASHBOARD_ADMIN}
+              className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+            >
+              {BACK_TO_ADMIN_DASHBOARD_LABEL}
+            </Link>
+          }
+        />
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+          Trainer applications
+        </h1>
+        <p className="text-sm text-slate-600 dark:text-slate-400">
+          Review and approve or reject new trainer applications. Approved applications create a trainer profile and can receive a login email.
+        </p>
       </header>
 
       {error && (
@@ -155,13 +164,12 @@ export function AdminTrainerApplicationsPageClient() {
           title={EMPTY_STATE.NO_TRAINER_APPLICATIONS_FOUND.title}
           message={EMPTY_STATE.NO_TRAINER_APPLICATIONS_FOUND.message}
           action={
-            <button
-              type="button"
-              onClick={() => router.push('/dashboard/admin')}
-              className="mt-3 text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-300"
+            <Link
+              href={ROUTES.DASHBOARD_ADMIN}
+              className="mt-3 inline-block text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
             >
-              Back to overview
-            </button>
+              {BACK_TO_ADMIN_DASHBOARD_LABEL}
+            </Link>
           }
         />
       ) : (

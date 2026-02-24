@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import SideCanvas from "@/components/ui/SideCanvas";
 import { BaseModal } from "@/components/ui/Modal";
 import {
+  Breadcrumbs,
   DataTable,
   FilterPanel,
   FilterSection,
@@ -23,6 +24,9 @@ import {
   RejectAction,
 } from "@/components/dashboard/universal/RowActions";
 import Button from "@/components/ui/Button";
+import Link from "next/link";
+import { ROUTES } from "@/utils/routes";
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from "@/utils/appConstants";
 import { useAdminChildren, type AdminChildRow } from "@/interfaces/web/hooks/dashboard/useAdminChildren";
 import { useAdminUsers } from "@/interfaces/web/hooks/dashboard/useAdminUsers";
 import { useLiveRefresh } from "@/core/liveRefresh/LiveRefreshContext";
@@ -673,6 +677,20 @@ export const AdminChildrenPageClient: React.FC = () => {
     <section className="space-y-4">
       {/* Header */}
       <header className="space-y-3">
+        <Breadcrumbs
+          items={[
+            { label: "Admin", href: ROUTES.DASHBOARD_ADMIN },
+            { label: "Children" },
+          ]}
+          trailing={
+            <Link
+              href={ROUTES.DASHBOARD_ADMIN}
+              className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+            >
+              {BACK_TO_ADMIN_DASHBOARD_LABEL}
+            </Link>
+          }
+        />
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
             Children Management

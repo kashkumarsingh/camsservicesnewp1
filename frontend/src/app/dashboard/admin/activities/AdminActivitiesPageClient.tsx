@@ -3,6 +3,7 @@
 import React, { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import SideCanvas from "@/components/ui/SideCanvas";
 import {
+  Breadcrumbs,
   FilterPanel,
   FilterSection,
   FilterSelect,
@@ -11,6 +12,9 @@ import {
 } from "@/components/dashboard/universal";
 import { RowActions, EditAction, DeleteAction } from "@/components/dashboard/universal/RowActions";
 import Button from "@/components/ui/Button";
+import Link from "next/link";
+import { ROUTES } from "@/utils/routes";
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from "@/utils/appConstants";
 import type { AdminActivityDTO, CreateActivityDTO, UpdateActivityDTO } from "@/core/application/admin/dto/AdminActivityDTO";
 import { useAdminActivities } from "@/interfaces/web/hooks/admin/useAdminActivities";
 import { toastManager } from "@/utils/toast";
@@ -193,6 +197,20 @@ export const AdminActivitiesPageClient: React.FC = () => {
   return (
     <section className="space-y-4">
       <header className="space-y-1">
+        <Breadcrumbs
+          items={[
+            { label: "Admin", href: ROUTES.DASHBOARD_ADMIN },
+            { label: "Activities" },
+          ]}
+          trailing={
+            <Link
+              href={ROUTES.DASHBOARD_ADMIN}
+              className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+            >
+              {BACK_TO_ADMIN_DASHBOARD_LABEL}
+            </Link>
+          }
+        />
         <h1 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50">
           Activities
         </h1>

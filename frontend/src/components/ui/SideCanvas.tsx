@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, X } from 'lucide-react';
 
 interface SideCanvasProps {
@@ -56,9 +57,9 @@ export function SideCanvas({
 
   const hasFooter = Boolean(footer);
 
-  return (
+  const panel = (
     <div
-      className="fixed inset-0 z-40 flex justify-end"
+      className="fixed inset-0 z-overlay flex justify-end"
       aria-modal="true"
       role="dialog"
       aria-label={title}
@@ -119,6 +120,8 @@ export function SideCanvas({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(panel, document.body) : null;
 }
 
 export default SideCanvas;

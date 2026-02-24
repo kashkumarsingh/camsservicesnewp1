@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import moment from 'moment';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import moment, { type Moment } from 'moment';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
-import { AlertCircle, CheckCircle, XCircle, ClipboardCheck, Calendar, User, Users, Package, Clock, TrendingUp, ArrowRight, X, LogOut, CreditCard, Settings, BookOpen, CalendarPlus, UserPlus, RefreshCw, FileText, ShieldAlert, Keyboard, Plus, AlertTriangle } from 'lucide-react';
+import { AlertCircle, CheckCircle, XCircle, ClipboardCheck, Calendar, User, Users, Package, TrendingUp, ArrowRight, X, LogOut, CreditCard, Settings, BookOpen, CalendarPlus, UserPlus, RefreshCw, FileText, ShieldAlert, Keyboard, Plus, AlertTriangle } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
 import ChildrenActivitiesCalendar from '@/components/dashboard/ChildrenActivitiesCalendar';
@@ -45,10 +45,15 @@ import { ChildrenFilter } from '@/components/dashboard/ChildrenFilter';
 import { getMonday, getMonthKey } from '@/utils/calendarRangeUtils';
 import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
 import { CalendarRangeToolbar } from '@/components/ui/CalendarRange';
+import { BookingCalendar } from '@/components/ui/Calendar';
+import ParentCleanRightSidebar from '@/components/dashboard/parent/ParentCleanRightSidebar';
 
 export default function ParentDashboardPageClient() {
+  const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  /** Overview route shows three-column calendar layout; schedule route shows calendar-only. */
+  const isOverview = pathname === '/dashboard/parent' || pathname === '/dashboard/parent/';
   const { user, children, approvedChildren, loading, isAuthenticated, isApproved, hasApprovedChildren, canBook, logout, refresh } = useAuth();
   const { bookings, loading: bookingsLoading, error: bookingsError, refetch: refetchBookings } = useMyBookings();
   const { cancelBooking, loading: cancelBookingLoading, error: cancelBookingError, resetError: resetCancelError } = useCancelBooking();
@@ -103,10 +108,12 @@ export default function ParentDashboardPageClient() {
             );
             const data = response.data as { success?: boolean; message?: string; booking?: unknown; payment?: unknown } | undefined;
             if (data && !data.success) {
+              hasShownPurchaseToastRef.current = true;
               toastManager.error('Payment could not be confirmed. Your payment was received; the booking may update shortly.');
             }
           } catch (err) {
             console.error('[Dashboard] Failed to confirm payment from session:', err);
+            hasShownPurchaseToastRef.current = true;
             toastManager.error('Payment was received but we could not confirm it. Your booking may update shortly—check back in a moment.');
           }
         }
@@ -1523,6 +1530,26 @@ export default function ParentDashboardPageClient() {
     return items.slice(0, 5);
   }, [bookings]);
 
+  // Mini calendar: dates with upcoming vs past sessions (for overview three-column left column)
+  const { datesWithSessions: miniDatesUpcoming, datesWithPastSessions: miniDatesPast } = useMemo(() => {
+    const upcoming = new Set<string>();
+    const past = new Set<string>();
+    const today = moment().format('YYYY-MM-DD');
+    const confirmedPaid = bookings.filter(
+      (b) => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID,
+    );
+    confirmedPaid.forEach((booking) => {
+      (booking.schedules ?? []).forEach((schedule) => {
+        if (schedule.status === BOOKING_STATUS.CANCELLED) return;
+        const dateStr =
+          typeof schedule.date === 'string' ? schedule.date : moment(schedule.date).format('YYYY-MM-DD');
+        if (dateStr >= today) upcoming.add(dateStr);
+        else past.add(dateStr);
+      });
+    });
+    return { datesWithSessions: upcoming, datesWithPastSessions: past };
+  }, [bookings]);
+
   // Sessions this week (for empty-state banner: "No sessions this week — book one?")
   const sessionsThisWeekCount = useMemo(() => {
     const start = moment().startOf('week');
@@ -1777,22 +1804,6 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
             <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 dark:text-slate-100 truncate">
               {getGreeting()}, {parentName.split(' ')[0]}
             </h1>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
-              <span className="flex items-center gap-1.5" title="Sessions scheduled this week">
-                <Calendar className="w-3.5 h-3.5 shrink-0" aria-hidden />
-                {sessionsThisWeekCount} session{sessionsThisWeekCount !== 1 ? 's' : ''} booked this week
-              </span>
-              <span className="hidden sm:inline w-px h-4 bg-slate-200 dark:bg-slate-600" aria-hidden />
-              <span className="flex items-center gap-1.5" title="Hours you can still use to book sessions">
-                <Clock className="w-3.5 h-3.5 shrink-0" aria-hidden />
-                {totalRemainingHoursForBanner.toFixed(1)}h left to book
-              </span>
-              <span className="hidden sm:inline w-px h-4 bg-slate-200 dark:bg-slate-600" aria-hidden />
-              <span className="flex items-center gap-1.5" title="Children on your account (approved to book)">
-                <Users className="w-3.5 h-3.5 shrink-0" aria-hidden />
-                {approvedChildren.length} child{approvedChildren.length !== 1 ? 'ren' : ''} on account
-              </span>
-            </div>
             {isRefreshing && (
               <span className="flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-2.5 py-1 text-xs font-medium text-slate-600 dark:text-slate-400">
                 <RefreshCw size={12} className="animate-spin shrink-0" aria-hidden />
@@ -1837,6 +1848,164 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
         </div>
       </header>
 
+      {/* Overview: three-column layout (left: mini calendar, upcoming, my children; center: scheduled sessions; right: hours, per child, pending) */}
+      {isOverview ? (
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,280px)_1fr_minmax(0,360px)] gap-4 lg:gap-6 mb-8">
+          {/* Left column: mini calendar card + Upcoming Sessions card (separate cards) */}
+          <div className="order-2 lg:order-1 space-y-4">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 lg:p-4 lg:sticky lg:top-24 lg:self-start">
+              <BookingCalendar
+                size="small"
+                selectedDate={selectedCalendarDate}
+                currentMonth={moment(currentCalendarMonth, 'YYYY-MM')}
+                onMonthChange={(month: Moment) => setCurrentCalendarMonth(month.format('YYYY-MM'))}
+                onDateSelect={handleMiniCalendarDateSelect}
+                onUnavailableDateClick={handleUnavailableDateClick}
+                datesWithSessions={miniDatesUpcoming}
+                datesWithPastSessions={miniDatesPast}
+                showTodayButton={false}
+              />
+            </div>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 lg:p-4">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">
+                <Calendar className="w-3.5 h-3.5" aria-hidden />
+                Upcoming Sessions
+              </h3>
+              {upcomingSessionsForSidebar.length > 0 ? (
+                <ul className="space-y-2" role="list" aria-label="Upcoming sessions">
+                  {upcomingSessionsForSidebar.slice(0, 5).map((s) => (
+                    <li key={s.scheduleId}>
+                      <button
+                        type="button"
+                        onClick={() => handleUpcomingSessionClick({ scheduleId: s.scheduleId, childName: s.childName, childId: s.childId })}
+                        className="w-full text-left rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm"
+                      >
+                        <span className="font-medium text-slate-900 dark:text-slate-100 block truncate">{s.childName}</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                          {moment(s.date).format('ddd D')}
+                          {s.startTime ? ` · ${moment(s.startTime, ['HH:mm', 'HH:mm:ss']).format('h:mma')}` : ''}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-xs text-slate-500 dark:text-slate-400">No upcoming sessions.</p>
+              )}
+            </div>
+          </div>
+          {/* Center: Scheduled Sessions calendar (same white panel style as sidebars) */}
+          <div className="min-w-0 order-1 lg:order-2">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 lg:p-4 space-y-4">
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+                  <div>
+                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-400" aria-hidden />
+                      Scheduled Sessions
+                    </h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Click any date to book a new session.</p>
+                  </div>
+                  <div className="flex items-center">
+                    <ChildrenFilter
+                      children={filterableChildrenWithHours}
+                      selectedIds={visibleChildIds}
+                      onChange={setVisibleChildIds}
+                      hideWhenSingle={true}
+                      newChildIds={newChildIds}
+                      expiredChildIds={expiredChildIds}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+                  <div role="toolbar" aria-label="Calendar period">
+                    <CalendarRangeToolbar
+                      period={calendarPeriod}
+                      setPeriod={setCalendarPeriod}
+                      anchor={calendarAnchor}
+                      setAnchor={handleCalendarAnchorChange}
+                      periodSelectId="parent-overview-calendar-period"
+                      periodSelectLabel="Calendar period"
+                      showWeekShortcuts={true}
+                    />
+                  </div>
+                  <div className="flex items-center gap-x-3 gap-y-1 text-xs text-slate-600 dark:text-slate-400" role="group" aria-label="Session status legend">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-slate-400 opacity-60" aria-hidden />
+                      Past
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="relative w-2.5 h-2.5 rounded-full bg-green-500">
+                        <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" aria-hidden />
+                      </span>
+                      Live
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-blue-500 dark:bg-blue-400" aria-hidden />
+                      Upcoming
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <ChildrenActivitiesCalendar
+                bookings={bookings}
+                onDateClick={handleCalendarDateClick}
+                onSessionClick={handleCalendarSessionClick}
+                selectedDate={selectedCalendarDate}
+                onDateChange={handleDayViewDateChange}
+                switchToDayView={switchToDayView}
+                currentMonth={currentCalendarMonth}
+                onMonthChange={handleCalendarMonthChange}
+                onWeekRangeChange={handleWeekRangeChange}
+                visibleChildIds={visibleChildIds}
+                filterableChildren={approvedChildren.map((c) => ({ id: c.id, name: c.name }))}
+                onFilterChange={setVisibleChildIds}
+                onUnavailableDateClick={(_date, reason) => {
+                  toastManager.error(getMessageForDateReason(reason, { now: moment() }));
+                }}
+                showCompactView={responsive.showCompactView}
+                spacing={responsive.spacing}
+                onBulkCancel={handleBulkCancel}
+                onRescheduleRequest={handleRescheduleRequest}
+                newChildIds={newChildIds}
+                onBuyHoursForChild={handleBuyHours}
+                calendarPeriod={calendarPeriod}
+                calendarAnchor={calendarAnchor}
+                hideStatusLegend={true}
+              />
+            </div>
+          </div>
+          {/* Right column: Hours Available, Per Child, Pending Actions */}
+          <div className="order-3 lg:sticky lg:top-24 self-start">
+            <ParentCleanRightSidebar
+              approvedChildren={approvedChildren}
+              bookings={bookings}
+              visibleChildIds={visibleChildIds}
+              childIdsWithActivePackage={childIdsWithActivePackage}
+              allChildrenHaveActivePackages={allChildrenHaveActivePackages}
+              hasDraftOrUnpaidActivePackage={hasDraftOrUnpaidActivePackage}
+              unpaidBookingReference={firstUnpaidBookingReference}
+              childrenNeedingChecklist={childrenNeedingChecklistForSidebar}
+              childrenAwaitingChecklistReview={childrenAwaitingChecklistReviewForSidebar}
+              childrenPendingApproval={childrenPendingApprovalForSidebar}
+              upcomingSessions={upcomingSessionsForSidebar}
+              onUpcomingSessionClick={handleUpcomingSessionClick}
+              onCancelUpcomingSession={undefined}
+              onRescheduleUpcomingSession={undefined}
+              onCompleteChecklist={handleCompleteChecklist}
+              onOpenGenericBuyHours={() => { setShowBuyHoursModal(true); setBuyHoursChildId(undefined); }}
+              onBuyHoursForChild={handleBuyHours}
+              onBookSession={handleBookSession}
+              onTopUpChild={handleOpenTopUp}
+              onAddChild={() => setShowAddChildModal(true)}
+              hoursLoading={statsLoading}
+              variant="sidebar"
+              showNextUp={false}
+            />
+          </div>
+        </div>
+      ) : (
+      <>
       {/* Main Content: Mobile = calendar first (order-1), sidebar below (order-2). Desktop = calendar left, sidebar right. */}
       <div className={`mb-8 flex flex-col lg:flex-row ${spacingClasses}`}>
         {/* Main Calendar - Primary focus: on mobile order-1 (top, calendar-first); on lg order-1 (left). */}
@@ -2179,6 +2348,8 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
           </div>
         </div>
       </div>
+      </>
+      )}
 
       {/* Toast Container */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />

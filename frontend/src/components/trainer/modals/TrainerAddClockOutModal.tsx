@@ -121,12 +121,12 @@ export function TrainerAddClockOutModal({
   return (
     <>
       <div
-        className="fixed inset-0 z-[998] bg-slate-900/40"
+        className="fixed inset-0 z-overlay bg-slate-900/40"
         aria-hidden
         onClick={onClose}
       />
       <div
-        className="fixed left-1/2 top-1/2 z-[999] w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-700 dark:bg-slate-900"
+        className="fixed left-1/2 top-1/2 z-overlay w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-700 dark:bg-slate-900"
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-clock-out-title"

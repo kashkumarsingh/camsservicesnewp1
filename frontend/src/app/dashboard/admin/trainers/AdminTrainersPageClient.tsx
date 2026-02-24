@@ -14,6 +14,7 @@ import type {
 } from '@/core/application/admin/dto/AdminTrainerDTO';
 import SideCanvas from '@/components/ui/SideCanvas';
 import {
+  Breadcrumbs,
   DataTable,
   FilterPanel,
   FilterSection,
@@ -30,6 +31,8 @@ import { AdminTrainerAvailabilityPanel } from '@/components/dashboard/admin/Admi
 import { Calendar, Clock, MapPin, Download } from 'lucide-react';
 import { getActiveBadgeClasses } from '@/utils/statusBadgeHelpers';
 import { BOOKING_STATUS, DEFAULT_TABLE_SORT } from '@/utils/dashboardConstants';
+import { ROUTES } from '@/utils/routes';
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/utils/appConstants';
 import Button from '@/components/ui/Button';
 import { Switch } from '@/components/ui/Switch';
 import { ListRowsSkeleton } from '@/components/ui/Skeleton';
@@ -307,6 +310,20 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
     <section className="space-y-4">
       {/* Header */}
       <header className="space-y-1">
+        <Breadcrumbs
+          items={[
+            { label: 'Admin', href: ROUTES.DASHBOARD_ADMIN },
+            { label: 'Trainers' },
+          ]}
+          trailing={
+            <Link
+              href={ROUTES.DASHBOARD_ADMIN}
+              className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+            >
+              {BACK_TO_ADMIN_DASHBOARD_LABEL}
+            </Link>
+          }
+        />
         <h1 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50">
           Trainers Management
         </h1>

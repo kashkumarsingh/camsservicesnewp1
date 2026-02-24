@@ -64,8 +64,9 @@ export function CalendarRangePopoverContent({
             type="button"
             onClick={() => {
               const [y, m] = calendarViewMonthKey.split('-').map((x) => parseInt(x, 10));
-              const d = new Date(y, m - 2, 1);
-              setCalendarViewMonthKey(d.toISOString().slice(0, 7));
+              const prevMonth = m === 1 ? 12 : m - 1;
+              const prevYear = m === 1 ? y - 1 : y;
+              setCalendarViewMonthKey(`${prevYear}-${String(prevMonth).padStart(2, '0')}`);
             }}
             className="rounded p-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
             aria-label="Previous month"
@@ -82,8 +83,9 @@ export function CalendarRangePopoverContent({
             type="button"
             onClick={() => {
               const [y, m] = calendarViewMonthKey.split('-').map((x) => parseInt(x, 10));
-              const d = new Date(y, m, 1);
-              setCalendarViewMonthKey(d.toISOString().slice(0, 7));
+              const nextMonth = m === 12 ? 1 : m + 1;
+              const nextYear = m === 12 ? y + 1 : y;
+              setCalendarViewMonthKey(`${nextYear}-${String(nextMonth).padStart(2, '0')}`);
             }}
             className="rounded p-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
             aria-label="Next month"
@@ -103,7 +105,7 @@ export function CalendarRangePopoverContent({
           {getMonthCalendarGrid(calendarViewMonthKey).map((row) =>
             row.map((dateStr) => {
               const d = new Date(dateStr + 'T12:00:00');
-              const isCurrentMonth = d.toISOString().slice(0, 7) === calendarViewMonthKey;
+              const isCurrentMonth = dateStr.slice(0, 7) === calendarViewMonthKey;
               const isSelectedDay = dateStr === anchor;
               const isHovered = dateStr === hoveredDay;
               return (
@@ -144,8 +146,9 @@ export function CalendarRangePopoverContent({
             type="button"
             onClick={() => {
               const [y, m] = calendarViewMonthKey.split('-').map((x) => parseInt(x, 10));
-              const d = new Date(y, m - 2, 1);
-              setCalendarViewMonthKey(d.toISOString().slice(0, 7));
+              const prevMonth = m === 1 ? 12 : m - 1;
+              const prevYear = m === 1 ? y - 1 : y;
+              setCalendarViewMonthKey(`${prevYear}-${String(prevMonth).padStart(2, '0')}`);
             }}
             className="rounded p-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
             aria-label="Previous month"
@@ -162,8 +165,9 @@ export function CalendarRangePopoverContent({
             type="button"
             onClick={() => {
               const [y, m] = calendarViewMonthKey.split('-').map((x) => parseInt(x, 10));
-              const d = new Date(y, m, 1);
-              setCalendarViewMonthKey(d.toISOString().slice(0, 7));
+              const nextMonth = m === 12 ? 1 : m + 1;
+              const nextYear = m === 12 ? y + 1 : y;
+              setCalendarViewMonthKey(`${nextYear}-${String(nextMonth).padStart(2, '0')}`);
             }}
             className="rounded p-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
             aria-label="Next month"
@@ -189,7 +193,7 @@ export function CalendarRangePopoverContent({
             const isHoveredWeek = weekMonday === hoveredWeekMonday;
             return row.map((dateStr) => {
               const d = new Date(dateStr + 'T12:00:00');
-              const isCurrentMonth = d.toISOString().slice(0, 7) === calendarViewMonthKey;
+              const isCurrentMonth = dateStr.slice(0, 7) === calendarViewMonthKey;
               return (
                 <button
                   key={dateStr}
@@ -254,7 +258,8 @@ export function CalendarRangePopoverContent({
               key={monthKey}
               type="button"
               onClick={() => {
-                onSelect(new Date(calendarViewYear, i, 1).toISOString().slice(0, 10));
+                const firstOfMonth = `${calendarViewYear}-${String(i + 1).padStart(2, '0')}-01`;
+                onSelect(firstOfMonth);
                 onClose();
               }}
               onMouseEnter={() => setHoveredMonthKey(monthKey)}

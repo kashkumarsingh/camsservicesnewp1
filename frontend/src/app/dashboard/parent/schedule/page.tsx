@@ -1,15 +1,9 @@
-import type { Metadata } from "next";
-import React from "react";
-import ParentDashboardPageClient from "../ParentDashboardPageClient";
-
-export const metadata: Metadata = {
-  title: "Schedule - Parent Dashboard - CAMS Services",
-  description: "Calendar and sessions for parents.",
-};
+import { redirect } from "next/navigation";
 
 /**
- * Parent Schedule: calendar only (no right sidebar).
+ * Schedule session is merged into Overview (three-column calendar layout).
+ * Redirect so old links and bookmarks still work.
  */
 export default function ParentSchedulePage() {
-  return <ParentDashboardPageClient />;
+  redirect("/dashboard/parent");
 }

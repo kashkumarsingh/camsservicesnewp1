@@ -1622,12 +1622,12 @@ export default function ParentBookingModal({
     return (
       <>
         <div
-          className="fixed inset-0 z-40 bg-black/30 transition-opacity"
+          className="fixed inset-0 z-overlay bg-black/30 transition-opacity"
           onClick={onClose}
           aria-hidden
         />
         <div
-          className="fixed right-0 top-0 bottom-0 w-full max-w-md z-50 bg-white dark:bg-gray-800 shadow-xl flex flex-col border-l border-gray-200 dark:border-gray-700"
+          className="fixed right-0 top-0 bottom-0 w-full max-w-md z-overlay bg-white dark:bg-gray-800 shadow-xl flex flex-col border-l border-gray-200 dark:border-gray-700"
           role="dialog"
           aria-modal="true"
           aria-labelledby="booking-panel-title"

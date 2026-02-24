@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { adminTrainerAbsenceRequestRepository } from '@/infrastructure/http/admin/AdminTrainerAbsenceRequestRepository';
 import type { AdminAbsenceRequestItem } from '@/infrastructure/http/admin/AdminTrainerAbsenceRequestRepository';
+import { Breadcrumbs } from '@/components/dashboard/universal';
 import { SideCanvas } from '@/components/ui/SideCanvas';
+import { ROUTES } from '@/utils/routes';
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/utils/appConstants';
 import { CheckCircle, Loader2, XCircle, CalendarOff, User, Calendar, FileText } from 'lucide-react';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
 import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
@@ -28,7 +31,6 @@ function formatSubmittedAt(iso: string): string {
 }
 
 export function AdminAbsenceRequestsPageClient() {
-  const router = useRouter();
   const [requests, setRequests] = useState<AdminAbsenceRequestItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -103,21 +105,28 @@ export function AdminAbsenceRequestsPageClient() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-6">
-      <div className="flex items-center justify-between">
+      <header className="space-y-1">
+        <Breadcrumbs
+          items={[
+            { label: 'Admin', href: ROUTES.DASHBOARD_ADMIN },
+            { label: 'Absence requests' },
+          ]}
+          trailing={
+            <Link
+              href={ROUTES.DASHBOARD_ADMIN}
+              className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+            >
+              {BACK_TO_ADMIN_DASHBOARD_LABEL}
+            </Link>
+          }
+        />
         <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
           Trainer absence requests
         </h1>
-        <button
-          type="button"
-          onClick={() => router.push('/dashboard/admin')}
-          className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-        >
-          Back to dashboard
-        </button>
-      </div>
-      <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-slate-600 dark:text-slate-400">
         Click a request to open details, then approve or reject. Once approved, dates show as absence on the trainer&apos;s calendar.
-      </p>
+        </p>
+      </header>
 
       {error && (
         <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
