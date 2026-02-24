@@ -449,28 +449,17 @@ class Child extends Model
      * Check if a child can be safely deleted.
      *
      * Business rules:
-     * - A child CANNOT be deleted if they have:
-     *   - Any purchased hours (used or unused)
-     *   - Any bookings (past, present, or future)
-     *   - Any payment history (including refunded)
-     *   - Any attendance records
-     *   - Any completed sessions
-     * - A child CAN ONLY be deleted if:
-     *   - They were created less than 24 hours ago
-     *   - They have zero bookings
-     *   - They have zero payments
-     *   - They have zero attendance / completion history
+     * - A child CAN be deleted only when they have no footprint:
+     *   - No bookings (past, present, or future)
+     *   - No payments or purchased hours
+     *   - No attendance records
+     *   - No completed sessions
+     * - If the child has any of the above, they must be archived instead so records are preserved.
      *
      * @return bool
      */
     public function isDeletionAllowed(): bool
     {
-        // Safety gate: only allow deletion for very new records
-        if ($this->created_at && $this->created_at->diffInHours(now()) > 24) {
-            return false;
-        }
-
-        // If the child has *any* historical footprint, disallow hard deletion
         if ($this->hasAnyBookings()
             || $this->hasAnyPayments()
             || $this->hasAttendanceRecords()

@@ -205,6 +205,7 @@ export const API_ENDPOINTS = {
   // Payments
   CREATE_PAYMENT_INTENT: (bookingId: string | number) => `/bookings/${bookingId}/payments/create-intent`,
   GET_PAYMENT_INTENT_FROM_SESSION: '/payments/get-intent-from-session',
+  CONFIRM_PAYMENT_FROM_SESSION: '/payments/confirm-from-session',
   CONFIRM_PAYMENT: '/payments/confirm',
   
   // Trainer Booking Endpoints (Pay First → Book Later)

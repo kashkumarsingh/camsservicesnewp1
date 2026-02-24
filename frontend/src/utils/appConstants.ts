@@ -41,3 +41,6 @@ export const DEFAULT_PAGE_SIZE = 25;
 
 /** Max page size for API list endpoints */
 export const MAX_PAGE_SIZE = 200;
+
+/** Admin dashboard back link label (used in sub-pages for navigation) */
+export const BACK_TO_ADMIN_DASHBOARD_LABEL = 'Back to dashboard';

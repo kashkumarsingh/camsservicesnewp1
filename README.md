@@ -106,6 +106,30 @@ For live notification bell and dashboard updates without refreshing the page:
 
 **Docker:** If you use `docker compose`, the `reverb` service runs Reverb for you; ensure `backend/.env` has the same Reverb vars and the frontend uses `NEXT_PUBLIC_REVERB_WS_HOST=localhost` (port 8080 is published).
 
+### Stripe webhooks (local and deployed)
+
+Bookings only update after payment when Stripe sends the webhook and your backend processes it. The **signing secret** is tied to the **endpoint URL** — use the right one per environment.
+
+**Localhost (Stripe cannot call localhost):**
+
+1. Install [Stripe CLI](https://stripe.com/docs/stripe-cli#install) and run `stripe login` once.
+2. In a terminal, run (leave it running):
+   ```bash
+   stripe listen --forward-to http://localhost:9080/api/v1/webhooks/stripe
+   ```
+3. Copy the printed `whsec_...` secret into `backend/.env` as `STRIPE_WEBHOOK_SECRET`.
+4. Restart the backend, then trigger a test payment. Events appear in the CLI and the booking should update.
+
+**Railway (deployed backend):**
+
+1. In [Stripe Dashboard → Developers → Webhooks](https://dashboard.stripe.com/webhooks), click **Add endpoint**.
+2. **Endpoint URL:** `https://YOUR-RAILWAY-DOMAIN/api/v1/webhooks/stripe` (your real Railway API host).
+3. Subscribe to **Payment intent succeeded** (`payment_intent.succeeded`), then add the endpoint.
+4. Reveal the **Signing secret** for that endpoint and set it in Railway as `STRIPE_WEBHOOK_SECRET` (Variables / env).
+5. Redeploy if needed. After that, paying on the deployed app should update the booking.
+
+Do not use the Dashboard secret for localhost or the CLI secret for production.
+
 ## 🏗️ Architecture
 
 This project follows **Clean Architecture** principles:

@@ -27,7 +27,6 @@ import { useCancelBooking } from '@/interfaces/web/hooks/booking/useCancelBookin
 import { useActivities } from '@/interfaces/web/hooks/activities/useActivities'; // ✅ Import for activities
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
-import { ApiPaymentService } from '@/infrastructure/services/payment/ApiPaymentService';
 import { childrenRepository } from '@/infrastructure/http/children/ChildrenRepository';
 import type { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
 import type { BookingTopUpApiResponse } from '@/core/application/booking/dto/BookingTopUpApiResponse';
@@ -95,21 +94,16 @@ export default function ParentDashboardPageClient() {
 
     if (purchaseStatus === 'success') {
       const run = async () => {
-        // If we have session_id, backend was never told to confirm—confirm now so booking becomes confirmed/paid
         if (sessionId && !hasConfirmedPaymentFromSessionRef.current) {
           hasConfirmedPaymentFromSessionRef.current = true;
           try {
-            const endpoint = API_ENDPOINTS.GET_PAYMENT_INTENT_FROM_SESSION;
-            const intentResponse = await apiClient.post<{ paymentIntentId: string }>(endpoint, {
-              session_id: sessionId,
-            });
-            const paymentIntentId = intentResponse.data?.paymentIntentId;
-            if (paymentIntentId) {
-              const confirmResult = await ApiPaymentService.confirmPayment(paymentIntentId);
-              if (!confirmResult.success) {
-                console.error('[Dashboard] Payment confirm failed:', confirmResult.error);
-                toastManager.error(confirmResult.error ?? 'Payment could not be confirmed. Your payment was received; the booking may update shortly.');
-              }
+            const response = await apiClient.post<{ success?: boolean; message?: string; booking?: unknown; payment?: unknown }>(
+              API_ENDPOINTS.CONFIRM_PAYMENT_FROM_SESSION,
+              { session_id: sessionId }
+            );
+            const data = response.data as { success?: boolean; message?: string; booking?: unknown; payment?: unknown } | undefined;
+            if (data && !data.success) {
+              toastManager.error('Payment could not be confirmed. Your payment was received; the booking may update shortly.');
             }
           } catch (err) {
             console.error('[Dashboard] Failed to confirm payment from session:', err);
@@ -125,7 +119,6 @@ export default function ParentDashboardPageClient() {
         }
         refetchBookings(true);
         refresh();
-        // TEMPORARY: same polling hack as handlePaymentComplete. Replace with Reverb broadcast when stable.
         purchaseSuccessTimeoutRef.current = setTimeout(() => refetchBookings(true), 2000);
         setTimeout(() => refetchBookings(true), 5000);
         router.replace('/dashboard/parent', { scroll: false });

@@ -7,15 +7,21 @@ import type { ApiError } from '@/infrastructure/http/ApiClient';
 
 /**
  * Extract a user-facing message from an unknown error.
- * Prefers API response message, then Error.message, then fallback.
+ * Prefers API response message (or first validation error when message is generic), then Error.message, then fallback.
  */
 export function getApiErrorMessage(err: unknown, fallback: string): string {
   if (err instanceof Error) return err.message;
   if (typeof err === 'object' && err !== null && 'response' in err) {
     const apiErr = err as ApiError;
     const data = apiErr.response?.data;
-    if (data && typeof data === 'object' && 'message' in data && typeof (data as { message: unknown }).message === 'string') {
-      return (data as { message: string }).message;
+    if (data && typeof data === 'object') {
+      const validationDetail = getApiValidationErrors(err);
+      const msg = (data as { message?: string }).message;
+      if (typeof msg === 'string' && msg.length > 0) {
+        if (validationDetail && msg === 'Validation failed') return validationDetail;
+        return msg;
+      }
+      if (validationDetail) return validationDetail;
     }
   }
   return fallback;

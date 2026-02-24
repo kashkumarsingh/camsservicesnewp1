@@ -191,6 +191,105 @@ class PaymentController extends Controller
     }
 
     /**
+     * Confirm payment from Stripe Checkout session (redirect flow).
+     * Use this when the user returns from Stripe with session_id so the booking updates
+     * immediately without relying on the webhook (works on localhost and production).
+     *
+     * POST /api/v1/payments/confirm-from-session
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function confirmFromSession(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'session_id' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors()->toArray());
+        }
+
+        try {
+            $sessionId = $request->input('session_id');
+            $paymentService = app(\App\Contracts\Payment\IPaymentService::class);
+            $intentResult = $paymentService->getPaymentIntentFromSession($sessionId);
+
+            if (!$intentResult['success'] || empty($intentResult['payment_intent_id'])) {
+                return $this->errorResponse(
+                    $intentResult['error'] ?? 'Could not get payment from session.',
+                    \App\Http\Controllers\Api\ErrorCodes::PAYMENT_ERROR,
+                    [],
+                    400
+                );
+            }
+
+            $paymentIntentId = $intentResult['payment_intent_id'];
+            $result = $this->processPaymentAction->confirmPayment($paymentIntentId);
+
+            if (!$result['success']) {
+                return $this->errorResponse(
+                    $result['error'] ?? 'Failed to confirm payment.',
+                    \App\Http\Controllers\Api\ErrorCodes::PAYMENT_ERROR,
+                    [],
+                    400
+                );
+            }
+
+            if (!isset($result['booking']) || !isset($result['payment'])) {
+                Log::error('Payment confirmation from session succeeded but missing booking or payment data', [
+                    'session_id' => $sessionId,
+                ]);
+                return $this->errorResponse(
+                    'Payment confirmed but booking data is missing.',
+                    \App\Http\Controllers\Api\ErrorCodes::PAYMENT_ERROR,
+                    [],
+                    500
+                );
+            }
+
+            Log::info('Payment confirmed from session (redirect flow)', [
+                'session_id' => $sessionId,
+                'booking_id' => $result['booking']->id,
+            ]);
+
+            $schedulesCount = 0;
+            if (isset($result['booking']->schedules)) {
+                $schedulesCount = $result['booking']->schedules->count();
+            } elseif (method_exists($result['booking'], 'schedules')) {
+                $schedulesCount = $result['booking']->schedules()->count();
+            }
+
+            return $this->successResponse([
+                'booking' => [
+                    'id' => $result['booking']->id,
+                    'reference' => $result['booking']->reference,
+                    'status' => $result['booking']->status,
+                    'payment_status' => $result['booking']->payment_status,
+                    'paid_amount' => $result['booking']->paid_amount,
+                    'total_price' => $result['booking']->total_price,
+                    'has_sessions' => $schedulesCount > 0,
+                    'schedules_count' => $schedulesCount,
+                ],
+                'payment' => [
+                    'id' => $result['payment']->id(),
+                    'amount' => $result['payment']->amount(),
+                    'status' => $result['payment']->status()->toString(),
+                    'transaction_id' => $result['payment']->transactionId(),
+                ],
+            ], 'Payment confirmed successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error confirming payment from session', [
+                'session_id' => $request->input('session_id'),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return $this->serverErrorResponse('Failed to confirm payment.');
+        }
+    }
+
+    /**
      * Confirm a payment.
      *
      * POST /api/v1/payments/confirm

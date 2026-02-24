@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { X } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { ChevronLeft, X } from 'lucide-react';
 
 interface SideCanvasProps {
   /** Whether the panel is visible */
@@ -16,6 +16,8 @@ interface SideCanvasProps {
   widthClassName?: string;
   /** Optional aria-label override for the close button */
   closeLabel?: string;
+  /** Whether to show "Close" text next to the icon (default true for discoverability) */
+  showCloseText?: boolean;
   /** Optional footer content (e.g. Update / Cancel) – always visible at bottom */
   footer?: React.ReactNode;
   children: React.ReactNode;
@@ -37,9 +39,19 @@ export function SideCanvas({
   description,
   widthClassName,
   closeLabel = 'Close panel',
+  showCloseText = true,
   footer,
   children,
 }: SideCanvasProps) {
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const hasFooter = Boolean(footer);
@@ -77,10 +89,17 @@ export function SideCanvas({
           <button
             type="button"
             onClick={onClose}
-            className="ml-3 inline-flex items-center justify-center rounded-md p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="ml-3 inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             aria-label={closeLabel}
           >
-            <X className="h-4 w-4" aria-hidden="true" />
+            {showCloseText ? (
+              <>
+                <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span>Close</span>
+              </>
+            ) : (
+              <X className="h-4 w-4 shrink-0" aria-hidden="true" />
+            )}
           </button>
         </div>
         <div

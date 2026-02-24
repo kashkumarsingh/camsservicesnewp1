@@ -50,6 +50,7 @@ import {
 } from '@/utils/dashboardConstants';
 import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 import {
+  Breadcrumbs,
   EmptyState,
   FilterPanel,
   FilterSection,
@@ -60,7 +61,10 @@ import {
   ViewAction,
 } from '@/components/dashboard/universal';
 import Button from '@/components/ui/Button';
-import { ArrowDown, ArrowUp, ArrowUpDown, Download } from 'lucide-react';
+import { ROUTES } from '@/utils/routes';
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/utils/appConstants';
+import Link from 'next/link';
+import { ArrowDown, ArrowUp, ArrowUpDown, CheckCircle, Download, XCircle } from 'lucide-react';
 
 // ==========================================================================
 // Helper Functions
@@ -534,8 +538,22 @@ export const AdminBookingsPageClient: React.FC = () => {
 
   return (
     <section className="space-y-4">
-      {/* Header */}
+      {/* Header with back navigation */}
       <header className="space-y-1">
+        <Breadcrumbs
+          items={[
+            { label: 'Admin', href: ROUTES.DASHBOARD_ADMIN },
+            { label: 'Bookings' },
+          ]}
+          trailing={
+            <Link
+              href={ROUTES.DASHBOARD_ADMIN}
+              className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+            >
+              {BACK_TO_ADMIN_DASHBOARD_LABEL}
+            </Link>
+          }
+        />
         <h1 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50">
           Bookings Management
         </h1>
@@ -635,22 +653,28 @@ export const AdminBookingsPageClient: React.FC = () => {
             <span className="text-xs font-medium text-indigo-900 dark:text-indigo-100">
               {selectedIds.size} selected
             </span>
-            <button
-              type="button"
-              onClick={handleBulkConfirm}
-              disabled={bulkOperationLoading}
-              className="ml-auto inline-flex items-center rounded-md bg-emerald-600 px-2 py-1 text-2xs font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
-            >
-              ✓ Bulk Confirm
-            </button>
-            <button
-              type="button"
-              onClick={handleBulkCancel}
-              disabled={bulkOperationLoading}
-              className="inline-flex items-center rounded-md bg-rose-600 px-2 py-1 text-2xs font-semibold text-white shadow-sm hover:bg-rose-700 disabled:opacity-50"
-            >
-              ✕ Bulk Cancel
-            </button>
+            <div className="ml-auto flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="bordered"
+                onClick={handleBulkConfirm}
+                disabled={bulkOperationLoading}
+                icon={<CheckCircle className="h-3.5 w-3.5" />}
+              >
+                Bulk confirm
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="destructive-outline"
+                onClick={handleBulkCancel}
+                disabled={bulkOperationLoading}
+                icon={<XCircle className="h-3.5 w-3.5" />}
+              >
+                Bulk cancel
+              </Button>
+            </div>
           </div>
         )}
       </div>

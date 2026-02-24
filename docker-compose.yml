@@ -190,16 +190,17 @@ services:
     restart: unless-stopped
 
   # Stripe CLI - Webhook Forwarding (Development)
-  # Note: Run manually with: docker-compose run --rm stripe-cli listen --forward-to http://backend:80/api/v1/webhooks/stripe --print-secret
+  # Note: Run manually with: docker compose run --rm stripe-cli listen --forward-to http://backend:80/api/v1/webhooks/stripe --print-secret
   # This will print a webhook secret - add it to backend/.env as STRIPE_WEBHOOK_SECRET
+  # Entrypoint maps STRIPE_SECRET_KEY from env_file to STRIPE_API_KEY so the CLI gets the key.
   stripe-cli:
     image: stripe/stripe-cli:latest
     container_name: camsnew-stripe-cli
     env_file:
       - backend/.env
-    environment:
-      # Stripe CLI expects STRIPE_API_KEY; backend/.env has STRIPE_SECRET_KEY (optional: no warning if unset)
-      - STRIPE_API_KEY=${STRIPE_SECRET_KEY:-}
+    entrypoint: ["/scripts/stripe-cli-entrypoint.sh"]
+    volumes:
+      - ./scripts/stripe-cli-entrypoint.sh:/scripts/stripe-cli-entrypoint.sh:ro
     depends_on:
       - backend
     networks:

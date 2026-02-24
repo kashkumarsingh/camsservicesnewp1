@@ -374,6 +374,7 @@ Route::prefix('v1')->group(function () {
     Route::post('bookings/{bookingId}/payments/create-intent', [\App\Http\Controllers\Api\PaymentController::class, 'createIntent']);
     Route::post('bookings/{bookingId}/payments/refresh', [\App\Http\Controllers\Api\PaymentController::class, 'refreshBookingPaymentStatus']);
     Route::post('payments/get-intent-from-session', [\App\Http\Controllers\Api\PaymentController::class, 'getIntentFromSession']);
+    Route::post('payments/confirm-from-session', [\App\Http\Controllers\Api\PaymentController::class, 'confirmFromSession']);
     Route::post('payments/confirm', [\App\Http\Controllers\Api\PaymentController::class, 'confirm']);
     
     // Stripe Webhook (no CSRF protection)

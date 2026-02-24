@@ -22,7 +22,8 @@ use Stripe\Exception\SignatureVerificationException;
  *
  * This controller:
  * - Verifies webhook signatures
- * - Processes payment events (payment_intent.succeeded, etc.)
+ * - Processes payment events (payment_intent.succeeded, payment_intent.payment_failed,
+ *   payment_intent.canceled, charge.updated when charge status is succeeded)
  * - Updates booking payment status
  *
  * TODO (when Reverb 403 is fixed): After marking booking paid in handlePaymentIntentSucceeded,
@@ -56,6 +57,11 @@ class StripeWebhookController extends Controller
         $signature = $request->header('Stripe-Signature');
         $webhookSecret = config('services.stripe.webhook_secret');
 
+        Log::info('Stripe webhook received', [
+            'has_signature' => !empty($signature),
+            'has_webhook_secret' => !empty($webhookSecret),
+        ]);
+
         // If no signature provided, return 400
         if (!$signature) {
             Log::warning('Stripe webhook called without signature');
@@ -81,6 +87,8 @@ class StripeWebhookController extends Controller
             return $this->errorResponse('Invalid signature', \App\Http\Controllers\Api\ErrorCodes::BAD_REQUEST, [], 400);
         }
 
+        Log::info('Stripe webhook event verified', ['event_type' => $event->type, 'event_id' => $event->id ?? null]);
+
         // Handle the event
         try {
             switch ($event->type) {
@@ -94,6 +102,10 @@ class StripeWebhookController extends Controller
 
                 case 'payment_intent.canceled':
                     $this->handlePaymentIntentCanceled($event->data->object);
+                    break;
+
+                case 'charge.updated':
+                    $this->handleChargeUpdated($event->data->object);
                     break;
 
                 default:
@@ -131,6 +143,47 @@ class StripeWebhookController extends Controller
 
         if (!$result['success']) {
             Log::warning('Failed to confirm payment after webhook', [
+                'payment_intent_id' => $paymentIntentId,
+                'error' => $result['error'] ?? 'Unknown error',
+            ]);
+        }
+    }
+
+    /**
+     * Handle charge.updated event.
+     * When a charge reaches status 'succeeded', confirm the payment so the booking is updated.
+     * Stripe may send charge.updated (e.g. when receipt_url or balance_transaction is set) even if
+     * payment_intent.succeeded was not received (e.g. localhost forwarding order or endpoint config).
+     */
+    private function handleChargeUpdated($charge): void
+    {
+        if (!isset($charge->status) || $charge->status !== 'succeeded') {
+            return;
+        }
+
+        $paymentIntentId = null;
+        if (isset($charge->payment_intent)) {
+            $paymentIntentId = is_string($charge->payment_intent)
+                ? $charge->payment_intent
+                : ($charge->payment_intent->id ?? null);
+        }
+
+        if (!$paymentIntentId) {
+            Log::info('Stripe charge.updated succeeded but no payment_intent', [
+                'charge_id' => $charge->id ?? null,
+            ]);
+            return;
+        }
+
+        Log::info('Stripe charge succeeded (charge.updated)', [
+            'charge_id' => $charge->id ?? null,
+            'payment_intent_id' => $paymentIntentId,
+        ]);
+
+        $result = $this->processPaymentAction->confirmPayment($paymentIntentId);
+
+        if (!$result['success']) {
+            Log::warning('Failed to confirm payment after charge.updated', [
                 'payment_intent_id' => $paymentIntentId,
                 'error' => $result['error'] ?? 'Unknown error',
             ]);

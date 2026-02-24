@@ -293,42 +293,79 @@ class ProcessPaymentAction
                     ]);
 
                     $bookingId = null;
-                    
+                    $checkoutSession = null;
+
                     // Try to get booking_id from payment intent metadata
                     if (isset($paymentIntentMetadata['booking_id'])) {
                         $bookingId = (int) $paymentIntentMetadata['booking_id'];
                         Log::info('Found booking_id in payment intent metadata', ['booking_id' => $bookingId]);
-                    } else {
-                        // If payment intent doesn't have metadata, try to find the checkout session
-                        // that created this payment intent and get metadata from there
+                    }
+
+                    // When PaymentIntent metadata is empty (Stripe Checkout does not copy session metadata to PI),
+                    // get booking_id from the Checkout Session: either via payment_details.order_reference or by listing.
+                    if (!$bookingId) {
                         Log::info('Payment intent has no metadata, attempting to find checkout session');
-                        
-                        // List checkout sessions and find one with this payment intent
-                        $checkoutSessions = $stripe->checkout->sessions->all([
-                            'limit' => 100,
-                            'payment_intent' => $paymentIntentId,
+
+                        // Prefer direct retrieve: Stripe sets payment_details.order_reference to the Checkout Session ID (cs_xxx)
+                        $sessionId = null;
+                        $paymentDetails = $stripePaymentIntent->payment_details ?? null;
+                        if ($paymentDetails) {
+                            $sessionId = is_object($paymentDetails) && isset($paymentDetails->order_reference)
+                                ? $paymentDetails->order_reference
+                                : (is_array($paymentDetails) ? ($paymentDetails['order_reference'] ?? null) : null);
+                        }
+                        Log::info('Payment intent payment_details check', [
+                            'has_payment_details' => $paymentDetails !== null,
+                            'order_reference' => $sessionId,
                         ]);
-                        
-                        if (count($checkoutSessions->data) > 0) {
-                            $checkoutSession = $checkoutSessions->data[0];
-                            
-                            // Convert metadata to array if it's a StripeObject
+
+                        if ($sessionId && is_string($sessionId) && str_starts_with($sessionId, 'cs_')) {
+                            try {
+                                $checkoutSession = $stripe->checkout->sessions->retrieve($sessionId);
+                                Log::info('Retrieved checkout session via payment_details.order_reference', [
+                                    'session_id' => $sessionId,
+                                ]);
+                            } catch (\Exception $e) {
+                                Log::warning('Failed to retrieve checkout session by order_reference', [
+                                    'session_id' => $sessionId,
+                                    'error' => $e->getMessage(),
+                                ]);
+                            }
+                        }
+
+                        // Fallback: list checkout sessions by payment_intent
+                        if (!$checkoutSession) {
+                            $checkoutSessions = $stripe->checkout->sessions->all([
+                                'limit' => 100,
+                                'payment_intent' => $paymentIntentId,
+                            ]);
+                            if (count($checkoutSessions->data) > 0) {
+                                $checkoutSession = $checkoutSessions->data[0];
+                            }
+                        }
+
+                        if ($checkoutSession) {
                             $sessionMetadata = $checkoutSession->metadata;
                             if (is_object($sessionMetadata) && method_exists($sessionMetadata, 'toArray')) {
                                 $sessionMetadata = $sessionMetadata->toArray();
                             } elseif (is_object($sessionMetadata)) {
                                 $sessionMetadata = (array) $sessionMetadata;
                             }
-                            
                             Log::info('Found checkout session for payment intent', [
                                 'session_id' => $checkoutSession->id,
                                 'metadata' => $sessionMetadata,
                             ]);
-                            
                             if (isset($sessionMetadata['booking_id'])) {
                                 $bookingId = (int) $sessionMetadata['booking_id'];
                                 Log::info('Found booking_id in checkout session metadata', ['booking_id' => $bookingId]);
+                            } else {
+                                Log::warning('Checkout session has no booking_id in metadata', [
+                                    'session_id' => $checkoutSession->id,
+                                    'metadata_keys' => is_array($sessionMetadata) ? array_keys($sessionMetadata) : [],
+                                ]);
                             }
+                        } else {
+                            Log::warning('No checkout session found for payment intent', ['payment_intent_id' => $paymentIntentId]);
                         }
                     }
                     

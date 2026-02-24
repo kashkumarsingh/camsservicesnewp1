@@ -6,6 +6,7 @@ import React, {
   useContext,
   useEffect,
   useRef,
+  useState,
 } from 'react';
 import { getAuthToken } from '@/infrastructure/http/auth/authTokenProvider';
 import { getApiBaseUrl } from '@/infrastructure/http/apiBaseUrl';
@@ -56,9 +57,17 @@ type EchoInstance = {
   disconnect: () => void;
 };
 
+/** Pusher connection from Echo connector (internal API; optional). */
+type PusherConnection = { bind: (ev: string, cb: (states?: { current?: string }) => void) => void };
+type EchoWithConnector = EchoInstance & {
+  connector?: { pusher?: { connection?: PusherConnection } };
+};
+
 export function LiveRefreshProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const echoRef = useRef<EchoInstance | null>(null);
+  /** When Reverb is configured but connection fails, we fall back to polling. */
+  const [reverbConnectionFailed, setReverbConnectionFailed] = useState(false);
 
   const subscribe = useCallback(
     (context: LiveRefreshContextType, refetch: RefetchFn) => {
@@ -88,6 +97,7 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (!LIVE_REFRESH_HAS_WEBSOCKET_CONFIG || userId == null) {
+      setReverbConnectionFailed(false);
       if (echoRef.current) {
         try {
           echoRef.current.disconnect();
@@ -123,6 +133,7 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
     }
 
     let cancelled = false;
+    setReverbConnectionFailed(false);
 
     const connect = async () => {
       const token = getAuthToken();
@@ -165,6 +176,23 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
       }
       echoRef.current = echo;
 
+      // When Reverb is not running, Pusher connection fails and logs errors. Detect failure and fall back to polling.
+      const pusherConnection = (echo as EchoWithConnector).connector?.pusher?.connection;
+      if (pusherConnection && typeof pusherConnection.bind === 'function') {
+        const onFailed = () => {
+          if (!cancelled) {
+            setReverbConnectionFailed(true);
+            console.info(
+              '[Live refresh] Reverb connection failed (is Reverb running?). Using polling fallback. Start with: php artisan reverb:start'
+            );
+          }
+        };
+        pusherConnection.bind('failed', onFailed);
+        pusherConnection.bind('state_change', (states: { current?: string }) => {
+          if (states?.current === 'failed' || states?.current === 'unavailable') onFailed();
+        });
+      }
+
       const channelName = `live-refresh.${userId}`;
       echo.private(channelName).listen('.LiveRefreshContextsUpdated', (payload: { contexts?: string[] }) => {
         const contexts = payload?.contexts ?? [];
@@ -202,11 +230,12 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
     };
   }, [userId, userRole]);
 
-  // Polling fallback when WebSocket/Reverb is not available – same refetch behaviour
+  // Polling fallback when WebSocket/Reverb is not available or connection failed – same refetch behaviour
   const refreshAllRef = useRef(refreshAll);
   refreshAllRef.current = refreshAll;
   useEffect(() => {
-    if (userId == null || LIVE_REFRESH_HAS_WEBSOCKET_CONFIG) return;
+    const useWebSocket = LIVE_REFRESH_HAS_WEBSOCKET_CONFIG && !reverbConnectionFailed;
+    if (userId == null || useWebSocket) return;
 
     let intervalId: ReturnType<typeof setInterval> | null = null;
 
@@ -237,7 +266,7 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
       document.removeEventListener('visibilitychange', onVisibilityChange);
       if (intervalId !== null) clearInterval(intervalId);
     };
-  }, [userId]);
+  }, [userId, reverbConnectionFailed]);
 
   const value: LiveRefreshContextValue = { subscribe, invalidate, refreshAll };
 

@@ -406,11 +406,13 @@ class AdminChildController extends Controller
         try {
             $child = Child::findOrFail($id);
 
-            // Check if child can be deleted
-            if (!$child->isDeletionAllowed()) {
-                return $this->validationErrorResponse([
-                    'child' => ['Cannot delete child with existing bookings or payments.'],
-                ]);
+            // Check if child can be deleted (only when no bookings, payments, or session history)
+            if (! $child->isDeletionAllowed()) {
+                $message = 'Cannot delete this child. The child has existing bookings, payments, or session history. Archive the child instead to preserve records.';
+                return $this->validationErrorResponse(
+                    ['child' => [$message]],
+                    $message
+                );
             }
 
             $child->delete();

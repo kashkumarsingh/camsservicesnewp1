@@ -379,7 +379,7 @@ export const AdminParentsPageClient: React.FC = () => {
                         <Button
                           type="button"
                           size="sm"
-                          variant="ghost"
+                          variant="bordered"
                           onClick={() =>
                             router.push(
                               `/dashboard/admin/children?parentId=${encodeURIComponent(parent.id)}`,
@@ -387,9 +387,10 @@ export const AdminParentsPageClient: React.FC = () => {
                           }
                           aria-label="View children"
                           title="View children"
-                          className="min-w-0 p-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                          icon={<Users className="h-3.5 w-3.5" aria-hidden />}
+                          className="min-w-0 px-2 py-1 text-2xs"
                         >
-                          <Users className="h-3 w-3" aria-hidden />
+                          Children
                         </Button>
                         <DeleteAction onClick={() => handleDelete(parent.id)} aria-label="Delete" />
                       </RowActions>
