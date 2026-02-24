@@ -188,7 +188,7 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
           }
         };
         pusherConnection.bind('failed', onFailed);
-        pusherConnection.bind('state_change', (states: { current?: string }) => {
+        pusherConnection.bind('state_change', (states?: { current?: string }) => {
           if (states?.current === 'failed' || states?.current === 'unavailable') onFailed();
         });
       }
