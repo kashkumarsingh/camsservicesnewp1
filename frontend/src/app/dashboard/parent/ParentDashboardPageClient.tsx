@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import moment, { type Moment } from 'moment';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
-import { AlertCircle, CheckCircle, XCircle, ClipboardCheck, Calendar, User, Users, Package, TrendingUp, ArrowRight, X, LogOut, CreditCard, Settings, BookOpen, CalendarPlus, UserPlus, RefreshCw, FileText, ShieldAlert, Keyboard, Plus, AlertTriangle } from 'lucide-react';
+import { AlertCircle, CheckCircle, XCircle, ClipboardCheck, Calendar, User, Users, Package, TrendingUp, ArrowRight, X, LogOut, CreditCard, Settings, BookOpen, CalendarPlus, UserPlus, RefreshCw, ShieldAlert, Keyboard, Plus, AlertTriangle } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
 import ChildrenActivitiesCalendar from '@/components/dashboard/ChildrenActivitiesCalendar';
@@ -612,8 +612,8 @@ export default function ParentDashboardPageClient() {
 
       if (bookingData.customActivities && bookingData.customActivities.length > 0) {
         bookingData.customActivities.forEach((custom) => {
-          const durationText = custom.duration ? ` (${custom.duration}h)` : '';
-          customLines.push(`Custom Activity: ${custom.name}${durationText}`);
+          const wholeHours = custom.duration ? Math.max(1, Math.round(custom.duration)) : 1;
+          customLines.push(`Custom Activity: ${custom.name} (${wholeHours}h)`);
         });
       }
 
@@ -1820,7 +1820,6 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
             ) : (
               <Button onClick={() => { setShowBuyHoursModal(true); setBuyHoursChildId(undefined); }} variant="primary" size="sm" icon={<Package size={14} className="sm:h-4 sm:w-4" />} className="text-xs sm:text-sm">Buy Hours</Button>
             )}
-            <Button onClick={() => setShowSessionNotesModal(true)} variant="outline" size="sm" icon={<FileText size={14} className="sm:h-4 sm:w-4" />} className="text-xs sm:text-sm" title="Summary notes from your child’s trainer after each session (activity logs are visible live and after the session)"><span className="hidden sm:inline">Trainer notes</span><span className="sm:hidden">Notes</span></Button>
             <span className="hidden sm:inline-block w-px h-6 bg-slate-200 dark:bg-slate-700" aria-hidden />
             <button type="button" onClick={() => setShowSafeguardingModal(true)} className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 rounded-lg inline-flex items-center gap-1.5 py-1.5 px-2 -m-1.5">
               <ShieldAlert size={14} className="sm:h-4 sm:w-4 shrink-0" /><span className="hidden sm:inline">Report a concern</span><span className="sm:hidden">Concern</span>
@@ -2252,7 +2251,7 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
               </div>
             </div>
 
-            {/* FAB speed-dial: Book session, Add child, Session notes, Report concern, Buy Hours */}
+            {/* FAB speed-dial: Book session, Add child, Report concern, Buy Hours, Top up */}
             <div className="lg:hidden fixed bottom-20 right-4 z-20 flex flex-col items-end gap-2">
               {fabOpen && (
                 <>
@@ -2265,10 +2264,6 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                     <button type="button" onClick={() => { setFabOpen(false); setShowAddChildModal(true); }} className="flex items-center gap-3 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg pl-4 pr-5 py-3 text-left text-sm font-medium text-slate-900 dark:text-slate-100 min-h-[44px] whitespace-nowrap">
                       <UserPlus className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
                       Add child
-                    </button>
-                    <button type="button" onClick={() => { setFabOpen(false); setShowSessionNotesModal(true); }} className="flex items-center gap-3 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg pl-4 pr-5 py-3 text-left text-sm font-medium text-slate-900 dark:text-slate-100 min-h-[44px] whitespace-nowrap">
-                      <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
-                      Trainer notes
                     </button>
                     <button type="button" onClick={() => { setFabOpen(false); setShowSafeguardingModal(true); }} className="flex items-center gap-3 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg pl-4 pr-5 py-3 text-left text-sm font-medium text-slate-900 dark:text-slate-100 min-h-[44px] whitespace-nowrap">
                       <ShieldAlert className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />

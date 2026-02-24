@@ -40,7 +40,13 @@ class ParentScheduleDetailController extends Controller
                     ->where('status', 'confirmed')
                     ->where('payment_status', 'paid');
             })
-            ->with(['currentActivity', 'currentActivityUpdates'])
+            ->with([
+                'currentActivity',
+                'currentActivityUpdates',
+                'notes' => function ($q) {
+                    $q->where('is_private', false)->orderBy('created_at', 'asc');
+                },
+            ])
             ->first();
 
         if (! $schedule) {
@@ -116,6 +122,15 @@ class ParentScheduleDetailController extends Controller
             ->values()
             ->all();
 
+        $scheduleNotes = $schedule->notes->map(function ($note) {
+            return [
+                'id' => $note->id,
+                'note' => $note->note,
+                'type' => $note->type,
+                'created_at' => $note->created_at?->toIso8601String(),
+            ];
+        })->values()->all();
+
         $data = [
             'schedule' => [
                 'id' => $schedule->id,
@@ -126,6 +141,7 @@ class ParentScheduleDetailController extends Controller
             ],
             'activity_logs' => $logItems->values()->all(),
             'time_entries' => $timeEntries,
+            'notes' => $scheduleNotes,
         ];
 
         return $this->successResponse($data);

@@ -32,7 +32,6 @@ import {
   ChevronDown,
   ChevronRight,
   Clock,
-  FileText,
   Package,
   ShieldAlert,
   Star,
@@ -884,7 +883,7 @@ export default function ParentOverviewPageClient() {
                 aria-label="More actions"
                 aria-expanded={showMoreDropdown}
                 aria-haspopup="true"
-                title="Add child, trainer notes, report a concern"
+                title="Add child, report a concern"
               >
                 More
                 <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${showMoreDropdown ? "rotate-180" : ""}`} aria-hidden />
@@ -903,16 +902,6 @@ export default function ParentOverviewPageClient() {
                   >
                     <UserPlus className="h-4 w-4 shrink-0 text-slate-500" aria-hidden />
                     Add child
-                  </button>
-                  <button
-                    type="button"
-                    className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                    role="menuitem"
-                    onClick={() => { setShowSessionNotesModal(true); setShowMoreDropdown(false); }}
-                    title="Summary notes from the trainer after each session"
-                  >
-                    <FileText className="h-4 w-4 shrink-0 text-slate-500" aria-hidden />
-                    Trainer notes
                   </button>
                   <button
                     type="button"

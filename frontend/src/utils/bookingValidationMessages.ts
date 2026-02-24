@@ -213,6 +213,12 @@ export const formatDurationDisplay = (hours: number): string => {
   return `${hours.toFixed(1)}h`;
 };
 
+/** Activity durations are whole hours only (business rule). Use for activity list and chips. */
+export const formatActivityDurationDisplay = (hours: number): string => {
+  const whole = Math.max(1, Math.round(hours));
+  return `${whole}h`;
+};
+
 /**
  * Calculate hours needed to reach minimum duration
  * @param currentHours - Current session duration

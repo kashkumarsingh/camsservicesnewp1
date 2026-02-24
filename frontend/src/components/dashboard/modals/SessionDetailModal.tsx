@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
-import { Calendar, Clock, User, Edit2, Trash2, Loader2, Activity as ActivityIcon, Hourglass, ListTodo, MapPin } from 'lucide-react';
+import { Calendar, Clock, User, Edit2, Trash2, Loader2, Activity as ActivityIcon, Hourglass, ListTodo, MapPin, FileText } from 'lucide-react';
 import moment from 'moment';
 import { BaseModal } from '@/components/ui/Modal';
 import { SideCanvas } from '@/components/ui/SideCanvas';
@@ -86,12 +86,13 @@ export default function SessionDetailModal({
   variant = 'modal',
 }: SessionDetailModalProps) {
   const [isCancelling, setIsCancelling] = useState(false);
-  type SessionTab = 'overview' | 'activity_log' | 'session_activity';
+  type SessionTab = 'overview' | 'activity_log' | 'session_activity' | 'trainer_notes';
   const [activeTab, setActiveTab] = useState<SessionTab>('overview');
   const [sessionDetail, setSessionDetail] = useState<{
     activityLogs: ActivityLog[];
     schedule: { currentActivityName?: string | null; location?: string | null; currentActivityUpdates?: Array<{ id: number; activityName: string; location: string | null; at: string }> };
     timeEntries: Array<{ id: number; type: string; recordedAt?: string; createdAt?: string }>;
+    notes: Array<{ id: number; note: string; type: string; createdAt?: string }>;
   } | null>(null);
   const [sessionDetailLoading, setSessionDetailLoading] = useState(false);
 
@@ -104,10 +105,16 @@ export default function SessionDetailModal({
           activityLogs: ActivityLog[];
           schedule: { currentActivityName?: string | null; location?: string | null; currentActivityUpdates?: Array<{ id: number; activityName: string; location: string | null; at: string }> };
           timeEntries: Array<{ id: number; type: string; recordedAt?: string; createdAt?: string }>;
+          notes?: Array<{ id: number; note: string; type: string; createdAt?: string }>;
         }>(API_ENDPOINTS.DASHBOARD_SCHEDULE_DETAIL(session.scheduleId))
         .then((res) => {
           const data = res.data;
-          if (data) setSessionDetail({ activityLogs: data.activityLogs ?? [], schedule: data.schedule ?? { currentActivityUpdates: [] }, timeEntries: data.timeEntries ?? [] });
+          if (data) setSessionDetail({
+            activityLogs: data.activityLogs ?? [],
+            schedule: data.schedule ?? { currentActivityUpdates: [] },
+            timeEntries: data.timeEntries ?? [],
+            notes: data.notes ?? [],
+          });
         })
         .catch(() => setSessionDetail(null))
         .finally(() => setSessionDetailLoading(false));
@@ -472,13 +479,14 @@ export default function SessionDetailModal({
           )}
         </div>
 
-        {/* Tabs: same structure as trainer session details */}
+        {/* Tabs: one line, no scroll */}
         <nav className="border-b border-gray-200 dark:border-gray-600 -mx-1 px-1" aria-label="Session tabs">
-          <div className="flex gap-0 overflow-x-auto">
+          <div className="grid grid-cols-4">
             {[
               { id: 'overview' as SessionTab, label: 'Overview', icon: Calendar },
               { id: 'activity_log' as SessionTab, label: 'Activity logs', icon: ListTodo },
               { id: 'session_activity' as SessionTab, label: 'Session activity', icon: ActivityIcon },
+              { id: 'trainer_notes' as SessionTab, label: 'Trainer notes', icon: FileText },
             ].map((tab) => {
               const Icon = tab.icon;
               return (
@@ -486,16 +494,17 @@ export default function SessionDetailModal({
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
+                  title={tab.label}
                   className={`
-                    whitespace-nowrap py-2.5 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1.5 transition-colors flex-shrink-0
+                    min-w-0 py-2.5 px-1 sm:px-2 border-b-2 font-medium text-xs sm:text-sm flex items-center justify-center gap-1 sm:gap-1.5 transition-colors truncate
                     ${activeTab === tab.id
                       ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                     }
                   `}
                 >
-                  <Icon size={16} />
-                  {tab.label}
+                  <Icon size={14} className="shrink-0 sm:w-4 sm:h-4" />
+                  <span className="truncate">{tab.label}</span>
                 </button>
               );
             })}
@@ -658,6 +667,33 @@ export default function SessionDetailModal({
                     </p>
                   )}
                 </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'trainer_notes' && (
+            <div className="rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-800/30 p-4">
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 mb-2">
+                Summary notes from the trainer for this session (non-private only).
+              </p>
+              {sessionDetailLoading ? (
+                <div className="space-y-2 animate-pulse" aria-busy="true" aria-label="Loading trainer notes">
+                  <div className="h-3 w-[90%] bg-slate-200 dark:bg-slate-700 rounded" />
+                  <div className="h-3 w-[70%] bg-slate-200 dark:bg-slate-700 rounded" />
+                </div>
+              ) : sessionDetail?.notes && sessionDetail.notes.length > 0 ? (
+                <ul className="space-y-3">
+                  {sessionDetail.notes.map((n) => (
+                    <li key={n.id} className="rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 p-3">
+                      <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{n.note}</p>
+                      {n.createdAt && (
+                        <p className="text-2xs text-gray-500 dark:text-gray-400 mt-1.5">{moment(n.createdAt).format('DD MMM YYYY, h:mm A')}</p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-2xs text-gray-500 py-2">{EMPTY_STATE.NO_TRAINER_NOTES_YET.message}</p>
               )}
             </div>
           )}

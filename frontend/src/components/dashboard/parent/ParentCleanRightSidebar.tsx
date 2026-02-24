@@ -859,25 +859,26 @@ export default function ParentCleanRightSidebar({
         </div>
       )}
 
-      {/* 1c. HOURS EXPIRED – had package, ran out; red section */}
+      {/* 1c. NO HOURS LEFT – had package, ran out; red section. "Top up" = buy more hours for this child. */}
       {depletedChildren.length > 0 && (
         <div
           className="rounded-xl border-2 border-red-500 bg-[#FEF2F2] dark:bg-red-900/30 p-3"
           role="region"
-          aria-labelledby="sidebar-expired-heading"
+          aria-labelledby="sidebar-depleted-heading"
         >
-          <h2 id="sidebar-expired-heading" className="font-bold text-red-800 dark:text-red-200 flex items-center gap-2 mb-2">
+          <h2 id="sidebar-depleted-heading" className="font-bold text-red-800 dark:text-red-200 flex items-center gap-2 mb-2">
             <Ban className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" aria-hidden />
-            HOURS EXPIRED
+            NO HOURS LEFT
           </h2>
+          <p className="text-2xs text-red-700 dark:text-red-300 mb-2">These children have used all their package hours. Top up to buy more.</p>
           {depletedChildren.map((c) => (
             <div key={c.childId} className="mb-3 last:mb-0">
               <p className="text-sm font-medium text-red-800 dark:text-red-200 flex items-center gap-1.5">
                 <span aria-hidden>👶</span> {c.childName}
               </p>
-              {c.packageName && (
+              {(c.packageName || c.bookedHours > 0) && (
                 <p className="text-xs text-red-700 dark:text-red-300 mt-0.5">
-                  Package expired: {c.bookedHours.toFixed(1)}h used
+                  {c.packageName ? `${c.packageName}: ` : ''}{c.bookedHours.toFixed(1)}h used
                 </p>
               )}
               <button
@@ -1222,10 +1223,10 @@ export default function ParentCleanRightSidebar({
                   <>
                     <div className="flex items-center gap-2 mb-2">
                       <Ban className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" aria-hidden />
-                      <span className="font-semibold text-red-800 dark:text-red-200">Hours expired</span>
+                      <span className="font-semibold text-red-800 dark:text-red-200">No hours left</span>
                     </div>
                     <p className="text-sm text-red-700 dark:text-red-300 mb-2">
-                      {depletedChildren.map((c) => c.childName).join(', ')} have no hours left. Top up to continue.
+                      {depletedChildren.map((c) => c.childName).join(', ')} have used all their package hours. Top up to buy more.
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {depletedChildren.map((c) => (

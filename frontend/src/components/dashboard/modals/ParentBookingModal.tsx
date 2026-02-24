@@ -6,14 +6,14 @@ import { Calendar, Clock, User, FileText, Loader2, Activity, Search, AlertTriang
 import moment from 'moment';
 import Button from '@/components/ui/Button';
 import { BaseModal } from '@/components/ui/Modal';
-import { BOOKING_VALIDATION_MESSAGES, getMessageForDateReason, meetsMinimumDuration, formatDurationDisplay, getHoursNeededForMinimum } from '@/utils/bookingValidationMessages';
+import { BOOKING_VALIDATION_MESSAGES, getMessageForDateReason, meetsMinimumDuration, formatDurationDisplay, formatActivityDurationDisplay, getHoursNeededForMinimum } from '@/utils/bookingValidationMessages';
 import { getDateBookingStatus, getEarliestBookableDate, isTomorrowBookable } from '@/utils/bookingCutoffRules';
 import { useActivities } from '@/interfaces/web/hooks/activities/useActivities';
 import { MIN_DURATION_HOURS } from '@/utils/bookingConstants';
 import { ListRowsSkeleton } from '@/components/ui/Skeleton';
 import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
 import { EMPTY_STATE } from '@/utils/emptyStateConstants';
-import { parseCustomActivityFromNotes, parseAllCustomActivitiesFromNotes, removeCustomActivityFromNotes } from '@/utils/activitySelectionUtils';
+import { parseCustomActivityFromNotes, parseAllCustomActivitiesFromNotes, removeCustomActivityFromNotes, normaliseNotesFromApi } from '@/utils/activitySelectionUtils';
 import { toastManager } from '@/utils/toast';
 import { ROUTES } from '@/utils/routes';
 import type { FC } from 'react';
@@ -393,9 +393,14 @@ export default function ParentBookingModal({
       return combined;
     }
 
+    // In package_activity mode with nothing selected, use 0 so the activity list is re-enabled (no cap blocking all checkboxes)
+    if (formData.activitySelectionType === 'package_activity') {
+      return 0;
+    }
+
     // Fallback: for trainer_choice or legacy custom, use selected duration (defaults to minimum)
     return formData.duration || MIN_DURATION_HOURS;
-  }, [formData.selectedActivityIds, formData.customActivities, formData.duration, availableActivities]);
+  }, [formData.selectedActivityIds, formData.customActivities, formData.duration, formData.activitySelectionType, availableActivities]);
   
   // Check if session duration is valid (MIN_DURATION_HOURS to maxAvailableDuration)
   const isDurationValid = useMemo(() => {
@@ -597,14 +602,15 @@ export default function ParentBookingModal({
         calculatedDuration += 24;
       }
       
-      const notes = existingBooking.notes || '';
+      // API may send itinerary_notes as JSON array; normalise to newline-separated so custom activities parse into activities, not notes
+      const notes = normaliseNotesFromApi(existingBooking.notes || '');
       // Pre-fill database activities by matching names to IDs
       const matchedActivityIds = (existingBooking.activities && existingBooking.activities.length > 0)
         ? availableActivities
             .filter(dbActivity => existingBooking.activities?.includes(dbActivity.name))
             .map(dbActivity => dbActivity.id)
         : [];
-      // Parse custom activity/activities from notes (e.g. "Custom Activity: baking patatos (1h)")
+      // Parse custom activity/activities from notes (e.g. "Custom Activity: baking (3h)") into activities section
       const customActivitiesFromNotes = parseAllCustomActivitiesFromNotes(notes);
       const hasCustomInNotes = customActivitiesFromNotes.length > 0;
 
@@ -783,17 +789,21 @@ export default function ParentBookingModal({
     (activityId: number, duration: number) => {
       const isSelected = formData.selectedActivityIds?.includes(activityId) ?? false;
       if (isSelected) return false; // Allow unchecking
+      // In edit mode, allow selecting so parent can swap activities; validation will block submit if over cap
+      if (isEditMode) return false;
       return sessionDuration + duration > selectedChildRemainingHours;
     },
-    [formData.selectedActivityIds, sessionDuration, selectedChildRemainingHours]
+    [formData.selectedActivityIds, sessionDuration, selectedChildRemainingHours, isEditMode]
   );
   const isActivityDisabledBySessionCap = useCallback(
     (activityId: number, duration: number) => {
       const isSelected = formData.selectedActivityIds?.includes(activityId) ?? false;
-      if (isSelected) return false;
+      if (isSelected) return false; // Allow unchecking to remove
+      // In edit mode, allow selecting so parent can swap activities; validation will block submit if over cap
+      if (isEditMode) return false;
       return sessionDuration + duration > maxAvailableDuration;
     },
-    [formData.selectedActivityIds, sessionDuration, maxAvailableDuration]
+    [formData.selectedActivityIds, sessionDuration, maxAvailableDuration, isEditMode]
   );
   const isActivityDisabled = useCallback(
     (activityId: number, duration: number) => {
@@ -1268,11 +1278,11 @@ export default function ParentBookingModal({
                                     {activity.name}
                                   </div>
                                   <div className="text-xs text-gray-600" id={disabled ? `activity-${activity.id}-reason` : undefined}>
-                                    Duration: {activity.duration}h
+                                    Duration: {formatActivityDurationDisplay(activity.duration)}
                                     {activity.category && ` • ${activity.category.replace('_', ' ')}`}
                                     {disabledBySession && (
                                       <span className="block text-amber-600 mt-0.5">
-                                        Session max for this time is {formatDurationDisplay(maxAvailableDuration)}h (until 11:59 PM)
+                                        Session max for this time is {formatDurationDisplay(maxAvailableDuration)} (until 11:59 PM)
                                       </span>
                                     )}
                                     {disabledByHours && !disabledBySession && (
@@ -1374,7 +1384,7 @@ export default function ParentBookingModal({
                       }`}>
                         {sessionDuration > maxAvailableDuration ? (
                           <>
-                            {totalSelectedActivities} activity(ies) • {formatDurationDisplay(sessionDuration)} selected — max for this session is {formatDurationDisplay(maxAvailableDuration)}h (until 11:59 PM). Remove activities or choose an earlier start time.
+                            {totalSelectedActivities} activity(ies) • {formatDurationDisplay(sessionDuration)} selected — max for this session is {formatDurationDisplay(maxAvailableDuration)} (until 11:59 PM). Remove activities or choose an earlier start time.
                           </>
                         ) : (
                           <>
@@ -1389,7 +1399,7 @@ export default function ParentBookingModal({
                             {sessionDuration >= MIN_DURATION_HOURS && (
                               <span className="text-green-600">
                                 {' '}
-                                (Meets {MIN_DURATION_HOURS}h minimum • up to {formatDurationDisplay(maxAvailableDuration)}h for this session)
+                                (Meets {MIN_DURATION_HOURS}h minimum • up to {formatDurationDisplay(maxAvailableDuration)} for this session)
                               </span>
                             )}
                           </>
@@ -1428,7 +1438,7 @@ export default function ParentBookingModal({
                             key={activityId}
                             className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full"
                           >
-                            {activity.name} ({activity.duration}h)
+                            {activity.name} ({formatActivityDurationDisplay(activity.duration)})
                             <button
                               type="button"
                               onClick={() => {
@@ -1450,7 +1460,7 @@ export default function ParentBookingModal({
                           key={`${custom.name}-${index}`}
                           className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full"
                         >
-                          {custom.name} ({custom.duration}h)
+                          {custom.name} ({formatActivityDurationDisplay(custom.duration)})
                           <button
                             type="button"
                             onClick={() =>

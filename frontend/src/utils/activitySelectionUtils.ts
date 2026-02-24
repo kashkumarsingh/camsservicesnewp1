@@ -132,6 +132,29 @@ export function parseCustomActivityFromNotes(notes: string | undefined): string 
 }
 
 /**
+ * Normalises notes from API for parsing. Backend may send itinerary_notes as a JSON
+ * array of strings (e.g. ["Custom Activity: baking (3h)", "Custom Activity: lego (1h)"]).
+ * Converts that to newline-separated lines so parseAllCustomActivitiesFromNotes and
+ * removeCustomActivityFromNotes work correctly; custom activities then appear in
+ * activities, not in the notes field.
+ */
+export function normaliseNotesFromApi(notes: string | undefined): string {
+  if (!notes || typeof notes !== 'string') return '';
+  const trimmed = notes.trim();
+  if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+    try {
+      const parsed = JSON.parse(trimmed) as unknown;
+      if (Array.isArray(parsed) && parsed.every((item): item is string => typeof item === 'string')) {
+        return parsed.join('\n');
+      }
+    } catch {
+      // Not valid JSON, use as-is
+    }
+  }
+  return notes;
+}
+
+/**
  * Parses all custom activity lines from notes (e.g. "Custom Activity: name (1h)").
  * Returns array of { name, duration } for use in edit pre-fill.
  */
@@ -140,16 +163,19 @@ export function parseAllCustomActivitiesFromNotes(
 ): Array<{ name: string; duration: number }> {
   if (!notes) return [];
   const result: Array<{ name: string; duration: number }> = [];
-  const lines = notes.split('\n');
+  const normalised = normaliseNotesFromApi(notes);
+  const lines = normalised.split('\n');
   for (const line of lines) {
     const trimmedLine = line.trim();
     if (!trimmedLine.startsWith(CUSTOM_ACTIVITY_PREFIX)) continue;
     const description = trimmedLine.substring(CUSTOM_ACTIVITY_PREFIX.length).trim();
     if (!description.length) continue;
-    // Match "name (1h)" or "name (1.5h)" -> { name, duration }
+    // Match "name (1h)" or "name (1.5h)" -> { name, duration }; business rule: durations are whole hours only
     const match = description.match(/^(.+?)\s*\((\d+(?:\.\d+)?)\s*h\)\s*$/i);
     if (match) {
-      result.push({ name: match[1].trim(), duration: parseFloat(match[2]) || 1 });
+      const raw = parseFloat(match[2]) || 1;
+      const wholeHours = Math.max(1, Math.round(raw));
+      result.push({ name: match[1].trim(), duration: wholeHours });
     } else {
       result.push({ name: description, duration: 1 });
     }

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState, ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 /**
@@ -289,7 +290,7 @@ export default function BaseModal({
 
   const modalId = ariaLabelledBy || (title ? 'base-modal-title' : undefined);
 
-  return (
+  const modal = (
     <div 
       className={`fixed inset-0 z-overlay flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 ${
         isMobile ? 'p-0' : ''
@@ -368,4 +369,6 @@ export default function BaseModal({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modal, document.body) : null;
 }

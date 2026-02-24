@@ -44,13 +44,13 @@ class PersistCustomActivitiesFromNotesService
                 continue;
             }
 
-            // Match "Name (1h)" or "Name (1.5h)" for duration
+            // Match "Name (1h)" or "Name (1.5h)" for duration; business rule: activity durations are whole hours only
             if (preg_match('/^(.+?)\s*\((\d+(?:\.\d+)?)\s*h\)\s*$/i', $description, $match)) {
                 $name = trim($match[1]);
-                $duration = (float) $match[2];
+                $duration = max(1, (int) round((float) $match[2]));
             } else {
                 $name = $description;
-                $duration = 1.0;
+                $duration = 1;
             }
 
             if ($name === '') {
@@ -63,8 +63,10 @@ class PersistCustomActivitiesFromNotesService
 
     /**
      * Ensure an activity with the given name exists (category = custom), create if not.
+     *
+     * @param  int  $duration  Duration in whole hours (business rule: no decimal hours)
      */
-    private function ensureActivityExists(string $name, float $duration): void
+    private function ensureActivityExists(string $name, int $duration): void
     {
         $existing = Activity::where('category', self::DEFAULT_CUSTOM_CATEGORY)
             ->where('name', $name)
