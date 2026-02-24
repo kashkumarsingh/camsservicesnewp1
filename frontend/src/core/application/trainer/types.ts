@@ -132,42 +132,28 @@ export interface UpdateScheduleStatusResponse {
 }
 
 export interface TrainerDashboardStats {
-  upcoming_sessions: number;
-  total_bookings: number;
-  today_schedule: number;
+  upcomingSessions: number;
+  totalBookings: number;
+  todaySchedule: number;
 }
 
+/** API response shape (backend sends camelCase via ApiResponseHelper). */
 export interface TrainerDashboardStatsResponse {
   success: boolean;
   data: {
     stats: TrainerDashboardStats;
-    recent_bookings: Array<{
+    recentBookings: Array<{
       id: number;
       reference: string;
-      package: {
-        name: string;
-        slug: string;
-      };
-      parent: {
-        name: string;
-      };
-      participants: Array<{
-        name: string;
-        age: number | null;
-      }>;
-      next_schedule: {
-        date: string;
-        start_time: string;
-        status: string;
-      };
+      package: { name: string; slug: string };
+      parent: { name: string };
+      participants: Array<{ name: string; age: number | null }>;
+      nextSchedule: { date: string; startTime: string; status: string };
       status: string;
-      created_at: string;
+      createdAt: string;
     }>;
   };
-  meta: {
-    timestamp: string;
-    version: string;
-  };
+  meta: { timestamp: string; version: string };
 }
 
 // Phase 5: Profile Management Types
@@ -418,12 +404,12 @@ export interface ActivityLog {
 }
 
 export interface ActivityLogsResponse {
-  activity_logs: ActivityLog[];
+  activityLogs: ActivityLog[];
   pagination?: {
-    current_page: number;
-    per_page: number;
+    currentPage: number;
+    perPage: number;
     total: number;
-    last_page: number;
+    lastPage: number;
     from: number | null;
     to: number | null;
   };
@@ -435,12 +421,12 @@ export interface ChildActivityLogsResponse {
     name: string;
     age: number;
   };
-  activity_logs: ActivityLog[];
+  activityLogs: ActivityLog[];
   pagination?: {
-    current_page: number;
-    per_page: number;
+    currentPage: number;
+    perPage: number;
     total: number;
-    last_page: number;
+    lastPage: number;
     from: number | null;
     to: number | null;
   };
@@ -470,7 +456,7 @@ export interface CreateActivityLogRequest {
 }
 
 export interface CreateActivityLogResponse {
-  activity_log: ActivityLog;
+  activityLog: ActivityLog;
 }
 
 export interface UpdateActivityLogRequest {
@@ -494,7 +480,7 @@ export interface UpdateActivityLogRequest {
 }
 
 export interface UpdateActivityLogResponse {
-  activity_log: ActivityLog;
+  activityLog: ActivityLog;
 }
 
 // Activity Assignment Types (New Feature)
@@ -549,7 +535,7 @@ export interface SessionActivityInfo {
 export interface SessionActivitiesResponse {
   schedule: SessionActivityInfo;
   activities: SessionActivity[];
-  available_activities: AvailableActivity[];
+  availableActivities: AvailableActivity[];
 }
 
 export interface AssignActivityRequest {

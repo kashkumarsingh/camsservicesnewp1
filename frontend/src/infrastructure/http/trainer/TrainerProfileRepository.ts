@@ -113,9 +113,9 @@ export class TrainerProfileRepository {
    */
   async getEmergencyContacts(): Promise<TrainerEmergencyContact[]> {
     const response = await apiClient.get<{
-      emergency_contacts: TrainerEmergencyContact[];
+      emergencyContacts: TrainerEmergencyContact[];
     }>(API_ENDPOINTS.TRAINER_PROFILE_EMERGENCY_CONTACTS);
-    return response.data.emergency_contacts || [];
+    return response.data.emergencyContacts ?? [];
   }
 
   /**
@@ -128,9 +128,9 @@ export class TrainerProfileRepository {
     }
   ): Promise<TrainerEmergencyContact> {
     const response = await apiClient.post<{
-      emergency_contact: TrainerEmergencyContact;
+      emergencyContact: TrainerEmergencyContact;
     }>(API_ENDPOINTS.TRAINER_PROFILE_EMERGENCY_CONTACTS, data);
-    return response.data.emergency_contact;
+    return response.data.emergencyContact;
   }
 
   /**
@@ -141,9 +141,9 @@ export class TrainerProfileRepository {
     data: Partial<Pick<TrainerEmergencyContact, 'name' | 'relationship' | 'phone' | 'email'>>
   ): Promise<TrainerEmergencyContact> {
     const response = await apiClient.put<{
-      emergency_contact: TrainerEmergencyContact;
+      emergencyContact: TrainerEmergencyContact;
     }>(API_ENDPOINTS.TRAINER_PROFILE_EMERGENCY_CONTACT_BY_ID(id), data);
-    return response.data.emergency_contact;
+    return response.data.emergencyContact;
   }
 
   /**

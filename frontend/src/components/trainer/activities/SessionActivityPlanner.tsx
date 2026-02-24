@@ -51,7 +51,7 @@ export default function SessionActivityPlanner({
       const data = await trainerActivityRepository.getSessionActivities(scheduleId);
       setSchedule(data.schedule);
       setActivities(data.activities);
-      setAvailableActivities(data.available_activities);
+      setAvailableActivities(data.availableActivities);
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to load session activities';
       setError(errorMessage);

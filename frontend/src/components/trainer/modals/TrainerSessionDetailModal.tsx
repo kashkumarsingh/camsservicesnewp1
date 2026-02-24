@@ -108,7 +108,7 @@ export default function TrainerSessionDetailModal({
         }
         type ActivityOption = { id: number; name: string };
         const assigned = (res.activities ?? []) as ActivityOption[];
-        const available = (res.available_activities ?? []) as ActivityOption[];
+        const available = (res.availableActivities ?? []) as ActivityOption[];
         const seen = new Set<number>();
         const options: ActivityOption[] = [];
         [...assigned, ...available].forEach((a: ActivityOption) => {
@@ -757,7 +757,7 @@ export default function TrainerSessionDetailModal({
                                         setCurrentActivityUpdates(updates);
                                         if (isCustom && customName) {
                                           const res = await trainerActivityRepository.getSessionActivities(session.scheduleId);
-                                          const available = (res.available_activities ?? []) as Array<{ id: number; name: string }>;
+                                          const available = (res.availableActivities ?? []) as Array<{ id: number; name: string }>;
                                           const found = available.find((a) => a.name === customName);
                                           if (found) {
                                             setCurrentActivityId(found.id);

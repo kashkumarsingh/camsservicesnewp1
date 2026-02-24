@@ -89,9 +89,9 @@ export default function SessionDetailModal({
   type SessionTab = 'overview' | 'activity_log' | 'session_activity';
   const [activeTab, setActiveTab] = useState<SessionTab>('overview');
   const [sessionDetail, setSessionDetail] = useState<{
-    activity_logs: ActivityLog[];
-    schedule: { current_activity_name?: string | null; location?: string | null; current_activity_updates?: Array<{ id: number; activity_name: string; location: string | null; at: string }> };
-    time_entries: Array<{ id: number; type: string; recorded_at?: string; created_at?: string }>;
+    activityLogs: ActivityLog[];
+    schedule: { currentActivityName?: string | null; location?: string | null; currentActivityUpdates?: Array<{ id: number; activityName: string; location: string | null; at: string }> };
+    timeEntries: Array<{ id: number; type: string; recordedAt?: string; createdAt?: string }>;
   } | null>(null);
   const [sessionDetailLoading, setSessionDetailLoading] = useState(false);
 
@@ -101,13 +101,13 @@ export default function SessionDetailModal({
       if (!silent) setSessionDetailLoading(true);
       apiClient
         .get<{
-          activity_logs: ActivityLog[];
-          schedule: { current_activity_name?: string | null; location?: string | null; current_activity_updates?: Array<{ id: number; activity_name: string; location: string | null; at: string }> };
-          time_entries: Array<{ id: number; type: string; recorded_at?: string; created_at?: string }>;
+          activityLogs: ActivityLog[];
+          schedule: { currentActivityName?: string | null; location?: string | null; currentActivityUpdates?: Array<{ id: number; activityName: string; location: string | null; at: string }> };
+          timeEntries: Array<{ id: number; type: string; recordedAt?: string; createdAt?: string }>;
         }>(API_ENDPOINTS.DASHBOARD_SCHEDULE_DETAIL(session.scheduleId))
         .then((res) => {
           const data = res.data;
-          if (data) setSessionDetail({ activity_logs: data.activity_logs ?? [], schedule: data.schedule ?? { current_activity_updates: [] }, time_entries: data.time_entries ?? [] });
+          if (data) setSessionDetail({ activityLogs: data.activityLogs ?? [], schedule: data.schedule ?? { currentActivityUpdates: [] }, timeEntries: data.timeEntries ?? [] });
         })
         .catch(() => setSessionDetail(null))
         .finally(() => setSessionDetailLoading(false));
@@ -561,9 +561,9 @@ export default function SessionDetailModal({
                   <div className="h-3 w-[70%] bg-slate-200 dark:bg-slate-700 rounded" />
                   <div className="h-3 w-[60%] bg-slate-200 dark:bg-slate-700 rounded" />
                 </div>
-              ) : sessionDetail?.activity_logs && sessionDetail.activity_logs.length > 0 ? (
+              ) : sessionDetail?.activityLogs && sessionDetail.activityLogs.length > 0 ? (
                 <ActivityLogTimeline
-                  logs={sessionDetail.activity_logs}
+                  logs={sessionDetail.activityLogs}
                   className="max-h-52 overflow-y-auto"
                 />
               ) : (
@@ -587,7 +587,7 @@ export default function SessionDetailModal({
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {sessionDetail?.schedule?.current_activity_name || sessionDetail?.schedule?.location ? (
+                  {sessionDetail?.schedule?.currentActivityName || sessionDetail?.schedule?.location ? (
                     <div className={`flex items-start gap-2 rounded-lg border px-3 py-2 ${
                       hasEnded
                         ? 'border-gray-200 bg-gray-100 dark:border-gray-600 dark:bg-gray-800/50'
@@ -599,7 +599,7 @@ export default function SessionDetailModal({
                       <p className="text-sm text-gray-800 dark:text-gray-200">
                         <span className="font-medium">
                           {hasEnded ? 'Last activity: ' : 'Currently doing '}
-                          {sessionDetail?.schedule?.current_activity_name ?? '—'}
+                          {sessionDetail?.schedule?.currentActivityName ?? '—'}
                         </span>
                         {sessionDetail?.schedule?.location && (
                           <span className="text-gray-600 dark:text-gray-400">
@@ -618,7 +618,7 @@ export default function SessionDetailModal({
                     </div>
                   ) : null}
                   {(() => {
-                    const updates = sessionDetail?.schedule?.current_activity_updates ?? [];
+                    const updates = sessionDetail?.schedule?.currentActivityUpdates ?? [];
                     // When session is live, exclude the current (first = newest) from History so it only appears under Live
                     const historyUpdates = hasEnded ? updates : (updates.length > 1 ? updates.slice(1) : []);
                     if (historyUpdates.length === 0) return null;
@@ -631,7 +631,7 @@ export default function SessionDetailModal({
                           {historyUpdates.map((u) => (
                             <li key={u.id} className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
                               <MapPin size={12} className="text-gray-400 shrink-0" />
-                              {u.activity_name}
+                              {u.activityName}
                               {u.location ? (
                                 <>
                                   {' at '}
@@ -652,7 +652,7 @@ export default function SessionDetailModal({
                       </div>
                     );
                   })()}
-                  {!sessionDetail?.schedule?.current_activity_name && !sessionDetail?.schedule?.location && (!sessionDetail?.schedule?.current_activity_updates?.length) && !sessionDetailLoading && (
+                  {!sessionDetail?.schedule?.currentActivityName && !sessionDetail?.schedule?.location && (!sessionDetail?.schedule?.currentActivityUpdates?.length) && !sessionDetailLoading && (
                     <p className="text-2xs text-gray-500 py-2">
                       {hasEnded ? EMPTY_STATE.NO_ACTIVITY_RECORDED.message : EMPTY_STATE.NO_LIVE_UPDATES_YET.message}
                     </p>

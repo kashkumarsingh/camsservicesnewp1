@@ -51,9 +51,9 @@ export default function BuyHoursModal({
 }: BuyHoursModalProps) {
   const router = useRouter();
 
-  // Track children with active packages (to filter them out)
-  // Declare this BEFORE useMemo hooks that depend on it
-  const [childrenWithActivePackages, setChildrenWithActivePackages] = useState<Map<number, { packageName: string; expiresAt: string | null }>>(new Map());
+  // Track children with active packages (to filter them out).
+  // canTopUp: true only when status is confirmed and paymentStatus is paid (top-up only applies to paid packages).
+  const [childrenWithActivePackages, setChildrenWithActivePackages] = useState<Map<number, { packageName: string; expiresAt: string | null; canTopUp: boolean }>>(new Map());
   const [loadingActivePackages, setLoadingActivePackages] = useState(false);
   
   // Calculate hours for each child (similar to DashboardRightSidebar)
@@ -213,32 +213,33 @@ export default function BuyHoursModal({
     
     setLoadingActivePackages(true);
     try {
-      const childrenWithActive = new Map<number, { packageName: string; expiresAt: string | null }>();
+      const childrenWithActive = new Map<number, { packageName: string; expiresAt: string | null; canTopUp: boolean }>();
       
       await Promise.all(
         children.map(async (child) => {
           try {
             const response = await apiClient.get<{
-              child_id: string;
-              child_name: string;
-              active_bookings: Array<{
+              childId: string;
+              childName: string;
+              activeBookings: Array<{
                 id: number;
                 reference: string;
                 package: { id: number | string; name: string };
                 status: string;
-                payment_status: string;
-                package_expires_at: string | null;
+                paymentStatus: string;
+                packageExpiresAt: string | null;
               }>;
               count: number;
             }>(API_ENDPOINTS.CHILD_ACTIVE_BOOKINGS(child.id));
 
-            if (response.data?.active_bookings && Array.isArray(response.data.active_bookings) && response.data.active_bookings.length > 0) {
-              // Business Rule: A child can only have ONE active package at a time
-              const activeBooking = response.data.active_bookings[0]; // Get first active booking
+            if (response.data?.activeBookings && Array.isArray(response.data.activeBookings) && response.data.activeBookings.length > 0) {
+              const activeBooking = response.data.activeBookings[0];
               if (activeBooking) {
+                const canTopUp = activeBooking.status === 'confirmed' && activeBooking.paymentStatus === 'paid';
                 childrenWithActive.set(child.id, {
                   packageName: activeBooking.package?.name || 'Package',
-                  expiresAt: activeBooking.package_expires_at,
+                  expiresAt: activeBooking.packageExpiresAt ?? null,
+                  canTopUp,
                 });
               }
             }
@@ -687,28 +688,37 @@ export default function BuyHoursModal({
                   const expiresAt = activePackageInfo?.expiresAt
                     ? new Date(activePackageInfo.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
                     : null;
+                  const canTopUp = activePackageInfo?.canTopUp ?? false;
                   return (
                     <>
                       <p className="text-sm text-amber-800 mb-2">
                         <span className="font-semibold text-amber-900">{childName}</span> has an active package ({packageName}
                         {expiresAt ? `, expires ${expiresAt}` : ''}). Each child can only have one active package at a time.
                       </p>
-                      <p className="text-xs text-amber-700 mb-3">
-                        You can add more hours (top-up) to this package or purchase a new package after the current one expires.
-                      </p>
-                      {onOpenTopUp && selectedChildId && (
-                        <Button
-                          type="button"
-                          variant="primary"
-                          size="sm"
-                          onClick={() => {
-                            onOpenTopUp(selectedChildId);
-                            onClose();
-                          }}
-                          className="w-full sm:w-auto"
-                        >
-                          Add hours (top-up)
-                        </Button>
+                      {canTopUp ? (
+                        <>
+                          <p className="text-xs text-amber-700 mb-3">
+                            You can add more hours (top-up) to this package or purchase a new package after the current one expires.
+                          </p>
+                          {onOpenTopUp && selectedChildId && (
+                            <Button
+                              type="button"
+                              variant="primary"
+                              size="sm"
+                              onClick={() => {
+                                onOpenTopUp(selectedChildId);
+                                onClose();
+                              }}
+                              className="w-full sm:w-auto"
+                            >
+                              Add hours (top-up)
+                            </Button>
+                          )}
+                        </>
+                      ) : (
+                        <p className="text-xs text-amber-700 mb-0">
+                          Complete payment for your current package before you can add more hours. Use the dashboard to pay for your pending booking.
+                        </p>
                       )}
                     </>
                   );
@@ -722,19 +732,18 @@ export default function BuyHoursModal({
               <AlertCircle className="text-amber-600 flex-shrink-0 mt-0.5" size={18} />
               <div className="flex-1">
                 <h4 className="text-sm font-semibold text-amber-900 mb-1">
-                  All Children Have Active Packages
+                  All children have active packages
                 </h4>
-                <p className="text-sm text-amber-800 mb-3">
-                  All your children currently have active packages. Each child can only have one active package at a time.
+                <p className="text-sm text-amber-800 mb-2">
+                  Each child can only have one active package at a time. You can add more hours (top-up) or buy a new package after one expires or is completed.
                 </p>
-                <div className="space-y-2">
+                <div className="space-y-1.5 mb-3">
                   {unavailableChildren.map(({ child }) => {
                     const activePackageInfo = childrenWithActivePackages.get(child.id);
                     const packageName = activePackageInfo?.packageName || 'Package';
-                    const expiresAt = activePackageInfo?.expiresAt 
+                    const expiresAt = activePackageInfo?.expiresAt
                       ? new Date(activePackageInfo.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
                       : 'No expiry set';
-                    
                     return (
                       <div key={child.id} className="text-xs text-amber-700">
                         <strong>{child.name}:</strong> {packageName} (expires {expiresAt})
@@ -742,9 +751,34 @@ export default function BuyHoursModal({
                     );
                   })}
                 </div>
-                <p className="text-xs text-amber-700 mt-3">
-                  You can purchase another package once the current packages expire or are completed.
-                </p>
+                {(() => {
+                  const firstTopUpEligible = unavailableChildren.find(({ child }) => childrenWithActivePackages.get(child.id)?.canTopUp);
+                  if (onOpenTopUp && firstTopUpEligible) {
+                    return (
+                      <Button
+                        type="button"
+                        variant="primary"
+                        size="sm"
+                        onClick={() => {
+                          onOpenTopUp(firstTopUpEligible.child.id);
+                          onClose();
+                        }}
+                        className="w-full sm:w-auto"
+                      >
+                        Add hours (top-up)
+                      </Button>
+                    );
+                  }
+                  const anyUnpaid = unavailableChildren.some(({ child }) => !childrenWithActivePackages.get(child.id)?.canTopUp);
+                  if (anyUnpaid) {
+                    return (
+                      <p className="text-xs text-amber-700 mb-0">
+                        Complete payment for your current package(s) before you can add more hours. Use the dashboard to pay for any pending bookings.
+                      </p>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
             </div>
           </div>

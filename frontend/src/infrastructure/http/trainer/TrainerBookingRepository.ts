@@ -92,18 +92,17 @@ export class TrainerBookingRepository {
    */
   async getStats(): Promise<{
     stats: TrainerDashboardStats;
-    recent_bookings: TrainerDashboardStatsResponse['data']['recent_bookings'];
+    recentBookings: TrainerDashboardStatsResponse['data']['recentBookings'];
   }> {
     // ApiClient unwraps the response, so response.data is the actual data object
-    // Backend returns: { success: true, data: { stats: {...}, recent_bookings: [...] } }
-    // ApiClient returns: { data: { stats: {...}, recent_bookings: [...] } }
+    // Backend returns camelCase (ApiResponseHelper)
     const response = await apiClient.get<TrainerDashboardStatsResponse['data']>(
       API_ENDPOINTS.TRAINER_BOOKINGS_STATS
     );
 
     return {
       stats: response.data.stats,
-      recent_bookings: response.data.recent_bookings,
+      recentBookings: response.data.recentBookings ?? [],
     };
   }
 }

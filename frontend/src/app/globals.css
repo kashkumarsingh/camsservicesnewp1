@@ -1,6 +1,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap');
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* Manual dark switch: dark: variant applies when .dark is on an ancestor (e.g. <html class="dark">). */
 @custom-variant dark (&&:where(.dark, .dark *));

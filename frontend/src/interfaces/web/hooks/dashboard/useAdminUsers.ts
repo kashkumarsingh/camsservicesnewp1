@@ -147,10 +147,13 @@ export function useAdminUsers(filters?: UseAdminUsersFilters) {
           data
         );
         const newUser = mapRemoteUserToDTO(response.data);
-        
-        // Refetch to ensure list is updated
-        await fetchUsers(true);
-        
+
+        // Optimistic: add new user to list immediately so they appear without waiting for refetch
+        setUsers((prev) => [newUser, ...prev]);
+
+        // Refetch in background to keep list in sync with server (e.g. sort, counts)
+        fetchUsers(true);
+
         return newUser;
       } catch (err: any) {
         throw new Error(err?.response?.data?.message || 'Failed to create user');

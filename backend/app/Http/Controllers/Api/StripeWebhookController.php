@@ -15,15 +15,22 @@ use Stripe\Exception\SignatureVerificationException;
 
 /**
  * Stripe Webhook Controller
- * 
+ *
  * Clean Architecture: Interface Layer (Webhook Handler)
  * Purpose: Handles Stripe webhook events
  * Location: backend/app/Http/Controllers/Api/StripeWebhookController.php
- * 
+ *
  * This controller:
  * - Verifies webhook signatures
  * - Processes payment events (payment_intent.succeeded, etc.)
  * - Updates booking payment status
+ *
+ * TODO (when Reverb 403 is fixed): After marking booking paid in handlePaymentIntentSucceeded,
+ * broadcast live-refresh so the parent dashboard refetches once instead of frontend polling.
+ * Call: LiveRefreshBroadcastService::notify([LiveRefreshController::CONTEXT_BOOKINGS], [$booking->user_id], false);
+ * Frontend already subscribes to live-refresh.{userId} and will refetch; remove the 2s/5s timers in
+ * ParentDashboardPageClient handlePaymentComplete and Stripe return-url effect. See
+ * backend/PAYMENT_LIVE_REFRESH_TODO.md.
  */
 class StripeWebhookController extends Controller
 {
@@ -117,7 +124,9 @@ class StripeWebhookController extends Controller
             'amount' => $paymentIntent->amount / 100,
         ]);
 
-        // Confirm payment (updates booking and payment records)
+        // Confirm payment (updates booking and payment records).
+        // When Reverb is stable: after success, broadcast LiveRefreshContextsUpdated for this user's
+        // bookings context so frontend refetches once; then remove frontend 2s/5s refetch timers.
         $result = $this->processPaymentAction->confirmPayment($paymentIntentId);
 
         if (!$result['success']) {

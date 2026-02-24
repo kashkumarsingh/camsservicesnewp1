@@ -25,6 +25,8 @@ export function useMyBookings() {
   const [error, setError] = useState<string | null>(null);
   const fetchingRef = useRef<boolean>(false);
   const lastUserIdRef = useRef<string | number | null>(null);
+  /** When a refetch is requested while a fetch is in progress (e.g. after payment), run one more fetch when current finishes. */
+  const pendingRefetchRef = useRef<boolean>(false);
 
   // Memoize the use case to prevent recreation on every render
   const listBookingsUseCase = useMemo(
@@ -33,8 +35,9 @@ export function useMyBookings() {
   );
 
   const fetchBookings = useCallback(async (silent = false) => {
-    // Prevent multiple simultaneous requests
+    // If already fetching, queue one refetch so we never drop post-payment refetches
     if (fetchingRef.current) {
+      pendingRefetchRef.current = true;
       return;
     }
 
@@ -148,6 +151,11 @@ export function useMyBookings() {
         setLoading(false);
       }
       fetchingRef.current = false;
+      // Run one queued refetch (e.g. after payment complete) so UI updates with latest payment status
+      if (pendingRefetchRef.current) {
+        pendingRefetchRef.current = false;
+        void fetchBookings(true);
+      }
     }
   }, [user, authLoading, listBookingsUseCase, syncEnabled]);
 

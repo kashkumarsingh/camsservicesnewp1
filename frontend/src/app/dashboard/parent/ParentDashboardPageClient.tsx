@@ -30,6 +30,7 @@ import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { ApiPaymentService } from '@/infrastructure/services/payment/ApiPaymentService';
 import { childrenRepository } from '@/infrastructure/http/children/ChildrenRepository';
 import type { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
+import type { BookingTopUpApiResponse } from '@/core/application/booking/dto/BookingTopUpApiResponse';
 import { useSmartResponsive } from '@/interfaces/web/hooks/responsive/useSmartResponsive';
 import { useDashboardStats } from '@/interfaces/web/hooks/dashboard/useDashboardStats';
 import { useParentSessionNotes } from '@/interfaces/web/hooks/dashboard/useParentSessionNotes';
@@ -99,10 +100,10 @@ export default function ParentDashboardPageClient() {
           hasConfirmedPaymentFromSessionRef.current = true;
           try {
             const endpoint = API_ENDPOINTS.GET_PAYMENT_INTENT_FROM_SESSION;
-            const intentResponse = await apiClient.post<{ payment_intent_id: string }>(endpoint, {
+            const intentResponse = await apiClient.post<{ paymentIntentId: string }>(endpoint, {
               session_id: sessionId,
             });
-            const paymentIntentId = intentResponse.data?.payment_intent_id;
+            const paymentIntentId = intentResponse.data?.paymentIntentId;
             if (paymentIntentId) {
               const confirmResult = await ApiPaymentService.confirmPayment(paymentIntentId);
               if (!confirmResult.success) {
@@ -124,7 +125,9 @@ export default function ParentDashboardPageClient() {
         }
         refetchBookings(true);
         refresh();
+        // TEMPORARY: same polling hack as handlePaymentComplete. Replace with Reverb broadcast when stable.
         purchaseSuccessTimeoutRef.current = setTimeout(() => refetchBookings(true), 2000);
+        setTimeout(() => refetchBookings(true), 5000);
         router.replace('/dashboard/parent', { scroll: false });
       };
       run();
@@ -1091,7 +1094,18 @@ export default function ParentDashboardPageClient() {
 
     const activeBooking = getActiveBookingForChild(childId);
     if (!activeBooking) {
-      toastManager.error('This child does not have an active package to top up.');
+      // Child may have a draft/unpaid "active" package (blocking new purchase) but top-up only applies to confirmed+paid.
+      const hasAnyActiveBooking = bookings.some(b => {
+        if (!['draft', 'pending', 'confirmed'].includes(b.status ?? '')) return false;
+        if (b.paymentStatus === PAYMENT_STATUS.REFUNDED || b.deletedAt) return false;
+        if (b.packageExpiresAt && new Date(b.packageExpiresAt) <= new Date()) return false;
+        return b.participants?.some(p => p.childId === childId);
+      });
+      if (hasAnyActiveBooking) {
+        toastManager.error('You can only top up paid packages. Please complete payment for your current package first.');
+      } else {
+        toastManager.error('This child does not have an active package to top up. Buy hours first.');
+      }
       return;
     }
 
@@ -1103,7 +1117,7 @@ export default function ParentDashboardPageClient() {
     setTopUpChildId(childId);
     setTopUpBooking(activeBooking);
     setShowTopUpModal(true);
-  }, [approvedChildren, getActiveBookingForChild]);
+  }, [approvedChildren, bookings, getActiveBookingForChild]);
 
   const handleTopUpProceedToPayment = useCallback(async (hours: number, _totalPrice: number) => {
     if (!topUpBooking || topUpChildId === null) return;
@@ -1111,20 +1125,14 @@ export default function ParentDashboardPageClient() {
     setIsTopUpSubmitting(true);
     try {
       const bookingId = topUpBooking.id;
-      const response = await apiClient.post<{
-        checkout_url?: string | null;
-        payment_intent_id?: string | null;
-        payment_id?: string | null;
-        amount?: number;
-        hours?: number;
-      }>(
+      const response = await apiClient.post<BookingTopUpApiResponse>(
         API_ENDPOINTS.BOOKING_TOP_UP(
           typeof bookingId === 'string' ? bookingId : Number(bookingId)
         ),
         { hours }
       );
 
-      const checkoutUrl = response.data?.checkout_url;
+      const checkoutUrl = response.data?.checkoutUrl;
       if (checkoutUrl) {
         setShowTopUpModal(false);
         window.location.href = checkoutUrl;
@@ -1178,13 +1186,14 @@ export default function ParentDashboardPageClient() {
     // Refresh bookings so sidebar hours update immediately (silent refetch = no loading flash)
     await refetchBookings(true);
     refresh();
-    // Single success toast so parent knows payment went through
     toastManager.success('Payment received. Your hours will update in a moment—you can now book sessions.');
-    // Close modal
     setShowPaymentModal(false);
     setSelectedPaymentBooking(null);
-    // Delayed refetch in case backend confirms the booking shortly after
+    // TEMPORARY: Polling hack — we don't know when the Stripe webhook has finished. When Reverb is stable
+    // (403 fixed), replace with a single refetch triggered by live-refresh broadcast. See
+    // backend/PAYMENT_LIVE_REFRESH_TODO.md. Then remove both setTimeouts.
     setTimeout(() => refetchBookings(true), 2000);
+    setTimeout(() => refetchBookings(true), 5000);
   }, [refetchBookings, refresh]);
 
   const handlePaymentFailed = useCallback((error: string) => {
@@ -2188,6 +2197,7 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
           setShowBuyHoursModal(false);
           setBuyHoursChildId(undefined);
           setBuyHoursInitialPackageSlug(null);
+          refetchBookings(true);
         }}
         initialPackageSlug={buyHoursInitialPackageSlug ?? undefined}
         child={buyHoursChildId ? approvedChildren.find(c => c.id === buyHoursChildId) || null : null}
@@ -2199,6 +2209,7 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
           setShowPaymentModal(true);
           setShowBuyHoursModal(false);
           setBuyHoursChildId(undefined);
+          refetchBookings(true);
         }}
         onConfirm={() => {
           setShowBuyHoursModal(false);

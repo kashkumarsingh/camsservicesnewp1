@@ -229,7 +229,7 @@ export function useAdminBookings(initialFilters?: AdminBookingsFilters) {
         )
       );
 
-      const response = await apiClient.post<{ cancelled_count: number }>(
+      const response = await apiClient.post<{ cancelledCount: number }>(
         `${API_ENDPOINTS.ADMIN_BOOKINGS}/bulk-cancel`,
         data
       );
@@ -237,7 +237,7 @@ export function useAdminBookings(initialFilters?: AdminBookingsFilters) {
       // Refetch to get latest data
       await fetchBookings(undefined, true);
 
-      return response.data?.cancelled_count || 0;
+      return response.data?.cancelledCount ?? 0;
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Failed to bulk cancel bookings';
@@ -265,7 +265,7 @@ export function useAdminBookings(initialFilters?: AdminBookingsFilters) {
         )
       );
 
-      const response = await apiClient.post<{ confirmed_count: number }>(
+      const response = await apiClient.post<{ confirmedCount: number }>(
         `${API_ENDPOINTS.ADMIN_BOOKINGS}/bulk-confirm`,
         data
       );
@@ -273,7 +273,7 @@ export function useAdminBookings(initialFilters?: AdminBookingsFilters) {
       // Refetch to get latest data
       await fetchBookings(undefined, true);
 
-      return response.data?.confirmed_count || 0;
+      return response.data?.confirmedCount ?? 0;
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Failed to bulk confirm bookings';

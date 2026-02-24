@@ -13,6 +13,7 @@ export * from './dto/UpdateBookingDTO';
 export * from './dto/BookingFilterOptions';
 export * from './dto/BookingStatsDTO';
 export * from './dto/ProcessPaymentDTO';
+export * from './dto/BookingTopUpApiResponse';
 
 // Mappers
 export * from './mappers/BookingMapper';

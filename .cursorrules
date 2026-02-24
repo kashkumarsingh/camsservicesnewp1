@@ -58,6 +58,32 @@ Cursor must:
 - Uphold enterprise standards at all times
 
 # ---------------------------------------------------------------------------
+# STRICT PROHIBITIONS — NO EXCEPTIONS (ZERO TOLERANCE)
+# ---------------------------------------------------------------------------
+**These rules are non-negotiable. No temporary exceptions, no "just for now".**
+
+### 1. API response contract — camelCase only (no snake_case on responses)
+- **Backend** sends all API payloads in **camelCase** (via `ApiResponseHelper::keysToCamelCase()`).
+- **Frontend** must **only** read **camelCase** from API response data.
+- ❌ **Never** use snake_case for response property access (e.g. `response.data.payment_intent_id`, `response.data.checkout_url`).
+- ❌ **Never** use fallbacks like `data.camelKey ?? data.snake_key` on API response data — the API sends camelCase; type and read camelCase only.
+- ✅ Type all response DTOs and interfaces in **camelCase** to match the API contract.
+- **Data pipeline:** Database (snake_case) → API (camelCase) → Frontend (camelCase). Frontend never sees snake_case from the API.
+
+### 2. No hardcoded values
+- ❌ **No** magic strings, magic numbers, or hardcoded URLs/paths in code.
+- ✅ Use **constants files** (e.g. `dashboardConstants.ts`, `emptyStateConstants.ts`, `apiEndpoints.ts`), **env vars**, or **config** for every value that is reused or may change.
+- ✅ Routes → `ROUTES` / `API_ENDPOINTS`; status values → `dashboardConstants`; copy → `emptyStateConstants` or i18n; revalidate/cache → `revalidationConstants`; counts → `skeletonConstants`.
+- If a value appears in more than one place or is environment-dependent, it belongs in a single source of truth — not inline.
+
+### 3. No temporary patches or workarounds (strictly forbidden)
+- ❌ **No** temporary fixes, workarounds, patches, or hacks. **Strictly no. No no no.**
+- ❌ **No** "TODO fix later", "temporary solution", "quick fix", or "workaround for now".
+- ❌ **No** commenting out code "to fix later" or leaving placeholder logic.
+- ✅ If something cannot be implemented properly, **escalate** — do not ship a temporary solution.
+- ✅ Every change must be **production-ready and maintainable**; there is no "we'll clean it up later".
+
+# ---------------------------------------------------------------------------
 # TECHNOLOGY BASELINES (LTS POLICY)
 # ---------------------------------------------------------------------------
 | Component | Version Policy |
@@ -80,6 +106,14 @@ Cursor must:
 - **Canonical base URL:** https://laravel.com/docs/12.x/
 - Do **not** use older doc versions (11.x, 10.x, 9.x, 8.x) for implementation guidance unless a specific legacy constraint is documented in the project.
 - When linking to Laravel docs in comments or documentation, use the 12.x URL (e.g. https://laravel.com/docs/12.x/broadcasting, https://laravel.com/docs/12.x/sanctum).
+
+# ---------------------------------------------------------------------------
+# NEXT.JS DOCUMENTATION (USE CURRENT DOCS ONLY)
+# ---------------------------------------------------------------------------
+- **Always use the official Next.js documentation** when referencing, citing, or implementing Next.js features.
+- **Canonical base URL:** https://nextjs.org/docs
+- Use **App Router** docs (not Pages Router) unless the project explicitly uses Pages Router. Prefer Server Components, App Router conventions, and current data-fetching/caching patterns.
+- When linking to Next.js docs in comments or documentation, use the official URL (e.g. https://nextjs.org/docs/app/building-your-application/routing, https://nextjs.org/docs/app/building-your-application/caching).
 
 # ---------------------------------------------------------------------------
 # SYSTEM ARCHITECTURE OVERVIEW
@@ -414,7 +448,10 @@ parseInt(String(value), 10)
 # ---------------------------------------------------------------------------
 # CODE QUALITY & STANDARDS (FAANG-LEVEL)
 # ---------------------------------------------------------------------------
-**NO TEMPORARY WORKAROUNDS OR FIXES**
+**NO TEMPORARY WORKAROUNDS OR FIXES — STRICTLY NO. NO HARDCODED VALUES.**
+
+- **No temporary patches or workarounds:** Never ship "temporary fix", "workaround", or "TODO fix later". Escalate instead.
+- **No hardcoded values:** Use constants, env, or config; no magic strings/numbers/URLs inline.
 
 **Backend (Laravel):**
 - ✅ Proper design patterns (Repository, Service, Actions)
@@ -422,7 +459,7 @@ parseInt(String(value), 10)
 - ✅ Type hints and return types everywhere
 - ✅ Migrations for ALL schema changes
 - ✅ Eager loading (prevent N+1)
-- ❌ NO `@phpstan-ignore`, temporary fixes, modifying existing migrations
+- ❌ NO `@phpstan-ignore`, temporary fixes, workarounds, or modifying existing migrations
 
 **Frontend (Next.js/React):**
 - ✅ Clean Architecture principles

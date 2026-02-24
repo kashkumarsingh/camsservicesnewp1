@@ -22,6 +22,7 @@ import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
 import moment from 'moment';
 import type { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
+import type { BookingTopUpApiResponse } from '@/core/application/booking/dto/BookingTopUpApiResponse';
 
 /** Active (confirmed + paid) booking for a child; one per child, most recent. */
 function getActiveBookingForChild(bookings: BookingDTO[], childId: number): BookingDTO | null {
@@ -182,19 +183,13 @@ export default function ParentChildrenPageClient() {
       setIsTopUpSubmitting(true);
       try {
         const bookingId = topUpBooking.id;
-        const response = await apiClient.post<{
-          checkout_url?: string | null;
-          payment_intent_id?: string | null;
-          payment_id?: string | null;
-          amount?: number;
-          hours?: number;
-        }>(
+        const response = await apiClient.post<BookingTopUpApiResponse>(
           API_ENDPOINTS.BOOKING_TOP_UP(
             typeof bookingId === 'string' ? bookingId : Number(bookingId),
           ),
           { hours },
         );
-        const checkoutUrl = response.data?.checkout_url;
+        const checkoutUrl = response.data?.checkoutUrl;
         if (checkoutUrl) {
           setShowTopUpModal(false);
           setTopUpBooking(null);

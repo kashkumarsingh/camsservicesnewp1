@@ -43,13 +43,14 @@ export interface CreatePaymentIntentRequest {
   paymentMethod?: string;
 }
 
+/** API response shape (backend sends camelCase via ApiResponseHelper). */
 export interface CreatePaymentIntentResponse {
   success: boolean;
   data?: {
-    payment_intent_id: string;
-    client_secret: string;
-    checkout_url?: string;
-    payment_id?: number;
+    paymentIntentId?: string;
+    clientSecret?: string;
+    checkoutUrl?: string;
+    paymentId?: number;
   };
   message?: string;
 }
@@ -78,20 +79,25 @@ export class ApiPaymentService {
     paymentMethod: string = 'stripe'
   ): Promise<{ success: boolean; paymentIntentId?: string; clientSecret?: string; checkoutUrl?: string; error?: string }> {
     try {
-      const response = await apiClient.post<{ payment_intent_id?: string; client_secret?: string; checkout_url?: string }>(
-        API_ENDPOINTS.CREATE_PAYMENT_INTENT(bookingId),
-        {
-          amount,
-          currency,
-          payment_method: paymentMethod,
-        }
-      );
+      // Backend returns camelCase (BaseApiController / ApiResponseHelper::keysToCamelCase)
+      const response = await apiClient.post<{
+        paymentIntentId?: string;
+        clientSecret?: string;
+        checkoutUrl?: string;
+        paymentId?: number;
+      }>(API_ENDPOINTS.CREATE_PAYMENT_INTENT(bookingId), {
+        amount,
+        currency,
+        payment_method: paymentMethod,
+      });
 
       // ApiClient unwraps { success: true, data: {...} } to { data: {...} }
-      // So response.data is already the payment intent data
       const paymentData = response.data;
 
-      if (!paymentData || (!paymentData.payment_intent_id && !paymentData.checkout_url)) {
+      if (
+        !paymentData ||
+        (!paymentData.paymentIntentId && !paymentData.checkoutUrl)
+      ) {
         return {
           success: false,
           error: 'Failed to create payment intent - invalid response from server',
@@ -100,17 +106,17 @@ export class ApiPaymentService {
 
       if (process.env.NODE_ENV === 'development') {
         console.log('[ApiPaymentService] Payment intent created:', {
-          hasPaymentIntentId: !!paymentData.payment_intent_id,
-          hasClientSecret: !!paymentData.client_secret,
-          hasCheckoutUrl: !!paymentData.checkout_url,
+          hasPaymentIntentId: !!paymentData.paymentIntentId,
+          hasClientSecret: !!paymentData.clientSecret,
+          hasCheckoutUrl: !!paymentData.checkoutUrl,
         });
       }
 
       return {
         success: true,
-        paymentIntentId: paymentData.payment_intent_id,
-        clientSecret: paymentData.client_secret,
-        checkoutUrl: paymentData.checkout_url,
+        paymentIntentId: paymentData.paymentIntentId,
+        clientSecret: paymentData.clientSecret,
+        checkoutUrl: paymentData.checkoutUrl,
       };
     } catch (error: any) {
       // Extract detailed error message from backend response

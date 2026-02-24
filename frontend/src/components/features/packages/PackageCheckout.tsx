@@ -109,25 +109,25 @@ export default function PackageCheckout({
           approved.map(async (child) => {
             try {
               const response = await apiClient.get<{
-                child_id: string;
-                child_name: string;
-                active_bookings: Array<{
+                childId: string;
+                childName: string;
+                activeBookings: Array<{
                   id: number;
                   reference: string;
                   package: { id: number | string; name: string };
                   status: string;
-                  payment_status: string;
-                  package_expires_at: string | null;
+                  paymentStatus: string;
+                  packageExpiresAt: string | null;
                 }>;
                 count: number;
               }>(API_ENDPOINTS.CHILD_ACTIVE_BOOKINGS(child.id));
 
-              if (response.data?.active_bookings && Array.isArray(response.data.active_bookings)) {
-                const activeBooking = response.data.active_bookings[0]; // Get first active booking
+              if (response.data?.activeBookings && Array.isArray(response.data.activeBookings)) {
+                const activeBooking = response.data.activeBookings[0];
                 if (activeBooking) {
                   childrenWithActive.set(child.id, {
                     packageName: activeBooking.package?.name || 'Package',
-                    expiresAt: activeBooking.package_expires_at,
+                    expiresAt: activeBooking.packageExpiresAt ?? null,
                   });
                 }
               }

@@ -714,9 +714,11 @@ export default function ParentOverviewPageClient() {
   const handlePaymentComplete = useCallback(() => {
     setShowPaymentModal(false);
     setSelectedPaymentBooking(null);
-    refetchBookings();
+    refetchBookings(true);
     refresh();
     toastManager.success("Payment confirmed. Your hours are updated.");
+    // Delayed refetch so "Complete payment" strip disappears once backend has updated (matches Dashboard)
+    setTimeout(() => refetchBookings(true), 2000);
   }, [refetchBookings, refresh]);
 
   const handlePaymentFailed = useCallback((message?: string) => {

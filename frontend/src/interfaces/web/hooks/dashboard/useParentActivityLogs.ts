@@ -6,7 +6,7 @@ import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import type { ActivityLog } from '@/core/application/trainer/types';
 
 interface ParentActivityLogsResponse {
-  activity_logs: ActivityLog[];
+  activityLogs: ActivityLog[];
 }
 
 /**
@@ -25,7 +25,7 @@ export function useParentActivityLogs() {
     setError(null);
     try {
       const response = await apiClient.get<ParentActivityLogsResponse>(API_ENDPOINTS.DASHBOARD_ACTIVITY_LOGS);
-      const raw = response.data?.activity_logs ?? [];
+      const raw = response.data?.activityLogs ?? [];
       setLogs(Array.isArray(raw) ? raw : []);
     } catch (err: unknown) {
       const message =

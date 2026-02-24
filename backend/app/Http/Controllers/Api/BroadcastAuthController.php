@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Broadcast;
 
 /**
@@ -32,6 +33,11 @@ class BroadcastAuthController extends Controller
 
         // Ensure the request resolves the user when Broadcast runs channel callbacks.
         $request->setUserResolver(fn () => $user);
+
+        // Channel callbacks in routes/channels.php use ['guards' => ['sanctum']], so set the
+        // user on the sanctum guard. Otherwise Laravel may resolve auth()->user() from the
+        // default guard (web), which is null for API-only requests, and channel auth returns 403.
+        Auth::guard('sanctum')->setUser($user);
 
         return Broadcast::auth($request);
     }

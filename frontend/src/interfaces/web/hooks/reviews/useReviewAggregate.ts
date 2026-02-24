@@ -4,6 +4,9 @@ import { useEffect, useState, useMemo } from 'react';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 
+/** Longer timeout for aggregate endpoint (multiple queries: testimonials, external reviews, provider summaries). */
+const REVIEWS_AGGREGATE_TIMEOUT_MS = 25_000;
+
 export interface ReviewProviderSummary {
   id: string;
   provider: string;
@@ -48,7 +51,7 @@ export function useReviewAggregate(providers?: string[]) {
         const query = providersKey ? `?providers=${providersKey}` : '';
         const response = await apiClient.get<ReviewAggregateResult>(
           `${API_ENDPOINTS.REVIEWS_AGGREGATE}${query}`,
-          { signal: controller.signal }
+          { signal: controller.signal, timeout: REVIEWS_AGGREGATE_TIMEOUT_MS }
         );
         setState({ data: response.data, loading: false, error: null });
       } catch (error: any) {

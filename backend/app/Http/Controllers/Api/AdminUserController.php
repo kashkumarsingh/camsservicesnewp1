@@ -160,7 +160,14 @@ class AdminUserController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
+            // Frontend may send camelCase (approvalStatus, rejectionReason); accept both. Normalise to lowercase.
+            $approvalStatus = strtolower((string) ($request->input('approval_status') ?? $request->input('approvalStatus', 'pending')));
+            $rejectionReason = $request->input('rejection_reason') ?? $request->input('rejectionReason');
+
+            $validator = Validator::make(array_merge($request->all(), [
+                'approval_status' => $approvalStatus,
+                'rejection_reason' => $rejectionReason,
+            ]), [
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users,email',
                 'password' => 'required|string|min:8',
@@ -173,7 +180,7 @@ class AdminUserController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return $this->validationErrorResponse($validator->errors());
+                return $this->validationErrorResponse($validator->errors()->toArray());
             }
 
             $user = User::create([
@@ -184,8 +191,8 @@ class AdminUserController extends Controller
                 'address' => $request->input('address'),
                 'postcode' => $request->input('postcode'),
                 'role' => $request->input('role'),
-                'approval_status' => $request->input('approval_status', 'pending'),
-                'rejection_reason' => $request->input('rejection_reason'),
+                'approval_status' => $approvalStatus,
+                'rejection_reason' => $rejectionReason,
             ]);
 
             // If approved during creation, set approved_at and approved_by
@@ -215,7 +222,7 @@ class AdminUserController extends Controller
                 'updatedAt' => $user->updated_at ? $user->updated_at->toIso8601String() : null,
             ];
 
-            return $this->createdResponse($data, 'User created successfully');
+            return $this->successResponse($data, 'User created successfully', [], 201);
         } catch (\Exception $e) {
             Log::error('Error creating user', [
                 'error' => $e->getMessage(),
@@ -244,7 +251,20 @@ class AdminUserController extends Controller
                 return $this->notFoundResponse('User');
             }
 
-            $validator = Validator::make($request->all(), [
+            // Frontend may send camelCase (approvalStatus, rejectionReason); accept both. Normalise to lowercase.
+            $approvalStatus = null;
+            if ($request->has('approval_status') || $request->has('approvalStatus')) {
+                $raw = $request->input('approval_status') ?? $request->input('approvalStatus');
+                $approvalStatus = $raw !== null ? strtolower((string) $raw) : null;
+            }
+            $rejectionReason = $request->has('rejection_reason') || $request->has('rejectionReason')
+                ? ($request->input('rejection_reason') ?? $request->input('rejectionReason'))
+                : null;
+
+            $validator = Validator::make(array_merge($request->all(), array_filter([
+                'approval_status' => $approvalStatus,
+                'rejection_reason' => $rejectionReason,
+            ])), [
                 'name' => 'sometimes|required|string|max:255',
                 'email' => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($id)],
                 'password' => 'sometimes|nullable|string|min:8',
@@ -252,12 +272,12 @@ class AdminUserController extends Controller
                 'address' => 'nullable|string|max:500',
                 'postcode' => 'nullable|string|max:20',
                 'role' => ['sometimes', 'required', 'string', Rule::in(['parent', 'trainer', 'admin', 'super_admin', 'editor'])],
-                'approval_status' => ['sometimes', 'string', Rule::in(['pending', 'approved', 'rejected'])],
+                'approval_status' => ['sometimes', 'nullable', 'string', Rule::in(['pending', 'approved', 'rejected'])],
                 'rejection_reason' => 'nullable|string|max:1000',
             ]);
 
             if ($validator->fails()) {
-                return $this->validationErrorResponse($validator->errors());
+                return $this->validationErrorResponse($validator->errors()->toArray());
             }
 
             // Update basic fields
@@ -282,13 +302,13 @@ class AdminUserController extends Controller
             if ($request->has('role')) {
                 $user->role = $request->input('role');
             }
-            if ($request->has('rejection_reason')) {
-                $user->rejection_reason = $request->input('rejection_reason');
+            if ($rejectionReason !== null) {
+                $user->rejection_reason = $rejectionReason;
             }
 
             // Handle approval status changes
-            if ($request->has('approval_status')) {
-                $newStatus = $request->input('approval_status');
+            if ($approvalStatus !== null) {
+                $newStatus = $approvalStatus;
                 $oldStatus = $user->approval_status;
 
                 $user->approval_status = $newStatus;
@@ -363,7 +383,7 @@ class AdminUserController extends Controller
 
             // Prevent self-deletion
             if ((int) auth()->id() === (int) $id) {
-                return $this->errorResponse('You cannot delete your own account.', 403);
+                return $this->errorResponse('You cannot delete your own account.', null, [], 403);
             }
 
             // Soft delete if the model uses SoftDeletes, otherwise hard delete
@@ -448,7 +468,7 @@ class AdminUserController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return $this->validationErrorResponse($validator->errors());
+                return $this->validationErrorResponse($validator->errors()->toArray());
             }
 
             $user->approval_status = 'rejected';

@@ -72,18 +72,18 @@ export default function ActivityLogForm({
         end_time: formData.end_time || undefined,
       };
 
-      let response;
+      let response: { activityLog: ActivityLog };
       if (initialData?.id) {
         // Update existing log
         const updateResponse = await trainerActivityLogRepository.update(initialData.id, dataToSubmit);
-        response = { activity_log: updateResponse.activity_log };
+        response = { activityLog: updateResponse.activityLog };
       } else {
         // Create new log
         response = await trainerActivityLogRepository.create(dataToSubmit);
       }
 
       if (onSuccess) {
-        onSuccess(response.activity_log);
+        onSuccess(response.activityLog);
       }
     } catch (err: any) {
       console.error('Failed to save activity log:', err);

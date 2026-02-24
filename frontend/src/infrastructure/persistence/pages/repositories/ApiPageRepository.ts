@@ -5,6 +5,7 @@ import { IPageRepository } from '@/core/application/pages/ports/IPageRepository'
 import { Page } from '@/core/domain/pages/entities/Page';
 import { CACHE_TAGS, REVALIDATION_TIMES } from '@/utils/revalidationConstants';
 
+/** API response shape (backend sends camelCase via ApiResponseHelper). */
 interface RemotePageResponse {
   id: string;
   title: string;
@@ -14,14 +15,12 @@ interface RemotePageResponse {
   content: string;
   sections?: Array<{ type: string; data: Record<string, unknown> }>;
   lastUpdated?: string;
-  last_updated?: string;
   effectiveDate?: string;
-  effective_date?: string;
   version: string;
   views: number;
   published: boolean;
-  created_at?: string;
-  updated_at?: string;
+  createdAt?: string;
+  updatedAt?: string;
   mission?: { title?: string; description?: string } | null;
   coreValues?: Array<{ icon?: string; title: string; description: string }> | null;
   coreValuesSectionTitle?: string | null;
@@ -51,8 +50,8 @@ export class ApiPageRepository implements IPageRepository {
       summary: data.summary,
       content: data.content,
       sections: data.sections,
-      lastUpdated: data.lastUpdated ?? data.last_updated,
-      effectiveDate: data.effectiveDate ?? data.effective_date,
+      lastUpdated: data.lastUpdated,
+      effectiveDate: data.effectiveDate,
       version: data.version,
       views: data.views,
       published: data.published,
@@ -61,8 +60,8 @@ export class ApiPageRepository implements IPageRepository {
       coreValuesSectionTitle: data.coreValuesSectionTitle ?? undefined,
       coreValuesSectionSubtitle: data.coreValuesSectionSubtitle ?? undefined,
       safeguarding: data.safeguarding ?? undefined,
-      createdAt: (data as { createdAt?: string }).createdAt ?? data.created_at,
-      updatedAt: (data as { updatedAt?: string }).updatedAt ?? data.updated_at,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
     });
   }
 

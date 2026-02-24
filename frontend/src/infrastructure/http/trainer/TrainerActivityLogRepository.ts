@@ -44,10 +44,13 @@ export class TrainerActivityLogRepository {
       ? `${API_ENDPOINTS.TRAINER_ACTIVITY_LOGS}?${queryParams.toString()}`
       : API_ENDPOINTS.TRAINER_ACTIVITY_LOGS;
 
-    const response = await apiClient.get<{ activity_logs: any[]; meta?: { pagination?: any } }>(url);
+    const response = await apiClient.get<{
+      activityLogs: ActivityLog[];
+      meta?: { pagination?: ActivityLogsResponse['pagination'] };
+    }>(url);
 
     return {
-      activity_logs: response.data.activity_logs || [],
+      activityLogs: response.data.activityLogs ?? [],
       pagination: response.data.meta?.pagination,
     };
   }
@@ -67,11 +70,16 @@ export class TrainerActivityLogRepository {
       ? `${API_ENDPOINTS.TRAINER_CHILD_ACTIVITY_LOGS(childId)}?${queryParams.toString()}`
       : API_ENDPOINTS.TRAINER_CHILD_ACTIVITY_LOGS(childId);
 
-    const response = await apiClient.get<{ child: any; activity_logs: any[]; meta?: { pagination?: any } }>(url);
+    const response = await apiClient.get<{
+      child: ChildActivityLogsResponse['child'];
+      activityLogs: ActivityLog[];
+      meta?: { pagination?: ChildActivityLogsResponse['pagination'] };
+    }>(url);
 
+    const child = response.data.child;
     return {
-      child: response.data.child,
-      activity_logs: response.data.activity_logs || [],
+      child: child ?? { id: 0, name: '', age: 0 },
+      activityLogs: response.data.activityLogs ?? [],
       pagination: response.data.meta?.pagination,
     };
   }
@@ -80,56 +88,56 @@ export class TrainerActivityLogRepository {
    * Get activity logs for a specific session (booking schedule)
    */
   async getSessionLogs(bookingScheduleId: number): Promise<ActivityLog[]> {
-    const response = await apiClient.get<{ activity_logs: ActivityLog[] }>(
+    const response = await apiClient.get<{ activityLogs: ActivityLog[] }>(
       API_ENDPOINTS.TRAINER_SCHEDULE_ACTIVITY_LOGS(bookingScheduleId)
     );
 
-    return response.data.activity_logs || [];
+    return response.data.activityLogs ?? [];
   }
 
   /**
    * Get a specific activity log
    */
   async get(id: number): Promise<ActivityLog> {
-    const response = await apiClient.get<{ activity_log: ActivityLog }>(
+    const response = await apiClient.get<{ activityLog: ActivityLog }>(
       API_ENDPOINTS.TRAINER_ACTIVITY_LOG_BY_ID(id)
     );
 
-    return response.data.activity_log;
+    return response.data.activityLog;
   }
 
   /**
    * Create a new activity log
    */
   async create(data: CreateActivityLogRequest): Promise<CreateActivityLogResponse> {
-    const response = await apiClient.post<CreateActivityLogResponse>(
+    const response = await apiClient.post<{ activityLog: ActivityLog }>(
       API_ENDPOINTS.TRAINER_ACTIVITY_LOGS,
       data
     );
 
-    return response.data;
+    return { activityLog: response.data.activityLog };
   }
 
   /**
    * Update an activity log (only within 24 hours)
    */
   async update(id: number, data: UpdateActivityLogRequest): Promise<UpdateActivityLogResponse> {
-    const response = await apiClient.put<UpdateActivityLogResponse>(
+    const response = await apiClient.put<{ activityLog: ActivityLog }>(
       API_ENDPOINTS.TRAINER_ACTIVITY_LOG_BY_ID(id),
       data
     );
 
-    return response.data;
+    return { activityLog: response.data.activityLog };
   }
 
   /**
    * Upload a photo for an activity log
    */
-  async uploadPhoto(id: number, photoFile: File): Promise<{ photo_url: string; activity_log: ActivityLog }> {
+  async uploadPhoto(id: number, photoFile: File): Promise<{ photoUrl: string; activityLog: ActivityLog }> {
     const formData = new FormData();
     formData.append('photo', photoFile);
 
-    const response = await apiClient.post<{ photo_url: string; activity_log: ActivityLog }>(
+    const response = await apiClient.post<{ photoUrl: string; activityLog: ActivityLog }>(
       API_ENDPOINTS.TRAINER_ACTIVITY_LOG_UPLOAD_PHOTO(id),
       formData,
       {
@@ -139,7 +147,7 @@ export class TrainerActivityLogRepository {
       }
     );
 
-    return response.data;
+    return { photoUrl: response.data.photoUrl, activityLog: response.data.activityLog };
   }
 }
 

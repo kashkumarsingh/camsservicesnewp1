@@ -233,31 +233,32 @@ class ProcessPaymentAction
                             ]);
                             
                             // Try to find payment by checkout session ID in metadata
+                            // Payment entity metadata() returns JSON string; decode before use
                             if (isset($metadata['booking_id'])) {
                                 $bookingId = (int) $metadata['booking_id'];
-                            $payments = $this->paymentRepository->findByPayable(\App\Models\Booking::class, (string) $bookingId);
-                            
-                            foreach ($payments as $p) {
-                                $metadata = $p->metadata();
-                                if (isset($metadata['checkout_session_id']) && $metadata['checkout_session_id'] === $checkoutSessionId) {
-                                    Log::info('Found payment by checkout session ID', [
-                                        'payment_id' => $p->id(),
-                                        'checkout_session_id' => $checkoutSessionId,
-                                    ]);
-                                    
-                                    // Update payment with the payment intent ID
-                                    $this->paymentRepository->updateTransactionAndStatus(
-                                        $p->id(),
-                                        $paymentIntentId,
-                                        \App\Domain\Payment\ValueObjects\PaymentStatus::PROCESSING,
-                                        ['payment_intent_id' => $paymentIntentId]
-                                    );
-                                    $payment = $this->paymentRepository->findById($p->id());
-                                    break;
+                                $payments = $this->paymentRepository->findByPayable(\App\Models\Booking::class, (string) $bookingId);
+
+                                foreach ($payments as $p) {
+                                    $paymentMeta = $p->metadata() ? json_decode($p->metadata(), true) : [];
+                                    if (is_array($paymentMeta) && isset($paymentMeta['checkout_session_id']) && $paymentMeta['checkout_session_id'] === $checkoutSessionId) {
+                                        Log::info('Found payment by checkout session ID', [
+                                            'payment_id' => $p->id(),
+                                            'checkout_session_id' => $checkoutSessionId,
+                                        ]);
+
+                                        // Update payment with the payment intent ID
+                                        $this->paymentRepository->updateTransactionAndStatus(
+                                            $p->id(),
+                                            $paymentIntentId,
+                                            \App\Domain\Payment\ValueObjects\PaymentStatus::PROCESSING,
+                                            ['payment_intent_id' => $paymentIntentId]
+                                        );
+                                        $payment = $this->paymentRepository->findById($p->id());
+                                        break;
+                                    }
                                 }
                             }
                         }
-                    }
                 } catch (\Exception $e) {
                     Log::warning('Failed to find payment by checkout session', [
                         'payment_intent_id' => $paymentIntentId,

@@ -63,7 +63,7 @@ export default function PhotoUpload({
       setError(null);
 
       const response = await trainerActivityLogRepository.uploadPhoto(activityLogId, file);
-      onPhotosChange([...uploadedPhotos, response.photo_url]);
+      onPhotosChange([...uploadedPhotos, response.photoUrl]);
     } catch (err: any) {
       console.error('Failed to upload photo:', err);
       setError(err.message || 'Failed to upload photo');
