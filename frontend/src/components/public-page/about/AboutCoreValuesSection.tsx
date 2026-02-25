@@ -17,7 +17,7 @@ function getIcon(name?: string): IconComponent {
   return ICON_MAP[name.toLowerCase().trim()] ?? Heart;
 }
 
-const GRADIENTS = ['from-[#FF6B6B] to-[#FF8E8E]', 'from-primary-blue to-light-blue-cyan', 'from-[#7FFF00] to-[#00FF00]'];
+const GRADIENTS = ['from-primary-blue to-light-blue-cyan', 'from-galaxy-purple to-primary-blue', 'from-orbital-green to-star-gold'];
 
 export interface CoreValueItem {
   icon?: string;
@@ -41,13 +41,13 @@ export default function AboutCoreValuesSection({ sectionTitle, sectionSubtitle, 
   const items = values.length >= 3 ? values.slice(0, 3) : DEFAULT_VALUES;
 
   return (
-    <div className="py-20 bg-gradient-to-br from-pink-50 to-white">
+    <div className="py-20 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
       <Section title={sectionTitle} subtitle={sectionSubtitle} titleClassName="heading-text-shadow">
         <div className="grid md:grid-cols-3 gap-6 md:gap-8 text-center">
           {items.map((val, i) => {
             const IconComponent = getIcon(val.icon);
             return (
-              <div key={i} className="p-6 sm:p-8 rounded-card border border-gray-200 card-hover-lift transition-all duration-300 flex flex-col justify-between bg-white md:hover:rotate-3 group">
+              <div key={i} className="p-6 sm:p-8 rounded-card border-2 border-gray-200 bg-white shadow-card hover:shadow-card-hover card-hover-lift transition-all duration-300 flex flex-col justify-between md:hover:rotate-3 group">
                 <div>
                   <div className={`relative w-20 h-20 bg-gradient-to-br ${GRADIENTS[i]} rounded-full flex items-center justify-center mb-5 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     <IconComponent className="text-white" size={36} />

@@ -1,4 +1,3 @@
-export { default as ContactHeroSection } from './ContactHeroSection';
 export { default as ContactStatsStrip } from './ContactStatsStrip';
 export { default as ContactFormSection } from './ContactFormSection';
 export { default as ContactSidebar } from './ContactSidebar';

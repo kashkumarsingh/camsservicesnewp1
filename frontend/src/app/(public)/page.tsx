@@ -13,6 +13,8 @@ import { serviceRepository } from '@/infrastructure/persistence/services';
 import { withTimeoutFallback } from '@/utils/promiseUtils';
 import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
 import { SEO_DEFAULTS } from '@/utils/seoConstants';
+import type { PackageDTO } from '@/core/application/packages/dto/PackageDTO';
+import { DEFAULT_HOME_STRINGS } from '@/components/home/constants';
 
 // Mark as dynamic because we use headers() in generateMetadata
 export const dynamic = 'force-dynamic';
@@ -104,17 +106,17 @@ export async function generateMetadata(): Promise<Metadata> {
   );
 }
 
-async function fetchPackages() {
+async function fetchPackages(): Promise<{ packages: PackageDTO[]; error: string | null }> {
   const useCase = new ListPackagesUseCase(packageRepository);
   try {
-    return await useCase.execute();
+    const packages = await useCase.execute();
+    return { packages, error: null };
   } catch (error) {
-    // Silently return empty array - timeout wrapper will handle logging
-    // Only log non-timeout errors in development
-    if (process.env.NODE_ENV === 'development' && error instanceof Error && !error.message?.includes('timeout')) {
+    const message = error instanceof Error ? error.message : DEFAULT_HOME_STRINGS.PACKAGES_LOAD_ERROR;
+    if (process.env.NODE_ENV === 'development' && error instanceof Error && !message.includes('timeout')) {
       console.warn('[HomePage] Failed to load packages:', error);
     }
-    return [];
+    return { packages: [], error: message };
   }
 }
 
@@ -132,11 +134,17 @@ async function fetchServices() {
   }
 }
 
+const PACKAGES_FALLBACK = {
+  packages: [] as PackageDTO[],
+  error: DEFAULT_HOME_STRINGS.PACKAGES_LOAD_ERROR as string | null,
+};
+
 export default async function LandingPage() {
   // Initialize with empty fallbacks
   let siteSettings: SiteSetting | null = null;
   let homePage = null;
-  let packages: any[] = [];
+  let packages: PackageDTO[] = [];
+  let packagesError: string | null = null;
   let services: any[] = [];
 
   try {
@@ -150,14 +158,20 @@ export default async function LandingPage() {
         6000,
         null
       ).catch(() => null), // 6s – home page content
-      withTimeoutFallback(fetchPackages(), 5000, []).catch(() => []), // 5s – fail fast and show page without packages if slow
+      withTimeoutFallback(fetchPackages(), 5000, PACKAGES_FALLBACK).catch(() => PACKAGES_FALLBACK), // 5s – fail fast and show page without packages if slow
       withTimeoutFallback(fetchServices(), 5000, []).catch(() => []), // 5s – fail fast and show page without services if slow
     ]);
 
     // Extract values with fallbacks
     siteSettings = siteSettingsResult.status === 'fulfilled' ? siteSettingsResult.value : null;
     homePage = homePageResult.status === 'fulfilled' ? homePageResult.value : null;
-    packages = packagesResult.status === 'fulfilled' ? packagesResult.value : [];
+    if (packagesResult.status === 'fulfilled') {
+      const payload = packagesResult.value;
+      packages = payload && typeof payload === 'object' && 'packages' in payload ? payload.packages : [];
+      packagesError = payload && typeof payload === 'object' && 'error' in payload && payload.error ? payload.error : null;
+    } else if (packagesResult.status === 'rejected') {
+      packagesError = packagesResult.reason instanceof Error ? packagesResult.reason.message : DEFAULT_HOME_STRINGS.PACKAGES_LOAD_ERROR;
+    }
     services = servicesResult.status === 'fulfilled' ? servicesResult.value : [];
   } catch (error) {
     // Log error for debugging
@@ -172,7 +186,7 @@ export default async function LandingPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-      <HomePageClient sections={sections} packages={packages} services={services} />
+      <HomePageClient sections={sections} packages={packages} packagesError={packagesError} services={services} />
     </>
   );
 }

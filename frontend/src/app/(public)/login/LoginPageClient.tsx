@@ -6,7 +6,7 @@ import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 import { validateEmail } from '@/utils/validation';
 import { getPostAuthRedirect } from '@/utils/navigation';
 import { ROUTES } from '@/utils/routes';
-import { LoginHeroSection, LoginFormSection } from '@/components/login';
+import { LoginFormSection } from '@/components/login';
 import type { LoginFormData } from '@/components/login';
 import { LOGIN_VALIDATION_FALLBACKS } from '@/components/login/constants';
 
@@ -101,11 +101,9 @@ export default function LoginPageClient() {
   };
 
   return (
-    <div className="min-h-screen bg-white px-4 py-12 sm:px-6 lg:flex lg:items-center lg:justify-center lg:px-8">
-      <div className="mx-auto w-full max-w-5xl">
-        <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
-          <LoginHeroSection />
-          <LoginFormSection
+    <div className="min-h-screen bg-slate-50 px-4 py-12 sm:px-6 lg:flex lg:items-center lg:justify-center lg:px-8">
+      <div className="mx-auto w-full max-w-md">
+        <LoginFormSection
           formData={formData}
           errors={errors}
           touched={touched}
@@ -120,7 +118,6 @@ export default function LoginPageClient() {
           authError={authError}
           registerHref={ROUTES.REGISTER}
         />
-        </div>
       </div>
     </div>
   );

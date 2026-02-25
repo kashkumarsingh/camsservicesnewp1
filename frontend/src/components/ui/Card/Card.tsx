@@ -12,7 +12,7 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({ title, description, imageSrc, imageAlt, children, className = '' }) => {
   return (
-    <div className={`bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition ${className}`}>
+    <div className={`bg-white rounded-card p-6 shadow-card hover:shadow-card-hover transition ${className}`}>
       {imageSrc && (
         <div className="mb-4">
           <Image src={imageSrc} alt={imageAlt || ''} width={128} height={128} className="w-32 h-32 rounded-full mx-auto object-cover" />

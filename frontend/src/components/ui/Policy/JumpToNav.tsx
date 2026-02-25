@@ -8,7 +8,7 @@ type JumpToNavProps = {
 export default function JumpToNav({ items }: JumpToNavProps) {
   if (!items?.length) return null;
   return (
-    <nav className="mb-8 rounded-2xl bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-gray-200 p-4 md:p-5">
+    <nav className="mb-8 rounded-card bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-gray-200 p-4 md:p-5">
       <div className="text-navy-blue font-semibold mb-2">Jump to</div>
       <div className="flex flex-wrap gap-2">
         {items.map((item) => (

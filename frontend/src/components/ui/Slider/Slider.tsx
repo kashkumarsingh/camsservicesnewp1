@@ -98,8 +98,8 @@ const Slider: React.FC<SliderProps> = ({ items, type, className = '', hasShadow 
   }, [items]);
 
   return (
-    <div className={`relative ${className} ${hasShadow ? 'shadow-lg rounded-2xl' : ''}`}>
-      <div className="overflow-hidden rounded-2xl">
+    <div className={`relative ${className} ${hasShadow ? 'shadow-lg rounded-card' : ''}`}>
+      <div className="overflow-hidden rounded-card">
         <div ref={sliderRef} className={`flex transition-transform duration-500 ease-in-out ${gap}`} style={{ transform: `translateX(-${currentIndex * (100 / currentSlidesToShow)}%)` }}>
           {items.map((item, index) => (
             <div key={index} className={`flex-shrink-0 ${itemHeightClass}`} style={{ width: `calc(${100 / currentSlidesToShow}% - ${parseInt(gap.replace('gap-', '')) / currentSlidesToShow}rem)` }}>

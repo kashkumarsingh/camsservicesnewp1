@@ -14,7 +14,7 @@ const QuickSummaryCard: React.FC<QuickSummaryCardProps> = ({ pkg }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl border-2 border-blue-200 overflow-hidden">
+    <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-card border-2 border-blue-200 overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between p-5 hover:bg-blue-100/50 transition-colors"

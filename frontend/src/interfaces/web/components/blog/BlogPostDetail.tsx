@@ -94,7 +94,7 @@ export default function BlogPostDetail({ slug, incrementViews = true }: BlogPost
 
       {/* Featured Image */}
       {post.featuredImage && (
-        <div className="relative w-full h-96 mb-8 rounded-2xl overflow-hidden">
+        <div className="relative w-full h-96 mb-8 rounded-card overflow-hidden">
           <Image
             src={post.featuredImage}
             alt={post.title}

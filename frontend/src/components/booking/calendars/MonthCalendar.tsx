@@ -271,7 +271,7 @@ export default function MonthCalendar({
   };
 
   return (
-    <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-gray-200 md:border-2 p-2 sm:p-4 md:p-6">
+    <div className="bg-white rounded-card shadow-card border border-gray-200 md:border-2 p-2 sm:p-4 md:p-6">
       <BaseMonthCalendar
         currentMonth={currentMonth}
         onMonthChange={onMonthChange}

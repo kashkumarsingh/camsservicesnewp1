@@ -19,7 +19,7 @@ interface BlogPostCardProps {
 export default function BlogPostCard({ post }: BlogPostCardProps) {
   return (
     <Link href={`/blog/${post.slug}`} className="group block">
-      <article className="bg-white rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full flex flex-col">
+      <article className="bg-white rounded-card border-2 border-gray-200 shadow-card hover:shadow-card-hover card-hover-lift transition-all duration-300 overflow-hidden h-full flex flex-col md:hover:rotate-3">
         {/* Featured Image */}
         {post.featuredImage && (
           <div className="relative w-full h-44 overflow-hidden">
@@ -27,52 +27,52 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
               src={post.featuredImage}
               alt={post.title}
               fill
-              className="object-cover"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
           </div>
         )}
 
         {/* Content */}
-        <div className="flex-1 p-5 flex flex-col">
+        <div className="flex-1 p-6 sm:p-8 flex flex-col">
           {/* Category */}
           {post.category && (
-            <div className="inline-block bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded text-xs font-medium mb-2">
+            <div className="inline-block bg-primary-blue/10 text-navy-blue px-2.5 py-0.5 rounded-lg text-xs font-medium mb-2">
               {post.category.name}
             </div>
           )}
 
           {/* Title */}
-          <h3 className="text-lg font-semibold text-slate-900 mb-2 line-clamp-2 group-hover:text-slate-700">
+          <h3 className="text-xl font-bold text-navy-blue mb-2 line-clamp-2 group-hover:text-primary-blue transition-colors">
             {post.title}
           </h3>
 
           {/* Excerpt */}
-          <p className="text-slate-600 text-sm mb-4 line-clamp-3 flex-1">
+          <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-1">
             {post.excerpt}
           </p>
 
           {/* Meta Information */}
-          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-4 border-t border-slate-200">
+          <div className="flex flex-wrap items-center gap-4 text-xs text-gray-600 pt-4 border-t border-gray-200">
             {post.author && (
               <div className="flex items-center gap-1">
-                <User size={14} />
+                <User size={14} className="text-primary-blue flex-shrink-0" />
                 <span>{post.author.name}</span>
               </div>
             )}
             {post.publishedAt && (
               <div className="flex items-center gap-1">
-                <Calendar size={14} />
+                <Calendar size={14} className="text-star-gold flex-shrink-0" />
                 <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
               </div>
             )}
             {post.readingTime && (
               <div className="flex items-center gap-1">
-                <Clock size={14} />
+                <Clock size={14} className="text-light-blue-cyan flex-shrink-0" />
                 <span>{post.readingTime} min read</span>
               </div>
             )}
             <div className="flex items-center gap-1">
-              <Eye size={14} />
+              <Eye size={14} className="text-navy-blue flex-shrink-0" />
               <span>{post.views} views</span>
             </div>
           </div>
@@ -83,7 +83,7 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
               {post.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag.id}
-                  className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-xs"
+                  className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-lg text-xs"
                 >
                   #{tag.name}
                 </span>

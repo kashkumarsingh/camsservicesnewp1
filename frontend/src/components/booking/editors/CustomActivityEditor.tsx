@@ -72,19 +72,19 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
         {customActivities.length > 0 && (
           <div className="mt-4 space-y-2">
             <h5 className="text-sm font-bold text-navy-blue flex items-center gap-2">
-              <Sparkles size={16} className="text-[#9333EA]" />
+              <Sparkles size={16} className="text-galaxy-purple" />
               Your Requested Activities ({customActivities.length})
             </h5>
             {customActivities.map((activity) => (
               <div
                 key={activity.id}
-                className="p-3 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-[#9333EA] rounded-lg"
+                className="p-3 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-galaxy-purple rounded-lg"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h6 className="font-bold text-navy-blue flex items-center gap-2">
                       ✨ {activity.name}
-                      <span className="text-xs font-semibold text-[#9333EA] bg-purple-100 px-2 py-0.5 rounded-full">
+                      <span className="text-xs font-semibold text-galaxy-purple bg-purple-100 px-2 py-0.5 rounded-full">
                         {activity.duration}h
                       </span>
                     </h6>
@@ -100,7 +100,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                   <div className="flex items-center gap-2 ml-2">
                     <button
                       onClick={() => onEditCustomActivity(activity.id)}
-                      className="p-1.5 rounded-full hover:bg-purple-100 transition-colors text-[#9333EA]"
+                      className="p-1.5 rounded-full hover:bg-purple-100 transition-colors text-galaxy-purple"
                       aria-label={`Edit ${activity.name}`}
                       title="Edit"
                     >
@@ -175,7 +175,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                     value={customName}
                     onChange={(e) => onCustomNameChange(e.target.value)}
                     placeholder="e.g., Baking cookies, Building robots, Painting..."
-                    className="w-full px-4 py-3 rounded-card border-2 border-gray-200 focus:border-[#9333EA] focus:outline-none text-navy-blue"
+                    className="w-full px-4 py-3 rounded-card border-2 border-gray-200 focus:border-galaxy-purple focus:outline-none text-navy-blue"
                   />
                 </div>
 
@@ -204,7 +204,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                           const totalHours = hours + (currentMinutes / 60);
                           onCustomDurationChange(totalHours.toString());
                         }}
-                        className="w-full px-3 py-2.5 rounded-lg border-2 border-gray-200 focus:border-[#9333EA] focus:outline-none text-navy-blue text-sm"
+                        className="w-full px-3 py-2.5 rounded-lg border-2 border-gray-200 focus:border-galaxy-purple focus:outline-none text-navy-blue text-sm"
                       >
                         {(() => {
                           const maxFromRemaining = remainingHours;
@@ -244,7 +244,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                           const totalHours = currentHours + (minutes / 60);
                           onCustomDurationChange(totalHours.toString());
                         }}
-                        className="w-full px-3 py-2.5 rounded-lg border-2 border-gray-200 focus:border-[#9333EA] focus:outline-none text-navy-blue text-sm"
+                        className="w-full px-3 py-2.5 rounded-lg border-2 border-gray-200 focus:border-galaxy-purple focus:outline-none text-navy-blue text-sm"
                       >
                         <option value="0">0 min</option>
                         <option value="15">15 min</option>
@@ -257,7 +257,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                   {/* Total Duration Display */}
                   <div className="mt-2 p-2 bg-purple-50 border border-purple-200 rounded-lg">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-[#9333EA]">Total Duration:</span>
+                      <span className="text-xs font-semibold text-galaxy-purple">Total Duration:</span>
                       <span className="text-sm font-bold text-navy-blue">
                         {(() => {
                           const parsed = parseFloat(customDuration || '0');
@@ -308,7 +308,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                     onChange={(e) => onCustomDescriptionChange(e.target.value)}
                     placeholder="e.g., Making chocolate chip cookies and decorating with icing"
                     rows={2}
-                    className="w-full px-4 py-3 rounded-card border-2 border-gray-200 focus:border-[#9333EA] focus:outline-none resize-none text-navy-blue"
+                    className="w-full px-4 py-3 rounded-card border-2 border-gray-200 focus:border-galaxy-purple focus:outline-none resize-none text-navy-blue"
                   />
                 </div>
 
@@ -318,7 +318,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                     Does your child need special equipment or materials?
                   </label>
                   <div className="space-y-2 mb-3">
-                    <label className="flex items-center cursor-pointer p-3 rounded-card border-2 border-gray-200 hover:border-[#9333EA] transition-colors bg-white">
+                    <label className="flex items-center cursor-pointer p-3 rounded-card border-2 border-gray-200 hover:border-galaxy-purple transition-colors bg-white">
                       <input
                         type="radio"
                         name="equipmentOption"
@@ -328,22 +328,22 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                           onEquipmentOptionChange('none');
                           onCustomEquipmentChange('');
                         }}
-                        className="w-4 h-4 text-[#9333EA] border-gray-300 focus:ring-2 focus:ring-[#9333EA] mr-3"
+                        className="w-4 h-4 text-galaxy-purple border-gray-300 focus:ring-2 focus:ring-galaxy-purple mr-3"
                       />
                       <span className="text-navy-blue">No, standard equipment is fine</span>
                     </label>
-                    <label className="flex items-center cursor-pointer p-3 rounded-card border-2 border-gray-200 hover:border-[#9333EA] transition-colors bg-white">
+                    <label className="flex items-center cursor-pointer p-3 rounded-card border-2 border-gray-200 hover:border-galaxy-purple transition-colors bg-white">
                       <input
                         type="radio"
                         name="equipmentOption"
                         value="yes"
                         checked={equipmentOption === 'yes'}
                         onChange={() => onEquipmentOptionChange('yes')}
-                        className="w-4 h-4 text-[#9333EA] border-gray-300 focus:ring-2 focus:ring-[#9333EA] mr-3"
+                        className="w-4 h-4 text-galaxy-purple border-gray-300 focus:ring-2 focus:ring-galaxy-purple mr-3"
                       />
                       <span className="text-navy-blue">Yes, I&apos;ll specify below</span>
                     </label>
-                    <label className="flex items-center cursor-pointer p-3 rounded-card border-2 border-gray-200 hover:border-[#9333EA] transition-colors bg-white">
+                    <label className="flex items-center cursor-pointer p-3 rounded-card border-2 border-gray-200 hover:border-galaxy-purple transition-colors bg-white">
                       <input
                         type="radio"
                         name="equipmentOption"
@@ -353,7 +353,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                           onEquipmentOptionChange('unsure');
                           onCustomEquipmentChange('Not sure, please advise');
                         }}
-                        className="w-4 h-4 text-[#9333EA] border-gray-300 focus:ring-2 focus:ring-[#9333EA] mr-3"
+                        className="w-4 h-4 text-galaxy-purple border-gray-300 focus:ring-2 focus:ring-galaxy-purple mr-3"
                       />
                       <span className="text-navy-blue">Not sure, please advise</span>
                     </label>
@@ -364,7 +364,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                       value={customEquipment}
                       onChange={(e) => onCustomEquipmentChange(e.target.value)}
                       placeholder="e.g., Magnifying glass, Water bottle"
-                      className="w-full px-4 py-3 rounded-card border-2 border-[#9333EA] focus:border-[#9333EA] focus:outline-none text-navy-blue"
+                      className="w-full px-4 py-3 rounded-card border-2 border-galaxy-purple focus:border-galaxy-purple focus:outline-none text-navy-blue"
                     />
                   )}
                   {equipmentOption === 'unsure' && (

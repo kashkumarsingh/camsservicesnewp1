@@ -145,6 +145,7 @@ export function buildHomeSectionsMap(params: HomeSectionsMapParams): Record<Home
           subtitle: packagesConfig.subtitle,
           viewAllLabel: packagesConfig.viewAllLabel ?? DEFAULT_PACKAGES_SECTION.viewAllLabel!,
           viewAllHref: packagesConfig.viewAllHref ?? DEFAULT_PACKAGES_SECTION.viewAllHref!,
+          backgroundVideoUrl: DEFAULT_HERO.backgroundVideoUrl,
         }}
         packages={packagesToRender}
         allPackages={effectivePackages}

@@ -21,4 +21,6 @@ export const ABOUT_PAGE = {
   CTA_SECONDARY: 'Email Our Team',
   GET_IN_TOUCH: 'Get in Touch',
   VIEW_OUR_SERVICES: 'View Our Services',
+  MISSION_CTA: "Discuss Your Child's Needs",
+  SAFEGUARDING_CTA: 'Request Our Safeguarding Policy',
 } as const;

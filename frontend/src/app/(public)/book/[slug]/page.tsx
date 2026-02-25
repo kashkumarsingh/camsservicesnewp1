@@ -288,7 +288,7 @@ export default async function BookPackagePage({ params }: Props) {
 
             {/* Right: Booking Card - Proper Text Sizes */}
             <div className="lg:sticky lg:top-16">
-              <div className="bg-white rounded-xl p-4 shadow-xl border-2 border-[#FFD700]">
+              <div className="bg-white rounded-xl p-4 shadow-xl border-2 border-star-gold">
                 {/* Price row + scarcity */}
                 <div className="flex items-center justify-between gap-3 mb-3">
                   <div>
@@ -316,7 +316,7 @@ export default async function BookPackagePage({ params }: Props) {
                 <div className="flex flex-wrap gap-2">
                   {legacyPackage.features.slice(0, 3).map((feature: string, index: number) => (
                     <span key={index} className="text-[11px] text-gray-700 bg-gray-50 border border-gray-200 rounded-full px-2 py-1 inline-flex items-center gap-1">
-                      <CheckCircle2 size={12} className="text-green-600" />{feature}
+                      <CheckCircle2 size={12} className="text-primary-blue flex-shrink-0" />{feature}
                     </span>
                   ))}
                   {legacyPackage.features.length > 3 && (
@@ -335,11 +335,11 @@ export default async function BookPackagePage({ params }: Props) {
 
           {/* Package Features */}
           <div className="mb-12">
-            <h2 className="text-2xl font-bold text-[#1E3A5F] mb-6 text-center">What&apos;s Included</h2>
+            <h2 className="text-2xl font-bold text-navy-blue mb-6 text-center">What&apos;s Included</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {legacyPackage.features.map((feature: string, index: number) => (
                 <div key={index} className="bg-white rounded-lg p-4 border-2 border-gray-200 flex items-start gap-3">
-                  <CheckCircle2 className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
+                  <CheckCircle2 className="text-primary-blue flex-shrink-0 mt-0.5" size={20} />
                   <span className="text-gray-700">{feature}</span>
                 </div>
               ))}

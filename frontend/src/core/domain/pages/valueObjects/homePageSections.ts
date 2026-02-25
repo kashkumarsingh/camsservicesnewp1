@@ -11,7 +11,7 @@ export type HomePageSection =
 export interface CTAConfig {
   label: string;
   href: string;
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'outline' | 'outlineWhite';
 }
 
 export interface HeroSection {

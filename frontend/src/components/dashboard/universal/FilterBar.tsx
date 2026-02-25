@@ -39,7 +39,7 @@ export function FilterBar({
   gridClassName,
 }: FilterBarProps) {
   const base =
-    'flex flex-wrap gap-3 items-end p-3 bg-slate-50 border border-slate-200 rounded-2xl mb-4 dark:bg-slate-900/50 dark:border-slate-700';
+    'flex flex-wrap gap-3 items-end p-3 bg-slate-50 border border-slate-200 rounded-card mb-4 dark:bg-slate-900/50 dark:border-slate-700';
   const combined = className.trim() ? `${base} ${className}` : base;
   const showFilters = isOpen !== false;
 

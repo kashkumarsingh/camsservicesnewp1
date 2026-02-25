@@ -73,15 +73,12 @@ const Header: React.FC = () => {
     { href: ROUTES.ABOUT, label: 'Who We Are' },
     { href: ROUTES.SERVICES, label: 'What We Do' },
     { href: ROUTES.PACKAGES, label: 'Our Packages' },
-    { href: ROUTES.TRAINERS, label: 'Our Team' },
     { href: ROUTES.BLOG, label: 'Blog' },
-    { href: ROUTES.FAQ, label: 'FAQ' },
-    { href: ROUTES.POLICIES, label: 'Policies' },
-    { href: ROUTES.CONTACT, label: "Let's Connect" },
+    { href: ROUTES.CONTACT, label: 'Let\'s Connect' },
   ];
 
   return (
-    <header className="sticky top-0 z-[999] w-full border-b border-slate-200 bg-white">
+    <header className="sticky top-0 z-[40] w-full border-b border-white/10 bg-navy-blue" >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 lg:h-16">
           {/* Logo */}
@@ -98,31 +95,29 @@ const Header: React.FC = () => {
             </div>
           </Link>
 
-          {/* Desktop: centre nav – plain text links (Payhawk-style) */}
+          {/* Desktop: centre nav – white text links */}
           <nav className="hidden lg:flex items-center gap-8" aria-label="Main">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors whitespace-nowrap"
+                className="text-sm font-medium text-white hover:text-white/90 transition-colors whitespace-nowrap"
               >
                 {link.label}
               </Link>
             ))}
-            {!authLoading && !isAuthenticated && !user && (
-              <Link
-                href="/become-a-trainer"
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors whitespace-nowrap"
-              >
-                Become a Trainer
-              </Link>
-            )}
           </nav>
 
-          {/* Desktop: right – Login (text) + primary CTA + theme (Payhawk: Login | Start free trial | Get a demo) */}
-          <div className="hidden lg:flex items-center gap-6">
-            <ThemeToggle />
-            <AuthButtons />
+          {/* Desktop: right – Become a Trainer (pill) | Theme | Login | Register – per reference */}
+          <div className="hidden lg:flex items-center gap-4">
+            <Link
+              href={ROUTES.BECOME_A_TRAINER}
+              className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold bg-gradient-to-r from-primary-blue to-light-blue-cyan text-white hover:opacity-95 transition-opacity whitespace-nowrap"
+            >
+              Become a Trainer
+            </Link>
+            <ThemeToggle className="text-white hover:text-white/90 hover:bg-white/10" />
+            <AuthButtons variant="dark" />
           </div>
 
           {/* Mobile menu trigger */}
@@ -183,13 +178,11 @@ const Header: React.FC = () => {
                   </Link>
                 </li>
               ))}
-              {!authLoading && !isAuthenticated && !user && (
-                <li>
-                  <Link href="/become-a-trainer" onClick={closeMenu} className="block py-3 text-base font-medium text-slate-800 hover:text-[var(--color-primary)]">
-                    Become a Trainer
-                  </Link>
-                </li>
-              )}
+              <li>
+                <Link href={ROUTES.BECOME_A_TRAINER} onClick={closeMenu} className="block py-3 text-base font-medium text-slate-800 hover:text-[var(--color-primary)]">
+                  Become a Trainer
+                </Link>
+              </li>
             </ul>
             <div className="mt-6 pt-6 border-t border-slate-200 flex flex-col gap-2">
               <ThemeToggle />

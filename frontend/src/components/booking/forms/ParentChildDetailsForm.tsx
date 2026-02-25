@@ -234,7 +234,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
   return (
     <div className="max-w-4xl mx-auto space-y-4">
       {/* Header Card */}
-      <div className="bg-white rounded-card shadow-lg border-2 border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-card shadow-card border-2 border-gray-200 overflow-hidden">
         <div className="bg-gradient-to-r from-primary-blue to-light-blue-cyan px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -392,7 +392,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
       </div>
 
       {/* Children Section */}
-      <div className="bg-white rounded-card shadow-lg border-2 border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-card shadow-card border-2 border-gray-200 overflow-hidden">
         <div className="bg-gradient-to-r from-pink-50 to-purple-50 px-6 py-5 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -419,7 +419,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
 
         <div className="p-6">
           {childrenDetails.length === 0 ? (
-            <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-card bg-gradient-to-br from-gray-50 to-gray-100">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center mx-auto mb-4">
                 <HeartPulse className="text-pink-600" size={32} />
               </div>
@@ -473,7 +473,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
                 return (
                   <div
                     key={child.id}
-                    className={`border-2 rounded-2xl transition-all ${
+                    className={`border-2 rounded-card transition-all ${
                       isValid
                         ? 'border-green-300 bg-gradient-to-br from-green-50 to-emerald-50 shadow-md'
                         : 'border-gray-200 bg-white hover:border-gray-300'

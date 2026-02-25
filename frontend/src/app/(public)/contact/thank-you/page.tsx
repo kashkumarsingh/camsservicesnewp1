@@ -127,7 +127,7 @@ export default async function ContactThankYouPage() {
       {/* Next Steps & Support Section */}
       <Section className="py-20 bg-gradient-to-br from-blue-50 to-white">
         <div className="grid gap-8 lg:grid-cols-2 max-w-7xl mx-auto">
-          <Card className="rounded-3xl border border-gray-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <Card className="rounded-3xl border border-gray-100 shadow-card hover:shadow-card-hover transition-shadow duration-300">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-primary-blue/10">
                 <Clock className="text-primary-blue" size={24} />
@@ -141,7 +141,7 @@ export default async function ContactThankYouPage() {
             </p>
             <div className="mt-8 space-y-5">
               {nextSteps.map((step, index) => (
-                <div key={step.title} className="flex gap-5 rounded-2xl border-2 border-gray-100 bg-gradient-to-r from-white to-blue-50/50 p-5 hover:border-primary-blue/30 hover:shadow-md transition-all duration-300">
+                <div key={step.title} className="flex gap-5 rounded-card border-2 border-gray-100 bg-gradient-to-r from-white to-blue-50/50 p-5 hover:border-primary-blue/30 hover:shadow-card-hover transition-all duration-300">
                   <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-primary-blue to-light-blue-cyan flex items-center justify-center">
                     <span className="text-xl font-bold text-white">{index + 1}</span>
                   </div>
@@ -154,7 +154,7 @@ export default async function ContactThankYouPage() {
             </div>
           </Card>
 
-          <Card className="rounded-3xl border-2 border-[#001F3F] bg-gradient-to-br from-[#001F3F] to-[#003366] text-white shadow-2xl hover:shadow-3xl transition-shadow duration-300">
+          <Card className="rounded-3xl border-2 border-navy-blue bg-gradient-to-br from-navy-blue to-footer-dark text-white shadow-card hover:shadow-card-hover transition-shadow duration-300">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-white/20">
                 <MessageSquare className="text-white" size={24} />
@@ -211,7 +211,7 @@ export default async function ContactThankYouPage() {
       {/* Trust & Preparation Section */}
       <Section className="py-20 bg-white">
         <div className="grid gap-8 lg:grid-cols-2 max-w-7xl mx-auto">
-          <Card className="rounded-3xl border-2 border-gray-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <Card className="rounded-3xl border-2 border-gray-100 shadow-card hover:shadow-card-hover transition-shadow duration-300">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 rounded-lg bg-green-100">
                 <Shield className="text-green-600" size={24} />
@@ -221,7 +221,7 @@ export default async function ContactThankYouPage() {
             <IconList items={reassuranceHighlights} />
           </Card>
 
-          <Card className="rounded-3xl border-2 border-gray-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <Card className="rounded-3xl border-2 border-gray-100 shadow-card hover:shadow-card-hover transition-shadow duration-300">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 rounded-lg bg-purple-100">
                 <Calendar className="text-purple-600" size={24} />

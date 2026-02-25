@@ -4,7 +4,11 @@ import React from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from './ThemeContext';
 
-const ThemeToggle: React.FC = () => {
+interface ThemeToggleProps {
+  className?: string;
+}
+
+const ThemeToggle: React.FC<ThemeToggleProps> = ({ className = '' }) => {
   const { theme, resolvedTheme, setTheme } = useTheme();
 
   const cycleTheme = () => {
@@ -18,11 +22,16 @@ const ThemeToggle: React.FC = () => {
       ? `Theme: system (${resolvedTheme})`
       : `Theme: ${theme}`;
 
+  const baseClasses =
+    'inline-flex items-center justify-center p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white/50 transition-colors';
+  const defaultClasses =
+    'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/10 dark:hover:text-white';
+
   return (
     <button
       type="button"
       onClick={cycleTheme}
-      className="inline-flex items-center justify-center p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-slate-400 transition-colors dark:text-slate-200 dark:hover:bg-white/10 dark:hover:text-white"
+      className={className ? `${baseClasses} ${className}` : `${baseClasses} ${defaultClasses}`}
       aria-label={label}
       title={label}
     >

@@ -180,7 +180,7 @@ export default function HeroPackageBookingForm({ packages }: HeroPackageBookingF
   };
 
   return (
-    <div className="rounded-3xl border border-white/25 bg-gradient-to-b from-white/20 via-white/10 to-white/0 p-5 sm:p-6 backdrop-blur-xl shadow-[0_12px_50px_rgba(15,23,42,0.3)] transition-all duration-300 hover:shadow-[0_18px_70px_rgba(15,23,42,0.4)]">
+    <div className="rounded-3xl border border-white/25 bg-gradient-to-b from-white/20 via-white/10 to-white/0 p-5 sm:p-6 backdrop-blur-xl shadow-xl transition-all duration-300 hover:shadow-2xl">
       <div className="mb-4 flex flex-col gap-2">
         <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/80">
           <Calendar size={14} />
@@ -192,7 +192,7 @@ export default function HeroPackageBookingForm({ packages }: HeroPackageBookingF
             <p className="text-xs text-white/70">We’ll grab the details about your child on the next step.</p>
           </div>
           <div className="hidden sm:flex items-center gap-2 text-[11px] text-white/70">
-            <CheckCircle2 size={14} className="text-[#FFD700]" />
+            <CheckCircle2 size={14} className="text-star-gold" />
             <span>Handpicked & DBS checked</span>
           </div>
         </div>
@@ -216,7 +216,7 @@ export default function HeroPackageBookingForm({ packages }: HeroPackageBookingF
                 onChange={handleChange}
                 onBlur={() => handleBlur('firstName')}
                 placeholder="Jordan"
-                className={`w-full pr-10 rounded-2xl border bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 transition-all ${
+                className={`w-full pr-10 rounded-card border bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 transition-all ${
                   touched.firstName
                     ? errors.firstName
                       ? 'border-red-400 focus:border-red-400 focus:ring-red-300'
@@ -259,7 +259,7 @@ export default function HeroPackageBookingForm({ packages }: HeroPackageBookingF
                 onChange={handleChange}
                 onBlur={() => handleBlur('lastName')}
                 placeholder="Smith"
-                className={`w-full pr-10 rounded-2xl border bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 transition-all ${
+                className={`w-full pr-10 rounded-card border bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 transition-all ${
                   touched.lastName
                     ? errors.lastName
                       ? 'border-red-400 focus:border-red-400 focus:ring-red-300'
@@ -299,7 +299,7 @@ export default function HeroPackageBookingForm({ packages }: HeroPackageBookingF
                 onChange={handleChange}
                 onBlur={() => handleBlur('email')}
                 placeholder="jordan@family.co.uk"
-                className={`w-full pr-10 rounded-2xl border bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 transition-all ${
+                className={`w-full pr-10 rounded-card border bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 transition-all ${
                   touched.email
                     ? errors.email
                       ? 'border-red-400 focus:border-red-400 focus:ring-red-300'
@@ -341,7 +341,7 @@ export default function HeroPackageBookingForm({ packages }: HeroPackageBookingF
                 onChange={handleChange}
                 onBlur={() => handleBlur('phone')}
                 placeholder="07123 456789 or 020 1234 5678"
-                className={`w-full pr-10 rounded-2xl border bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 transition-all ${
+                className={`w-full pr-10 rounded-card border bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 transition-all ${
                   touched.phone
                     ? errors.phone
                       ? 'border-red-400 focus:border-red-400 focus:ring-red-300'
@@ -370,7 +370,7 @@ export default function HeroPackageBookingForm({ packages }: HeroPackageBookingF
           </label>
           <label className="space-y-1.5 text-xs font-semibold text-white/75">
             <span className="uppercase tracking-[0.35em] text-white/60">Preferred package *</span>
-            <div className="rounded-2xl border border-white/20 bg-white/10 px-3 py-1.5">
+            <div className="rounded-card border border-white/20 bg-white/10 px-3 py-1.5">
               <select
                 id="hero-booking-package"
                 name="packageSlug"
@@ -381,7 +381,7 @@ export default function HeroPackageBookingForm({ packages }: HeroPackageBookingF
               >
                 <option value="">Select a package…</option>
                 {packages.map((pkg) => (
-                  <option key={pkg.id} value={pkg.slug} className="bg-[#0f192d] text-white">
+                  <option key={pkg.id} value={pkg.slug} className="bg-navy-blue text-white">
                     {pkg.name} · £{pkg.price} · {pkg.hours} hrs
                   </option>
                 ))}
@@ -396,7 +396,7 @@ export default function HeroPackageBookingForm({ packages }: HeroPackageBookingF
         {error && (
           <div
             role="alert"
-            className="flex items-start gap-2 rounded-2xl border border-rose-300/80 bg-rose-500/15 px-4 py-3 text-sm text-white"
+            className="flex items-start gap-2 rounded-card border border-rose-300/80 bg-rose-500/15 px-4 py-3 text-sm text-white"
           >
             <AlertCircle size={18} className="mt-0.5" />
             <span>{error}</span>
@@ -406,13 +406,13 @@ export default function HeroPackageBookingForm({ packages }: HeroPackageBookingF
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`w-full rounded-2xl border border-transparent bg-gradient-to-r from-[#FFE07D] via-[#FFC247] to-[#FF9E2C] px-6 py-4 text-base font-semibold text-[#1A2650] shadow-[0_15px_45px_rgba(0,0,0,0.25)] transition-all duration-200 ${
-            isSubmitting ? 'cursor-wait opacity-70' : 'hover:-translate-y-0.5 hover:shadow-[0_20px_55px_rgba(0,0,0,0.35)]'
+          className={`w-full rounded-card border border-transparent bg-gradient-to-r from-star-gold via-amber-400 to-cta-accent-start px-6 py-4 text-base font-semibold text-navy-blue shadow-lg transition-all duration-200 ${
+            isSubmitting ? 'cursor-wait opacity-70' : 'hover:-translate-y-0.5 hover:shadow-xl'
           }`}
         >
           {isSubmitting ? (
             <span className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#1A2650] border-t-transparent" />
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-navy-blue border-t-transparent" />
               Starting booking…
             </span>
           ) : (

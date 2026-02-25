@@ -27,15 +27,15 @@ export function TestimonialsSection({ config, testimonials, isLoading, error }: 
 
   return (
     <Section className="py-16 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-navy-blue mb-3">{config.title}</h2>
           {config.subtitle && (
-            <p className="text-lg text-gray-700 max-w-2xl mx-auto">{config.subtitle}</p>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">{config.subtitle}</p>
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {isLoading ? (
             <TestimonialSkeleton count={count} />
           ) : (
@@ -46,18 +46,18 @@ export function TestimonialsSection({ config, testimonials, isLoading, error }: 
               return (
                 <div
                   key={testimonial.id}
-                  className="relative flex flex-col rounded-card border-2 border-gray-200 shadow-md hover:shadow-2xl card-hover-lift transition-all duration-300 p-6 sm:p-8 bg-white h-full md:hover:rotate-3 group"
+                  className="relative flex flex-col p-6 sm:p-8 rounded-card border border-gray-200 card-hover-lift transition-all duration-300 bg-white shadow-card h-full md:hover:rotate-3 group"
                 >
                   <div className="flex items-center gap-1 mb-4">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
                         key={i}
-                        className={i < ratingValue ? 'fill-star-gold text-star-gold' : 'text-gray-300'}
+                        className={i < ratingValue ? 'fill-star-gold text-star-gold' : 'text-gray-200'}
                         size={16}
                       />
                     ))}
                   </div>
-                  <p className="text-gray-700 mb-6 text-sm sm:text-base md:text-lg leading-relaxed italic flex-grow">
+                  <p className="text-gray-600 mb-6 text-sm sm:text-base md:text-lg leading-relaxed italic flex-grow">
                     &ldquo;{testimonial.quote}&rdquo;
                   </p>
                   <div className="flex items-center mt-4">
@@ -75,14 +75,14 @@ export function TestimonialsSection({ config, testimonials, isLoading, error }: 
                       </div>
                     )}
                     <div>
-                      <div className="font-bold text-navy-blue text-sm sm:text-base md:text-lg group-hover:text-primary-blue transition-colors duration-300">
+                      <div className="font-bold text-navy-blue text-sm sm:text-base md:text-lg">
                         {testimonial.authorName}
                       </div>
                       <div className="text-gray-600 text-xs sm:text-sm md:text-base">
                         {testimonial.authorRole ?? DEFAULT_AUTHOR_ROLE}
                       </div>
                       {testimonial.sourceLabel && (
-                        <div className="text-xs text-gray-400 mt-1">{testimonial.sourceLabel}</div>
+                        <div className="text-xs text-gray-600 mt-1">{testimonial.sourceLabel}</div>
                       )}
                     </div>
                   </div>

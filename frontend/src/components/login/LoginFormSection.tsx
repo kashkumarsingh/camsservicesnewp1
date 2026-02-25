@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
+import { AlertCircle, CheckCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { LOGIN_FORM } from './constants';
 import type { LoginFormSectionProps } from './loginFormTypes';
@@ -36,25 +36,16 @@ export default function LoginFormSection({
   const disabled = isSubmitting || loading;
 
   return (
-    <div className="lg:w-1/2">
-      <div className="rounded-card border border-slate-200 bg-white p-8 shadow-sm">
-        <h2 className="font-heading text-2xl font-semibold text-navy-blue">
+    <div className="w-full">
+      <div className="rounded-form-card border border-slate-200 bg-white p-8 shadow-card">
+        <h1 className="font-heading text-2xl font-bold text-navy-blue">
           {LOGIN_FORM.PAGE_TITLE}
-        </h2>
-        <p className="mt-2 text-sm text-slate-500">
-          {LOGIN_FORM.NO_ACCOUNT}{' '}
-          <Link
-            href={registerHref}
-            className="font-medium text-primary-blue underline-offset-2 hover:underline"
-          >
-            {LOGIN_FORM.REQUEST_ACCESS}
-          </Link>
-        </p>
-        <p className="mt-1 text-2xs text-slate-500">{LOGIN_FORM.REQUIRED_NOTE}</p>
+        </h1>
+        <p className="mt-2 text-sm text-slate-500">{LOGIN_FORM.SUBTITLE}</p>
 
         <div className="mt-8">
         {authError && (
-          <div className="mb-6 rounded-lg border-2 border-red-200 bg-red-50 p-4">
+          <div className="mb-6 rounded-form-alert border-2 border-red-200 bg-red-50 p-4">
             <p className="flex items-center gap-2 text-sm text-red-600">
               <AlertCircle size={16} aria-hidden />
               {authError}
@@ -81,7 +72,7 @@ export default function LoginFormSection({
                 onChange={handleChange}
                 onBlur={() => handleBlur('email')}
                 placeholder={LOGIN_FORM.PLACEHOLDER_EMAIL}
-                className={`block w-full rounded-lg border-2 bg-white px-4 py-3 pr-10 text-gray-900 shadow-sm transition-all duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-2 ${inputBorderClass(touched.email, errors.email, isValid.email)}`}
+                className={`block w-full rounded-form-input border-2 bg-white px-4 py-3 pr-10 text-gray-900 shadow-sm transition-all duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-2 ${inputBorderClass(touched.email, errors.email, isValid.email)}`}
               />
               {touched.email && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -119,7 +110,7 @@ export default function LoginFormSection({
                 onChange={handleChange}
                 onBlur={() => handleBlur('password')}
                 placeholder={LOGIN_FORM.PLACEHOLDER_PASSWORD}
-                className={`block w-full rounded-lg border-2 bg-white px-4 py-3 text-gray-900 shadow-sm transition-all duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-2 ${touched.password && (errors.password || isValid.password) ? 'pr-20' : 'pr-12'} ${inputBorderClass(touched.password, errors.password, isValid.password)}`}
+                className={`block w-full rounded-form-input border-2 bg-white px-4 py-3 text-gray-900 shadow-sm transition-all duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-2 ${touched.password && (errors.password || isValid.password) ? 'pr-20' : 'pr-12'} ${inputBorderClass(touched.password, errors.password, isValid.password)}`}
               />
               <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2">
                 <button
@@ -152,13 +143,31 @@ export default function LoginFormSection({
 
           <Button
             type="submit"
+            variant="primary"
+            size="sm"
             disabled={disabled}
-            aria-busy={disabled}
-            className="w-full py-3 text-sm font-semibold"
+            ariaBusy={disabled}
+            className="w-full rounded-form-button py-3"
           >
-            {isSubmitting || loading ? LOGIN_FORM.SENDING : LOGIN_FORM.SUBMIT}
+            {disabled ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin shrink-0" aria-hidden />
+                <span>{LOGIN_FORM.SENDING}</span>
+              </>
+            ) : (
+              LOGIN_FORM.SUBMIT
+            )}
           </Button>
         </form>
+        <p className="mt-6 text-center text-sm text-slate-600">
+          {LOGIN_FORM.NO_ACCOUNT}{' '}
+          <Link
+            href={registerHref}
+            className="font-medium text-primary-blue underline-offset-2 hover:underline"
+          >
+            {LOGIN_FORM.REQUEST_ACCESS}
+          </Link>
+        </p>
         </div>
       </div>
     </div>

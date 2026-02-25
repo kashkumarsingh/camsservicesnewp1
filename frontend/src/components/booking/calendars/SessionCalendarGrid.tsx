@@ -109,7 +109,7 @@ export default function SessionCalendarGrid({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl border-2 border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-card shadow-card border-2 border-gray-200 overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
         <div className="flex items-center justify-between">

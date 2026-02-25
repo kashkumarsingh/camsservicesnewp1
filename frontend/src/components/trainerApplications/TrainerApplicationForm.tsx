@@ -269,14 +269,14 @@ export function TrainerApplicationForm() {
   if (result) {
     const referenceDisplay = typeof result.id === 'string' && result.id.length > 3 ? result.id : `CAMS-TA-${result.id}`;
     return (
-      <div className="rounded-card border-2 border-gray-200 bg-white p-8 shadow-md">
+      <div className="rounded-card border-2 border-gray-200 bg-white p-8 shadow-card">
         <p className="text-sm font-semibold uppercase tracking-wide text-primary-blue">Application received</p>
         <h3 className="mt-3 text-2xl font-semibold text-navy-blue">You're all set!</h3>
         <p className="mt-3 text-base text-gray-700">
           Thank you for sharing your expertise. Our team will review your profile and will email next steps to{' '}
           <strong>{formData.email}</strong> within 2–3 working days. Keep your reference handy when you get in touch:
         </p>
-        <div className="mt-6 rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-blue-50 to-purple-50 p-5">
+        <div className="mt-6 rounded-card border-2 border-gray-200 bg-gradient-to-br from-blue-50 to-purple-50 p-5">
           <p className="text-sm font-medium text-gray-600">Application reference</p>
           <p className="text-xl font-semibold text-navy-blue font-mono">{referenceDisplay}</p>
           <p className="mt-1 text-sm text-gray-600">Status: {result.status}</p>
@@ -286,7 +286,7 @@ export function TrainerApplicationForm() {
   }
 
   return (
-    <form id="application-form" onSubmit={handleSubmit} className="space-y-8 rounded-card border-2 border-gray-200 bg-white p-8 shadow-md">
+    <form id="application-form" onSubmit={handleSubmit} className="space-y-8 rounded-card border-2 border-gray-200 bg-white p-8 shadow-card">
       <div>
         <p className="text-sm font-semibold uppercase tracking-[0.4em] text-primary-blue">Join the CAMS Collective</p>
         <h3 className="mt-2 text-3xl font-bold text-navy-blue">Less typing, faster onboarding</h3>
@@ -301,7 +301,7 @@ export function TrainerApplicationForm() {
           {STEPS.map((step, index) => (
             <div
               key={step.id}
-              className={`flex flex-1 items-center gap-3 rounded-2xl border px-4 py-3 ${
+              className={`flex flex-1 items-center gap-3 rounded-card border px-4 py-3 ${
                 index < currentStep
                   ? 'border-emerald-100 bg-emerald-50 text-emerald-900'
                   : index === currentStep
@@ -322,11 +322,11 @@ export function TrainerApplicationForm() {
       </div>
 
       {formMessage && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{formMessage}</div>
+        <div className="rounded-card border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{formMessage}</div>
       )}
 
       {error && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{error.message}</div>
+        <div className="rounded-card border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{error.message}</div>
       )}
 
       {/* STEP 0: Activity Coverage - FIRST STEP to qualify trainers early */}
@@ -334,7 +334,7 @@ export function TrainerApplicationForm() {
         <>
           <section>
             <p className="text-sm font-semibold uppercase tracking-widest text-slate-500">Activity Coverage</p>
-            <div className="mt-3 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4">
+            <div className="mt-3 rounded-card border-2 border-emerald-200 bg-emerald-50 p-4">
               <p className="text-sm font-semibold text-emerald-900 mb-2">
                 Can You Facilitate ALL Types of Activities?
               </p>
@@ -347,7 +347,7 @@ export function TrainerApplicationForm() {
             </div>
 
             <div className="mt-4 space-y-3">
-              <label className={`flex items-start gap-3 p-4 rounded-2xl border-2 cursor-pointer transition-all hover:bg-emerald-50 ${canFacilitateAll ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white'}`}>
+              <label className={`flex items-start gap-3 p-4 rounded-card border-2 cursor-pointer transition-all hover:bg-emerald-50 ${canFacilitateAll ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white'}`}>
                 <input
                   type="radio"
                   name="canFacilitateAll"
@@ -367,7 +367,7 @@ export function TrainerApplicationForm() {
                 </div>
               </label>
 
-              <label className={`flex items-start gap-3 p-4 rounded-2xl border-2 cursor-pointer transition-all hover:bg-amber-50 ${!canFacilitateAll ? 'border-amber-500 bg-amber-50' : 'border-slate-200 bg-white'}`}>
+              <label className={`flex items-start gap-3 p-4 rounded-card border-2 cursor-pointer transition-all hover:bg-amber-50 ${!canFacilitateAll ? 'border-amber-500 bg-amber-50' : 'border-slate-200 bg-white'}`}>
                 <input
                   type="radio"
                   name="canFacilitateAll"
@@ -391,14 +391,14 @@ export function TrainerApplicationForm() {
                 )}
 
                 {activitiesError && (
-                  <div className="rounded-2xl border-2 border-red-200 bg-red-50 p-4">
+                  <div className="rounded-card border-2 border-red-200 bg-red-50 p-4">
                     <p className="text-sm text-red-900">{activitiesError}</p>
                   </div>
                 )}
 
                 {!activitiesLoading && !activitiesError && (
                   <>
-                    <div className="rounded-2xl border-2 border-amber-200 bg-amber-50 p-4">
+                    <div className="rounded-card border-2 border-amber-200 bg-amber-50 p-4">
                       <p className="text-sm text-amber-900">
                         <strong>Select activities you CANNOT facilitate.</strong> Leave unchecked activities you CAN do.
                       </p>
@@ -426,7 +426,7 @@ export function TrainerApplicationForm() {
                         const excludedCount = categoryActivities.filter(a => formData.excludedActivityIds?.includes(a.id)).length;
 
                         return (
-                          <div key={categoryKey} className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+                          <div key={categoryKey} className="rounded-card border border-slate-200 bg-white overflow-hidden">
                             <button
                               type="button"
                               onClick={() => setExpandedCategories(prev => ({ ...prev, [categoryKey]: !prev[categoryKey] }))}
@@ -516,7 +516,7 @@ export function TrainerApplicationForm() {
                           Reason for Limitations (Optional but Recommended)
                         </label>
                         <textarea
-                          className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                          className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                           rows={3}
                           value={formData.exclusionReason || ''}
                           onChange={(e) => handleInputChange('exclusionReason', e.target.value)}
@@ -547,7 +547,7 @@ export function TrainerApplicationForm() {
                   minLength={2}
                   maxLength={100}
                   autoComplete="given-name"
-                  className={`mt-2 w-full pr-10 rounded-2xl border bg-white px-4 py-3 text-base text-slate-900 focus:outline-none focus:ring-2 transition-all ${
+                  className={`mt-2 w-full pr-10 rounded-card border bg-white px-4 py-3 text-base text-slate-900 focus:outline-none focus:ring-2 transition-all ${
                     touched.firstName
                       ? errors.firstName
                         ? 'border-red-500 focus:border-red-500 focus:ring-red-200 bg-red-50'
@@ -586,7 +586,7 @@ export function TrainerApplicationForm() {
                   minLength={2}
                   maxLength={100}
                   autoComplete="family-name"
-                  className={`mt-2 w-full pr-10 rounded-2xl border bg-white px-4 py-3 text-base text-slate-900 focus:outline-none focus:ring-2 transition-all ${
+                  className={`mt-2 w-full pr-10 rounded-card border bg-white px-4 py-3 text-base text-slate-900 focus:outline-none focus:ring-2 transition-all ${
                     touched.lastName
                       ? errors.lastName
                         ? 'border-red-500 focus:border-red-500 focus:ring-red-200 bg-red-50'
@@ -622,7 +622,7 @@ export function TrainerApplicationForm() {
               <div className="relative">
                 <input
                   type="email"
-                  className={`mt-2 w-full pr-10 rounded-2xl border bg-white px-4 py-3 text-base text-slate-900 focus:outline-none focus:ring-2 transition-all ${
+                  className={`mt-2 w-full pr-10 rounded-card border bg-white px-4 py-3 text-base text-slate-900 focus:outline-none focus:ring-2 transition-all ${
                     touched.email
                       ? errors.email
                         ? 'border-red-500 focus:border-red-500 focus:ring-red-200 bg-red-50'
@@ -661,7 +661,7 @@ export function TrainerApplicationForm() {
                   pattern="^(?:\+44\s?|0)(?:\d{2,4}\s?\d{3,4}\s?\d{3,4})$"
                   inputMode="tel"
                   autoComplete="tel"
-                  className={`mt-2 w-full pr-10 rounded-2xl border bg-white px-4 py-3 text-base text-slate-900 focus:outline-none focus:ring-2 transition-all ${
+                  className={`mt-2 w-full pr-10 rounded-card border bg-white px-4 py-3 text-base text-slate-900 focus:outline-none focus:ring-2 transition-all ${
                     touched.phone
                       ? errors.phone
                         ? 'border-red-500 focus:border-red-500 focus:ring-red-200 bg-red-50'
@@ -701,7 +701,7 @@ export function TrainerApplicationForm() {
               <input
                 type="number"
                 min={0}
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                 value={formData.experienceYears}
                 onChange={(e) => handleInputChange('experienceYears', Number(e.target.value))}
                 required
@@ -710,7 +710,7 @@ export function TrainerApplicationForm() {
             <div>
               <label className="text-sm font-medium text-slate-700">Coaching summary</label>
               <textarea
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                 rows={3}
                 value={formData.bio}
                 onChange={(e) => handleInputChange('bio', e.target.value)}
@@ -728,7 +728,7 @@ export function TrainerApplicationForm() {
               <div>
                 <label className="text-sm font-medium text-slate-700">Home postcode *</label>
                 <input
-                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                  className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                   value={formData.postcode}
                   onChange={(e) => handleInputChange('postcode', e.target.value.toUpperCase())}
                   placeholder="e.g., AL10 8DA"
@@ -741,7 +741,7 @@ export function TrainerApplicationForm() {
                   type="number"
                   min={5}
                   max={200}
-                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                  className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                   value={formData.travelRadiusKm}
                   onChange={(e) => handleInputChange('travelRadiusKm', Number(e.target.value))}
                   required
@@ -755,7 +755,7 @@ export function TrainerApplicationForm() {
             <div>
               <label className="text-sm font-medium text-slate-700">Address line 1 *</label>
               <input
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                 value={formData.addressLineOne}
                 onChange={(e) => handleInputChange('addressLineOne', e.target.value)}
                 placeholder="e.g., 123 Main Street"
@@ -766,7 +766,7 @@ export function TrainerApplicationForm() {
             <div>
               <label className="text-sm font-medium text-slate-700">Address line 2</label>
               <input
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                 value={formData.addressLineTwo}
                 onChange={(e) => handleInputChange('addressLineTwo', e.target.value)}
                 placeholder="Apartment, suite, unit, etc. (optional)"
@@ -777,7 +777,7 @@ export function TrainerApplicationForm() {
               <div>
                 <label className="text-sm font-medium text-slate-700">City</label>
                 <input
-                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                  className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                   value={formData.city}
                   onChange={(e) => handleInputChange('city', e.target.value)}
                   placeholder="e.g., London"
@@ -786,7 +786,7 @@ export function TrainerApplicationForm() {
               <div>
                 <label className="text-sm font-medium text-slate-700">County</label>
                 <input
-                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                  className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                   value={formData.county}
                   onChange={(e) => handleInputChange('county', e.target.value)}
                   placeholder="e.g., Hertfordshire"
@@ -847,7 +847,7 @@ export function TrainerApplicationForm() {
               <input
                 type="number"
                 min={0}
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                 value={formData.desiredHourlyRate ?? ''}
                 onChange={(e) =>
                   handleInputChange('desiredHourlyRate', e.target.value ? Number(e.target.value) : undefined)
@@ -882,7 +882,7 @@ export function TrainerApplicationForm() {
               <label className="text-sm font-medium text-slate-700">DBS issued</label>
               <input
                 type="date"
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                 value={formData.dbsIssuedAt ?? ''}
                 onChange={(e) => handleInputChange('dbsIssuedAt', e.target.value)}
               />
@@ -891,7 +891,7 @@ export function TrainerApplicationForm() {
               <label className="text-sm font-medium text-slate-700">DBS expires</label>
               <input
                 type="date"
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                 value={formData.dbsExpiresAt ?? ''}
                 onChange={(e) => handleInputChange('dbsExpiresAt', e.target.value)}
               />
@@ -902,7 +902,7 @@ export function TrainerApplicationForm() {
             <div>
               <label className="text-sm font-medium text-slate-700">Certifications (comma separated)</label>
               <input
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                 value={certificationsInput}
                 onChange={(e) => setCertificationsInput(e.target.value)}
                 placeholder="Safeguarding L2, FA Level 2..."
@@ -911,7 +911,7 @@ export function TrainerApplicationForm() {
             <div>
               <label className="text-sm font-medium text-slate-700">Insurance provider</label>
               <input
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                 value={formData.insuranceProvider ?? ''}
                 onChange={(e) => handleInputChange('insuranceProvider', e.target.value)}
               />
@@ -923,7 +923,7 @@ export function TrainerApplicationForm() {
               <label className="text-sm font-medium text-slate-700">Insurance expiry</label>
               <input
                 type="date"
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                 value={formData.insuranceExpiresAt ?? ''}
                 onChange={(e) => handleInputChange('insuranceExpiresAt', e.target.value)}
               />
@@ -931,7 +931,7 @@ export function TrainerApplicationForm() {
             <div>
               <label className="text-sm font-medium text-slate-700">Supporting docs (URLs, comma separated)</label>
               <input
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                className="mt-2 w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                 value={attachmentsInput}
                 onChange={(e) => setAttachmentsInput(e.target.value)}
                 placeholder="https://.../dbs.pdf, https://.../insurance.pdf"
@@ -941,7 +941,7 @@ export function TrainerApplicationForm() {
         </>
       )}
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-5 text-sm text-slate-600">
+      <div className="flex flex-col gap-3 rounded-card border border-slate-200 bg-slate-50/70 p-5 text-sm text-slate-600">
         <p>✅ Most applications are approved within 2 business days.</p>
         <p>✅ You can email updated documents after submission if anything changes.</p>
       </div>
@@ -952,7 +952,7 @@ export function TrainerApplicationForm() {
             type="button"
             onClick={handlePrevious}
             disabled={currentStep === 0 || loading}
-            className="rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-card border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Back
           </button>
@@ -961,7 +961,7 @@ export function TrainerApplicationForm() {
               type="button"
               onClick={handleNext}
               disabled={loading}
-              className="rounded-2xl border border-slate-900 bg-slate-900 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-card border border-slate-900 bg-slate-900 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
               Next
             </button>
@@ -972,7 +972,7 @@ export function TrainerApplicationForm() {
           <button
             type="submit"
             disabled={loading}
-            className="flex w-full items-center justify-center rounded-2xl bg-slate-900 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-slate-900/10 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            className="flex w-full items-center justify-center rounded-card bg-slate-900 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-slate-900/10 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {loading ? 'Submitting…' : 'Submit application'}
           </button>

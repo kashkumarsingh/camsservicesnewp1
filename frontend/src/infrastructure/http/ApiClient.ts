@@ -326,6 +326,19 @@ export class ApiClient {
 
       if (error?.response !== undefined) throw err;
 
+      const isAbort =
+        (err instanceof DOMException && err.name === 'AbortError') ||
+        error?.name === 'AbortError' ||
+        (typeof error?.message === 'string' && error.message.toLowerCase().includes('abort'));
+      if (isAbort) {
+        const abortError: ApiError = {
+          message: error?.message ?? 'Request aborted',
+          code: 'ABORTED',
+          config: { url, method: method.toUpperCase() },
+        };
+        throw abortError;
+      }
+
       if (error?.code === 'TIMEOUT') {
         const timeoutError: ApiError = {
           message: 'Request timeout — the server took too long to respond.',

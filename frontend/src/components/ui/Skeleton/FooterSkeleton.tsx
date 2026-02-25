@@ -28,8 +28,8 @@ export default function FooterSkeleton() {
               <div className="space-y-4 w-full max-w-2xl">
                 <div className="h-6 bg-white/20 rounded w-48 mx-auto animate-pulse" />
                 <div className="grid sm:grid-cols-2 gap-3">
-                  <div className="h-12 bg-white/20 rounded-2xl animate-pulse" />
-                  <div className="h-12 bg-white/20 rounded-2xl animate-pulse" />
+                  <div className="h-12 bg-white/20 rounded-card animate-pulse" />
+                  <div className="h-12 bg-white/20 rounded-card animate-pulse" />
                 </div>
               </div>
             </div>

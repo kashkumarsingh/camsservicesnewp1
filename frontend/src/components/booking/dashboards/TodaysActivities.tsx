@@ -220,7 +220,7 @@ export default function TodaysActivities({ bookings }: TodaysActivitiesProps) {
   const allSessionsCompleted = upcomingSessions.length === 0 && ongoingSessions.length === 0 && pastSessions.length > 0;
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl shadow-lg p-6 mb-6">
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-card shadow-card p-6 mb-6">
       <div className="flex items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-100 rounded-lg">

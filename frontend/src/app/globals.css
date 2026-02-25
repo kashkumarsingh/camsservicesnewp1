@@ -9,8 +9,8 @@
 @theme {
   --color-background: hsl(0 0% 100%);
   --color-foreground: hsl(240 10% 3.9%);
-  --color-primary: hsl(207 90% 54%);
-  --color-primary-foreground: hsl(210 40% 98%);
+  --color-primary: #0080FF;
+  --color-primary-foreground: #ffffff;
   --color-secondary: hsl(38 92% 50%);
   --color-secondary-foreground: hsl(48 96% 89%);
   --color-accent: hsl(120 50% 45%);
@@ -18,6 +18,7 @@
   /* Theme tokens for gradients/shadows/scrollbars (match tailwind.config.js where applicable) */
   --color-primary-blue: #0080FF;
   --color-light-blue-cyan: #00D4FF;
+  --color-navy-blue: #1E3A5F;
   --color-orbital-green: #7FFF00;
   --color-star-gold: #FFD700;
   --color-accent-orange: #FF6B35;
@@ -28,14 +29,24 @@
   --color-sidebar-track: #f1f5f9;
   --color-sidebar-thumb: #cbd5e1;
   --color-sidebar-thumb-hover: #94a3b8;
+  /* Border radius – single source of truth for cards and form UI (rounded-card, rounded-form-*, etc.) */
+  --radius-card: 30px;
+  --radius-form-card: 1.5rem;
+  --radius-form-input: 0.5rem;
+  --radius-form-button: 0.75rem;
+  --radius-form-alert: 0.5rem;
+  --radius-header-button: 9999px;
+  /* Box shadow – single source of truth for cards (shadow-card, shadow-card-hover) */
+  --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --shadow-card-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.08);
 }
 
 /* Force light when user selects light (manual switch). */
 html.light body {
   --color-background: hsl(0 0% 100%);
   --color-foreground: hsl(240 10% 3.9%);
-  --color-primary: hsl(207 90% 54%);
-  --color-primary-foreground: hsl(210 40% 98%);
+  --color-primary: #0080FF;
+  --color-primary-foreground: #ffffff;
   --color-secondary: hsl(38 92% 50%);
   --color-secondary-foreground: hsl(48 96% 89%);
   --color-accent: hsl(120 50% 45%);
@@ -48,8 +59,8 @@ html.dark body {
   color-scheme: dark;
   --color-background: hsl(240 10% 7%);
   --color-foreground: hsl(0 0% 95%);
-  --color-primary: hsl(207 85% 58%);
-  --color-primary-foreground: hsl(210 40% 98%);
+  --color-primary: #0080FF;
+  --color-primary-foreground: #ffffff;
   --color-secondary: hsl(38 80% 55%);
   --color-secondary-foreground: hsl(48 30% 12%);
   --color-accent: hsl(120 45% 45%);
@@ -63,8 +74,8 @@ html.dark body {
   html:not(.light) body {
     --color-background: hsl(240 10% 7%);
     --color-foreground: hsl(0 0% 95%);
-    --color-primary: hsl(207 85% 58%);
-    --color-primary-foreground: hsl(210 40% 98%);
+    --color-primary: #0080FF;
+    --color-primary-foreground: #ffffff;
     --color-secondary: hsl(38 80% 55%);
     --color-secondary-foreground: hsl(48 30% 12%);
     --color-accent: hsl(120 45% 45%);

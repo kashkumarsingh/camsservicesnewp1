@@ -9,17 +9,21 @@ import type { ServiceDTO } from '@/core/application/services';
 export interface HomePageClientProps {
   sections: HomePageSection[];
   packages: PackageDTO[];
+  /** Server-side packages fetch error message when initial load failed (so client can show it before/without client refetch). */
+  packagesError?: string | null;
   services: ServiceDTO[];
 }
 
 export default function HomePageClient({
   sections,
   packages,
+  packagesError = null,
   services,
 }: HomePageClientProps) {
   const { sectionOrder, sectionsByType } = useHomePageState(
     sections,
     packages,
+    packagesError,
     services
   );
 

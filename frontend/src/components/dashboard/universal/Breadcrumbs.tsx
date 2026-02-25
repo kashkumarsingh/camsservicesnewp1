@@ -24,13 +24,13 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   return (
     <nav
       aria-label="Breadcrumb"
-      className={`flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 ${className}`}
+      className={`mb-3 flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 ${className}`}
     >
-      <ol className="flex items-center gap-1">
+      <ol className="flex items-center gap-2">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
           return (
-            <li key={index} className="flex items-center gap-1">
+            <li key={index} className="flex items-center gap-2">
               {index > 0 && <span aria-hidden>/</span>}
               {item.href && !isLast ? (
                 <Link

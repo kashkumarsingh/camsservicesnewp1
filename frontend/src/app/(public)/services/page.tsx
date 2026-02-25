@@ -49,23 +49,23 @@ export default function Services() {
             {SERVICES_PAGE.HERO_SUBTITLE}
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-5">
-            <Button href={ROUTES.CONTACT} variant="superPlayful" size="lg" className="shadow-lg" withArrow>
+            <Button href={ROUTES.CONTACT} variant="superPlayful" size="lg" className="rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300" withArrow>
               {SERVICES_PAGE.HERO_CTA_REQUEST}
             </Button>
-            <Button href={ROUTES.PACKAGES} variant="outline" size="lg" className="shadow-lg" withArrow>
+            <Button href={ROUTES.PACKAGES} variant="outline" size="lg" className="rounded-full bg-white text-primary-blue border-2 border-primary-blue shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300" withArrow>
               {SERVICES_PAGE.HERO_CTA_PACKAGES}
             </Button>
           </div>
         </div>
       </Section>
 
-      <div className="py-20 bg-gradient-to-br from-blue-50 to-white">
+      <div className="py-20 bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <Section title={SERVICES_PAGE.SECTION_TITLE} subtitle={SERVICES_PAGE.SECTION_SUBTITLE} titleClassName="heading-text-shadow">
           <div className="mb-10">
             <ServiceList />
           </div>
           <div className="text-center">
-            <Button href={ROUTES.PACKAGES} variant="secondary" size="lg" withArrow>
+            <Button href={ROUTES.PACKAGES} variant="primary" size="lg" className="rounded-full hover:shadow-2xl hover:scale-105 transition-all duration-300" withArrow>
               {SERVICES_PAGE.SECTION_CTA}
             </Button>
           </div>

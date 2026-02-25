@@ -5,6 +5,7 @@ import Button from '@/components/ui/Button';
 import {
   AlertCircle,
   CheckCircle,
+  CalendarClock,
   PlusCircle,
   XCircle,
 } from 'lucide-react';
@@ -17,10 +18,10 @@ const inputBorderClass = (
   error: string | undefined,
   valid: boolean | undefined
 ): string => {
-  if (!touched) return 'border-slate-300 focus:border-slate-900 focus:ring-slate-900/20';
+  if (!touched) return 'border-gray-300 focus:border-gray-900 focus:ring-gray-900/20';
   if (error) return 'border-red-500 focus:border-red-500 focus:ring-red-200';
   if (valid) return 'border-green-500 focus:border-green-500 focus:ring-green-200';
-  return 'border-slate-300 focus:border-slate-900 focus:ring-slate-900/20';
+  return 'border-gray-300 focus:border-gray-900 focus:ring-gray-900/20';
 };
 
 export default function ContactFormSection({
@@ -53,53 +54,91 @@ export default function ContactFormSection({
     displayError.includes('technical difficulties') || displayError.includes('Something went wrong') || displayError.includes('contact us directly');
 
   return (
-    <div id="contact-form" className="bg-white rounded-card p-6 sm:p-8 lg:p-10 shadow-sm border border-slate-200">
+    <div id="contact-form" className="bg-white rounded-card p-6 sm:p-8 lg:p-10 shadow-sm border border-gray-200">
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold text-slate-900 mb-2">{CONTACT_FORM.TITLE}</h2>
-        <p className="text-slate-600">{CONTACT_FORM.SUBTITLE}</p>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">{CONTACT_FORM.TITLE}</h2>
+        <p className="text-gray-600">{CONTACT_FORM.SUBTITLE}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-semibold text-slate-900 mb-2">
-              {CONTACT_FORM.LABEL_NAME}
+            <label htmlFor="firstName" className="block text-sm font-semibold text-gray-900 mb-2">
+              {CONTACT_FORM.LABEL_FIRST_NAME}
             </label>
             <div className="relative">
               <input
                 type="text"
-                name="name"
-                id="name"
+                name="firstName"
+                id="firstName"
                 required
-                minLength={2}
-                maxLength={200}
-                pattern="[a-zA-Z][a-zA-Z '-]{1,} +[a-zA-Z][a-zA-Z '-]{1,}"
-                autoComplete="name"
-                value={formData.name}
+                minLength={1}
+                maxLength={100}
+                autoComplete="given-name"
+                value={formData.firstName}
                 onChange={handleChange}
-                onBlur={() => handleBlur('name')}
-                placeholder={CONTACT_FORM.PLACEHOLDER_NAME}
-                className={`block w-full px-4 py-3 pr-10 text-gray-900 bg-white border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-all duration-200 placeholder:text-gray-400 ${inputBorderClass(touched.name, errors.name, isValid.name)}`}
+                onBlur={() => handleBlur('firstName')}
+                placeholder={CONTACT_FORM.PLACEHOLDER_FIRST_NAME}
+                className={`block w-full px-4 py-3 pr-10 text-gray-900 bg-white border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-all duration-200 placeholder:text-gray-400 ${inputBorderClass(touched.firstName ?? touched.name, errors.firstName ?? errors.name, isValid.firstName ?? isValid.name)}`}
               />
-              {touched.name && (
+              {(touched.firstName ?? touched.name) && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  {errors.name ? (
+                  {errors.firstName ?? errors.name ? (
                     <AlertCircle className="text-red-500" size={20} />
-                  ) : isValid.name ? (
+                  ) : isValid.firstName ?? isValid.name ? (
                     <CheckCircle className="text-green-500" size={20} />
                   ) : null}
                 </div>
               )}
             </div>
-            {touched.name && errors.name && (
+            {(touched.firstName ?? touched.name) && (errors.firstName ?? errors.name) && (
               <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
                 <AlertCircle size={14} />
-                {errors.name}
+                {errors.firstName ?? errors.name}
               </p>
             )}
           </div>
           <div>
-            <label htmlFor="email" className="block text-sm font-semibold text-slate-900 mb-2">
+            <label htmlFor="lastName" className="block text-sm font-semibold text-gray-900 mb-2">
+              {CONTACT_FORM.LABEL_LAST_NAME}
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                name="lastName"
+                id="lastName"
+                required
+                minLength={1}
+                maxLength={100}
+                autoComplete="family-name"
+                value={formData.lastName}
+                onChange={handleChange}
+                onBlur={() => handleBlur('lastName')}
+                placeholder={CONTACT_FORM.PLACEHOLDER_LAST_NAME}
+                className={`block w-full px-4 py-3 pr-10 text-gray-900 bg-white border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-all duration-200 placeholder:text-gray-400 ${inputBorderClass(touched.lastName ?? touched.name, errors.lastName ?? errors.name, isValid.lastName ?? isValid.name)}`}
+              />
+              {(touched.lastName ?? touched.name) && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  {errors.lastName ?? errors.name ? (
+                    <AlertCircle className="text-red-500" size={20} />
+                  ) : isValid.lastName ?? isValid.name ? (
+                    <CheckCircle className="text-green-500" size={20} />
+                  ) : null}
+                </div>
+              )}
+            </div>
+            {(touched.lastName ?? touched.name) && (errors.lastName ?? errors.name) && (
+              <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                <AlertCircle size={14} />
+                {errors.lastName ?? errors.name}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="email" className="block text-sm font-semibold text-gray-900 mb-2">
               {CONTACT_FORM.LABEL_EMAIL}
             </label>
             <div className="relative">
@@ -131,11 +170,8 @@ export default function ContactFormSection({
               </p>
             )}
           </div>
-        </div>
-
-        <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="phone" className="block text-sm font-semibold text-slate-900 mb-2">
+            <label htmlFor="phone" className="block text-sm font-semibold text-gray-900 mb-2">
               {CONTACT_FORM.LABEL_PHONE}
             </label>
             <div className="relative">
@@ -175,7 +211,7 @@ export default function ContactFormSection({
         {/* Children */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <label className="block text-sm font-semibold text-slate-900">{CONTACT_FORM.LABEL_CHILDREN}</label>
+            <label className="block text-sm font-semibold text-gray-900">{CONTACT_FORM.LABEL_CHILDREN}</label>
             {formData.children.length < 5 && (
               <button
                 type="button"
@@ -186,7 +222,7 @@ export default function ContactFormSection({
                     children: [...prev.children, { id: newId, name: '', age: '' }],
                   }));
                 }}
-                className="text-xs text-slate-700 hover:text-slate-900 font-semibold flex items-center gap-1"
+                className="text-xs text-gray-700 hover:text-gray-900 font-semibold flex items-center gap-1"
               >
                 <PlusCircle size={14} />
                 {CONTACT_FORM.ADD_ANOTHER_CHILD}
@@ -229,7 +265,7 @@ export default function ContactFormSection({
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-                      {CONTACT_FORM.LABEL_FULL_NAME}
+                      {index === 0 ? CONTACT_FORM.LABEL_CHILD_NAME : CONTACT_FORM.LABEL_FULL_NAME}
                     </label>
                     <div className="relative">
                       <input
@@ -274,7 +310,7 @@ export default function ContactFormSection({
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-                      {CONTACT_FORM.LABEL_AGE}
+                      {index === 0 ? CONTACT_FORM.LABEL_CHILD_AGE : CONTACT_FORM.LABEL_AGE}
                     </label>
                     <div className="relative">
                       <input
@@ -323,7 +359,7 @@ export default function ContactFormSection({
         </div>
 
         <div>
-          <label htmlFor="address" className="block text-sm font-semibold text-slate-900 mb-2">
+          <label htmlFor="address" className="block text-sm font-semibold text-gray-900 mb-2">
             {CONTACT_FORM.LABEL_ADDRESS}
           </label>
           <div className="relative">
@@ -356,7 +392,22 @@ export default function ContactFormSection({
         </div>
 
         <div>
-          <label htmlFor="postalCode" className="block text-sm font-semibold text-slate-900 mb-2">
+          <label htmlFor="addressLine2" className="block text-sm font-semibold text-gray-900 mb-2">
+            {CONTACT_FORM.LABEL_ADDRESS_LINE_2}
+          </label>
+          <input
+            type="text"
+            name="addressLine2"
+            id="addressLine2"
+            value={formData.addressLine2}
+            onChange={handleChange}
+            placeholder={CONTACT_FORM.PLACEHOLDER_ADDRESS}
+            className="block w-full px-4 py-3 text-gray-900 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-primary-blue placeholder:text-gray-400"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="postalCode" className="block text-sm font-semibold text-gray-900 mb-2">
             {CONTACT_FORM.LABEL_POSTAL_CODE}
           </label>
           <div className="relative">
@@ -392,7 +443,7 @@ export default function ContactFormSection({
         </div>
 
         <div>
-          <label htmlFor="inquiryType" className="block text-sm font-semibold text-slate-900 mb-2">
+          <label htmlFor="inquiryType" className="block text-sm font-semibold text-gray-900 mb-2">
             {CONTACT_FORM.LABEL_INTERESTED_IN}
           </label>
           <select
@@ -402,24 +453,24 @@ export default function ContactFormSection({
             value={formData.inquiryType}
             onChange={handleChange}
             onBlur={() => handleBlur('inquiryType')}
-            className={`block w-full px-4 py-3 text-gray-900 bg-white border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-all duration-200 cursor-pointer ${touched.inquiryType && errors.inquiryType ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : touched.inquiryType && formData.inquiryType ? 'border-green-500 focus:border-green-500 focus:ring-green-200' : 'border-slate-300 focus:border-slate-900 focus:ring-slate-900/20'}`}
+            className={`block w-full px-4 py-3 text-gray-900 bg-white border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-all duration-200 cursor-pointer ${touched.inquiryType && errors.inquiryType ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : touched.inquiryType && formData.inquiryType ? 'border-green-500 focus:border-green-500 focus:ring-green-200' : 'border-gray-300 focus:border-gray-900 focus:ring-gray-900/20'}`}
           >
             <option value="">{CONTACT_FORM.SELECT_SERVICE_OR_PACKAGE}</option>
             <optgroup label={`🎯 ${CONTACT_FORM.OPTGROUP_PACKAGES}`} className="font-semibold">
               {packages.map((pkg) => (
-                <option key={pkg.id} value={`Package: ${pkg.name}`} className="text-slate-900">
+                <option key={pkg.id} value={`Package: ${pkg.name}`} className="text-gray-900">
                   {pkg.name} - {formatCurrency(pkg.price)}
                 </option>
               ))}
             </optgroup>
             <optgroup label={`💡 ${CONTACT_FORM.OPTGROUP_SERVICES}`} className="font-semibold">
               {services.map((svc) => (
-                <option key={svc.slug} value={`Service: ${svc.title}`} className="text-slate-900">
+                <option key={svc.slug} value={`Service: ${svc.title}`} className="text-gray-900">
                   {svc.title}
                 </option>
               ))}
             </optgroup>
-            <option value="General Inquiry" className="text-slate-900">
+            <option value="General Inquiry" className="text-gray-900">
               {CONTACT_FORM.OPTION_GENERAL}
             </option>
           </select>
@@ -432,7 +483,7 @@ export default function ContactFormSection({
         </div>
 
         <div>
-          <label htmlFor="urgency" className="block text-sm font-semibold text-slate-900 mb-2">
+          <label htmlFor="urgency" className="block text-sm font-semibold text-gray-900 mb-2">
             {CONTACT_FORM.LABEL_URGENCY}
           </label>
           <select
@@ -442,7 +493,7 @@ export default function ContactFormSection({
             value={formData.urgency}
             onChange={handleChange}
             onBlur={() => handleBlur('urgency')}
-            className={`block w-full px-4 py-3 text-gray-900 bg-white border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-all duration-200 cursor-pointer ${touched.urgency && errors.urgency ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : touched.urgency && formData.urgency ? 'border-green-500 focus:border-green-500 focus:ring-green-200' : 'border-slate-300 focus:border-slate-900 focus:ring-slate-900/20'}`}
+            className={`block w-full px-4 py-3 text-gray-900 bg-white border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-all duration-200 cursor-pointer ${touched.urgency && errors.urgency ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : touched.urgency && formData.urgency ? 'border-green-500 focus:border-green-500 focus:ring-green-200' : 'border-gray-300 focus:border-gray-900 focus:ring-gray-900/20'}`}
           >
             <option value="">{CONTACT_FORM.SELECT_TIMEFRAME}</option>
             <option value="Urgent">🔥 {CONTACT_FORM.URGENCY_URGENT}</option>
@@ -458,7 +509,7 @@ export default function ContactFormSection({
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-900 mb-3">
+          <label className="block text-sm font-semibold text-gray-900 mb-3">
             {CONTACT_FORM.LABEL_PREFERRED_CONTACT}
           </label>
           <div className="flex flex-wrap gap-3">
@@ -470,9 +521,9 @@ export default function ContactFormSection({
                   value={method}
                   checked={formData.preferredContact === method}
                   onChange={handleChange}
-                  className="w-4 h-4 text-slate-700 border-gray-300 focus:ring-2 focus:ring-primary-blue"
+                  className="w-4 h-4 text-gray-700 border-gray-300 focus:ring-2 focus:ring-primary-blue"
                 />
-                <span className="ml-2 text-slate-900">
+                <span className="ml-2 text-gray-900">
                   {method === 'email'
                     ? `📧 ${CONTACT_FORM.PREFERRED_EMAIL}`
                     : method === 'phone'
@@ -485,8 +536,28 @@ export default function ContactFormSection({
         </div>
 
         <div>
-          <label htmlFor="message" className="block text-sm font-semibold text-slate-900 mb-2">
-            {CONTACT_FORM.LABEL_MESSAGE}
+          <label htmlFor="hearAboutUs" className="block text-sm font-semibold text-gray-900 mb-2">
+            {CONTACT_FORM.LABEL_HEAR_ABOUT}
+          </label>
+          <select
+            id="hearAboutUs"
+            name="hearAboutUs"
+            value={formData.hearAboutUs}
+            onChange={handleChange}
+            className="block w-full px-4 py-3 text-gray-900 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-blue cursor-pointer"
+          >
+            <option value="">{CONTACT_FORM.SELECT_HEAR_ABOUT}</option>
+            {CONTACT_FORM.HEAR_ABOUT_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="message" className="block text-sm font-semibold text-gray-900 mb-2">
+            {CONTACT_FORM.LABEL_SUPPORT}
           </label>
           <textarea
             id="message"
@@ -495,8 +566,38 @@ export default function ContactFormSection({
             value={formData.message}
             onChange={handleChange}
             placeholder={CONTACT_FORM.PLACEHOLDER_MESSAGE}
-            className="block w-full px-4 py-3 text-slate-900 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-primary-blue hover:border-primary-blue/50 transition-all duration-200 placeholder:text-gray-400 resize-y"
+            className="block w-full px-4 py-3 text-gray-900 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-primary-blue hover:border-primary-blue/50 transition-all duration-200 placeholder:text-gray-400 resize-y"
           />
+        </div>
+
+        <div className="space-y-3">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              name="marketingConsent"
+              checked={formData.marketingConsent}
+              onChange={handleChange}
+              className="mt-1 w-4 h-4 text-primary-blue border-gray-300 rounded focus:ring-2 focus:ring-primary-blue"
+            />
+            <span className="text-sm text-gray-700">{CONTACT_FORM.CHECKBOX_MARKETING}</span>
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              name="termsAccepted"
+              required
+              checked={formData.termsAccepted}
+              onChange={handleChange}
+              className="mt-1 w-4 h-4 text-primary-blue border-gray-300 rounded focus:ring-2 focus:ring-primary-blue"
+            />
+            <span className="text-sm text-gray-700">{CONTACT_FORM.CHECKBOX_TERMS}</span>
+          </label>
+          {errors.termsAccepted && (
+            <p className="text-sm text-red-600 flex items-center gap-1">
+              <AlertCircle size={14} />
+              {errors.termsAccepted}
+            </p>
+          )}
         </div>
 
         {success && (
@@ -523,12 +624,12 @@ export default function ContactFormSection({
         <div className="pt-4">
           <Button
             type="submit"
-            variant="secondary"
+            variant="primary"
             size="lg"
-            className="w-full text-lg"
-            withArrow
+            className="w-full rounded-form-button text-lg"
             disabled={disabled}
           >
+            <CalendarClock size={20} className="mr-2" />
             {disabled ? CONTACT_FORM.SENDING : CONTACT_FORM.SUBMIT}
           </Button>
           <p className="text-sm text-center text-gray-500 mt-4">{CONTACT_FORM.SECURITY_NOTE}</p>

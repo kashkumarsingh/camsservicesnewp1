@@ -22,6 +22,7 @@ export default function DashboardEntryPage() {
         </p>
       </header>
 
+      {/* Equal thirds (33.33% per column); gap is accounted for with fr. */}
       <div className="grid gap-4 md:grid-cols-3">
         <Link
           href="/dashboard/parent"

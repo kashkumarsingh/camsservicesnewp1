@@ -6,6 +6,7 @@ import Section from '@/components/layout/Section';
 import Button from '@/components/ui/Button';
 import { Users, Award } from 'lucide-react';
 import { ROUTES } from '@/utils/routes';
+import { ABOUT_PAGE } from '@/app/(public)/constants/aboutPageConstants';
 
 export interface AboutMissionSectionProps {
   sectionTitle: string;
@@ -14,7 +15,7 @@ export interface AboutMissionSectionProps {
 
 export default function AboutMissionSection({ sectionTitle, description }: AboutMissionSectionProps) {
   return (
-    <div className="py-20 bg-gradient-to-br from-blue-50 to-white">
+    <div className="py-20 bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Section title={sectionTitle} titleClassName="heading-text-shadow">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="order-2 lg:order-1">
@@ -45,11 +46,11 @@ export default function AboutMissionSection({ sectionTitle, description }: About
                 </p>
               </>
             )}
-            <Button href={ROUTES.CONTACT} variant="bordered" size="lg" withArrow>
-              Discuss Your Child&apos;s Needs
+            <Button href={ROUTES.CONTACT} variant="bordered" size="lg" className="rounded-full hover:shadow-2xl hover:scale-105 transition-all duration-300" withArrow>
+              {ABOUT_PAGE.MISSION_CTA}
             </Button>
           </div>
-          <div className="order-1 lg:order-2 relative w-full h-80 md:h-96 rounded-card shadow-xl overflow-hidden">
+          <div className="order-1 lg:order-2 relative w-full h-80 md:h-96 rounded-card border-2 border-gray-200 shadow-card overflow-hidden">
             <Image
               src="/images/hero/bg-space.webp"
               alt="Mission-focused mentoring session illustration"

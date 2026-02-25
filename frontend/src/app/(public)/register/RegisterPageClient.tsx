@@ -12,7 +12,7 @@ import {
   validatePassword,
 } from '@/utils/validation';
 import { ROUTES } from '@/utils/routes';
-import { RegisterHeroSection, RegisterFormSection } from '@/components/register';
+import { RegisterFormSection } from '@/components/register';
 import type { RegisterFormData } from '@/components/register';
 import { REGISTER_VALIDATION_FALLBACKS } from '@/components/register/constants';
 
@@ -240,11 +240,9 @@ export default function RegisterPageClient() {
   };
 
   return (
-    <div className="min-h-screen bg-white px-4 py-12 sm:px-6 lg:flex lg:items-center lg:justify-center lg:px-8">
-      <div className="mx-auto w-full max-w-5xl">
-        <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
-          <RegisterHeroSection />
-          <RegisterFormSection
+    <div className="min-h-screen bg-slate-50 px-4 py-12 sm:px-6 lg:flex lg:items-center lg:justify-center lg:px-8">
+      <div className="mx-auto w-full max-w-lg">
+        <RegisterFormSection
           formData={formData}
           errors={errors}
           touched={touched}
@@ -262,7 +260,6 @@ export default function RegisterPageClient() {
           authError={authError}
           signInHref={ROUTES.LOGIN}
         />
-        </div>
       </div>
     </div>
   );

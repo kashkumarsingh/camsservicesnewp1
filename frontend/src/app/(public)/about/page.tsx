@@ -111,17 +111,17 @@ export default async function About() {
         subtitle={heroDescription}
         videoSrc="/videos/space-bg-2.mp4"
       >
-        <Button href={ROUTES.CONTACT} variant="superPlayful" size="lg" className="shadow-lg" withArrow>
+        <Button href={ROUTES.CONTACT} variant="superPlayful" size="lg" className="rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300" withArrow>
           {ABOUT_PAGE.GET_IN_TOUCH}
         </Button>
-        <Button href={ROUTES.SERVICES} variant="outline" size="lg" className="shadow-lg" withArrow>
+        <Button href={ROUTES.SERVICES} variant="outline" size="lg" className="rounded-full bg-white text-primary-blue border-2 border-primary-blue shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300" withArrow>
           {ABOUT_PAGE.VIEW_OUR_SERVICES}
         </Button>
       </PageHero>
 
       {/* Common: CMS rich-text block (reusable) */}
       {hasCmsContent && (
-        <div className="py-20 bg-gradient-to-br from-slate-50 to-white">
+        <div className="py-20 bg-gradient-to-br from-blue-50 via-white to-purple-50">
           <Section>
             <RichTextBlock content={cmsContent} proseClassName="prose prose-lg md:prose-xl max-w-4xl mx-auto text-navy-blue" />
           </Section>
@@ -148,7 +148,7 @@ export default async function About() {
         subtitle={ABOUT_PAGE.CTA_SUBTITLE}
         primaryCTA={{ text: ABOUT_PAGE.CTA_PRIMARY, href: ROUTES.CONTACT }}
         secondaryCTA={{ text: ABOUT_PAGE.CTA_SECONDARY, href: 'mailto:info@camsservices.co.uk' }}
-        variant="default"
+        variant="gradient"
       />
     </div>
   );

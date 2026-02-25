@@ -52,7 +52,7 @@ export function BookingSummary({ booking, packageName, totalHours }: BookingSumm
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-2xl border-2 border-green-300 overflow-hidden">
+    <div className="bg-white rounded-card shadow-card border-2 border-green-300 overflow-hidden">
       {/* Celebration Header */}
       <div className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 px-6 py-8 text-center relative overflow-hidden">
         <div className="absolute inset-0 opacity-20" style={{

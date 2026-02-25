@@ -57,7 +57,7 @@ export default function NewsletterSubscribe() {
 
   if (success) {
     return (
-      <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 flex items-center justify-center gap-3">
+      <div className="bg-white/20 backdrop-blur-sm rounded-card p-6 flex items-center justify-center gap-3">
         <CheckCircle2 size={24} className="text-white" />
         <p className="text-white font-semibold">Thanks for subscribing!</p>
       </div>
@@ -66,7 +66,7 @@ export default function NewsletterSubscribe() {
 
   if (error) {
     return (
-      <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6">
+      <div className="bg-white/20 backdrop-blur-sm rounded-card p-6">
         <div className="flex items-center gap-3 mb-4">
           <AlertCircle className="text-red-300" size={24} />
           <h3 className="text-xl font-bold text-white">Subscription Error</h3>
@@ -85,7 +85,7 @@ export default function NewsletterSubscribe() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white/20 backdrop-blur-sm rounded-2xl p-6">
+    <form onSubmit={handleSubmit} className="bg-white/20 backdrop-blur-sm rounded-card p-6">
       <div className="flex items-center gap-3 mb-4">
         <Mail className="text-white" size={24} />
         <h3 className="text-xl font-bold text-white">Subscribe to Our Newsletter</h3>

@@ -46,6 +46,7 @@ import {
 export function useHomePageState(
   sections: HomePageSection[],
   packages: PackageDTO[],
+  packagesErrorFromServer: string | null,
   services: ServiceDTO[]
 ): {
   sectionOrder: HomePageSection['type'][];
@@ -79,6 +80,13 @@ export function useHomePageState(
   // Apply this pattern on all CMS pages that pre-fetch data server-side.
   const effectivePackages =
     packagesData.packages.length > 0 ? packagesData.packages : packages;
+
+  // Use client fetch error when present; otherwise surface server-side packages error when we have no packages
+  const packagesError =
+    packagesData.error ??
+    (effectivePackages.length === 0 && packagesErrorFromServer
+      ? new Error(packagesErrorFromServer)
+      : null);
   const effectiveServices =
     servicesData.services.length > 0 ? servicesData.services : services;
 
@@ -146,12 +154,15 @@ export function useHomePageState(
       : fallbackTestimonials
   ).slice(0, testimonialsLimit);
 
-  const packagesToRender =
+  // When CMS specifies packageSlugs, filter to those; if filter yields none (e.g. slugs don't match API), show all so section isn't empty
+  const filteredBySlugs =
     packagesConfig.packageSlugs?.length && effectivePackages.length > 0
       ? effectivePackages.filter((p) =>
           packagesConfig.packageSlugs?.includes(p.slug)
         )
-      : effectivePackages;
+      : [];
+  const packagesToRender =
+    filteredBySlugs.length > 0 ? filteredBySlugs : effectivePackages;
   const highlightedServices =
     servicesConfig.serviceSlugs?.length && effectiveServices.length > 0
       ? effectiveServices.filter((s) =>
@@ -247,7 +258,7 @@ export function useHomePageState(
         isLoading={
           packagesData.loading && effectivePackages.length === 0
         }
-        error={packagesData.error}
+        error={packagesError}
       />
     ) : null,
     impact_stats: showImpactStats ? (

@@ -24,69 +24,61 @@ export default function ContactSidebar({
 }: ContactSidebarProps) {
   return (
     <div className="space-y-6">
-      <div className="rounded-card border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
-        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-slate-500 shrink-0" />
+      <div className="bg-white rounded-card p-6 sm:p-8 shadow-lg border border-gray-200">
+        <h3 className="text-2xl font-bold text-navy-blue mb-6 flex items-center gap-3">
+          <CheckCircle2 className="h-7 w-7 text-primary-blue shrink-0" aria-hidden />
           {CONTACT_SIDEBAR.WHY_TITLE}
         </h3>
-        <ul className="divide-y divide-slate-100">
+        <ul className="space-y-4">
           {CONTACT_SIDEBAR.BENEFITS.map((benefit, index) => (
-            <li
-              key={index}
-              className="flex items-start gap-3 py-3 text-sm text-slate-700 first:pt-0"
-            >
-              <CheckCircle2 className="h-4 w-4 text-slate-500 flex-shrink-0 mt-0.5" />
-              <span>{benefit}</span>
+            <li key={index} className="flex items-start gap-3">
+              <CheckCircle2 className="h-5 w-5 text-primary-blue flex-shrink-0 mt-1" aria-hidden />
+              <span className="text-navy-blue">{benefit}</span>
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="rounded-card border border-slate-200 bg-slate-50 p-6 sm:p-8">
-        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-          {CONTACT_SIDEBAR.PREFER_TALK_TITLE}
-        </h3>
-        <p className="text-sm text-slate-600 mb-4">{CONTACT_SIDEBAR.PREFER_TALK_DESCRIPTION}</p>
-        <div className="space-y-2">
+      <div className="bg-gradient-to-br from-primary-blue to-light-blue-cyan rounded-card p-6 sm:p-8 text-white shadow-lg">
+        <h3 className="text-2xl font-bold mb-4">{CONTACT_SIDEBAR.PREFER_TALK_TITLE}</h3>
+        <p className="mb-6 opacity-90">{CONTACT_SIDEBAR.PREFER_TALK_DESCRIPTION}</p>
+        <div className="space-y-3">
           <Button
-            href={phoneHref ?? undefined}
-            variant="primary"
-            size="md"
-            className="w-full"
-            disabled={phoneDisabled}
+            href={phoneHref ?? '#'}
+            variant="outlineWhite"
+            size="lg"
+            className="w-full rounded-full border-2 border-white bg-transparent text-white hover:bg-white hover:text-primary-blue hover:shadow-2xl hover:scale-105 transition-all duration-300 px-8 py-4 text-lg"
           >
-            <Phone size={18} className="mr-2" />
-            {CONTACT_SIDEBAR.CALL_US}
+            <Phone size={20} className="mr-2" />
+            {CONTACT_SIDEBAR.PREFER_CALL_NOW}
           </Button>
           <Button
-            href={whatsappHref ?? undefined}
-            variant="bordered"
-            size="md"
-            className="w-full"
-            disabled={whatsappDisabled}
+            href={whatsappHref ?? '#'}
+            variant="secondary"
+            size="lg"
+            className="w-full rounded-full !bg-emerald-500 hover:!bg-emerald-600 !text-white !border-2 !border-white hover:!shadow-2xl hover:!scale-105 transition-all duration-300 px-8 py-4 text-lg"
           >
-            <MessageSquare size={18} className="mr-2" />
+            <MessageSquare size={20} className="mr-2" />
             {CONTACT_SIDEBAR.WHATSAPP}
           </Button>
           <Button
-            href={emailHref ?? undefined}
-            variant="outline"
-            size="md"
-            className="w-full"
-            disabled={emailDisabled}
+            href={emailHref ?? '#'}
+            variant="outlineWhite"
+            size="lg"
+            className="w-full rounded-full border-2 border-white bg-transparent text-white hover:bg-white hover:text-primary-blue hover:shadow-2xl hover:scale-105 transition-all duration-300 px-8 py-4 text-lg"
           >
-            <Mail size={18} className="mr-2" />
-            {CONTACT_SIDEBAR.EMAIL}
+            <Mail size={20} className="mr-2" />
+            {CONTACT_SIDEBAR.EMAIL_US}
           </Button>
         </div>
       </div>
 
-      <div className="rounded-card border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
-        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <Clock className="h-4 w-4 text-slate-500 shrink-0" />
+      <div className="rounded-card border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <Clock className="h-4 w-4 text-primary-blue shrink-0" />
           {CONTACT_SIDEBAR.OFFICE_HOURS_TITLE}
         </h3>
-        <ul className="divide-y divide-slate-100 text-sm text-slate-700">
+        <ul className="divide-y divide-gray-100 text-sm text-gray-700">
           <li className="flex justify-between items-center py-2 first:pt-0">
             <span className="font-medium">{CONTACT_SIDEBAR.MONDAY_FRIDAY}</span>
             <span>{CONTACT_SIDEBAR.MONDAY_FRIDAY_HOURS}</span>
@@ -100,7 +92,7 @@ export default function ContactSidebar({
             <span>{CONTACT_SIDEBAR.SUNDAY_HOURS}</span>
           </li>
         </ul>
-        <p className="mt-4 pt-4 border-t border-slate-200 text-sm text-slate-600">
+        <p className="mt-4 pt-4 border-t border-gray-200 text-sm text-gray-600">
           {CONTACT_SIDEBAR.AFTER_HOURS}
         </p>
       </div>

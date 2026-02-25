@@ -54,9 +54,9 @@ export function useReviewAggregate(providers?: string[]) {
           { signal: controller.signal, timeout: REVIEWS_AGGREGATE_TIMEOUT_MS }
         );
         setState({ data: response.data, loading: false, error: null });
-      } catch (error: any) {
-        // Silently ignore abort errors (component unmounted or providers changed)
-        if (controller.signal.aborted || error?.code === 'NETWORK_ERROR' && error?.message?.includes('aborted')) {
+      } catch (error: unknown) {
+        const err = error as { code?: string; name?: string };
+        if (controller.signal.aborted || err?.code === 'ABORTED' || err?.name === 'AbortError') {
           return;
         }
         setState({

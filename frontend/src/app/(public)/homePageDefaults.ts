@@ -22,7 +22,7 @@ export const DEFAULT_HERO: HeroSection['data'] = {
   heading: "Transform Your Child's Future",
   subheading: 'Specialist SEN & trauma-informed care that empowers children to thrive',
   primaryCta: { label: 'Book FREE Consultation', href: ROUTES.CONTACT, variant: 'primary' },
-  secondaryCta: { label: 'See How It Works', href: '#how-it-works', variant: 'outline' },
+  secondaryCta: { label: 'View Our Packages', href: ROUTES.PACKAGES, variant: 'outlineWhite' },
   backgroundVideoUrl: '/videos/space-bg-2.mp4',
 };
 
@@ -38,7 +38,7 @@ export const DEFAULT_HOW_IT_WORKS: HowItWorksSection['data'] = {
 
 export const DEFAULT_SERVICES_SECTION: ServicesHighlightSection['data'] = {
   title: 'Our Specialist Services',
-  subtitle: 'Evidence-based support tailored to your child\'s unique needs',
+  subtitle: 'Trauma-informed mentoring, SEN advocacy, and therapeutic activity design.',
   viewAllLabel: 'View All Services',
   viewAllHref: ROUTES.SERVICES,
 };
@@ -83,7 +83,7 @@ export const DEFAULT_TESTIMONIALS_SECTION: TestimonialsSection['data'] = {
 };
 
 export const DEFAULT_BLOG_SECTION: BlogSection['data'] = {
-  title: 'Latest from Our Blog',
+  title: 'Latest from the CAMS Blog',
   subtitle: 'Expert insights, tips, and stories to support your parenting journey',
   limit: 3,
 };

@@ -17,6 +17,12 @@ module.exports = {
       },
       borderRadius: {
         card: '30px',
+        /** Single source of truth: auth/form and header. Change here to apply everywhere. */
+        'form-card': '1.5rem',      // 24px – main login/register card
+        'form-input': '0.5rem',     // 8px – input fields
+        'form-button': '0.75rem',   // 12px – Sign In / Create Account
+        'form-alert': '0.5rem',     // 8px – error/note boxes
+        'header-button': '9999px',   // pill – Become a Trainer, Login, Register
       },
       /** Modal/overlay z-index scale. Use these instead of arbitrary z-[999]. Sticky: 40, Dropdown: 50, Overlay/Modal: 1000, Toast: 9999. */
       zIndex: {
@@ -40,6 +46,9 @@ module.exports = {
         'accent-green': '#00FF00', // New color for button gradient
         'dark-gray-text': '#333333', // New color for button text
         'orbital-green': '#7FFF00', // New color for the orbital ring
+        'cta-accent-start': '#F59E0B',
+        'cta-accent-end': '#10B981',
+        'footer-dark': '#102A4C',
       },
     },
   },

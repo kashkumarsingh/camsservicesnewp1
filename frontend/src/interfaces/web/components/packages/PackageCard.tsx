@@ -41,15 +41,15 @@ export default function PackageCard({
   const child = childId && children ? children.find(c => c.id === parseInt(childId, 10)) : null;
   const cardContent = (
     <div className={`
-      relative rounded-lg border border-slate-200 shadow-sm hover:shadow-md
-      transition-shadow duration-200
-      flex flex-col justify-between p-6 md:p-8 bg-white h-full overflow-hidden
-      ${pkg.popular ? 'ring-1 ring-slate-300' : ''}
+      relative rounded-card border border-gray-200 shadow-card
+      card-hover-lift transition-all duration-300
+      flex flex-col justify-between p-6 md:p-8 bg-white h-full overflow-hidden md:hover:rotate-3 group
+      ${pkg.popular ? 'ring-1 ring-gray-300' : ''}
     `}>
       {/* Recommended Badge - Subtle top-left */}
       {isRecommended && recommendation && (
         <div className="absolute top-3 left-3 z-10">
-          <div className="bg-slate-900 text-white text-[10px] font-semibold px-2 py-1 rounded flex items-center gap-1">
+          <div className="bg-gray-900 text-white text-[10px] font-semibold px-2 py-1 rounded-form-alert flex items-center gap-1">
             <Star size={10} className="fill-current" />
             <span>Recommended</span>
           </div>
@@ -59,8 +59,8 @@ export default function PackageCard({
       {/* Popular Badge - Show if not recommended */}
       {pkg.popular && !isRecommended && (
         <div className="absolute top-3 right-3 z-10">
-          <div className="border border-slate-300 bg-slate-50 text-slate-700 text-[10px] font-medium px-2 py-1 rounded flex items-center gap-1">
-            <Sparkles size={10} />
+          <div className="border border-amber-200 bg-amber-50 text-amber-800 text-[10px] font-medium px-2 py-1 rounded-form-alert flex items-center gap-1">
+            <Sparkles size={10} className="text-star-gold" />
             <span>Popular</span>
           </div>
         </div>
@@ -69,7 +69,7 @@ export default function PackageCard({
       {/* Spots Remaining Badge */}
       {pkg.spotsRemaining && pkg.spotsRemaining <= 5 && (
         <div className="absolute top-4 left-4 z-10">
-          <div className="bg-orange-50 border border-orange-200 text-orange-700 text-xs font-medium px-2.5 py-1 rounded">
+          <div className="bg-orange-50 border border-orange-200 text-orange-700 text-xs font-medium px-2.5 py-1 rounded-form-alert">
             {pkg.spotsRemaining} left
           </div>
         </div>
@@ -79,7 +79,7 @@ export default function PackageCard({
       <div className="flex-1">
         {/* Small icon in neutral container */}
         <div className="relative w-12 h-12 sm:w-14 sm:h-14 mb-4 sm:mb-5 mx-auto">
-          <div className="absolute inset-0 bg-slate-900/5 rounded-lg flex items-center justify-center">
+          <div className="absolute inset-0 bg-gray-900/5 rounded-form-input flex items-center justify-center">
             <Image 
               src={`/svgs/planet-${(parseInt(pkg.id) % 5) + 1}.svg`} 
               alt={`${pkg.name} Package Icon`} 
@@ -92,29 +92,29 @@ export default function PackageCard({
 
         {/* Package Name */}
         <div className="mb-3 text-center">
-          <h3 className="text-xl sm:text-2xl font-heading font-semibold text-slate-900">
+          <h3 className="text-xl sm:text-2xl font-heading font-semibold text-gray-900">
             {pkg.name}
           </h3>
           {/* Recommendation Note - Very subtle */}
           {isRecommended && recommendation && child && (
-            <div className="mt-1 text-[10px] text-slate-600 font-medium">
+            <div className="mt-1 text-[10px] text-gray-600 font-medium">
               Great match for {child.name}
             </div>
           )}
         </div>
 
         {/* Key Info - Simplified */}
-        <div className="flex items-center justify-center gap-4 mb-4 text-sm text-slate-600">
+        <div className="flex items-center justify-center gap-4 mb-4 text-sm text-gray-600">
           <div className="flex items-center gap-1.5">
-            <Clock size={16} className="text-slate-500" />
-            <span className="font-semibold text-slate-900">{pkg.hours}h</span>
+            <Clock size={16} className="text-primary-blue flex-shrink-0" />
+            <span className="font-semibold text-gray-900">{pkg.hours}h</span>
           </div>
           {pkg.totalWeeks && (
             <>
               <span>•</span>
               <div className="flex items-center gap-1.5">
-                <Calendar size={16} className="text-slate-500" />
-                <span className="font-semibold text-slate-900">{pkg.totalWeeks} {pkg.totalWeeks === 1 ? 'week' : 'weeks'}</span>
+                <Calendar size={16} className="text-star-gold flex-shrink-0" />
+                <span className="font-semibold text-gray-900">{pkg.totalWeeks} {pkg.totalWeeks === 1 ? 'week' : 'weeks'}</span>
               </div>
             </>
           )}
@@ -122,8 +122,8 @@ export default function PackageCard({
             <>
               <span>•</span>
               <div className="flex items-center gap-1.5">
-                <Activity size={16} className="text-slate-500" />
-                <span className="font-semibold text-slate-900">{pkg.calculatedActivities} activities</span>
+                <Activity size={16} className="text-orbital-green flex-shrink-0" />
+                <span className="font-semibold text-gray-900">{pkg.calculatedActivities} activities</span>
               </div>
             </>
           )}
@@ -132,17 +132,17 @@ export default function PackageCard({
         {/* Price */}
         {!loading && isApproved && (
           <div className="text-center mb-6">
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">
+            <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
               £{pkg.price}
             </div>
-            <span className="text-xs sm:text-sm text-slate-600 font-medium">
+            <span className="text-xs sm:text-sm text-gray-600 font-medium">
               Complete Package
             </span>
           </div>
         )}
 
         {/* Description */}
-        <div className="text-slate-600 text-sm mb-5 text-center line-clamp-2">
+        <div className="text-gray-600 text-sm mb-5 text-center line-clamp-2">
           {renderHtml(pkg.description)}
         </div>
 
@@ -151,13 +151,13 @@ export default function PackageCard({
           <div className="mb-5">
             <ul className="space-y-1.5">
               {pkg.features.slice(0, 3).map((feature, index) => (
-                <li key={index} className="flex items-center gap-2 text-xs text-slate-600">
-                  <CheckCircle2 className="text-slate-500 flex-shrink-0" size={14} />
+                <li key={index} className="flex items-center gap-2 text-xs text-gray-600">
+                  <CheckCircle2 className="text-primary-blue flex-shrink-0" size={14} />
                   <span className="line-clamp-1">{feature}</span>
                 </li>
               ))}
               {pkg.features.length > 3 && (
-                <li className="text-xs text-slate-600 font-medium pl-5">
+                <li className="text-xs text-gray-600 font-medium pl-5">
                   +{pkg.features.length - 3} more
                 </li>
               )}
@@ -172,13 +172,13 @@ export default function PackageCard({
           <>
             <Link 
               href={buyPackageUrl}
-              className="block w-full py-3 px-6 rounded-lg bg-slate-900 text-white font-semibold text-center text-sm hover:bg-slate-800 transition-colors duration-200 flex items-center justify-center gap-2"
+              className="block w-full py-3 px-6 rounded-form-button bg-gray-900 text-white font-semibold text-center text-sm hover:bg-gray-800 transition-colors duration-200 flex items-center justify-center gap-2"
             >
               <span>Buy package</span>
             </Link>
             <Link 
               href={`/packages/${pkg.slug}`}
-              className="block w-full py-2.5 px-6 rounded-lg border border-slate-300 text-slate-900 font-medium text-center text-sm hover:bg-slate-50 transition-colors duration-200 flex items-center justify-center gap-2"
+              className="block w-full py-2.5 px-6 rounded-form-button border border-gray-300 text-gray-900 font-medium text-center text-sm hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-2"
             >
               <span>View details</span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,7 +188,7 @@ export default function PackageCard({
           </>
         ) : (
           <div 
-            className="w-full py-3 px-6 rounded-lg border border-slate-300 text-slate-900 font-semibold text-center text-sm flex items-center justify-center gap-2 pointer-events-none"
+            className="w-full py-3 px-6 rounded-form-button border border-gray-300 text-gray-900 font-semibold text-center text-sm flex items-center justify-center gap-2 pointer-events-none"
           >
             <span>View details</span>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

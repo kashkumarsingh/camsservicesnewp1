@@ -24,12 +24,12 @@ export function BlogSection({ config, posts, isLoading }: BlogSectionProps) {
   const skeletonCount = Math.min(config.limit, SKELETON_COUNTS.BLOG_POSTS);
 
   return (
-    <Section className="py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
+    <Section className="py-16 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-navy-blue mb-3">{config.title}</h2>
           {config.subtitle && (
-            <p className="text-lg text-gray-700 max-w-2xl mx-auto">{config.subtitle}</p>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">{config.subtitle}</p>
           )}
         </div>
 
@@ -46,8 +46,8 @@ export function BlogSection({ config, posts, isLoading }: BlogSectionProps) {
         )}
 
         <div className="text-center">
-          <Button href={ROUTES.BLOG} variant="secondary" size="lg" withArrow>
-            Read More Articles
+          <Button href={ROUTES.BLOG} variant="primary" size="lg" className="rounded-full hover:shadow-2xl hover:scale-105 transition-all duration-300" withArrow>
+            View All Blogs
           </Button>
         </div>
       </div>

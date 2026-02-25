@@ -31,7 +31,7 @@ const PackageDetailsDisplay: React.FC<PackageDetailsDisplayProps> = ({ pkg }) =>
           {pkg.features.map((feature, index) => (
             <div 
               key={index} 
-              className="flex items-start gap-3 p-4 bg-white rounded-2xl border-2 border-gray-200 shadow-md hover:shadow-2xl transition-all duration-300 card-hover-lift hover:rotate-3 group"
+              className="flex items-start gap-3 p-4 bg-white rounded-card border-2 border-gray-200 shadow-card hover:shadow-card-hover transition-all duration-300 card-hover-lift hover:rotate-3 group"
             >
               <CheckCircle2 className="text-primary-blue flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform duration-300" size={20} />
               <span className="text-gray-700 font-medium group-hover:text-primary-blue transition-colors duration-300">{feature}</span>
@@ -50,9 +50,9 @@ const PackageDetailsDisplay: React.FC<PackageDetailsDisplayProps> = ({ pkg }) =>
           {pkg.perks.map((perk, index) => (
             <div 
               key={index} 
-              className="flex items-start gap-3 p-4 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl border-2 border-yellow-300 shadow-md hover:shadow-2xl transition-all duration-300 card-hover-lift hover:rotate-3 group"
+              className="flex items-start gap-3 p-4 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-card border-2 border-yellow-300 shadow-card hover:shadow-card-hover transition-all duration-300 card-hover-lift hover:rotate-3 group"
             >
-              <Gift className="text-[#FFD700] flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform duration-300" size={20} />
+              <Gift className="text-star-gold flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform duration-300" size={20} />
               <span className="text-navy-blue font-semibold group-hover:text-primary-blue transition-colors duration-300">{perk}</span>
             </div>
           ))}

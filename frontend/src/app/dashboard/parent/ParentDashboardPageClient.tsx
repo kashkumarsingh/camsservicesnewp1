@@ -2037,7 +2037,7 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
             <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100 px-2 pb-2 pt-0">
               {getGreeting()}, {parentName.split(' ')[0]}
             </h1>
-            <div className="parent-schedule-root flex flex-col bg-white dark:bg-slate-900 max-w-md mx-auto rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
+            <div className="parent-schedule-root flex flex-col bg-white dark:bg-slate-900 max-w-md mx-auto rounded-card shadow-card border border-gray-200 dark:border-slate-700 overflow-hidden">
               <header className="px-4 py-3 border-b border-gray-200 dark:border-slate-700">
                 <p className="text-gray-600 dark:text-slate-400 text-xs">
                   Tap a date to book or view sessions

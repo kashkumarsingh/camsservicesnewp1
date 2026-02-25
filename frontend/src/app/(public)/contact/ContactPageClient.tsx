@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useContactForm } from '@/interfaces/web/hooks/contact';
 import { PackageDTO } from '@/core/application/packages/dto/PackageDTO';
 import { ServiceDTO } from '@/core/application/services/dto/ServiceDTO';
+import { PageHero } from '@/components/shared/public-page';
 import {
-  ContactHeroSection,
   ContactStatsStrip,
   ContactFormSection,
   ContactSidebar,
@@ -16,18 +16,27 @@ import {
 import type { ContactFormData, ChildInfo } from '@/components/contact';
 import { validateFullName, validateEmail, validatePhone, validateAge, validateAddress, validatePostcode } from '@/utils/validation';
 import { ROUTES } from '@/utils/routes';
+import Button from '@/components/ui/Button';
+import { Phone, CalendarClock } from 'lucide-react';
+import { CONTACT_HERO, CONTACT_FORM, CONTACT_VALIDATION_FALLBACKS } from '@/components/contact/constants';
 
 const INITIAL_FORM_STATE: ContactFormData = {
   name: '',
+  firstName: '',
+  lastName: '',
   email: '',
   phone: '',
   address: '',
+  addressLine2: '',
   postalCode: '',
   children: [{ id: 1, name: '', age: '' }],
   inquiryType: '',
   urgency: '',
   preferredContact: 'email',
   message: '',
+  hearAboutUs: '',
+  marketingConsent: false,
+  termsAccepted: false,
 };
 
 interface ContactInfo {
@@ -73,12 +82,15 @@ export default function ContactPageClient({ packages, services, contactInfo }: C
 
     const allTouched: Record<string, boolean> = {
       name: true,
+      firstName: true,
+      lastName: true,
       email: true,
       phone: true,
       address: true,
       postalCode: true,
       inquiryType: true,
       urgency: true,
+      termsAccepted: true,
     };
     formData.children.forEach((child) => {
       allTouched[`child-${child.id}-name`] = true;
@@ -87,7 +99,8 @@ export default function ContactPageClient({ packages, services, contactInfo }: C
     setTouched(allTouched);
     setSubmitAttempted(true);
 
-    const nameValidation = validateFullName(formData.name);
+    const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
+    const nameValidation = validateFullName(fullName);
     const emailValidation = validateEmail(formData.email);
     const phoneValidation = validatePhone(formData.phone);
     const addressValidation = formData.address.trim()
@@ -96,6 +109,10 @@ export default function ContactPageClient({ packages, services, contactInfo }: C
     const postcodeValidation = formData.postalCode.trim()
       ? validatePostcode(formData.postalCode)
       : { valid: false, error: 'Postal code is required' };
+    if (!formData.termsAccepted) {
+      setErrors((prev) => ({ ...prev, termsAccepted: CONTACT_FORM.ERROR_TERMS_REQUIRED }));
+      return;
+    }
 
     const childrenErrors: Record<number, { name?: string; age?: string }> = {};
     let hasChildrenErrors = false;
@@ -112,6 +129,7 @@ export default function ContactPageClient({ packages, services, contactInfo }: C
     });
 
     if (
+      !formData.termsAccepted ||
       !nameValidation.valid ||
       !emailValidation.valid ||
       !phoneValidation.valid ||
@@ -122,13 +140,16 @@ export default function ContactPageClient({ packages, services, contactInfo }: C
       hasChildrenErrors
     ) {
       setErrors({
+        termsAccepted: !formData.termsAccepted ? CONTACT_FORM.ERROR_TERMS_REQUIRED : '',
         name: nameValidation.error || '',
+        firstName: nameValidation.error || '',
+        lastName: nameValidation.error || '',
         email: emailValidation.error || '',
         phone: phoneValidation.error || '',
         address: addressValidation.error || '',
         postalCode: postcodeValidation.error || '',
-        inquiryType: !formData.inquiryType ? 'Please select an option' : '',
-        urgency: !formData.urgency ? 'Please select a timeframe' : '',
+        inquiryType: !formData.inquiryType ? CONTACT_FORM.ERROR_SELECT_OPTION : '',
+        urgency: !formData.urgency ? CONTACT_FORM.ERROR_SELECT_TIMEFRAME : '',
       });
       setChildErrors(childrenErrors);
       return;
@@ -148,12 +169,19 @@ export default function ContactPageClient({ packages, services, contactInfo }: C
     setIsSubmitting(true);
     setHasSubmitted(true);
 
+    const fullAddress = formData.addressLine2.trim()
+      ? `${formData.address}, ${formData.addressLine2}`
+      : formData.address;
+    const messageWithSource = formData.hearAboutUs
+      ? [formData.message, `Heard about us: ${formData.hearAboutUs}`].filter(Boolean).join('\n\n')
+      : formData.message;
+
     try {
       await submitContact({
-        name: formData.name,
+        name: fullName,
         email: formData.email,
         phone: formData.phone || undefined,
-        address: formData.address || undefined,
+        address: fullAddress || undefined,
         postalCode: formData.postalCode || undefined,
         childAge:
           formData.children.length > 0
@@ -163,8 +191,8 @@ export default function ContactPageClient({ packages, services, contactInfo }: C
         inquiryDetails,
         urgency: urgency as 'urgent' | 'soon' | 'exploring',
         preferredContact: formData.preferredContact,
-        message: formData.message,
-        newsletter: false,
+        message: messageWithSource || undefined,
+        newsletter: formData.marketingConsent,
         sourcePage: typeof window !== 'undefined' ? window.location.pathname : ROUTES.CONTACT,
       });
       setFormData(INITIAL_FORM_STATE);
@@ -184,12 +212,21 @@ export default function ContactPageClient({ packages, services, contactInfo }: C
     const newErrors: Record<string, string> = {};
     const newIsValid: Record<string, boolean> = {};
 
-    if (touched.name || formData.name) {
-      const v = validateFullName(formData.name);
+    const combinedName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
+    if (touched.firstName || touched.lastName || formData.firstName || formData.lastName) {
+      const v = validateFullName(combinedName);
       if (!v.valid) {
-        newErrors.name = v.error || 'Please enter both first and last name';
+        newErrors.name = v.error ?? CONTACT_VALIDATION_FALLBACKS.NAME;
+        newErrors.firstName = v.error ?? '';
+        newErrors.lastName = v.error ?? '';
         newIsValid.name = false;
-      } else newIsValid.name = true;
+        newIsValid.firstName = false;
+        newIsValid.lastName = false;
+      } else {
+        newIsValid.name = true;
+        newIsValid.firstName = true;
+        newIsValid.lastName = true;
+      }
     }
     if (touched.email || formData.email) {
       const v = validateEmail(formData.email);
@@ -257,12 +294,14 @@ export default function ContactPageClient({ packages, services, contactInfo }: C
     setChildErrors(newChildErrors);
     setChildValid(newChildValid);
   }, [
-    formData.name,
+    formData.firstName,
+    formData.lastName,
     formData.email,
     formData.phone,
     formData.address,
     formData.postalCode,
     formData.children,
+    formData.termsAccepted,
     touched,
     submitAttempted,
   ]);
@@ -284,14 +323,35 @@ export default function ContactPageClient({ packages, services, contactInfo }: C
   const whatsappHref = normalizedContactInfo.whatsappUrl || null;
   const emailHref = normalizedContactInfo.email ? `mailto:${normalizedContactInfo.email}` : null;
 
+  const callLabel = normalizedContactInfo.phone
+    ? `${CONTACT_HERO.CTA_CALL}: ${normalizedContactInfo.phone}`
+    : CONTACT_HERO.CTA_NUMBER_COMING_SOON;
+
   return (
     <div>
-      <ContactHeroSection
-        phoneHref={phoneHref}
-        phoneDisabled={!normalizedContactInfo.phone}
-      />
+      <PageHero
+        title={CONTACT_HERO.TITLE}
+        subtitle={CONTACT_HERO.SUBTITLE}
+        videoSrc="/videos/space-bg-2.mp4"
+      >
+        <Button href="#contact-form" variant="superPlayful" size="lg" className="rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300" withArrow>
+          <CalendarClock size={20} className="mr-2" />
+          {CONTACT_HERO.CTA_PRIMARY}
+        </Button>
+        <Button
+          href={phoneHref ?? undefined}
+          variant="outline"
+          size="lg"
+          className="rounded-full bg-white text-primary-blue border-2 border-primary-blue shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300"
+          withArrow
+          disabled={!normalizedContactInfo.phone}
+        >
+          <Phone size={18} className="mr-2" />
+          {callLabel}
+        </Button>
+      </PageHero>
       <ContactStatsStrip />
-      <div className="py-16 bg-slate-50">
+      <div className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
             <ContactFormSection

@@ -96,7 +96,7 @@ export function FilterPanel({
       aria-modal="true"
       aria-label={title}
       className={cn(
-        'fixed z-40 flex flex-col bg-white shadow-xl ring-1 ring-slate-200 rounded-2xl dark:ring-slate-700 dark:bg-slate-900',
+        'fixed z-40 flex flex-col bg-white shadow-card ring-1 ring-slate-200 rounded-card dark:ring-slate-700 dark:bg-slate-900',
         'w-[320px] max-h-[85vh] overflow-hidden',
         'transition-opacity duration-150',
         isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'

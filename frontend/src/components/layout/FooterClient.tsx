@@ -30,6 +30,7 @@ import { usePolicies } from '@/interfaces/web/hooks/policies/usePolicies';
 import { FooterSkeleton } from '@/components/ui/Skeleton';
 import { SiteSettingsDTO } from '@/core/application/siteSettings/dto/SiteSettingsDTO';
 import { ROUTES } from '@/utils/routes';
+import { FOOTER } from '@/utils/footerConstants';
 
 /**
  * Social Media Icon Resolver
@@ -199,13 +200,25 @@ const FooterClient: React.FC<FooterClientProps> = ({ settings }) => {
   const contact = settings.contact;
   const company = settings.company;
 
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const defaultQuickLinks = [
+    { href: ROUTES.ABOUT, label: 'About Us' },
+    { href: ROUTES.SERVICES, label: 'Our Services' },
+    { href: ROUTES.PACKAGES, label: 'Packages' },
+    { href: ROUTES.TRAINERS, label: 'Our Team' },
+    { href: ROUTES.BLOG, label: 'Blog & Resources' },
+    { href: ROUTES.FAQ, label: 'FAQs' },
+  ];
+  const footerQuickLinks = quickLinks.length > 0 ? quickLinks : defaultQuickLinks;
+
+  const whatsappHref = contact.whatsappUrl ?? ROUTES.CONTACT;
+
   return (
-    <footer className="bg-[#102A4C] dark:bg-gray-900 text-white">
+    <footer className="bg-navy-blue dark:bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
-        {/* Main Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-8">
-          
-          {/* Company Info & Social */}
+          {/* Column 1: Logo, description, social */}
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block mb-5">
               <div className="relative w-[160px] h-[51px]">
@@ -234,7 +247,7 @@ const FooterClient: React.FC<FooterClientProps> = ({ settings }) => {
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-400 hover:text-white transition-colors"
+                      className="text-white hover:text-white/90 transition-colors"
                       aria-label={link.platform}
                     >
                       <IconComponent size={22} />
@@ -245,28 +258,26 @@ const FooterClient: React.FC<FooterClientProps> = ({ settings }) => {
             )}
           </div>
 
-          {/* Quick Links */}
-          {quickLinks.length > 0 && (
-            <div>
-              <h3 className="text-base font-semibold text-white mb-5">Quick Links</h3>
-              <ul className="space-y-3">
-                {quickLinks.map((link, index) => (
-                  <li key={index}>
-                    <Link 
-                      href={link.href} 
-                      className="text-gray-300 hover:text-white text-sm transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Services */}
+          {/* Column 2: Quick Links */}
           <div>
-            <h3 className="text-base font-semibold text-white mb-5">Our Services</h3>
+            <h3 className="text-base font-semibold text-white mb-5">{FOOTER.QUICK_LINKS_HEADING}</h3>
+            <ul className="space-y-3">
+              {footerQuickLinks.map((link, index) => (
+                <li key={index}>
+                  <Link 
+                    href={link.href} 
+                    className="text-gray-300 hover:text-white text-sm transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 3: Our Services */}
+          <div>
+            <h3 className="text-base font-semibold text-white mb-5">{FOOTER.OUR_SERVICES_HEADING}</h3>
             <ul className="space-y-3">
               {!servicesLoading && footerServices.length > 0 && (
                 footerServices.slice(0, 4).map((service) => (
@@ -285,24 +296,24 @@ const FooterClient: React.FC<FooterClientProps> = ({ settings }) => {
                   href={ROUTES.SERVICES} 
                   className="text-sm font-semibold text-white hover:text-light-blue-cyan transition-colors inline-flex items-center gap-1 group"
                 >
-                  View All
-                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+                  {FOOTER.VIEW_ALL_LABEL}
+                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" aria-hidden />
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Get in Touch */}
+          {/* Column 4: Get in Touch + CTAs */}
           <div>
-            <h3 className="text-base font-semibold text-white mb-5">Get in Touch</h3>
-            <ul className="space-y-4">
+            <h3 className="text-base font-semibold text-white mb-5">{FOOTER.GET_IN_TOUCH_HEADING}</h3>
+            <ul className="space-y-4 mb-6">
               {contact.phone && (
                 <li>
                   <a 
                     href={`tel:${contact.phone}`} 
                     className="flex items-center gap-3 group"
                   >
-                    <Phone size={18} className="text-gray-400 group-hover:text-light-blue-cyan transition-colors" />
+                    <Phone size={18} className="text-white/90 flex-shrink-0" aria-hidden />
                     <span className="text-sm text-gray-300 group-hover:text-white transition-colors">{contact.phone}</span>
                   </a>
                 </li>
@@ -313,7 +324,7 @@ const FooterClient: React.FC<FooterClientProps> = ({ settings }) => {
                     href={`mailto:${contact.email}`} 
                     className="flex items-center gap-3 group"
                   >
-                    <Mail size={18} className="text-gray-400 group-hover:text-light-blue-cyan transition-colors" />
+                    <Mail size={18} className="text-white/90 flex-shrink-0" aria-hidden />
                     <span className="text-sm text-gray-300 group-hover:text-white transition-colors break-all">{contact.email}</span>
                   </a>
                 </li>
@@ -321,39 +332,37 @@ const FooterClient: React.FC<FooterClientProps> = ({ settings }) => {
               {contact.address && (
                 <li>
                   <div className="flex items-start gap-3">
-                    <MapPin size={18} className="text-gray-400 mt-1 flex-shrink-0" />
+                    <MapPin size={18} className="text-white/90 mt-0.5 flex-shrink-0" aria-hidden />
                     <span className="text-sm text-gray-300">{contact.address}</span>
                   </div>
                 </li>
               )}
             </ul>
-             {/* CTA Buttons */}
-            <div className="mt-6 flex flex-col gap-3">
-              <Link 
-                href={ROUTES.CONTACT} 
-                className="w-full text-center px-4 py-3 bg-gradient-to-r from-primary-blue to-light-blue-cyan text-white font-bold rounded-lg hover:from-primary-blue/90 hover:to-light-blue-cyan/90 transition-all text-sm"
+            <div className="flex flex-col gap-3">
+              <Link
+                href={ROUTES.CONTACT}
+                className="rounded-full px-6 py-3.5 text-center font-semibold text-sm bg-gradient-to-r from-primary-blue to-light-blue-cyan text-white hover:opacity-95 transition-all duration-300 hover:shadow-lg inline-flex items-center justify-center"
               >
-                Book a FREE Call
+                {FOOTER.BOOK_FREE_CALL}
               </Link>
-              {contact.whatsappUrl && (
-                <a 
-                  href={contact.whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full text-center px-4 py-3 bg-white/10 text-white font-bold rounded-lg hover:bg-white/20 transition-colors text-sm"
-                >
-                  WhatsApp Us
-                </a>
-              )}
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full px-6 py-3.5 text-center font-semibold text-sm bg-nebula-gray hover:bg-nebula-gray/90 text-white transition-all duration-300 inline-flex items-center justify-center border border-white/10"
+                aria-label="Contact us on WhatsApp"
+              >
+                {FOOTER.WHATSAPP_US}
+              </a>
             </div>
           </div>
 
         </div>
 
-        {/* Sub-Footer */}
+        {/* Bottom bar: copyright, legal links, Back to Top */}
         <div className="mt-12 pt-8 border-t border-white/10">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="text-center md:text-left">
+            <div className="text-center md:text-left order-2 md:order-1">
               <p className="text-sm text-gray-300">
                 {settings.copyright.text
                   ? settings.copyright.text.replace('{year}', new Date().getFullYear().toString())
@@ -365,20 +374,29 @@ const FooterClient: React.FC<FooterClientProps> = ({ settings }) => {
                 </p>
               )}
             </div>
-            
-            {!policiesLoading && legalLinks.length > 0 && (
-              <div className="flex flex-wrap justify-center md:justify-end items-center gap-x-4 gap-y-2">
-                {legalLinks.map((link) => (
-                  <Link 
-                    key={link.href}
-                    href={link.href} 
-                    className="text-xs text-gray-400 hover:text-white transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            )}
+
+            <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 order-1 md:order-2">
+              {!policiesLoading && legalLinks.length > 0 && legalLinks.map((link) => (
+                <Link 
+                  key={link.href}
+                  href={link.href} 
+                  className="text-xs text-gray-400 hover:text-white transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+              {!policiesLoading && legalLinks.length > 0 && (
+                <span className="text-gray-500 hidden md:inline" aria-hidden>|</span>
+              )}
+              <button
+                type="button"
+                onClick={scrollToTop}
+                className="text-sm font-medium text-white/90 hover:text-white transition-colors"
+                aria-label="Back to top"
+              >
+                Back to Top
+              </button>
+            </div>
           </div>
         </div>
       </div>

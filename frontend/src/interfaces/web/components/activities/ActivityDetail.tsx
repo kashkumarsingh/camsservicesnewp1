@@ -86,7 +86,7 @@ export default function ActivityDetail({ slug, incrementViews = true }: Activity
       </header>
 
       {/* Featured Image */}
-      <div className="relative w-full h-96 mb-8 rounded-2xl overflow-hidden">
+      <div className="relative w-full h-96 mb-8 rounded-card overflow-hidden">
         <Image
           src={activity.imageUrl}
           alt={activity.name}
@@ -102,7 +102,7 @@ export default function ActivityDetail({ slug, incrementViews = true }: Activity
 
       {/* Trainer Information */}
       {activity.trainerIds && activity.trainerIds.length > 0 && (
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 mb-8">
+        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-card p-6 mb-8">
           <h3 className="text-xl font-bold text-navy-blue mb-4">Available Trainers</h3>
           <p className="text-gray-700">
             This activity is led by {activity.trainerIds.length} {activity.trainerIds.length === 1 ? 'qualified trainer' : 'qualified trainers'}.

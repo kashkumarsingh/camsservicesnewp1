@@ -18,4 +18,5 @@ export const SERVICES_PAGE = {
   CTA_SUBTITLE: 'Contact us for a free consultation or learn more about how we can support your child.',
   CTA_PRIMARY: 'Contact Our Team',
   CTA_SECONDARY: 'View Our Packages',
+  LEARN_MORE: 'Learn More',
 } as const;

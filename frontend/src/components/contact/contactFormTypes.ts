@@ -11,15 +11,21 @@ export interface ChildInfo {
 
 export interface ContactFormData {
   name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   address: string;
+  addressLine2: string;
   postalCode: string;
   children: ChildInfo[];
   inquiryType: string;
   urgency: string;
   preferredContact: 'email' | 'phone' | 'whatsapp';
   message: string;
+  hearAboutUs: string;
+  marketingConsent: boolean;
+  termsAccepted: boolean;
 }
 
 export interface ContactFormSectionProps {

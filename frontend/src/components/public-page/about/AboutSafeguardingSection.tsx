@@ -6,6 +6,7 @@ import Section from '@/components/layout/Section';
 import Button from '@/components/ui/Button';
 import { CheckCircle2 } from 'lucide-react';
 import { ROUTES } from '@/utils/routes';
+import { ABOUT_PAGE } from '@/app/(public)/constants/aboutPageConstants';
 
 const DEFAULT_BADGES = ['DBS Checked', 'First-Aid Certified', 'Safeguarding Trained', 'Risk Assessed'];
 
@@ -29,10 +30,10 @@ export default function AboutSafeguardingSection({
   const badgeList = badges.length > 0 ? badges : DEFAULT_BADGES;
 
   return (
-    <div className="py-20 bg-gradient-to-br from-blue-50 to-white">
+    <div className="py-20 bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Section title={title} subtitle={subtitle} titleClassName="heading-text-shadow">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className="relative w-full h-80 md:h-96 rounded-card shadow-xl overflow-hidden">
+          <div className="relative w-full h-80 md:h-96 rounded-card border-2 border-gray-200 shadow-card overflow-hidden">
             <Image
               src="/images/team/trainner-1.webp"
               alt="Safeguarding-focused CAMS Services mentor"
@@ -59,8 +60,8 @@ export default function AboutSafeguardingSection({
               We conduct rigorous risk assessments for all activities and create personalised care plans to ensure a
               secure and supportive environment for every child.
             </p>
-            <Button href={ROUTES.CONTACT} variant="bordered" size="lg" withArrow>
-              Request Our Safeguarding Policy
+            <Button href={ROUTES.CONTACT} variant="bordered" size="lg" className="rounded-full hover:shadow-2xl hover:scale-105 transition-all duration-300" withArrow>
+              {ABOUT_PAGE.SAFEGUARDING_CTA}
             </Button>
           </div>
         </div>

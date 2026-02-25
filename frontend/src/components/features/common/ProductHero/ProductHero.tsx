@@ -177,7 +177,7 @@ const ProductHero: React.FC<ProductHeroProps> = ({
             {badge && (
               <div className={`
                 inline-flex items-center gap-2 px-5 py-2 rounded-full mb-6 font-bold text-sm
-                ${badge.variant === 'gold' ? 'bg-[#FFD700] text-navy-blue' : ''}
+                ${badge.variant === 'gold' ? 'bg-star-gold text-navy-blue' : ''}
                 ${badge.variant === 'blue' ? 'bg-primary-blue text-white' : ''}
                 ${badge.variant === 'gradient' ? 'bg-gradient-to-r from-primary-blue to-light-blue-cyan text-white' : ''}
               `}>
@@ -193,7 +193,7 @@ const ProductHero: React.FC<ProductHeroProps> = ({
 
             {/* Subtitle */}
             {subtitle && (
-              <p className="text-2xl md:text-3xl font-bold mb-4 text-[#FFD700]">
+              <p className="text-2xl md:text-3xl font-bold mb-4 text-star-gold">
                 {subtitle}
               </p>
             )}
@@ -213,9 +213,9 @@ const ProductHero: React.FC<ProductHeroProps> = ({
                     <div 
                       key={index}
                       className={`
-                        backdrop-blur-md rounded-2xl p-5 border shadow-lg
+                        backdrop-blur-md rounded-card p-5 border shadow-card
                         ${stat.variant === 'gold' 
-                          ? 'bg-gradient-to-br from-[#FFD700] to-[#FFA500] border-2 border-white/30' 
+                          ? 'bg-gradient-to-br from-star-gold to-cta-accent-start border-2 border-white/30' 
                           : 'bg-white/10 border border-white/20'
                         }
                       `}
@@ -249,7 +249,7 @@ const ProductHero: React.FC<ProductHeroProps> = ({
 
           {/* Right Column - Pricing Card */}
           <div className="lg:flex lg:justify-end">
-            <div className="bg-white rounded-3xl p-8 shadow-2xl max-w-md w-full border-4 border-light-blue-cyan relative">
+            <div className="bg-white rounded-card p-8 shadow-card max-w-md w-full border-4 border-light-blue-cyan relative">
               {/* Spots Remaining (if provided) - Subtle & Elegant */}
               {spotsRemaining && spotsRemaining <= 10 && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
@@ -269,7 +269,7 @@ const ProductHero: React.FC<ProductHeroProps> = ({
 
               {/* Highlight Value (e.g., Total Hours) */}
               {pricing.highlightValue && (
-                <div className="bg-gradient-to-r from-primary-blue to-light-blue-cyan rounded-2xl p-6 mb-6 text-white text-center shadow-lg">
+                <div className="bg-gradient-to-r from-primary-blue to-light-blue-cyan rounded-card p-6 mb-6 text-white text-center shadow-card">
                   <div className="text-5xl font-extrabold mb-1">{pricing.highlightValue}</div>
                   <div className="text-sm font-bold uppercase tracking-wide">{pricing.highlightLabel || 'Total Hours'}</div>
                 </div>
@@ -286,7 +286,7 @@ const ProductHero: React.FC<ProductHeroProps> = ({
               )}
 
               {/* Features Preview */}
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 mb-6">
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-card p-6 mb-6">
                 <h3 className="font-bold text-navy-blue mb-4 flex items-center gap-2">
                   <CheckCircle2 className="text-primary-blue" size={20} />
                   What&apos;s Included:
