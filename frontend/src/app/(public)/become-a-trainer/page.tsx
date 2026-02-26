@@ -5,109 +5,103 @@ import Section from '@/components/layout/Section';
 import CTASection from '@/components/shared/CTASection';
 import Button from '@/components/ui/Button';
 import { ROUTES } from '@/utils/routes';
-import { BECOME_A_TRAINER_PAGE } from '@/app/(public)/constants/becomeATrainerPageConstants';
+import { BECOME_A_TRAINER_PAGE as B } from '@/app/(public)/constants/becomeATrainerPageConstants';
+import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
 
-export const metadata: Metadata = {
-  title: BECOME_A_TRAINER_PAGE.META_TITLE,
-  description: BECOME_A_TRAINER_PAGE.META_DESCRIPTION,
-};
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPublicMetadata(
+    {
+      title: B.META_TITLE,
+      description: B.META_DESCRIPTION,
+      path: ROUTES.BECOME_A_TRAINER,
+      imageAlt: B.HERO_TITLE,
+    },
+    BASE_URL
+  );
+}
 
 const highlights = [
-  {
-    title: 'Families ready to book',
-    description: 'Parents arrive with clear goals and prepaid hours, so you focus on coaching not chasing payments.',
-    icon: Sparkles,
-  },
-  {
-    title: 'Location smart matching',
-    description: 'We match you to bookings within the radius you define, powered by live availability + conflict checks.',
-    icon: MapPin,
-  },
-  {
-    title: 'Safeguarding first',
-    description: 'DBS, insurance, and speciality tags live in one profile so operations can fast-track assignments.',
-    icon: Shield,
-  },
+  { title: B.HIGHLIGHT_1_TITLE, description: B.HIGHLIGHT_1_DESC, icon: Sparkles },
+  { title: B.HIGHLIGHT_2_TITLE, description: B.HIGHLIGHT_2_DESC, icon: MapPin },
+  { title: B.HIGHLIGHT_3_TITLE, description: B.HIGHLIGHT_3_DESC, icon: Shield },
 ];
 
 export default function BecomeTrainerPage() {
   return (
     <main>
       {/* Hero Section */}
-      <Section className="border-b border-slate-200 bg-slate-50">
+      <Section className="border-b border-primary-blue/20 bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">
-            {BECOME_A_TRAINER_PAGE.HERO_TITLE}
+          <h1 className="text-3xl md:text-4xl font-heading font-bold tracking-tight text-navy-blue">
+            {B.HERO_TITLE}
           </h1>
-          <p className="mt-4 text-base md:text-lg text-slate-600 max-w-2xl mx-auto">
-            {BECOME_A_TRAINER_PAGE.HERO_SUBTITLE}
+          <p className="mt-4 text-base md:text-lg text-navy-blue/80 max-w-2xl mx-auto">
+            {B.HERO_SUBTITLE}
           </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm text-slate-600">
-            <span>{BECOME_A_TRAINER_PAGE.HERO_STATS_AVG}</span>
+          <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm text-navy-blue/80">
+            <span>{B.HERO_STATS_AVG}</span>
             <span>·</span>
-            <span>{BECOME_A_TRAINER_PAGE.HERO_STATS_LEVEL}</span>
+            <span>{B.HERO_STATS_LEVEL}</span>
           </div>
           <div className="mt-8">
             <Button href="#application-form" variant="primary" size="lg" withArrow>
-              {BECOME_A_TRAINER_PAGE.HERO_CTA}
+              {B.HERO_CTA}
             </Button>
           </div>
         </div>
       </Section>
 
       {/* Main Content Section */}
-      <div className="py-16 bg-white">
+      <div className="py-16 bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <Section>
           <div className="grid max-w-6xl mx-auto gap-8 lg:grid-cols-[1.1fr,0.9fr]">
             <div className="space-y-6">
               {/* Highlights Cards */}
-              <div className="rounded-card border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+              <div className="rounded-card border-2 border-primary-blue/20 bg-white p-6 sm:p-8 shadow-card">
                 <div className="grid gap-4 sm:grid-cols-3">
                   {highlights.map((item) => (
-                    <div key={item.title} className="rounded-card border border-slate-200 bg-slate-50/60 p-4">
-                      <div className="w-10 h-10 rounded-lg bg-slate-900/5 flex items-center justify-center mb-3">
-                        <item.icon className="h-5 w-5 text-slate-700" />
+                    <div key={item.title} className="rounded-card border-2 border-primary-blue/20 bg-primary-blue/10 p-4">
+                      <div className="w-10 h-10 rounded-lg bg-primary-blue/20 flex items-center justify-center mb-3">
+                        <item.icon className="h-5 w-5 text-navy-blue" />
                       </div>
-                      <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-                      <p className="mt-1 text-sm text-slate-600">{item.description}</p>
+                      <p className="text-sm font-heading font-bold text-navy-blue">{item.title}</p>
+                      <p className="mt-1 text-sm text-navy-blue/80">{item.description}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* How Onboarding Works */}
-              <div className="rounded-card border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
-                <h2 className="text-xl font-semibold text-slate-900 mb-4">How onboarding works</h2>
+              <div className="rounded-card border-2 border-primary-blue/20 bg-white p-6 sm:p-8 shadow-card">
+                <h2 className="text-xl font-heading font-bold text-navy-blue mb-4">{B.ONBOARDING_HEADING}</h2>
                 <div className="space-y-3">
-                  {[
-                    'Submit the profile form with safeguarding & coverage details.',
-                    'Operations review and approve within 2-3 working days.',
-                    'You receive portal access plus curated bookings that match your profile.',
-                  ].map((step) => (
+                  {[B.ONBOARDING_STEP_1, B.ONBOARDING_STEP_2, B.ONBOARDING_STEP_3].map((step) => (
                     <div key={step} className="flex items-start gap-2">
-                      <CheckCircle2 className="mt-0.5 h-5 w-5 text-slate-500 flex-shrink-0" />
-                      <p className="text-sm text-slate-700">{step}</p>
+                      <CheckCircle2 className="mt-0.5 h-5 w-5 text-primary-blue flex-shrink-0" />
+                      <p className="text-sm text-navy-blue/80">{step}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Support Section */}
-              <div className="rounded-card border border-slate-200 bg-slate-50 p-6 sm:p-8">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Need a hand?</p>
-                <h3 className="mt-2 text-lg font-semibold text-slate-900">Dedicated onboarding support</h3>
-                <p className="mt-2 text-sm text-slate-700">
-                  Email <a href="mailto:coaches@camsservices.co.uk" className="font-medium text-slate-900 underline hover:no-underline">coaches@camsservices.co.uk</a> for help with
-                  documentation or to fast-track multi-coach teams.
+              <div className="rounded-card border-2 border-primary-blue/20 bg-primary-blue/10 p-6 sm:p-8 shadow-card">
+                <p className="text-xs font-semibold uppercase tracking-wide text-navy-blue/80">{B.SUPPORT_LABEL}</p>
+                <h3 className="mt-2 text-lg font-heading font-bold text-navy-blue">{B.SUPPORT_TITLE}</h3>
+                <p className="mt-2 text-sm text-navy-blue/80">
+                  Email <a href={B.SUPPORT_EMAIL} className="font-medium text-navy-blue underline hover:no-underline">{B.SUPPORT_EMAIL_DISPLAY}</a>
+                  {B.SUPPORT_DESC_SUFFIX}
                 </p>
                 <div className="mt-4">
                   <Button
-                    href="mailto:coaches@camsservices.co.uk"
+                    href={B.SUPPORT_EMAIL}
                     variant="bordered"
                     size="lg"
                     withArrow
                   >
-                    Contact onboarding
+                    {B.SUPPORT_CTA}
                   </Button>
                 </div>
               </div>
@@ -123,14 +117,12 @@ export default function BecomeTrainerPage() {
 
       {/* CTA Section */}
       <CTASection
-        title="Ready to Join Our Team?"
-        subtitle="Start your journey as a CAMS trainer and make a lasting impact on children's lives."
-        primaryCTA={{ text: 'Submit Your Application', href: '#application-form' }}
-        secondaryCTA={{ text: 'View Current Trainers', href: ROUTES.TRAINERS }}
+        title={B.CTA_TITLE}
+        subtitle={B.CTA_SUBTITLE}
+        primaryCTA={{ text: B.CTA_PRIMARY, href: '#application-form' }}
+        secondaryCTA={{ text: B.CTA_SECONDARY, href: ROUTES.TRAINERS }}
         variant="default"
       />
     </main>
   );
 }
-
-

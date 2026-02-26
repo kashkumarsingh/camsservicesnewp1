@@ -119,6 +119,10 @@ export const EMPTY_STATE = {
   NO_CHILDREN_FOUND: { title: 'No children found', message: 'Children will appear here.' },
   NO_ACTIVITIES_FOUND: { title: 'No activities found', message: 'Add an activity or adjust filters.' },
   NO_PAGES_FOUND: { title: 'No pages found', message: 'Add a page or adjust filters.' },
+  NO_BLOCKS_YET: {
+    title: 'No blocks yet',
+    message: 'Add a block (Hero, Rich Text, CTA, FAQ, etc.) to build the page.',
+  },
   NO_TRAINER_APPLICATIONS_FOUND: {
     title: 'No trainer applications found',
     message: 'Applications will appear here.',

@@ -12,6 +12,8 @@
  * Naming Convention: "Remote" = from backend API (CMS-agnostic)
  */
 
+import type { AdminPageBlockDTO } from '@/core/application/pages/dto/PageDTO';
+
 // ========== About page section types (for type === 'about') ==========
 
 export interface AboutMissionDTO {
@@ -48,6 +50,7 @@ export interface RemotePageResponse {
   views: number;
   createdAt?: string;
   updatedAt?: string;
+  blocks?: AdminPageBlockDTO[];
   mission?: AboutMissionDTO | null;
   coreValues?: AboutCoreValueDTO[] | null;
   coreValuesSectionTitle?: string | null;
@@ -75,6 +78,7 @@ export interface AdminPageDTO {
   views: number;
   createdAt?: string;
   updatedAt?: string;
+  blocks?: AdminPageBlockDTO[];
   mission?: AboutMissionDTO | null;
   coreValues?: AboutCoreValueDTO[] | null;
   coreValuesSectionTitle?: string | null;
@@ -166,6 +170,7 @@ export function mapRemotePageToAdminPageDTO(remote: RemotePageResponse): AdminPa
     views: remote.views,
     createdAt: remote.createdAt,
     updatedAt: remote.updatedAt,
+    blocks: remote.blocks ?? undefined,
     mission: remote.mission ?? undefined,
     coreValues: remote.coreValues ?? undefined,
     coreValuesSectionTitle: remote.coreValuesSectionTitle ?? undefined,

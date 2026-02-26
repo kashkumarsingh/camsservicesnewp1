@@ -7,9 +7,14 @@ import { serviceRepository } from '@/infrastructure/persistence/services';
 import { getSiteSettings } from '@/server/siteSettings/getSiteSettings';
 import { SiteSetting } from '@/core/domain/siteSettings/entities/SiteSetting';
 import { Metadata } from 'next';
+import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
+import { ROUTES } from '@/utils/routes';
+import { CONTACT_PAGE } from '@/app/(public)/constants/contactPageConstants';
 
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
 
 async function fetchPackages() {
   const useCase = new ListPackagesUseCase(packageRepository);
@@ -32,34 +37,15 @@ async function fetchServices() {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
-  const title = 'Contact CAMS Services | Free SEN Consultation';
-  const description = 'Speak with our trauma-informed specialists. Book a free consultation to design a personalised support plan for your child.';
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      url: `${baseUrl}/contact`,
-      type: 'website',
-      images: [
-        {
-          url: `${baseUrl}/og-images/og-image.jpg`,
-          width: 1200,
-          height: 630,
-          alt: 'CAMS Services Contact',
-        },
-      ],
+  return buildPublicMetadata(
+    {
+      title: CONTACT_PAGE.META_TITLE,
+      description: CONTACT_PAGE.META_DESCRIPTION,
+      path: ROUTES.CONTACT,
+      imageAlt: CONTACT_PAGE.OG_IMAGE_ALT,
     },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [`${baseUrl}/og-images/og-image.jpg`],
-    },
-  };
+    BASE_URL
+  );
 }
 
 import { withTimeoutFallback } from '@/utils/promiseUtils';

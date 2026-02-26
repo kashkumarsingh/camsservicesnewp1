@@ -57,9 +57,9 @@ else
 fi
 echo ""
 
-# Test 2: Check Filament routes
-echo -e "${BLUE}Test 2: Check Filament Routes${NC}"
-echo "Checking if Filament routes are registered..."
+# Test 2: Check API routes
+echo -e "${BLUE}Test 2: Check API Routes${NC}"
+echo "Checking if child checklist API routes are registered..."
 echo ""
 
 docker-compose exec -T backend php artisan route:list --name=child-checklist 2>/dev/null | grep -i "child-checklist" || echo -e "${YELLOW}⚠️  Routes may need cache clear${NC}"
@@ -98,15 +98,15 @@ if [ "$USER_CHECKLISTS_COUNT" = "0" ]; then
 fi
 echo ""
 
-# Test 4: Check Filament resource
-echo -e "${BLUE}Test 4: Filament Resource Check${NC}"
-echo "Checking if ChildChecklistResource is properly configured..."
+# Test 4: Check backend model/API
+echo -e "${BLUE}Test 4: Backend Child Checklist Support${NC}"
+echo "Checking if ChildChecklist model exists..."
 echo ""
 
-if docker-compose exec -T backend php artisan tinker --execute="echo class_exists('App\\\Filament\\\Resources\\\Children\\\ChildChecklistResource') ? 'EXISTS' : 'NOT_FOUND';" 2>/dev/null | grep -q "EXISTS"; then
-  echo -e "${GREEN}✅ ChildChecklistResource class exists${NC}"
+if docker-compose exec -T backend php artisan tinker --execute="echo class_exists('App\\\Models\\\ChildChecklist') ? 'EXISTS' : 'NOT_FOUND';" 2>/dev/null | grep -q "EXISTS"; then
+  echo -e "${GREEN}✅ ChildChecklist model exists${NC}"
 else
-  echo -e "${RED}❌ ChildChecklistResource class not found${NC}"
+  echo -e "${RED}❌ ChildChecklist model not found${NC}"
 fi
 echo ""
 
@@ -117,7 +117,7 @@ echo "================================"
 echo ""
 echo "✅ What's Working:"
 echo "   - Child Checklist system is implemented"
-echo "   - Filament resource is configured"
+echo "   - Backend API/model is configured"
 echo "   - Routes are registered"
 echo ""
 echo "📝 Next Steps to Test:"
@@ -131,11 +131,11 @@ echo "   - Complete the checklist form"
 echo "   - Submit the checklist"
 echo ""
 echo "2. ${BLUE}As Admin:${NC}"
-echo "   - Login at http://localhost:9080/admin"
-echo "   - Go to 'Child Checklists' in sidebar"
+echo "   - Login at http://localhost:4300/dashboard/admin"
+echo "   - Go to Child Checklists / Children in the dashboard"
 echo "   - View the submitted checklist"
 echo "   - Click 'Mark as Completed' or edit to mark as completed"
-echo "   - Go to 'Children' → View the child"
+echo "   - Go to Children → View the child"
 echo "   - Click 'Approve Child' (should be enabled now)"
 echo ""
 echo "3. ${BLUE}Test Booking:${NC}"

@@ -22,7 +22,7 @@ export default function BlogPostDetail({ slug, incrementViews = true }: BlogPost
   if (loading) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">Loading blog post...</p>
+        <p className="text-navy-blue/80">Loading blog post...</p>
       </div>
     );
   }
@@ -38,7 +38,7 @@ export default function BlogPostDetail({ slug, incrementViews = true }: BlogPost
   if (!post) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">Blog post not found.</p>
+        <p className="text-navy-blue/80">Blog post not found.</p>
       </div>
     );
   }
@@ -58,11 +58,11 @@ export default function BlogPostDetail({ slug, incrementViews = true }: BlogPost
         </h1>
 
         {post.excerpt && (
-          <p className="text-xl text-gray-700 mb-6">{post.excerpt}</p>
+          <p className="text-xl text-navy-blue/80 mb-6">{post.excerpt}</p>
         )}
 
         {/* Meta Information */}
-        <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 pb-6 border-b border-gray-200">
+        <div className="flex flex-wrap items-center gap-6 text-sm text-navy-blue/80 pb-6 border-b border-primary-blue/20">
           {post.author && (
             <div className="flex items-center gap-2">
               <User size={18} />
@@ -112,7 +112,7 @@ export default function BlogPostDetail({ slug, incrementViews = true }: BlogPost
 
       {/* Tags */}
       {post.tags && post.tags.length > 0 && (
-        <div className="mt-12 pt-8 border-t border-gray-200">
+        <div className="mt-12 pt-8 border-t border-primary-blue/20">
           <h3 className="text-lg font-semibold text-navy-blue mb-4">Tags:</h3>
           <div className="flex flex-wrap gap-2">
             {post.tags.map((tag) => (

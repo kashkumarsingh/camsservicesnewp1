@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Page Model (Domain Layer)
@@ -150,5 +151,15 @@ class Page extends Model
     public function canBeViewed(): bool
     {
         return $this->published && $this->isEffective();
+    }
+
+    /**
+     * Page Builder blocks (ordered by sort_order).
+     *
+     * @return HasMany<PageBlock>
+     */
+    public function blocks(): HasMany
+    {
+        return $this->hasMany(PageBlock::class)->orderBy('sort_order');
     }
 }

@@ -20,9 +20,9 @@ interface ButtonProps {
 }
 
 const Button: React.FC<ButtonProps> = ({ href, onClick, children, variant = 'primary', size = 'md', className = '', type = 'button', disabled = false, icon, withArrow = false, title, form, ariaBusy }) => {
+  /** Pill (rounded-header-button) when className has rounded-full; otherwise rounded-form-button (12px) per tailwind config. */
   const usePill = Boolean(className && className.includes('rounded-full'));
-  const useFormButtonRadius = Boolean(className && className.includes('rounded-form-button'));
-  const radiusClass = usePill ? 'rounded-full' : useFormButtonRadius ? 'rounded-form-button' : 'rounded-lg';
+  const radiusClass = usePill ? 'rounded-full' : 'rounded-form-button';
   const baseStyles = `${radiusClass} font-semibold transition-all duration-200 inline-flex items-center justify-center space-x-2`;
   const disabledStyles = disabled
     ? 'opacity-40 cursor-not-allowed pointer-events-none select-none'

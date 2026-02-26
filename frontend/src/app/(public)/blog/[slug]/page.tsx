@@ -11,8 +11,11 @@ import Button from '@/components/ui/Button';
 import { RichTextBlock } from '@/components/shared/public-page';
 import BlogSidebar from './BlogSidebar';
 import { ROUTES } from '@/utils/routes';
+import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
+import { SEO_DEFAULTS } from '@/utils/seoConstants';
+import { BLOG_DETAIL_PAGE } from '@/app/(public)/constants/blogDetailPageConstants';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://camsservice.co.uk';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
 
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;
@@ -27,45 +30,36 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
   if (!post) {
     return {
-      title: 'Blog Post Not Found',
+      title: BLOG_DETAIL_PAGE.META_NOT_FOUND_TITLE,
     };
   }
 
   const seoTitle = post.seo?.title || post.title;
-  const seoDescription = post.seo?.description || post.excerpt;
-  const ogImage = post.seo?.og_image || post.featuredImage || `${BASE_URL}/images/og-default.jpg`;
+  const seoDescription = post.seo?.description || post.excerpt || undefined;
+  const ogImage =
+    post.seo?.og_image || post.featuredImage || `${BASE_URL}/images/og-default.jpg`;
+  const imageUrl = ogImage.startsWith('http') ? ogImage : `${BASE_URL}${ogImage}`;
 
-  return {
-    title: `${seoTitle} | CAMS Services Blog`,
-    description: seoDescription,
-    openGraph: {
-      title: seoTitle,
+  return buildPublicMetadata(
+    {
+      title: `${seoTitle} | ${SEO_DEFAULTS.siteName} Blog`,
       description: seoDescription,
-      url: `${BASE_URL}/blog/${slug}`,
+      path: `/blog/${slug}`,
       type: 'article',
-      images: [
-        {
-          url: ogImage.startsWith('http') ? ogImage : `${BASE_URL}${ogImage}`,
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-      ],
+      imageUrl,
+      imageAlt: post.title,
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt,
       authors: [post.author.name],
       tags: post.tags.map(tag => tag.name),
     },
-    twitter: {
-      card: 'summary_large_image',
-      title: seoTitle,
-      description: seoDescription,
-      images: [ogImage.startsWith('http') ? ogImage : `${BASE_URL}${ogImage}`],
-    },
-  };
+    BASE_URL
+  );
 }
 
 import { withTimeoutFallback } from '@/utils/promiseUtils';
+import { formatDate } from '@/utils/formatDate';
+import { DATE_FORMAT_LONG } from '@/utils/appConstants';
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
@@ -143,11 +137,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 text-white">
               <div className="container mx-auto max-w-4xl">
                 {post.category && (
-                  <span className="inline-block bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                  <span className="inline-block bg-gradient-to-r from-primary-blue/90 to-light-blue-cyan/90 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold mb-4 shadow-md">
                     {post.category.name}
                   </span>
                 )}
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 heading-text-shadow">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-4 heading-text-shadow">
                   {post.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-4 text-sm md:text-base">
@@ -158,11 +152,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   {post.publishedAt && (
                     <span className="flex items-center gap-2">
                       <Calendar size={18} />
-                      {new Date(post.publishedAt).toLocaleDateString('en-GB', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
+                      {formatDate(post.publishedAt, DATE_FORMAT_LONG)}
                     </span>
                   )}
                   {post.readingTime && (
@@ -177,16 +167,17 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
         )}
 
-        {/* Content */}
-        <div className="container mx-auto max-w-7xl px-4 py-12">
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Main Content */}
-            <div className="lg:col-span-2">
+        {/* Content – warm kid-friendly background */}
+        <div className="bg-gradient-to-br from-blue-50/60 via-white to-purple-50/40">
+          <div className="container mx-auto max-w-7xl px-4 py-12">
+            <div className="grid lg:grid-cols-3 gap-8">
+              {/* Main Content */}
+              <div className="lg:col-span-2">
           {/* Back Button */}
           <Link href={ROUTES.BLOG}>
             <Button variant="bordered" size="sm" className="mb-8">
               <ArrowLeft size={16} className="mr-2" />
-              Back to Blog
+              {BLOG_DETAIL_PAGE.BACK_TO_BLOG}
             </Button>
           </Link>
 
@@ -194,31 +185,27 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           {!post.featuredImage && (
             <div className="mb-8">
               {post.category && (
-                <span className="inline-block bg-slate-100 text-slate-700 px-2.5 py-1 rounded text-sm font-medium mb-4">
+                <span className="inline-block bg-gradient-to-r from-primary-blue/15 to-light-blue-cyan/15 text-navy-blue px-2.5 py-1 rounded-full text-sm font-semibold mb-4">
                   {post.category.name}
                 </span>
               )}
-              <h1 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-4">
+              <h1 className="text-3xl md:text-4xl font-heading font-bold text-navy-blue mb-4">
                 {post.title}
               </h1>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-primary-blue font-medium mb-6">
                 <span className="flex items-center gap-2">
-                  <User size={16} />
+                  <User size={16} className="text-primary-blue" />
                   {post.author.name}
                 </span>
                 {post.publishedAt && (
                   <span className="flex items-center gap-2">
-                    <Calendar size={16} />
-                    {new Date(post.publishedAt).toLocaleDateString('en-GB', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
+                    <Calendar size={16} className="text-star-gold" />
+                    {formatDate(post.publishedAt, DATE_FORMAT_LONG)}
                   </span>
                 )}
                 {post.readingTime && (
                   <span className="flex items-center gap-2">
-                    <Clock size={16} />
+                    <Clock size={16} className="text-light-blue-cyan" />
                     {post.readingTime} min read
                   </span>
                 )}
@@ -228,18 +215,18 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           {/* Excerpt */}
           {post.excerpt && (
-            <div className="text-xl text-gray-700 mb-8 font-light leading-relaxed">
+            <div className="text-xl text-navy-blue/85 mb-8 font-light leading-relaxed">
               {post.excerpt}
             </div>
           )}
 
-          {/* Tags */}
+          {/* Tags – playful pills */}
           {post.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-8">
               {post.tags.map(tag => (
                 <span
                   key={tag.id}
-                  className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium"
+                  className="bg-primary-blue/10 text-navy-blue px-3 py-1 rounded-full text-sm font-medium"
                 >
                   #{tag.name}
                 </span>
@@ -250,46 +237,46 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           {/* Content */}
           <RichTextBlock
             content={post.content}
-            proseClassName="prose prose-lg max-w-none prose-headings:text-navy-blue prose-p:text-gray-700 prose-a:text-primary-blue prose-a:no-underline hover:prose-a:underline prose-strong:text-navy-blue prose-code:text-primary-blue prose-pre:bg-gray-900 prose-pre:text-white"
+            proseClassName="prose prose-lg max-w-none prose-headings:text-navy-blue prose-p:text-navy-blue/90 prose-a:text-primary-blue prose-a:no-underline hover:prose-a:underline prose-strong:text-navy-blue prose-code:text-primary-blue prose-pre:bg-navy-blue prose-pre:text-white"
           />
 
-          {/* Author Bio */}
+          {/* Author Bio – soft gradient card */}
           {post.author.bio && (
-            <div className="mt-12 pt-8 border-t border-gray-200">
-              <div className="flex items-start gap-4">
+            <div className="mt-12 pt-8 border-t-2 border-primary-blue/20">
+              <div className="flex items-start gap-4 p-6 rounded-card bg-gradient-to-r from-blue-50/80 to-purple-50/50 border border-primary-blue/10">
                 {post.author.avatar && (
                   <Image
                     src={post.author.avatar}
                     alt={post.author.name}
                     width={80}
                     height={80}
-                    className="rounded-full"
+                    className="rounded-full ring-2 ring-primary-blue/20"
                   />
                 )}
                 <div>
-                  <h3 className="text-xl font-bold text-navy-blue mb-2">
+                  <h3 className="text-xl font-heading font-bold text-navy-blue mb-2">
                     {post.author.name}
                   </h3>
                   {post.author.bio && (
-                    <p className="text-gray-700">{post.author.bio}</p>
+                    <p className="text-navy-blue/85">{post.author.bio}</p>
                   )}
                 </div>
               </div>
             </div>
           )}
 
-          {/* CTA */}
-          <div className="mt-12 p-8 bg-gradient-to-r from-primary-blue to-light-blue-cyan rounded-card text-white text-center">
-            <h3 className="text-2xl font-bold mb-4">Ready to Take Action?</h3>
+          {/* CTA – already gradient */}
+          <div className="mt-12 p-8 bg-gradient-to-r from-primary-blue to-light-blue-cyan rounded-card text-white text-center shadow-card">
+            <h3 className="text-2xl font-bold mb-4">{BLOG_DETAIL_PAGE.CTA_TITLE}</h3>
             <p className="mb-6 text-lg opacity-90">
-              Reading is great, but real change happens with expert support.
+              {BLOG_DETAIL_PAGE.CTA_SUBTITLE}
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button href={ROUTES.CONTACT} variant="secondary" size="lg" withArrow>
-                Book FREE Consultation
+                {BLOG_DETAIL_PAGE.CTA_PRIMARY}
               </Button>
-              <Button href={ROUTES.PACKAGES} variant="outline" size="lg" withArrow>
-                View Our Packages
+              <Button href={ROUTES.PACKAGES} variant="outlineWhite" size="lg" withArrow>
+                {BLOG_DETAIL_PAGE.CTA_SECONDARY}
               </Button>
             </div>
           </div>
@@ -308,6 +295,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </article>
     </>

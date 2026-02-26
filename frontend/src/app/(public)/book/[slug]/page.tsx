@@ -237,7 +237,7 @@ export default async function BookPackagePage({ params }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Hero Section - Compact (≈40% shorter) */}
       <Section className="relative pt-6 pb-4 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-br from-primary-blue via-primary-blue/90 to-light-blue-cyan">
         <div className="relative z-10 max-w-7xl mx-auto">
@@ -300,22 +300,22 @@ export default async function BookPackagePage({ params }: Props) {
                 {/* Primary CTA - Navigate to checkout */}
                 <a 
                   href={`/checkout?package=${legacyPackage.slug}`}
-                  className="block w-full bg-gradient-to-r from-primary-blue to-light-blue-cyan text-white text-center py-3 px-5 rounded-lg font-bold text-sm shadow-md hover:shadow-lg transition-all mb-3"
+                  className="block w-full bg-gradient-to-r from-primary-blue to-light-blue-cyan text-white text-center py-3 px-5 rounded-form-button font-bold text-sm shadow-md hover:shadow-lg transition-all mb-3"
                 >
                   Secure Your Spot Now
                 </a>
 
                 {/* Simple checkout info */}
-                <div className="text-[11px] text-gray-600 text-center mb-3">
-                  <span className="font-semibold text-gray-700">Quick checkout</span>
-                  <span className="text-gray-500"> • </span>
+                <div className="text-[11px] text-navy-blue/80 text-center mb-3">
+                  <span className="font-semibold text-navy-blue">Quick checkout</span>
+                  <span className="text-navy-blue/70"> • </span>
                   <span>Book sessions after purchase</span>
                 </div>
 
                 {/* What's Included (inline chips) */}
                 <div className="flex flex-wrap gap-2">
                   {legacyPackage.features.slice(0, 3).map((feature: string, index: number) => (
-                    <span key={index} className="text-[11px] text-gray-700 bg-gray-50 border border-gray-200 rounded-full px-2 py-1 inline-flex items-center gap-1">
+                    <span key={index} className="text-[11px] text-navy-blue/80 bg-primary-blue/10 border-2 border-primary-blue/20 rounded-full px-2 py-1 inline-flex items-center gap-1">
                       <CheckCircle2 size={12} className="text-primary-blue flex-shrink-0" />{feature}
                     </span>
                   ))}
@@ -338,9 +338,9 @@ export default async function BookPackagePage({ params }: Props) {
             <h2 className="text-2xl font-bold text-navy-blue mb-6 text-center">What&apos;s Included</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {legacyPackage.features.map((feature: string, index: number) => (
-                <div key={index} className="bg-white rounded-lg p-4 border-2 border-gray-200 flex items-start gap-3">
+                <div key={index} className="bg-white rounded-card p-4 border-2 border-primary-blue/20 flex items-start gap-3 shadow-card">
                   <CheckCircle2 className="text-primary-blue flex-shrink-0 mt-0.5" size={20} />
-                  <span className="text-gray-700">{feature}</span>
+                  <span className="text-navy-blue/80">{feature}</span>
                 </div>
               ))}
             </div>
@@ -349,30 +349,30 @@ export default async function BookPackagePage({ params }: Props) {
           {/* Trust & Security Banner */}
           <div className="mt-12 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 rounded-3xl p-8 border-2 border-blue-200 shadow-xl">
             <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Why Parents Love Us</h3>
-              <p className="text-gray-600 text-sm">Trusted by 200+ families across the UK</p>
+              <h3 className="text-2xl font-heading font-bold text-navy-blue mb-2">Why Parents Love Us</h3>
+              <p className="text-navy-blue/80 text-sm">Trusted by 200+ families across the UK</p>
             </div>
             <div className="grid sm:grid-cols-3 gap-6">
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Shield className="text-white" size={32} />
                 </div>
-                <div className="font-bold text-gray-900 mb-1">Bank-Level Security</div>
-                <div className="text-sm text-gray-600">256-bit SSL encryption protects your data</div>
+                <div className="font-heading font-bold text-navy-blue mb-1">Bank-Level Security</div>
+                <div className="text-sm text-navy-blue/80">256-bit SSL encryption protects your data</div>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <CheckCircle2 className="text-white" size={32} />
                 </div>
-                <div className="font-bold text-gray-900 mb-1">Instant Confirmation</div>
-                <div className="text-sm text-gray-600">Receive booking details via email & SMS</div>
+                <div className="font-heading font-bold text-navy-blue mb-1">Instant Confirmation</div>
+                <div className="text-sm text-navy-blue/80">Receive booking details via email & SMS</div>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Award className="text-white" size={32} />
                 </div>
-                <div className="font-bold text-gray-900 mb-1">100% Satisfaction</div>
-                <div className="text-sm text-gray-600">Money-back guarantee if not delighted</div>
+                <div className="font-heading font-bold text-navy-blue mb-1">100% Satisfaction</div>
+                <div className="text-sm text-navy-blue/80">Money-back guarantee if not delighted</div>
               </div>
             </div>
           </div>

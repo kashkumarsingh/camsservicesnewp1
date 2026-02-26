@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { X, RefreshCw } from 'lucide-react';
 import type { SessionAwaitingTrainerItem } from '@/interfaces/web/hooks/dashboard/useAdminDashboardStats';
@@ -114,7 +115,7 @@ export function UnassignedSessionsModal({
   const formatTime = (start?: string, end?: string) =>
     start && end ? `${start.slice(0, 5)} – ${end.slice(0, 5)}` : '';
 
-  return (
+  const modal = (
     <div
       className="fixed inset-0 z-overlay flex items-center justify-center bg-slate-900/50 p-4"
       role="dialog"
@@ -261,4 +262,6 @@ export function UnassignedSessionsModal({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modal, document.body) : modal;
 }

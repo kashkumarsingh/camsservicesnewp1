@@ -45,7 +45,7 @@ class AdminPublicPagesController extends Controller
     }
 
     /**
-     * Format a Page model for detailed admin response (includes content).
+     * Format a Page model for detailed admin response (includes content and blocks).
      */
     private function formatAdminPageDetail(Page $page): array
     {
@@ -63,6 +63,7 @@ class AdminPublicPagesController extends Controller
             'views' => $page->views,
             'createdAt' => optional($page->created_at)->toIso8601String(),
             'updatedAt' => optional($page->updated_at)->toIso8601String(),
+            'blocks' => $this->formatAdminBlocks($page),
         ];
 
         if ($page->type === 'home') {
@@ -79,6 +80,24 @@ class AdminPublicPagesController extends Controller
         }
 
         return $data;
+    }
+
+    /**
+     * Format page blocks for admin (id, sortOrder, type, payload).
+     *
+     * @return array<int, array{id: string, sortOrder: int, type: string, payload: array}>
+     */
+    private function formatAdminBlocks(Page $page): array
+    {
+        if (! $page->relationLoaded('blocks')) {
+            $page->load('blocks');
+        }
+        return $page->blocks->map(fn ($b) => [
+            'id' => (string) $b->id,
+            'sortOrder' => (int) $b->sort_order,
+            'type' => $b->type,
+            'payload' => $b->payload ?? [],
+        ])->values()->all();
     }
 
     /**

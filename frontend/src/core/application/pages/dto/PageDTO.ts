@@ -3,6 +3,30 @@ export interface PageSectionDTO {
   data: Record<string, unknown>;
 }
 
+/** Phase 5: Visibility/scheduling — optional per-block meta. */
+export interface PageBlockMetaDTO {
+  visibleFrom?: string | null;
+  visibleUntil?: string | null;
+  hideOnMobile?: boolean | null;
+}
+
+/** Page Builder: one block (id, type, payload, meta). Payload shape depends on block type. */
+export interface PageBlockDTO {
+  id?: string;
+  type: string;
+  payload: Record<string, unknown>;
+  meta?: PageBlockMetaDTO | null;
+}
+
+/** Page Builder: admin block with id and sortOrder for CRUD/reorder. */
+export interface AdminPageBlockDTO {
+  id: string;
+  sortOrder: number;
+  type: string;
+  payload: Record<string, unknown>;
+  meta?: PageBlockMetaDTO | null;
+}
+
 /** About page: mission block (optional). */
 export interface AboutMissionDTO {
   title?: string;
@@ -39,6 +63,8 @@ export interface PageDTO {
   published: boolean;
   createdAt?: string;
   updatedAt?: string;
+  /** Page Builder: ordered blocks (hero, features, faq, etc.). */
+  blocks?: PageBlockDTO[];
   /** Only present when type === 'about' */
   mission?: AboutMissionDTO | null;
   coreValues?: AboutCoreValueDTO[] | null;

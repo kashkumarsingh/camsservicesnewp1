@@ -7,6 +7,9 @@ import { Calendar, Clock, Share2, Facebook, Twitter, Linkedin, Mail } from 'luci
 import { BlogPostDTO } from '@/core/application/blog';
 import Button from '@/components/ui/Button';
 import { ROUTES } from '@/utils/routes';
+import { formatDate } from '@/utils/formatDate';
+import { DATE_FORMAT_MONTH_DAY, DATE_FORMAT_MONTH_DAY_YEAR } from '@/utils/appConstants';
+import { BLOG_SIDEBAR } from '@/app/(public)/constants/blogDetailPageConstants';
 
 interface BlogSidebarProps {
   currentPost: BlogPostDTO;
@@ -29,18 +32,18 @@ export default function BlogSidebar({ currentPost, relatedPosts, recentPosts, ca
 
   return (
     <aside className="space-y-8">
-      {/* Social Share */}
-      <div className="bg-white p-6 rounded-card shadow-md border border-gray-100">
-        <h3 className="text-lg font-bold text-navy-blue mb-4 flex items-center gap-2">
+      {/* Social Share – kid-friendly card */}
+      <div className="bg-white p-6 rounded-card shadow-card border-2 border-primary-blue/20">
+        <h3 className="text-lg font-heading font-bold text-navy-blue mb-4 flex items-center gap-2">
           <Share2 size={20} className="text-primary-blue" />
-          Share This Article
+          {BLOG_SIDEBAR.SHARE_TITLE}
         </h3>
         <div className="flex flex-wrap gap-3">
           <a
             href={shareLinks.facebook}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
+            className="flex items-center justify-center w-10 h-10 bg-primary-blue text-white rounded-full hover:scale-110 transition-transform shadow-md"
             aria-label="Share on Facebook"
           >
             <Facebook size={18} />
@@ -49,7 +52,7 @@ export default function BlogSidebar({ currentPost, relatedPosts, recentPosts, ca
             href={shareLinks.twitter}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center w-10 h-10 bg-sky-500 text-white rounded-full hover:bg-sky-600 transition-colors"
+            className="flex items-center justify-center w-10 h-10 bg-light-blue-cyan text-white rounded-full hover:scale-110 transition-transform shadow-md"
             aria-label="Share on Twitter"
           >
             <Twitter size={18} />
@@ -58,14 +61,14 @@ export default function BlogSidebar({ currentPost, relatedPosts, recentPosts, ca
             href={shareLinks.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center w-10 h-10 bg-blue-700 text-white rounded-full hover:bg-blue-800 transition-colors"
+            className="flex items-center justify-center w-10 h-10 bg-navy-blue text-white rounded-full hover:scale-110 transition-transform shadow-md"
             aria-label="Share on LinkedIn"
           >
             <Linkedin size={18} />
           </a>
           <a
             href={shareLinks.email}
-            className="flex items-center justify-center w-10 h-10 bg-gray-600 text-white rounded-full hover:bg-gray-700 transition-colors"
+            className="flex items-center justify-center w-10 h-10 bg-star-gold text-navy-blue rounded-full hover:scale-110 transition-transform shadow-md"
             aria-label="Share via Email"
           >
             <Mail size={18} />
@@ -75,8 +78,8 @@ export default function BlogSidebar({ currentPost, relatedPosts, recentPosts, ca
 
       {/* Related Posts */}
       {relatedPosts.length > 0 && (
-        <div className="bg-white p-6 rounded-card shadow-md border border-gray-100">
-          <h3 className="text-lg font-bold text-navy-blue mb-4">Related Articles</h3>
+        <div className="bg-gradient-to-br from-blue-50/80 to-white p-6 rounded-card shadow-card border-2 border-primary-blue/20">
+          <h3 className="text-lg font-heading font-bold text-navy-blue mb-4">{BLOG_SIDEBAR.RELATED_TITLE}</h3>
           <div className="space-y-4">
             {relatedPosts.slice(0, 3).map((post) => (
               <Link
@@ -99,14 +102,11 @@ export default function BlogSidebar({ currentPost, relatedPosts, recentPosts, ca
                     <h4 className="text-sm font-semibold text-navy-blue group-hover:text-primary-blue transition-colors line-clamp-2 mb-1">
                       {post.title}
                     </h4>
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <div className="flex items-center gap-2 text-xs text-navy-blue/80">
                       {post.publishedAt && (
                         <span className="flex items-center gap-1">
                           <Calendar size={12} />
-                          {new Date(post.publishedAt).toLocaleDateString('en-GB', {
-                            month: 'short',
-                            day: 'numeric',
-                          })}
+                          {formatDate(post.publishedAt, DATE_FORMAT_MONTH_DAY)}
                         </span>
                       )}
                       {post.readingTime && (
@@ -126,8 +126,8 @@ export default function BlogSidebar({ currentPost, relatedPosts, recentPosts, ca
 
       {/* Recent Posts */}
       {recentPosts.length > 0 && (
-        <div className="bg-white p-6 rounded-card shadow-md border border-gray-100">
-          <h3 className="text-lg font-bold text-navy-blue mb-4">Recent Posts</h3>
+        <div className="bg-gradient-to-br from-purple-50/60 to-white p-6 rounded-card shadow-card border-2 border-primary-blue/20">
+          <h3 className="text-lg font-heading font-bold text-navy-blue mb-4">{BLOG_SIDEBAR.RECENT_TITLE}</h3>
           <ul className="space-y-3">
             {recentPosts.slice(0, 5).map((post) => (
               <li key={post.id}>
@@ -138,12 +138,8 @@ export default function BlogSidebar({ currentPost, relatedPosts, recentPosts, ca
                   {post.title}
                 </Link>
                 {post.publishedAt && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    {new Date(post.publishedAt).toLocaleDateString('en-GB', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
+                  <p className="text-xs text-navy-blue/80 mt-1">
+                    {formatDate(post.publishedAt, DATE_FORMAT_MONTH_DAY_YEAR)}
                   </p>
                 )}
               </li>
@@ -154,18 +150,18 @@ export default function BlogSidebar({ currentPost, relatedPosts, recentPosts, ca
 
       {/* Categories */}
       {categories.length > 0 && (
-        <div className="bg-white p-6 rounded-card shadow-md border border-gray-100">
-          <h3 className="text-lg font-bold text-navy-blue mb-4">Categories</h3>
+        <div className="bg-gradient-to-br from-blue-50/60 to-purple-50/40 p-6 rounded-card shadow-card border-2 border-primary-blue/20">
+          <h3 className="text-lg font-heading font-bold text-navy-blue mb-4">{BLOG_SIDEBAR.CATEGORIES_TITLE}</h3>
           <ul className="space-y-2">
             {categories.map((category) => (
               <li key={category.id}>
                 <Link
                   href={`/blog?category=${category.slug}`}
-                  className="flex items-center justify-between text-sm text-gray-700 hover:text-primary-blue transition-colors py-1"
+                  className="flex items-center justify-between text-sm text-navy-blue font-medium hover:text-primary-blue transition-colors py-1"
                 >
                   <span>{category.name}</span>
                   {category.count !== undefined && (
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                    <span className="text-xs text-navy-blue/80 bg-primary-blue/10 px-2 py-0.5 rounded-full font-semibold">
                       {category.count}
                     </span>
                   )}
@@ -176,14 +172,14 @@ export default function BlogSidebar({ currentPost, relatedPosts, recentPosts, ca
         </div>
       )}
 
-      {/* Quick CTA */}
-      <div className="bg-gradient-to-br from-primary-blue to-light-blue-cyan p-6 rounded-card text-white">
-        <h3 className="text-lg font-bold mb-2">Need Support?</h3>
+      {/* Quick CTA – already gradient */}
+      <div className="bg-gradient-to-br from-primary-blue to-light-blue-cyan p-6 rounded-card text-white shadow-card">
+        <h3 className="text-lg font-bold mb-2">{BLOG_SIDEBAR.CTA_TITLE}</h3>
         <p className="text-sm opacity-90 mb-4">
-          Get expert guidance for your child&apos;s SEN needs.
+          {BLOG_SIDEBAR.CTA_SUBTITLE}
         </p>
         <Button href={ROUTES.CONTACT} variant="secondary" size="sm" className="w-full" withArrow>
-          Book FREE Consultation
+          {BLOG_SIDEBAR.CTA_BUTTON}
         </Button>
       </div>
     </aside>

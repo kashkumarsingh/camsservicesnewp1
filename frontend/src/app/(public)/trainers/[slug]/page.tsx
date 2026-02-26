@@ -10,9 +10,14 @@ import TrainerProfile from '@/interfaces/web/components/trainers/TrainerProfile'
 import TrainerCard from '@/interfaces/web/components/trainers/TrainerCard';
 import type { TrainerDTO } from '@/core/application/trainers/dto/TrainerDTO';
 import { ROUTES } from '@/utils/routes';
+import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
+import { SEO_DEFAULTS } from '@/utils/seoConstants';
+import { TRAINER_DETAIL_PAGE as T } from '@/app/(public)/constants/trainerDetailPageConstants';
 
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -29,10 +34,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       return {};
     }
 
-    return {
-      title: `${trainer.name} - ${trainer.role} | CAMS Services`,
-      description: trainer.summary.slice(0, 160),
-    };
+    const title = `${trainer.name} - ${trainer.role} | ${SEO_DEFAULTS.siteName}`;
+    const description = trainer.summary?.slice(0, 160) ?? undefined;
+    return buildPublicMetadata(
+      { title, description, path: ROUTES.TRAINER_BY_SLUG(slug), imageAlt: trainer.name },
+      BASE_URL
+    );
   } catch (error) {
     console.warn(
       `[TrainerDetailsPage] Failed to build metadata for trainer "${slug}". Returning empty metadata.`,
@@ -91,10 +98,10 @@ export default async function TrainerDetailsPage({ params }: Props) {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-5">
             <Button href={ROUTES.CONTACT} variant="superPlayful" size="lg" className="shadow-lg" withArrow>
-              Book a Session
+              {T.CTA_BOOK}
             </Button>
             <Button href={ROUTES.TRAINERS} variant="outline" size="lg" className="shadow-lg" withArrow>
-              View All Team Members
+              {T.CTA_VIEW_ALL}
             </Button>
           </div>
         </div>
@@ -110,44 +117,44 @@ export default async function TrainerDetailsPage({ params }: Props) {
 
             {/* Right Column: Sticky Card with key info */}
             <aside className="md:col-span-1 md:sticky md:top-28 space-y-6">
-              <div className="bg-white rounded-card border-2 border-gray-200 p-5 shadow-sm">
-                <h4 className="font-bold text-navy-blue mb-3">At a Glance</h4>
-                <ul className="text-sm text-gray-700 space-y-2">
+              <div className="bg-white rounded-card border-2 border-primary-blue/20 p-5 shadow-card">
+                <h4 className="font-heading font-bold text-navy-blue mb-3">{T.AT_A_GLANCE}</h4>
+                <ul className="text-sm text-navy-blue/80 space-y-2">
                   <li>
-                    <span className="font-semibold">Rating:</span> {trainer.rating.toFixed(1)}/5
+                    <span className="font-semibold">{T.RATING}:</span> {trainer.rating.toFixed(1)}/5
                   </li>
                   {trainer.certifications.length > 0 && (
                     <li>
-                      <span className="font-semibold">Certifications:</span> {trainer.certifications.length}
+                      <span className="font-semibold">{T.CERTIFICATIONS}:</span> {trainer.certifications.length}
                     </li>
                   )}
                   {trainer.specialties.length > 0 && (
                     <li>
-                      <span className="font-semibold">Specialties:</span> {trainer.specialties.length}
+                      <span className="font-semibold">{T.SPECIALTIES}:</span> {trainer.specialties.length}
                     </li>
                   )}
                 </ul>
                 <div className="mt-4">
                   <Button href={ROUTES.CONTACT} variant="primary" size="md" className="w-full">
-                    Contact
+                    {T.CONTACT}
                   </Button>
                 </div>
               </div>
 
-              <div className="bg-white rounded-card border-2 border-gray-200 p-5 shadow-sm">
-                <h4 className="font-bold text-navy-blue mb-3">Key Highlights</h4>
-                <ul className="text-sm text-gray-700 space-y-3">
+              <div className="bg-white rounded-card border-2 border-primary-blue/20 p-5 shadow-card">
+                <h4 className="font-heading font-bold text-navy-blue mb-3">{T.KEY_HIGHLIGHTS}</h4>
+                <ul className="text-sm text-navy-blue/80 space-y-3">
                   <li className="flex items-start gap-3">
                     <CheckCircle2 className="text-primary-blue flex-shrink-0 mt-1" size={20} />
-                    <span>Fully DBS checked and certified.</span>
+                    <span>{T.HIGHLIGHT_1}</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <CheckCircle2 className="text-primary-blue flex-shrink-0 mt-1" size={20} />
-                    <span>Experienced in {trainer.specialties.slice(0, 2).join(', ')}.</span>
+                    <span>{T.HIGHLIGHT_2_TEMPLATE.replace('{{specialties}}', trainer.specialties.slice(0, 2).join(', '))}</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <CheckCircle2 className="text-primary-blue flex-shrink-0 mt-1" size={20} />
-                    <span>Available for tailored support plans.</span>
+                    <span>{T.HIGHLIGHT_3}</span>
                   </li>
                 </ul>
               </div>
@@ -159,7 +166,7 @@ export default async function TrainerDetailsPage({ params }: Props) {
       {/* More Trainers */}
       {otherTrainers.length > 0 && (
         <div className="py-16 bg-gradient-to-br from-white to-blue-50">
-          <Section title="Meet Other Specialists" subtitle="Explore more of our dedicated team members.">
+          <Section title={T.MEET_OTHERS_TITLE} subtitle={T.MEET_OTHERS_SUBTITLE}>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {otherTrainers.map((other) => (
                 <TrainerCard key={other.id} trainer={other} />
@@ -171,10 +178,10 @@ export default async function TrainerDetailsPage({ params }: Props) {
 
       {/* CTA Section */}
       <CTASection
-        title={`Ready to Work with ${trainer.name}?`}
-        subtitle={`Contact us today to learn more about how ${trainer.name} can support your child's development.`}
-        primaryCTA={{ text: 'Get Started Today', href: ROUTES.CONTACT }}
-        secondaryCTA={{ text: 'View Our Packages', href: ROUTES.PACKAGES }}
+        title={T.CTA_TITLE_TEMPLATE.replace('{{name}}', trainer.name)}
+        subtitle={T.CTA_SUBTITLE_TEMPLATE.replace(/\{\{name\}\}/g, trainer.name)}
+        primaryCTA={{ text: T.CTA_PRIMARY, href: ROUTES.CONTACT }}
+        secondaryCTA={{ text: T.CTA_SECONDARY, href: ROUTES.PACKAGES }}
         variant="default"
       />
     </div>

@@ -1,7 +1,13 @@
 /**
- * Blog listing page UI strings.
+ * Blog listing page UI strings and metadata.
  * Never hardcode these in JSX — use these constants.
  */
+
+export const BLOG_META = {
+  TITLE: 'Blog | Expert Insights & Practical Advice for SEN Support',
+  DESCRIPTION:
+    'Evidence-based strategies, expert tips, and real stories from our team of specialists helping families thrive.',
+} as const;
 
 export const BLOG_HERO = {
   TITLE: 'Blog',

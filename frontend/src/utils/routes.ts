@@ -22,6 +22,8 @@ export const ROUTES = {
   FAQ_BY_SLUG: (slug: string) => `/faq/${slug}`,
   POLICIES: '/policies',
   POLICIES_BY_SLUG: (slug: string) => `/policies/${slug}`,
+  /** Page Builder: CMS-composed pages by slug */
+  PAGE_BY_SLUG: (slug: string) => `/page/${slug}`,
   CONTACT: '/contact',
   CONTACT_THANK_YOU: '/contact/thank-you',
   LOGIN: '/login',

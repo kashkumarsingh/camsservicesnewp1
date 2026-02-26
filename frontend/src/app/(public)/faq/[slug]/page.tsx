@@ -7,9 +7,14 @@ import { FAQItem } from '@/interfaces/web/components/faq';
 import { GetFAQItemUseCase } from '@/core/application/faq/useCases/GetFAQItemUseCase';
 import { faqRepository } from '@/infrastructure/persistence/faq';
 import { ROUTES } from '@/utils/routes';
+import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
+import { SEO_DEFAULTS } from '@/utils/seoConstants';
+import { FAQ_DETAIL_PAGE as F } from '@/app/(public)/constants/faqDetailPageConstants';
 
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -19,15 +24,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const useCase = new GetFAQItemUseCase(faqRepository);
   const faq = await useCase.execute(slug);
-  
+
   if (!faq) {
     return {};
   }
 
-  return {
-    title: `${faq.title} - CAMS Services FAQ`,
-    description: faq.content,
-  };
+  const title = `${faq.title} - ${SEO_DEFAULTS.siteName} FAQ`;
+  const description = faq.content ?? undefined;
+  return buildPublicMetadata(
+    { title, description, path: `/faq/${slug}`, imageAlt: faq.title },
+    BASE_URL
+  );
 }
 
 import { withTimeoutFallback } from '@/utils/promiseUtils';
@@ -65,10 +72,10 @@ export default async function FAQDetailsPage({ params }: Props) {
           </h1>
           <div className="flex flex-col sm:flex-row justify-center gap-5 mt-10">
             <Button href={ROUTES.CONTACT} variant="superPlayful" size="lg" className="shadow-lg" withArrow>
-              Contact Us
+              {F.CTA_CONTACT}
             </Button>
             <Button href={ROUTES.FAQ} variant="outline" size="lg" className="shadow-lg" withArrow>
-              View All FAQs
+              {F.CTA_VIEW_ALL}
             </Button>
           </div>
         </div>
@@ -83,10 +90,10 @@ export default async function FAQDetailsPage({ params }: Props) {
 
       {/* CTA Section */}
       <CTASection
-        title="Still Have Questions?"
-        subtitle="Our team is here to help! Contact us and we'll answer any questions you have."
-        primaryCTA={{ text: "Contact Us Today", href: ROUTES.CONTACT }}
-        secondaryCTA={{ text: "View Our Services", href: ROUTES.SERVICES }}
+        title={F.CTA_TITLE}
+        subtitle={F.CTA_SUBTITLE}
+        primaryCTA={{ text: F.CTA_PRIMARY, href: ROUTES.CONTACT }}
+        secondaryCTA={{ text: F.CTA_SECONDARY, href: ROUTES.SERVICES }}
         variant="default"
       />
     </div>

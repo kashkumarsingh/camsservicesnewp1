@@ -14,6 +14,12 @@ interface RemotePageResponse {
   summary?: string;
   content: string;
   sections?: Array<{ type: string; data: Record<string, unknown> }>;
+  blocks?: Array<{
+    id?: string;
+    type: string;
+    payload: Record<string, unknown>;
+    meta?: { visibleFrom?: string | null; visibleUntil?: string | null; hideOnMobile?: boolean | null } | null;
+  }>;
   lastUpdated?: string;
   effectiveDate?: string;
   version: string;
@@ -50,6 +56,7 @@ export class ApiPageRepository implements IPageRepository {
       summary: data.summary,
       content: data.content,
       sections: data.sections,
+      blocks: data.blocks,
       lastUpdated: data.lastUpdated,
       effectiveDate: data.effectiveDate,
       version: data.version,

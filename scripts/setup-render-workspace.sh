@@ -57,7 +57,7 @@ render workspace current
 
 echo ""
 echo "📚 Your services (from render.yaml):"
-echo "   • cams-backend (Laravel + Filament)"
+echo "   • cams-backend (Laravel API)"
 echo "   • cams-frontend (Next.js)"
 echo "   • cams-database (PostgreSQL)"
 echo ""

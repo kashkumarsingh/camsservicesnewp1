@@ -20,7 +20,7 @@ export default function PolicyDisplay({ slug, incrementViews = true }: PolicyDis
   if (loading) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">Loading policy...</p>
+        <p className="text-navy-blue/80">Loading policy...</p>
       </div>
     );
   }
@@ -36,7 +36,7 @@ export default function PolicyDisplay({ slug, incrementViews = true }: PolicyDis
   if (!policy) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">Policy not found.</p>
+        <p className="text-navy-blue/80">Policy not found.</p>
       </div>
     );
   }
@@ -49,9 +49,9 @@ export default function PolicyDisplay({ slug, incrementViews = true }: PolicyDis
             {policy.title}
           </h1>
           {policy.summary && (
-            <p className="text-xl text-gray-700 mb-4">{policy.summary}</p>
+            <p className="text-xl text-navy-blue/80 mb-4">{policy.summary}</p>
           )}
-          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+          <div className="flex flex-wrap gap-4 text-sm text-navy-blue/80">
             <span>Last Updated: {new Date(policy.lastUpdated).toLocaleDateString()}</span>
             <span>Effective Date: {new Date(policy.effectiveDate).toLocaleDateString()}</span>
             <span>Version: {policy.version}</span>
@@ -62,8 +62,8 @@ export default function PolicyDisplay({ slug, incrementViews = true }: PolicyDis
           <ReactMarkdown>{policy.content}</ReactMarkdown>
         </div>
 
-        <footer className="mt-12 pt-8 border-t border-gray-200">
-          <p className="text-sm text-gray-600">
+        <footer className="mt-12 pt-8 border-t border-primary-blue/20">
+          <p className="text-sm text-navy-blue/80">
             If you have questions about this policy, please contact us at{' '}
             <a href="mailto:info@camsservices.co.uk" className="text-primary-blue hover:underline">
               info@camsservices.co.uk

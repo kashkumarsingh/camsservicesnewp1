@@ -1,6 +1,7 @@
 import { BaseEntity } from '../../shared/BaseEntity';
 import type {
   PageSectionDTO,
+  PageBlockDTO,
   AboutMissionDTO,
   AboutCoreValueDTO,
   AboutSafeguardingDTO,
@@ -25,6 +26,7 @@ export class Page extends BaseEntity {
     private readonly _coreValuesSectionTitle: string | undefined,
     private readonly _coreValuesSectionSubtitle: string | undefined,
     private readonly _safeguarding: AboutSafeguardingDTO | undefined,
+    private readonly _blocks: PageBlockDTO[] | undefined,
     createdAt?: Date,
     updatedAt?: Date,
   ) {
@@ -49,6 +51,7 @@ export class Page extends BaseEntity {
     coreValuesSectionTitle?: string | null;
     coreValuesSectionSubtitle?: string | null;
     safeguarding?: AboutSafeguardingDTO | null;
+    blocks?: PageBlockDTO[] | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
   }): Page {
@@ -70,6 +73,7 @@ export class Page extends BaseEntity {
       coreValuesSectionTitle,
       coreValuesSectionSubtitle,
       safeguarding,
+      blocks,
       createdAt,
       updatedAt,
     } = params;
@@ -86,6 +90,7 @@ export class Page extends BaseEntity {
     const normalizedMission = mission ?? undefined;
     const normalizedCoreValues = coreValues && coreValues.length > 0 ? [...coreValues] : undefined;
     const normalizedSafeguarding = safeguarding ?? undefined;
+    const normalizedBlocks = blocks && blocks.length > 0 ? [...blocks] : undefined;
 
     return new Page(
       id,
@@ -105,6 +110,7 @@ export class Page extends BaseEntity {
       coreValuesSectionTitle ?? undefined,
       coreValuesSectionSubtitle ?? undefined,
       normalizedSafeguarding,
+      normalizedBlocks,
       normalizedCreatedAt,
       normalizedUpdatedAt,
     );
@@ -172,6 +178,10 @@ export class Page extends BaseEntity {
 
   get safeguarding(): AboutSafeguardingDTO | undefined {
     return this._safeguarding;
+  }
+
+  get blocks(): PageBlockDTO[] | undefined {
+    return this._blocks ? [...this._blocks] : undefined;
   }
 }
 

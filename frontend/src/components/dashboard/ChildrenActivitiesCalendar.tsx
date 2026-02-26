@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import moment, { Moment } from 'moment';
 import { Activity, Users, Clock, CheckCircle, X, ChevronLeft, ChevronRight, MapPin, User, FileText, Package, Circle, Square, CheckSquare, GripVertical, XCircle } from 'lucide-react';
 import { BookingCalendar } from '@/components/ui/Calendar';
@@ -685,8 +686,8 @@ export default function ChildrenActivitiesCalendar({
         </div>
       )}
 
-      {/* Reschedule confirm modal (drag-to-reschedule) */}
-      {reschedulePending && onRescheduleRequest && (
+      {/* Reschedule confirm modal (drag-to-reschedule) – portaled so it sits above dashboard header */}
+      {reschedulePending && onRescheduleRequest && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-overlay flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="reschedule-confirm-title">
           <div className="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 p-4">
             <h2 id="reschedule-confirm-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -718,7 +719,8 @@ export default function ChildrenActivitiesCalendar({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Day View - Balanced */}

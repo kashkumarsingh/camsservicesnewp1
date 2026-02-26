@@ -209,6 +209,12 @@ Route::prefix('v1')->group(function () {
             Route::put('admin/public-pages/{id}', [\App\Http\Controllers\Api\AdminPublicPagesController::class, 'update']);
             Route::delete('admin/public-pages/{id}', [\App\Http\Controllers\Api\AdminPublicPagesController::class, 'destroy']);
             Route::put('admin/public-pages/{id}/publish', [\App\Http\Controllers\Api\AdminPublicPagesController::class, 'togglePublish']);
+            // Page Builder blocks (CRUD + reorder)
+            Route::get('admin/public-pages/{id}/blocks', [\App\Http\Controllers\Api\AdminPageBlocksController::class, 'index']);
+            Route::post('admin/public-pages/{id}/blocks', [\App\Http\Controllers\Api\AdminPageBlocksController::class, 'store']);
+            Route::put('admin/public-pages/{id}/blocks/reorder', [\App\Http\Controllers\Api\AdminPageBlocksController::class, 'reorder']);
+            Route::put('admin/public-pages/{id}/blocks/{blockId}', [\App\Http\Controllers\Api\AdminPageBlocksController::class, 'update']);
+            Route::delete('admin/public-pages/{id}/blocks/{blockId}', [\App\Http\Controllers\Api\AdminPageBlocksController::class, 'destroy']);
         });
         
         // Trainer endpoints (trainer only)

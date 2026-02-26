@@ -725,7 +725,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
 
         {sectionRole !== "parent" && (
         <aside
-          className={`fixed inset-y-0 left-0 z-30 flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pt-11 transition-[transform,width] duration-200 ease-out lg:static lg:translate-x-0 lg:w-full ${
+          className={`fixed inset-y-0 left-0 z-mobileNav flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pt-11 transition-[transform,width] duration-200 ease-out lg:static lg:translate-x-0 lg:w-full ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
           } w-80`}
         >
@@ -824,7 +824,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
       {/* Parent bottom nav – mobile only: Overview, Booked hours, Children */}
       {sectionRole === "parent" && (
         <nav
-          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pb-[env(safe-area-inset-bottom,0px)]"
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-mobileNav border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pb-[env(safe-area-inset-bottom,0px)]"
           aria-label="Parent dashboard navigation"
         >
           <div className="grid grid-cols-3 h-14">
@@ -868,7 +868,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
       {/* Trainer bottom nav – mobile only: Schedule | More (same layout as parent, URL-driven) */}
       {sectionRole === "trainer" && (
         <nav
-          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pb-[env(safe-area-inset-bottom,0px)]"
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-mobileNav border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pb-[env(safe-area-inset-bottom,0px)]"
           aria-label="Trainer dashboard navigation"
         >
           <div className="grid grid-cols-2 h-14 max-w-lg mx-auto">

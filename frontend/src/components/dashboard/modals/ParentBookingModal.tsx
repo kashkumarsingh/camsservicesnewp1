@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { Calendar, Clock, User, FileText, Loader2, Activity, Search, AlertTriangle, X, ChevronDown, ChevronUp } from 'lucide-react';
 import moment from 'moment';
@@ -1629,7 +1630,7 @@ export default function ParentBookingModal({
   );
 
   if (renderAsPanel && isOpen) {
-    return (
+    const panel = (
       <>
         <div
           className="fixed inset-0 z-overlay bg-black/30 transition-opacity"
@@ -1664,6 +1665,7 @@ export default function ParentBookingModal({
         </div>
       </>
     );
+    return typeof document !== 'undefined' ? createPortal(panel, document.body) : panel;
   }
 
   return (

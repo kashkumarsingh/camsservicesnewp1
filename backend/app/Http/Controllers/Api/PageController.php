@@ -40,6 +40,7 @@ class PageController extends Controller
             'summary' => $page->summary,
             'content' => $page->content,
             'sections' => $page->sections ?? [],
+            'blocks' => $this->formatBlocks($page),
             'lastUpdated' => optional($page->last_updated)->toIso8601String(),
             'effectiveDate' => optional($page->effective_date)->toDateString(),
             'version' => $page->version,
@@ -58,6 +59,25 @@ class PageController extends Controller
         }
 
         return $data;
+    }
+
+    /**
+     * Format page blocks for API (id, type, payload, meta per block).
+     * Phase 5: id for analytics placeholders; meta for visibility/scheduling.
+     *
+     * @return array<int, array{id: string, type: string, payload: array, meta: array|null}>
+     */
+    private function formatBlocks(Page $page): array
+    {
+        if (! $page->relationLoaded('blocks')) {
+            return [];
+        }
+        return $page->blocks->map(fn ($b) => [
+            'id' => (string) $b->id,
+            'type' => $b->type,
+            'payload' => $b->payload ?? [],
+            'meta' => $b->meta ?? null,
+        ])->values()->all();
     }
 
     /**

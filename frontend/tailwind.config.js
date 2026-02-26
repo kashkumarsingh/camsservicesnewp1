@@ -23,9 +23,11 @@ module.exports = {
         'form-button': '0.75rem',   // 12px – Sign In / Create Account
         'form-alert': '0.5rem',     // 8px – error/note boxes
         'header-button': '9999px',   // pill – Become a Trainer, Login, Register
+        'visit-card': '20px',
       },
-      /** Modal/overlay z-index scale. Use these instead of arbitrary z-[999]. Sticky: 40, Dropdown: 50, Overlay/Modal: 1000, Toast: 9999. */
+      /** Z-index scale: mobileNav (30, below header), sticky (40), dropdown (50), overlay (1000), toast (9999). Modals/panels must portal to body. */
       zIndex: {
+        mobileNav: '30',
         sticky: '40',
         dropdown: '50',
         overlay: '1000',

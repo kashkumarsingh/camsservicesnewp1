@@ -39,7 +39,7 @@ export default function ServiceList({ filterOptions }: ServiceListProps) {
   if (services.length === 0) {
     return (
       <div className="py-8 text-center">
-        <p className="text-sm text-gray-600">{EMPTY_STATE.NO_SERVICES_FOUND.title}</p>
+        <p className="text-sm text-navy-blue/80">{EMPTY_STATE.NO_SERVICES_FOUND.title}</p>
       </div>
     );
   }

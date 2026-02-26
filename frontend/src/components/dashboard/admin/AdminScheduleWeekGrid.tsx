@@ -116,7 +116,8 @@ export type SessionDisplayStatus =
   | 'cancelled'   // ❌ Gray – cancelled
   | 'no_show'    // 🔴 Red – no-show
   | 'incomplete' // ⏱️ Orange – past but no completion (missing check-out/report)
-  | 'in_progress' // 🟢 In progress – current
+  | 'in_progress' // 🟢 In progress – trainer clocked in, session live
+  | 'awaiting_clock_in' // ⏳ Time window now but trainer not yet clocked in
   | 'scheduled'   // 📅 Scheduled OK – future
   | 'needs_attention' // ⚠️ Future needs attention
   | 'unassigned'; // ❓ Unassigned – future
@@ -129,7 +130,12 @@ export function getSessionDisplayStatus(
   const status = (session.status ?? 'scheduled').toLowerCase();
   const unassigned = !session.trainerId;
 
-  if (timeState === 'running') return 'in_progress';
+  if (timeState === 'running') {
+    if (unassigned) return 'unassigned';
+    if (session.clockedInAt && !session.clockedOutAt) return 'in_progress';
+    if (!session.clockedInAt) return 'awaiting_clock_in';
+    return 'completed';
+  }
   if (timeState === 'upcoming') {
     if (unassigned) return 'unassigned';
     if (status === 'cancelled') return 'cancelled';
@@ -212,6 +218,13 @@ export const SESSION_DISPLAY_STYLES: Record<
     badgeClass: 'bg-slate-400 text-white dark:bg-slate-500',
     iconClass: 'text-slate-500 dark:text-slate-400',
     Icon: HelpCircle,
+  },
+  awaiting_clock_in: {
+    label: 'Awaiting clock-in',
+    cellClass: 'border-amber-300 bg-amber-50 dark:border-amber-600 dark:bg-amber-950/40',
+    badgeClass: 'bg-amber-500 text-white dark:bg-amber-600',
+    iconClass: 'text-amber-600 dark:text-amber-400',
+    Icon: Clock,
   },
 };
 
@@ -1170,7 +1183,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
                                       >
                                         View
                                       </button>
-                                      {(displayStatus === 'in_progress' || displayStatus === 'completed') && onViewSession && (
+                                      {(displayStatus === 'in_progress' || displayStatus === 'awaiting_clock_in' || displayStatus === 'completed') && onViewSession && (
                                         <button
                                           type="button"
                                           onClick={() => onViewSession(session.sessionId, session.bookingId, { focusOnActivity: true })}
@@ -1232,7 +1245,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
                             >
                               View booking
                             </button>
-                            {(displayStatus === 'in_progress' || displayStatus === 'completed') && onViewSession && (
+                            {(displayStatus === 'in_progress' || displayStatus === 'awaiting_clock_in' || displayStatus === 'completed') && onViewSession && (
                               <button
                                 type="button"
                                 onClick={() => onViewSession(session.sessionId, session.bookingId, { focusOnActivity: true })}
@@ -1621,7 +1634,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
               ref={sessionCardPopoverContentRef}
               role="menu"
               aria-label="Session actions"
-              className="fixed z-50 min-w-[11rem] rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-900"
+              className="fixed z-dropdown min-w-[11rem] rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-900"
               style={{
                 top: sessionCardPopover.anchorRect.top + sessionCardPopover.anchorRect.height + 4,
                 left: sessionCardPopover.anchorRect.left,
@@ -1722,7 +1735,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
                           >
                             View booking
                           </button>
-                          {(displayStatus === 'in_progress' || displayStatus === 'completed') && onViewSession && (
+                          {(displayStatus === 'in_progress' || displayStatus === 'awaiting_clock_in' || displayStatus === 'completed') && onViewSession && (
                             <button
                               type="button"
                               onClick={() => {

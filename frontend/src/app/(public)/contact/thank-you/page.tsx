@@ -1,5 +1,4 @@
 import React from 'react';
-import { Metadata } from 'next';
 import { getSiteSettings } from '@/server/siteSettings/getSiteSettings';
 import Button from '@/components/ui/Button';
 import Section from '@/components/layout/Section';
@@ -8,40 +7,37 @@ import Card from '@/components/ui/Card/Card';
 import IconList from '@/components/ui/IconList/IconList';
 import { CheckCircle2, Calendar, Phone, MessageSquare, Award, Shield, Sparkles, Star, Users, Clock } from 'lucide-react';
 import { ROUTES } from '@/utils/routes';
+import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
+import { CONTACT_THANK_YOU_PAGE as C } from '@/app/(public)/constants/contactThankYouPageConstants';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://camsservice.co.uk';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
 
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;
 
-export const metadata: Metadata = {
-  title: "Thank You – We'll Be in Touch | CAMS Services",
-  description: "Your enquiry has been received. Our team will review your request and get back to you within 24 hours.",
-  alternates: {
-    canonical: `${BASE_URL}${ROUTES.CONTACT_THANK_YOU}`,
-  },
-};
+export async function generateMetadata() {
+  return buildPublicMetadata(
+    {
+      title: C.META_TITLE,
+      description: C.META_DESCRIPTION,
+      path: ROUTES.CONTACT_THANK_YOU,
+      imageAlt: 'CAMS Services',
+    },
+    BASE_URL
+  );
+}
 
 const nextSteps = [
-  {
-    title: 'Dedicated Review',
-    description: 'A programme lead reviews your enquiry and matches you with the best mentor or psychologist.',
-  },
-  {
-    title: 'Personal Contact',
-    description: 'We reach out within 24 hours via your preferred method to schedule the consultation.',
-  },
-  {
-    title: 'Custom Roadmap',
-    description: 'During the call we co-create a success plan with clear milestones for your child.',
-  },
+  { title: C.NEXT_STEP_1_TITLE, description: C.NEXT_STEP_1_DESC },
+  { title: C.NEXT_STEP_2_TITLE, description: C.NEXT_STEP_2_DESC },
+  { title: C.NEXT_STEP_3_TITLE, description: C.NEXT_STEP_3_DESC },
 ];
 
 const reassuranceHighlights = [
-  { text: '4.9/5 average family satisfaction score' },
-  { text: 'DBS-checked safeguarding mentors' },
-  { text: 'Ofsted-registered trauma-informed framework' },
-  { text: '500+ families supported across London & Essex' },
+  { text: C.TRUST_HIGHLIGHT_1 },
+  { text: C.TRUST_HIGHLIGHT_2 },
+  { text: C.TRUST_HIGHLIGHT_3 },
+  { text: C.TRUST_HIGHLIGHT_4 },
 ];
 
 
@@ -74,51 +70,50 @@ export default async function ContactThankYouPage() {
           <div className="inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full">
             <p className="text-sm font-semibold flex items-center justify-center gap-2">
               <Sparkles size={18} />
-              Message Received Successfully
+              {C.BADGE}
             </p>
           </div>
           
           {/* Heading */}
           <div>
-            <p className="mb-4 text-sm uppercase tracking-[0.3em] text-white/90 font-semibold">We've Got Your Message</p>
+            <p className="mb-4 text-sm uppercase tracking-[0.3em] text-white/90 font-semibold">{C.HEADING_SMALL}</p>
             <h1 className="text-5xl md:text-7xl font-heading font-extrabold mb-6 leading-tight tracking-tight heading-text-shadow">
-              Thank you for sharing your story with us.
+              {C.HERO_TITLE}
             </h1>
           </div>
           
           {/* Description */}
           <p className="mx-auto max-w-3xl text-xl md:text-2xl text-white/90 font-light">
-            Our safeguarding team is reviewing your enquiry right now. We'll be in touch within 24 hours with your next
-            steps. While you wait, explore our programmes or jump straight to a free discovery call.
+            {C.HERO_DESCRIPTION}
           </p>
           
           {/* Trust Badges */}
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-5 py-2.5 rounded-lg border border-white/20">
               <Star className="text-light-blue-cyan" size={20} fill="currentColor" />
-              <span className="font-semibold text-sm">4.9/5 Rating</span>
+              <span className="font-semibold text-sm">{C.TRUST_4_9}</span>
             </div>
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-5 py-2.5 rounded-lg border border-white/20">
               <Shield className="text-light-blue-cyan" size={20} />
-              <span className="font-semibold text-sm">DBS Checked</span>
+              <span className="font-semibold text-sm">{C.TRUST_DBS}</span>
             </div>
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-5 py-2.5 rounded-lg border border-white/20">
               <Award className="text-purple-300" size={20} />
-              <span className="font-semibold text-sm">Ofsted Registered</span>
+              <span className="font-semibold text-sm">{C.TRUST_OFSTED}</span>
             </div>
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-5 py-2.5 rounded-lg border border-white/20">
               <Users className="text-light-blue-cyan" size={20} />
-              <span className="font-semibold text-sm">500+ Families</span>
+              <span className="font-semibold text-sm">{C.TRUST_FAMILIES}</span>
             </div>
           </div>
           
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-2xl mx-auto">
             <Button href={ROUTES.PACKAGES} variant="superPlayful" size="lg" className="shadow-2xl text-lg" withArrow>
-              Explore Tailored Programmes
+              {C.CTA_EXPLORE}
             </Button>
             <Button href="/booking" variant="outline" size="lg" className="text-lg shadow-lg" withArrow>
-              Book A Free Discovery Call
+              {C.CTA_BOOK_CALL}
             </Button>
           </div>
         </div>
@@ -127,21 +122,20 @@ export default async function ContactThankYouPage() {
       {/* Next Steps & Support Section */}
       <Section className="py-20 bg-gradient-to-br from-blue-50 to-white">
         <div className="grid gap-8 lg:grid-cols-2 max-w-7xl mx-auto">
-          <Card className="rounded-3xl border border-gray-100 shadow-card hover:shadow-card-hover transition-shadow duration-300">
+          <Card className="rounded-3xl border-2 border-primary-blue/20 shadow-card hover:shadow-card-hover transition-shadow duration-300">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-primary-blue/10">
                 <Clock className="text-primary-blue" size={24} />
               </div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-primary-blue">What happens next</p>
+              <p className="text-sm font-semibold uppercase tracking-wide text-primary-blue">{C.NEXT_STEPS_LABEL}</p>
             </div>
-            <h2 className="mt-2 text-3xl font-bold text-navy-blue">A guided next step for every family</h2>
+            <h2 className="mt-2 text-3xl font-heading font-bold text-navy-blue">{C.NEXT_STEPS_TITLE}</h2>
             <p className="mt-4 text-lg text-navy-blue/80">
-              Your enquiry is routed to our specialist mentors instantly. We follow a simple three-step process so you
-              always know what comes next.
+              {C.NEXT_STEPS_INTRO}
             </p>
             <div className="mt-8 space-y-5">
               {nextSteps.map((step, index) => (
-                <div key={step.title} className="flex gap-5 rounded-card border-2 border-gray-100 bg-gradient-to-r from-white to-blue-50/50 p-5 hover:border-primary-blue/30 hover:shadow-card-hover transition-all duration-300">
+                <div key={step.title} className="flex gap-5 rounded-card border-2 border-primary-blue/20 bg-gradient-to-r from-white to-blue-50/50 p-5 hover:border-primary-blue/30 hover:shadow-card-hover transition-all duration-300">
                   <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-primary-blue to-light-blue-cyan flex items-center justify-center">
                     <span className="text-xl font-bold text-white">{index + 1}</span>
                   </div>
@@ -159,12 +153,11 @@ export default async function ContactThankYouPage() {
               <div className="p-2 rounded-lg bg-white/20">
                 <MessageSquare className="text-white" size={24} />
               </div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-white/90">Need to talk sooner?</p>
+              <p className="text-sm font-semibold uppercase tracking-wide text-white/90">{C.URGENT_LABEL}</p>
             </div>
-            <h2 className="mt-2 text-3xl font-bold">We're here for urgent support</h2>
+            <h2 className="mt-2 text-3xl font-bold">{C.URGENT_TITLE}</h2>
             <p className="mt-4 text-lg text-white/90 leading-relaxed">
-              Choose the channel that suits you best. Safeguarding mentors respond quickly, including evenings and
-              weekends.
+              {C.URGENT_DESC}
             </p>
             <div className="mt-8 space-y-4">
               <Button
@@ -175,9 +168,9 @@ export default async function ContactThankYouPage() {
               >
                 <span className="flex items-center gap-3">
                   <Phone size={20} />
-                  <span className="font-semibold">{contact?.phone ?? 'Phone number coming soon'}</span>
+                  <span className="font-semibold">{contact?.phone ?? C.PHONE_PLACEHOLDER}</span>
                 </span>
-                <span className="text-sm opacity-70">Call us directly</span>
+                <span className="text-sm opacity-70">{C.CALL_US}</span>
               </Button>
               <Button
                 href={contact?.whatsappUrl || undefined}
@@ -187,9 +180,9 @@ export default async function ContactThankYouPage() {
               >
                 <span className="flex items-center gap-3">
                   <MessageSquare size={20} />
-                  <span className="font-semibold">WhatsApp Support</span>
+                  <span className="font-semibold">{C.WHATSAPP}</span>
                 </span>
-                <span className="text-sm opacity-70">Secure chat</span>
+                <span className="text-sm opacity-70">{C.WHATSAPP_SUB}</span>
               </Button>
               <Button
                 href="/booking"
@@ -199,9 +192,9 @@ export default async function ContactThankYouPage() {
               >
                 <span className="flex items-center gap-3">
                   <Calendar size={20} />
-                  <span className="font-semibold">Schedule a Call</span>
+                  <span className="font-semibold">{C.SCHEDULE_CALL}</span>
                 </span>
-                <span className="text-sm opacity-70">Pick a time</span>
+                <span className="text-sm opacity-70">{C.SCHEDULE_SUB}</span>
               </Button>
             </div>
           </Card>
@@ -209,31 +202,31 @@ export default async function ContactThankYouPage() {
       </Section>
 
       {/* Trust & Preparation Section */}
-      <Section className="py-20 bg-white">
+      <Section className="py-20 bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="grid gap-8 lg:grid-cols-2 max-w-7xl mx-auto">
-          <Card className="rounded-3xl border-2 border-gray-100 shadow-card hover:shadow-card-hover transition-shadow duration-300">
+          <Card className="rounded-3xl border-2 border-primary-blue/20 shadow-card hover:shadow-card-hover transition-shadow duration-300">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-green-100">
-                <Shield className="text-green-600" size={24} />
+              <div className="p-2 rounded-lg bg-primary-blue/10">
+                <Shield className="text-primary-blue" size={24} />
               </div>
-              <h3 className="text-2xl font-bold text-navy-blue">Why families trust CAMS</h3>
+              <h3 className="text-2xl font-heading font-bold text-navy-blue">{C.TRUST_CARD_TITLE}</h3>
             </div>
             <IconList items={reassuranceHighlights} />
           </Card>
 
-          <Card className="rounded-3xl border-2 border-gray-100 shadow-card hover:shadow-card-hover transition-shadow duration-300">
+          <Card className="rounded-3xl border-2 border-primary-blue/20 shadow-card hover:shadow-card-hover transition-shadow duration-300">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-purple-100">
-                <Calendar className="text-purple-600" size={24} />
+              <div className="p-2 rounded-lg bg-primary-blue/10">
+                <Calendar className="text-primary-blue" size={24} />
               </div>
-              <h3 className="text-2xl font-bold text-navy-blue">Need to prepare for the call?</h3>
+              <h3 className="text-2xl font-heading font-bold text-navy-blue">{C.PREP_CARD_TITLE}</h3>
             </div>
             <IconList
               items={[
-                { text: 'Write down key concerns, routines, or triggers you want to discuss.' },
-                { text: 'Let us know preferred availability so we can match your schedule.' },
-                { text: 'Share any reports or EHCP details during the consultation.' },
-                { text: "We'll recap the plan in writing so your whole team stays aligned." },
+                { text: C.PREP_1 },
+                { text: C.PREP_2 },
+                { text: C.PREP_3 },
+                { text: C.PREP_4 },
               ]}
             />
           </Card>
@@ -241,10 +234,10 @@ export default async function ContactThankYouPage() {
       </Section>
 
       <CTASection
-        title="Ready to build your child’s success plan?"
-        subtitle="Our trauma-informed mentors combine emotional support with practical strategies. Let’s co-create a programme that fits your family."
-        primaryCTA={{ text: 'View Success Stories', href: ROUTES.BLOG }}
-        secondaryCTA={{ text: 'Return Home', href: '/' }}
+        title={C.CTA_TITLE}
+        subtitle={C.CTA_SUBTITLE}
+        primaryCTA={{ text: C.CTA_PRIMARY, href: ROUTES.BLOG }}
+        secondaryCTA={{ text: C.CTA_SECONDARY, href: '/' }}
         variant="default"
       />
     </div>

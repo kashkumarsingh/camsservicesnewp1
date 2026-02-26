@@ -22,7 +22,7 @@ export default function ActivityDetail({ slug, incrementViews = true }: Activity
   if (loading) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">Loading activity...</p>
+        <p className="text-navy-blue/80">Loading activity...</p>
       </div>
     );
   }
@@ -38,7 +38,7 @@ export default function ActivityDetail({ slug, incrementViews = true }: Activity
   if (!activity) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">Activity not found.</p>
+        <p className="text-navy-blue/80">Activity not found.</p>
       </div>
     );
   }
@@ -97,14 +97,14 @@ export default function ActivityDetail({ slug, incrementViews = true }: Activity
 
       {/* Description */}
       <div className="prose prose-lg max-w-none mb-8">
-        <p className="text-lg text-gray-700 leading-relaxed">{activity.description}</p>
+        <p className="text-lg text-navy-blue/80 leading-relaxed">{activity.description}</p>
       </div>
 
       {/* Trainer Information */}
       {activity.trainerIds && activity.trainerIds.length > 0 && (
         <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-card p-6 mb-8">
           <h3 className="text-xl font-bold text-navy-blue mb-4">Available Trainers</h3>
-          <p className="text-gray-700">
+          <p className="text-navy-blue/80">
             This activity is led by {activity.trainerIds.length} {activity.trainerIds.length === 1 ? 'qualified trainer' : 'qualified trainers'}.
             {activity.trainers && activity.trainers.length > 0 && (
               <span className="block mt-2">

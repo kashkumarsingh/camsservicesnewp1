@@ -17,7 +17,7 @@ import type { ContactFormData, ChildInfo } from '@/components/contact';
 import { validateFullName, validateEmail, validatePhone, validateAge, validateAddress, validatePostcode } from '@/utils/validation';
 import { ROUTES } from '@/utils/routes';
 import Button from '@/components/ui/Button';
-import { Phone, CalendarClock } from 'lucide-react';
+import { Phone } from 'lucide-react';
 import { CONTACT_HERO, CONTACT_FORM, CONTACT_VALIDATION_FALLBACKS } from '@/components/contact/constants';
 
 const INITIAL_FORM_STATE: ContactFormData = {
@@ -335,7 +335,6 @@ export default function ContactPageClient({ packages, services, contactInfo }: C
         videoSrc="/videos/space-bg-2.mp4"
       >
         <Button href="#contact-form" variant="superPlayful" size="lg" className="rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300" withArrow>
-          <CalendarClock size={20} className="mr-2" />
           {CONTACT_HERO.CTA_PRIMARY}
         </Button>
         <Button
@@ -343,10 +342,9 @@ export default function ContactPageClient({ packages, services, contactInfo }: C
           variant="outline"
           size="lg"
           className="rounded-full bg-white text-primary-blue border-2 border-primary-blue shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300"
-          withArrow
           disabled={!normalizedContactInfo.phone}
         >
-          <Phone size={18} className="mr-2" />
+          <Phone size={20} className="mr-2" />
           {callLabel}
         </Button>
       </PageHero>

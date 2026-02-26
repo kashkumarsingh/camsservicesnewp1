@@ -101,8 +101,8 @@ export default function LoginPageClient() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-12 sm:px-6 lg:flex lg:items-center lg:justify-center lg:px-8">
-      <div className="mx-auto w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/70 px-4 py-12 sm:px-6 lg:flex lg:items-center lg:justify-center lg:px-8 transition-colors duration-300">
+      <div className="mx-auto w-full max-w-md animate-fade-in-up">
         <LoginFormSection
           formData={formData}
           errors={errors}

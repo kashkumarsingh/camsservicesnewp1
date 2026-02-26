@@ -5,6 +5,12 @@ import { pageRepository } from '@/infrastructure/persistence/pages';
 import { renderHtml } from '@/utils/htmlRenderer';
 import ReactMarkdown from 'react-markdown';
 import { Metadata } from 'next';
+import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
+import { ROUTES } from '@/utils/routes';
+import { SEO_DEFAULTS } from '@/utils/seoConstants';
+import { POLICY_DETAIL_PAGE as P } from '@/app/(public)/constants/policyDetailPageConstants';
+import { formatDate } from '@/utils/formatDate';
+import { DATE_FORMAT_LONG } from '@/utils/appConstants';
 
 function isHtmlContent(content: string): boolean {
   return /<[a-z][\s\S]*>/i.test(content);
@@ -48,26 +54,15 @@ export async function generateMetadata({ params }: PolicyPageProps): Promise<Met
   const headersList = await headers();
   const host = headersList.get('host');
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`;
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || `${protocol}://${host}`;
 
-  const title = page ? `${page.title} - CAMS Services` : `${slug.replace(/-/g, ' ')} - CAMS Services`;
-  const description =
-    page?.summary ||
-    'Review important policies for CAMS Services, including privacy, safeguarding, cancellation, and terms of service.';
+  const title = page ? `${page.title} - ${SEO_DEFAULTS.siteName}` : `${slug.replace(/-/g, ' ')} - ${SEO_DEFAULTS.siteName}`;
+  const description = page?.summary || P.META_DESCRIPTION_FALLBACK;
 
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      url: `${baseUrl}/policies/${slug}`,
-      type: 'article',
-    },
-    alternates: {
-      canonical: `${baseUrl}/policies/${slug}`,
-    },
-  };
+  return buildPublicMetadata(
+    { title, description, path: ROUTES.POLICIES_BY_SLUG(slug), type: 'article' },
+    baseUrl
+  );
 }
 
 export default async function PolicyPage({ params }: PolicyPageProps) {
@@ -94,10 +89,10 @@ export default async function PolicyPage({ params }: PolicyPageProps) {
             <p className="mt-6 text-lg md:text-xl max-w-2xl mx-auto font-sans font-light">{page.summary}</p>
           )}
           <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm text-white/80">
-            {lastUpdated && <span>Last Updated: {lastUpdated.toLocaleDateString()}</span>}
-            {effectiveDate && <span>Effective Date: {effectiveDate.toLocaleDateString()}</span>}
-            <span>Version: {page.version}</span>
-            <span>{page.views} views</span>
+            {lastUpdated && <span>{P.LAST_UPDATED}: {formatDate(lastUpdated, DATE_FORMAT_LONG)}</span>}
+            {effectiveDate && <span>{P.EFFECTIVE_DATE}: {formatDate(effectiveDate, DATE_FORMAT_LONG)}</span>}
+            <span>{P.VERSION}: {page.version}</span>
+            <span>{page.views} {P.VIEWS}</span>
           </div>
         </div>
       </Section>

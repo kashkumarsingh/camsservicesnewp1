@@ -17,7 +17,7 @@ export default function ActivityList() {
   if (loading) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">Loading activities...</p>
+        <p className="text-navy-blue/80">Loading activities...</p>
       </div>
     );
   }
@@ -33,7 +33,7 @@ export default function ActivityList() {
   if (activities.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">{EMPTY_STATE.NO_ACTIVITIES_FOUND.title}</p>
+        <p className="text-navy-blue/80">{EMPTY_STATE.NO_ACTIVITIES_FOUND.title}</p>
       </div>
     );
   }

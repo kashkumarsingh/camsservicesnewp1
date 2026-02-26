@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { ClipboardCheck, AlertCircle, X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { childrenRepository } from "@/infrastructure/http/children/ChildrenRepository";
@@ -135,7 +136,7 @@ export default function CompleteChecklistModal({
     }
   };
 
-  return (
+  const modal = (
     <div className="fixed inset-0 z-overlay flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-lg rounded-xl bg-white shadow-xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
@@ -277,4 +278,6 @@ export default function CompleteChecklistModal({
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(modal, document.body) : modal;
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Mail,
@@ -392,7 +393,7 @@ export function SessionDetailSidePanel({
   const statusVariant = session ? getSessionStatusVariant(session.status) : 'slate';
   const statusLabel = session ? getSessionStatusLabel(session.status) : '';
 
-  return (
+  const panel = (
     <>
       <div
         className="fixed inset-0 z-overlay bg-slate-900/30 transition-opacity duration-300 ease-out"
@@ -844,4 +845,6 @@ export function SessionDetailSidePanel({
       </aside>
     </>
   );
+
+  return typeof document !== 'undefined' ? createPortal(panel, document.body) : panel;
 }

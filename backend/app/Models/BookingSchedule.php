@@ -496,14 +496,23 @@ class BookingSchedule extends Model
             return 'past';
         }
         
-        // For today's sessions, check if in progress
+        // For today's sessions, check if in progress (only when trainer has clocked in)
         if ($sessionDate === $today) {
             $sessionStart = \Carbon\Carbon::parse($sessionDate . ' ' . $this->start_time);
             $sessionEnd = \Carbon\Carbon::parse($sessionDate . ' ' . $this->end_time);
-            
-            // Check if current time is within session time range
-            if ($now->gte($sessionStart) && $now->lte($sessionEnd)) {
-                return 'in_progress';
+            $timeInWindow = $now->gte($sessionStart) && $now->lte($sessionEnd);
+
+            if ($timeInWindow) {
+                // "In progress" only when a trainer is assigned and has clocked in (and not yet clocked out)
+                if (! $this->trainer_id) {
+                    return 'scheduled';
+                }
+                $hasClockIn = $this->timeEntries()->where('type', \App\Models\TimeEntry::TYPE_CLOCK_IN)->exists();
+                $hasClockOut = $this->timeEntries()->where('type', \App\Models\TimeEntry::TYPE_CLOCK_OUT)->exists();
+                if ($hasClockIn && ! $hasClockOut) {
+                    return 'in_progress';
+                }
+                return 'scheduled';
             }
             
             // If session time has passed today

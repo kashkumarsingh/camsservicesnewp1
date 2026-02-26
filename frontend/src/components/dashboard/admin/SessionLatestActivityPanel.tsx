@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Clock,
@@ -55,11 +56,12 @@ function formatDateLabel(dateStr: string): string {
   }
 }
 
-/** Session is in progress: not completed/cancelled and current time within start–end. */
+/** Session is in progress: time within start–end, trainer has clocked in and not yet clocked out. */
 function isSessionInProgress(session: RemoteBookingSession): boolean {
   if (!session?.date || !session?.startTime || !session?.endTime) return false;
   const status = session.status ?? 'scheduled';
   if (status === SCHEDULE_SESSION_STATUS.COMPLETED || status === SCHEDULE_SESSION_STATUS.CANCELLED || status === SCHEDULE_SESSION_STATUS.NO_SHOW) return false;
+  if (!session.clockedInAt || session.clockedOutAt) return false;
   const start = new Date(session.date + 'T' + session.startTime).getTime();
   const end = new Date(session.date + 'T' + session.endTime).getTime();
   const now = Date.now();
@@ -657,7 +659,7 @@ export function SessionLatestActivityPanel({
 
   if (!isOpen) return null;
 
-  return (
+  const panel = (
     <>
       <div
         className="fixed inset-0 z-overlay bg-slate-900/30 transition-opacity duration-300 ease-out"
@@ -724,4 +726,6 @@ export function SessionLatestActivityPanel({
       </aside>
     </>
   );
+
+  return typeof document !== 'undefined' ? createPortal(panel, document.body) : panel;
 }

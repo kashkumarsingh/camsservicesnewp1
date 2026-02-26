@@ -46,7 +46,7 @@ export default function FAQList({ filterOptions }: FAQListProps) {
   if (faqs.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">{EMPTY_STATE.NO_FAQS_FOUND.title}</p>
+        <p className="text-navy-blue/80">{EMPTY_STATE.NO_FAQS_FOUND.title}</p>
       </div>
     );
   }
@@ -63,8 +63,8 @@ export default function FAQList({ filterOptions }: FAQListProps) {
               border-2 rounded-xl transition-all duration-300
               ${
                 isOpen
-                  ? 'border-primary-blue bg-blue-50 shadow-lg'
-                  : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
+                  ? 'border-primary-blue bg-primary-blue/10 shadow-card'
+                  : 'border-primary-blue/20 bg-white hover:border-primary-blue/30 hover:shadow-card'
               }
             `}
           >
@@ -84,7 +84,7 @@ export default function FAQList({ filterOptions }: FAQListProps) {
                 <h3
                   className={`
                     font-bold text-base sm:text-lg
-                    ${isOpen ? 'text-primary-blue' : 'text-gray-900'}
+                    ${isOpen ? 'text-primary-blue' : 'text-navy-blue'}
                   `}
                 >
                   {faq.title}
@@ -98,7 +98,7 @@ export default function FAQList({ filterOptions }: FAQListProps) {
                   ${
                     isOpen
                       ? 'bg-primary-blue text-white rotate-180'
-                      : 'bg-gray-200 text-gray-600'
+                      : 'bg-primary-blue/20 text-navy-blue'
                   }
                 `}
               >
@@ -114,7 +114,7 @@ export default function FAQList({ filterOptions }: FAQListProps) {
               `}
             >
               <div className="px-6 pb-4 pt-2">
-                <div className="prose prose-sm max-w-none text-gray-700">
+                <div className="prose prose-sm max-w-none text-navy-blue/80">
                   {renderHtml(faq.content)}
                 </div>
               </div>

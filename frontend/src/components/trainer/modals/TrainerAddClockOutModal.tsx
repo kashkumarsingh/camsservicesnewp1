@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Clock } from 'lucide-react';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
@@ -118,7 +119,7 @@ export function TrainerAddClockOutModal({
     .filter(Boolean)
     .join(', ') ?? 'Session';
 
-  return (
+  const modal = (
     <>
       <div
         className="fixed inset-0 z-overlay bg-slate-900/40"
@@ -215,4 +216,6 @@ export function TrainerAddClockOutModal({
       </div>
     </>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modal, document.body) : modal;
 }

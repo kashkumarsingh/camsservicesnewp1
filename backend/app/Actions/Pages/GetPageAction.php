@@ -79,6 +79,7 @@ class GetPageAction
     {
         return Page::where('slug', $slug)
             ->published()
+            ->with(['blocks' => fn ($q) => $q->orderBy('sort_order')])
             ->firstOrFail();
     }
 }

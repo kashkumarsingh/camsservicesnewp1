@@ -10,6 +10,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { getApiErrorMessage, getApiValidationErrors } from '@/utils/errorUtils';
+import type { AdminPageBlockDTO, PageBlockMetaDTO } from '@/core/application/pages/dto/PageDTO';
 import type {
   AdminPageDTO,
   CreatePageDTO,
@@ -21,6 +22,18 @@ import type {
   mapRemotePageToAdminPageDTO,
 } from '@/core/application/admin/dto/AdminPageDTO';
 
+export interface CreateBlockDTO {
+  type: string;
+  payload?: Record<string, unknown>;
+  meta?: PageBlockMetaDTO | null;
+}
+
+export interface UpdateBlockDTO {
+  type?: string;
+  payload?: Record<string, unknown>;
+  meta?: PageBlockMetaDTO | null;
+}
+
 export interface UseAdminPagesResult {
   pages: AdminPageDTO[];
   loading: boolean;
@@ -31,6 +44,10 @@ export interface UseAdminPagesResult {
   deletePage: (id: string) => Promise<void>;
   togglePublish: (id: string, data: TogglePublishDTO) => Promise<AdminPageDTO>;
   getPage: (id: string) => Promise<AdminPageDTO>;
+  createBlock: (pageId: string, data: CreateBlockDTO) => Promise<AdminPageBlockDTO>;
+  updateBlock: (pageId: string, blockId: string, data: UpdateBlockDTO) => Promise<AdminPageBlockDTO>;
+  deleteBlock: (pageId: string, blockId: string) => Promise<void>;
+  reorderBlocks: (pageId: string, blockIds: string[]) => Promise<AdminPageBlockDTO[]>;
   exportPages: () => Promise<void>;
   updateFilters: (filters: AdminPagesFilters) => void;
   refetch: () => Promise<void>;
@@ -214,7 +231,7 @@ export function useAdminPages(initialFilters: AdminPagesFilters = {}): UseAdminP
   const getPage = async (id: string): Promise<AdminPageDTO> => {
     try {
       const response = await apiClient.get<RemotePageResponse>(
-        `${API_ENDPOINTS.ADMIN_PUBLIC_PAGES}/${id}`
+        API_ENDPOINTS.ADMIN_PUBLIC_PAGE_BY_ID(id)
       );
 
       if (!response.data) {
@@ -225,6 +242,81 @@ export function useAdminPages(initialFilters: AdminPagesFilters = {}): UseAdminP
     } catch (err: unknown) {
       console.error('Failed to fetch page:', err);
       throw new Error(getApiErrorMessage(err, 'Failed to load page'));
+    }
+  };
+
+  /**
+   * Create a page block
+   */
+  const createBlock = async (pageId: string, data: CreateBlockDTO): Promise<AdminPageBlockDTO> => {
+    try {
+      const response = await apiClient.post<AdminPageBlockDTO>(
+        API_ENDPOINTS.ADMIN_PUBLIC_PAGE_BLOCKS(pageId),
+        { type: data.type, payload: data.payload ?? {}, meta: data.meta ?? undefined }
+      );
+      if (!response.data) throw new Error('Invalid response from server');
+      return response.data;
+    } catch (err: unknown) {
+      console.error('Failed to create block:', err);
+      throw new Error(getApiErrorMessage(err, 'Failed to create block'));
+    }
+  };
+
+  /**
+   * Update a page block
+   */
+  const updateBlock = async (
+    pageId: string,
+    blockId: string,
+    data: UpdateBlockDTO
+  ): Promise<AdminPageBlockDTO> => {
+    try {
+      const payload: Record<string, unknown> = {};
+      if (data.type !== undefined) payload.type = data.type;
+      if (data.payload !== undefined) payload.payload = data.payload;
+      if (data.meta !== undefined) payload.meta = data.meta;
+      const response = await apiClient.put<AdminPageBlockDTO>(
+        API_ENDPOINTS.ADMIN_PUBLIC_PAGE_BLOCK(pageId, blockId),
+        payload
+      );
+      if (!response.data) throw new Error('Invalid response from server');
+      return response.data;
+    } catch (err: unknown) {
+      console.error('Failed to update block:', err);
+      throw new Error(getApiErrorMessage(err, 'Failed to update block'));
+    }
+  };
+
+  /**
+   * Delete a page block
+   */
+  const deleteBlock = async (pageId: string, blockId: string): Promise<void> => {
+    try {
+      await apiClient.delete(API_ENDPOINTS.ADMIN_PUBLIC_PAGE_BLOCK(pageId, blockId));
+    } catch (err: unknown) {
+      console.error('Failed to delete block:', err);
+      throw new Error(getApiErrorMessage(err, 'Failed to delete block'));
+    }
+  };
+
+  /**
+   * Reorder page blocks (blockIds = ordered array of block ids).
+   */
+  const reorderBlocks = async (
+    pageId: string,
+    blockIds: string[]
+  ): Promise<AdminPageBlockDTO[]> => {
+    try {
+      const numericIds = blockIds.map((id) => parseInt(String(id), 10));
+      const response = await apiClient.put<AdminPageBlockDTO[]>(
+        API_ENDPOINTS.ADMIN_PUBLIC_PAGE_BLOCKS_REORDER(pageId),
+        { blockIds: numericIds }
+      );
+      if (!response.data || !Array.isArray(response.data)) throw new Error('Invalid response from server');
+      return response.data;
+    } catch (err: unknown) {
+      console.error('Failed to reorder blocks:', err);
+      throw new Error(getApiErrorMessage(err, 'Failed to reorder blocks'));
     }
   };
 
@@ -287,6 +379,10 @@ export function useAdminPages(initialFilters: AdminPagesFilters = {}): UseAdminP
     deletePage,
     togglePublish,
     getPage,
+    createBlock,
+    updateBlock,
+    deleteBlock,
+    reorderBlocks,
     exportPages,
     updateFilters,
     refetch,

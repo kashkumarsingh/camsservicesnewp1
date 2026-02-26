@@ -1,27 +1,25 @@
-import { Metadata } from 'next';
 import { getBlogPosts } from '@/server/blog/getBlogPosts';
 import BlogPageClient from './BlogPageClient';
+import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
+import { ROUTES } from '@/utils/routes';
+import { BLOG_META } from '@/components/blog/blogPageConstants';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://camsservice.co.uk';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
 
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;
 
-export const metadata: Metadata = {
-  title: 'Blog | Expert Insights & Practical Advice for SEN Support',
-  description: 'Evidence-based strategies, expert tips, and real stories from our team of specialists helping families thrive.',
-  openGraph: {
-    title: 'Blog | Expert Insights & Practical Advice for SEN Support',
-    description: 'Evidence-based strategies, expert tips, and real stories from our team of specialists helping families thrive.',
-    url: `${BASE_URL}/blog`,
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Blog | Expert Insights & Practical Advice for SEN Support',
-    description: 'Evidence-based strategies, expert tips, and real stories from our team of specialists helping families thrive.',
-  },
-};
+export async function generateMetadata() {
+  return buildPublicMetadata(
+    {
+      title: BLOG_META.TITLE,
+      description: BLOG_META.DESCRIPTION,
+      path: ROUTES.BLOG,
+      imageAlt: 'CAMS Services Blog',
+    },
+    BASE_URL
+  );
+}
 
 import { withTimeoutFallback } from '@/utils/promiseUtils';
 

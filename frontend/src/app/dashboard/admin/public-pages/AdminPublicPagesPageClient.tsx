@@ -23,6 +23,7 @@ import { useAdminPages } from '@/interfaces/web/hooks/admin/useAdminPages';
 import type { AdminPageDTO, CreatePageDTO } from '@/core/application/admin/dto/AdminPageDTO';
 import { PAGE_TYPE_LABELS } from '@/core/application/admin/dto/AdminPageDTO';
 import { PageForm } from './PageForm';
+import { PageBlocksEditor } from './PageBlocksEditor';
 import { Download, Globe, FileWarning } from 'lucide-react';
 import { toastManager } from '@/utils/toast';
 import { getPublishedBadgeClasses } from '@/utils/statusBadgeHelpers';
@@ -83,6 +84,10 @@ export const AdminPublicPagesPageClient: React.FC = () => {
     deletePage,
     togglePublish,
     getPage,
+    createBlock,
+    updateBlock,
+    deleteBlock,
+    reorderBlocks,
     exportPages,
     updateFilters,
   } = useAdminPages({
@@ -481,22 +486,37 @@ export const AdminPublicPagesPageClient: React.FC = () => {
         }
       >
         {selectedPage && (
-          <PageForm
-            formId="page-form-edit"
-            mode="edit"
-            hideFooter
-            onSubmittingChange={setFormSubmitting}
-            initialData={selectedPage}
-            onSubmit={async (data) => {
-              await updatePage(selectedPage.id, data);
-              setIsEditing(false);
-              setSelectedPage(null);
-            }}
-            onCancel={() => {
-              setIsEditing(false);
-              setSelectedPage(null);
-            }}
-          />
+          <div className="space-y-6">
+            <PageForm
+              formId="page-form-edit"
+              mode="edit"
+              hideFooter
+              onSubmittingChange={setFormSubmitting}
+              initialData={selectedPage}
+              onSubmit={async (data) => {
+                await updatePage(selectedPage.id, data);
+                setIsEditing(false);
+                setSelectedPage(null);
+              }}
+              onCancel={() => {
+                setIsEditing(false);
+                setSelectedPage(null);
+              }}
+            />
+            <PageBlocksEditor
+              pageId={selectedPage.id}
+              slug={selectedPage.slug}
+              blocks={selectedPage.blocks ?? []}
+              onCreateBlock={createBlock}
+              onUpdateBlock={updateBlock}
+              onDeleteBlock={deleteBlock}
+              onReorderBlocks={reorderBlocks}
+              onBlocksChanged={async () => {
+                const full = await getPage(selectedPage.id);
+                setSelectedPage(full);
+              }}
+            />
+          </div>
         )}
       </SideCanvas>
 

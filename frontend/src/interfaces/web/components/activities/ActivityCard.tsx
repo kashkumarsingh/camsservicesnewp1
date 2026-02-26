@@ -19,7 +19,7 @@ interface ActivityCardProps {
 export default function ActivityCard({ activity }: ActivityCardProps) {
   return (
     <Link href={`/activities/${activity.slug}`} className="group block">
-      <article className="bg-white rounded-card border-2 border-gray-200 shadow-md hover:shadow-2xl transition-all duration-300 card-hover-lift md:hover:rotate-3 overflow-hidden h-full flex flex-col">
+      <article className="bg-white rounded-card border-2 border-primary-blue/20 shadow-card hover:shadow-card-hover transition-all duration-300 card-hover-lift md:hover:rotate-3 overflow-hidden h-full flex flex-col">
         {/* Image */}
         <div className="relative w-full h-48 overflow-hidden">
           <Image
@@ -43,12 +43,12 @@ export default function ActivityCard({ activity }: ActivityCardProps) {
           </h3>
 
           {/* Description */}
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2 flex-1">
+          <p className="text-navy-blue/80 text-sm mb-4 line-clamp-2 flex-1">
             {activity.description}
           </p>
 
           {/* Meta Information */}
-          <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 pt-4 border-t border-gray-200">
+          <div className="flex flex-wrap items-center gap-4 text-xs text-navy-blue/80 pt-4 border-t border-primary-blue/20">
             <div className="flex items-center gap-1">
               <Clock size={14} />
               <span>{activity.duration} {activity.duration === 1 ? 'hour' : 'hours'}</span>

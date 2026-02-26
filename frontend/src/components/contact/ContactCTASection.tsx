@@ -35,7 +35,7 @@ export default function ContactCTASection({
             className="rounded-full bg-white text-primary-blue border-2 border-white shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300"
             disabled={phoneDisabled}
           >
-            <Phone size={18} className="mr-2" />
+            <Phone size={20} className="mr-2" />
             {phoneDisabled ? callLabel : CONTACT_CTA.CTA_CALL}
           </Button>
         </div>

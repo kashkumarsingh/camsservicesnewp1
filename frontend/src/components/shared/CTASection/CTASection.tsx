@@ -32,7 +32,7 @@ const CTASection: React.FC<CTASectionProps> = ({
       case 'solid':
         return 'bg-navy-blue border-t border-navy-blue';
       default:
-        return 'bg-white border-t border-gray-200';
+        return 'bg-gradient-to-br from-blue-50 via-white to-purple-50 border-t border-primary-blue/20';
     }
   };
 
@@ -48,19 +48,24 @@ const CTASection: React.FC<CTASectionProps> = ({
           style={{ backgroundImage: "url('/svgs/star.svg')", backgroundRepeat: "repeat", backgroundSize: "30px 30px" }}
         />
       )}
-      <div className="absolute inset-0 bg-white opacity-5 hover:opacity-10 transition-opacity duration-500 pointer-events-none z-[1]" aria-hidden />
+      {variant === 'default' && (
+        <div className="absolute inset-0 bg-gradient-to-r from-primary-blue/5 to-light-blue-cyan/5 pointer-events-none z-[1]" aria-hidden />
+      )}
+      {variant !== 'default' && (
+        <div className="absolute inset-0 bg-white opacity-5 hover:opacity-10 transition-opacity duration-500 pointer-events-none z-[1]" aria-hidden />
+      )}
 
       <div className="relative z-10 max-w-4xl mx-auto px-4">
-        <h2 className={`text-2xl md:text-3xl font-bold mb-4 leading-tight ${getTextColor()}`}>
+        <h2 className={`text-2xl md:text-3xl font-heading font-bold mb-4 leading-tight ${getTextColor()}`}>
           {title}
         </h2>
-        <p className={`text-base md:text-lg mb-6 max-w-2xl mx-auto ${variant === 'default' ? 'text-gray-600' : 'text-white/90'}`}>
+        <p className={`text-base md:text-lg mb-6 max-w-2xl mx-auto ${variant === 'default' ? 'text-navy-blue/85' : 'text-white/90'}`}>
           {subtitle}
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-3 mb-6">
           <Button 
             href={primaryCTA.href} 
-            variant={variant === 'default' ? 'outlineNavy' : 'primary'} 
+            variant={variant === 'default' ? 'primary' : 'primary'} 
             size="lg" 
             className="rounded-full hover:shadow-2xl hover:scale-105 transition-all duration-300"
             withArrow
@@ -84,7 +89,7 @@ const CTASection: React.FC<CTASectionProps> = ({
             {badges.map((badge, i) => (
               <span
                 key={i}
-                className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-medium uppercase tracking-wider ${variant === 'default' ? 'border-gray-200 bg-white text-gray-600' : 'border-white/30 bg-white/10 text-white'}`}
+                className={`inline-flex items-center rounded-full border-2 px-3 py-1 text-xs font-semibold uppercase tracking-wider ${variant === 'default' ? 'border-primary-blue/30 bg-primary-blue/10 text-navy-blue' : 'border-white/30 bg-white/10 text-white'}`}
               >
                 {badge}
               </span>

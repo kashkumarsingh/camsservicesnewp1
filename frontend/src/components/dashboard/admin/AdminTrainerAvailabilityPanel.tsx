@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import moment from 'moment';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAdminTrainerAvailabilityDates } from '@/interfaces/web/hooks/admin/useAdminTrainerAvailabilityDates';
@@ -67,7 +68,7 @@ export function AdminTrainerAvailabilityPanel({
 
   if (!isOpen) return null;
 
-  return (
+  const panel = (
     <div
       className="fixed inset-0 z-overlay flex justify-end"
       aria-modal="true"
@@ -221,4 +222,6 @@ export function AdminTrainerAvailabilityPanel({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(panel, document.body) : panel;
 }

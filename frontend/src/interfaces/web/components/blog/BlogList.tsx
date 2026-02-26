@@ -37,7 +37,7 @@ export default function BlogList({ posts, loading = false, error = null }: BlogL
   if (posts.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">{EMPTY_STATE.NO_BLOG_POSTS_FOUND.title}</p>
+        <p className="text-navy-blue/80 font-medium">{EMPTY_STATE.NO_BLOG_POSTS_FOUND.title}</p>
       </div>
     );
   }

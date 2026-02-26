@@ -394,7 +394,7 @@ export default function DashboardRightSidebar({
                           )}
                         </div>
                         {tooltipChildId === childHour.childId && (
-                          <div className="absolute z-[9999] w-72 bg-white dark:bg-gray-800 border border-[#dadce0] dark:border-gray-600 rounded-lg shadow-md p-3 bottom-full left-0 mb-2">
+                          <div className="absolute z-dropdown w-72 bg-white dark:bg-gray-800 border border-[#dadce0] dark:border-gray-600 rounded-lg shadow-md p-3 bottom-full left-0 mb-2">
                             <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#e8eaed] dark:border-gray-700">
                               <Package size={14} className="text-[#1a73e8] dark:text-blue-400" />
                               <h4 className="text-xs font-semibold text-[#202124] dark:text-gray-100">{childHour.packageName || 'Package'} Package</h4>
@@ -700,7 +700,7 @@ export default function DashboardRightSidebar({
 
                     {/* Tooltip – Google Calendar style */}
                     {tooltipChildId === childHour.childId && (childHour.totalHours > 0 || hasPendingPayment) && (
-                      <div className="absolute z-[9999] w-72 bg-white dark:bg-gray-800 border border-[#dadce0] dark:border-gray-600 rounded-lg shadow-md p-3 bottom-full left-0 mb-2">
+                      <div className="absolute z-dropdown w-72 bg-white dark:bg-gray-800 border border-[#dadce0] dark:border-gray-600 rounded-lg shadow-md p-3 bottom-full left-0 mb-2">
                         <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#e8eaed] dark:border-gray-700">
                           <Package size={14} className="text-[#1a73e8] dark:text-blue-400" />
                           <h4 className="text-xs font-semibold text-[#202124] dark:text-gray-100">

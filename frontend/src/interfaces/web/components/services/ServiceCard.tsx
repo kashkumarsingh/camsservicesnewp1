@@ -26,16 +26,16 @@ export default function ServiceCard({ service }: ServiceCardProps) {
   const IconComponent = service.icon && iconMap[service.icon] ? iconMap[service.icon] : Shield;
 
   return (
-    <div className="flex flex-col rounded-card border-2 border-gray-200 bg-white shadow-md overflow-hidden transition-all duration-300 hover:shadow-2xl card-hover-lift group">
+    <div className="flex flex-col rounded-card border-2 border-primary-blue/20 bg-white shadow-card overflow-hidden transition-all duration-300 hover:shadow-card-hover card-hover-lift group">
       <div className="relative h-32 flex items-center justify-center">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-blue to-light-blue-cyan" aria-hidden />
         <IconComponent className="text-white relative z-10" size={48} />
       </div>
       <div className="p-6 sm:p-8 flex flex-col flex-grow">
-        <h3 className="text-xl font-bold text-navy-blue mb-3">
+        <h3 className="text-xl font-heading font-bold text-navy-blue mb-3">
           {service.title}
         </h3>
-        <p className="text-gray-600 text-base leading-relaxed mb-6 flex-grow">
+        <p className="text-navy-blue/80 text-base leading-relaxed mb-6 flex-grow">
           {service.description}
         </p>
         <Link

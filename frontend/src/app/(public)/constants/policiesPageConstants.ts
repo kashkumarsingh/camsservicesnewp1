@@ -10,4 +10,9 @@ export const POLICIES_PAGE = {
   HERO_TITLE: 'Policies & Legal',
   HERO_SUBTITLE:
     'Important documents including terms of service, privacy, safeguarding, and refunds.',
+  EMPTY_MESSAGE: 'No published policies are available at the moment.',
+  EMPTY_CONTACT: 'You can still reach us at',
+  EMPTY_CONTACT_SUFFIX: 'for any questions.',
+  CONTACT_EMAIL: 'info@camsservices.co.uk',
+  CONTACT_EMAIL_MAILTO: 'mailto:info@camsservices.co.uk',
 } as const;

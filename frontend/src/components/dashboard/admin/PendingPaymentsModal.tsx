@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
 import type { PendingPaymentItem } from '@/interfaces/web/hooks/dashboard/useAdminDashboardStats';
@@ -19,7 +20,7 @@ export function PendingPaymentsModal({
   const router = useRouter();
   if (!isOpen) return null;
 
-  return (
+  const modal = (
     <div
       className="fixed inset-0 z-overlay flex items-center justify-center bg-slate-900/50 p-4"
       role="dialog"
@@ -101,4 +102,6 @@ export function PendingPaymentsModal({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modal, document.body) : modal;
 }

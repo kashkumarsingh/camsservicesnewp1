@@ -37,7 +37,7 @@ export default function LoginFormSection({
 
   return (
     <div className="w-full">
-      <div className="rounded-form-card border border-slate-200 bg-white p-8 shadow-card">
+      <div className="rounded-form-card border border-slate-100 bg-white p-8 shadow-card transition-shadow duration-300 ease-out hover:shadow-card-hover">
         <h1 className="font-heading text-2xl font-bold text-navy-blue">
           {LOGIN_FORM.PAGE_TITLE}
         </h1>
@@ -45,7 +45,7 @@ export default function LoginFormSection({
 
         <div className="mt-8">
         {authError && (
-          <div className="mb-6 rounded-form-alert border-2 border-red-200 bg-red-50 p-4">
+          <div className="mb-6 rounded-form-alert border-2 border-red-200 bg-red-50 p-4 transition-opacity duration-200">
             <p className="flex items-center gap-2 text-sm text-red-600">
               <AlertCircle size={16} aria-hidden />
               {authError}
@@ -72,7 +72,7 @@ export default function LoginFormSection({
                 onChange={handleChange}
                 onBlur={() => handleBlur('email')}
                 placeholder={LOGIN_FORM.PLACEHOLDER_EMAIL}
-                className={`block w-full rounded-form-input border-2 bg-white px-4 py-3 pr-10 text-gray-900 shadow-sm transition-all duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-2 ${inputBorderClass(touched.email, errors.email, isValid.email)}`}
+                className={`block w-full rounded-form-input border-2 bg-white px-4 py-3 pr-10 text-gray-900 shadow-sm transition-all duration-200 ease-out placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-1 ${inputBorderClass(touched.email, errors.email, isValid.email)}`}
               />
               {touched.email && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -110,7 +110,7 @@ export default function LoginFormSection({
                 onChange={handleChange}
                 onBlur={() => handleBlur('password')}
                 placeholder={LOGIN_FORM.PLACEHOLDER_PASSWORD}
-                className={`block w-full rounded-form-input border-2 bg-white px-4 py-3 text-gray-900 shadow-sm transition-all duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-2 ${touched.password && (errors.password || isValid.password) ? 'pr-20' : 'pr-12'} ${inputBorderClass(touched.password, errors.password, isValid.password)}`}
+                className={`block w-full rounded-form-input border-2 bg-white px-4 py-3 text-gray-900 shadow-sm transition-all duration-200 ease-out placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-1 ${touched.password && (errors.password || isValid.password) ? 'pr-20' : 'pr-12'} ${inputBorderClass(touched.password, errors.password, isValid.password)}`}
               />
               <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2">
                 <button
@@ -144,10 +144,10 @@ export default function LoginFormSection({
           <Button
             type="submit"
             variant="primary"
-            size="sm"
+            size="lg"
             disabled={disabled}
             ariaBusy={disabled}
-            className="w-full rounded-form-button py-3"
+            className="w-full rounded-full text-lg"
           >
             {disabled ? (
               <>

@@ -87,7 +87,7 @@ export default function PackageList({ filterOptions }: PackageListProps) {
   if (packages.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-slate-600 text-sm">{EMPTY_STATE.NO_PACKAGES_FOUND.title}</p>
+        <p className="text-navy-blue/80 text-sm">{EMPTY_STATE.NO_PACKAGES_FOUND.title}</p>
       </div>
     );
   }

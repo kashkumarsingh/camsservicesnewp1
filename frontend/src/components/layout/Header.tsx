@@ -78,7 +78,7 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-[40] w-full border-b border-white/10 bg-navy-blue" >
+    <header className="sticky top-0 z-sticky w-full border-b border-white/10 bg-navy-blue" >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 lg:h-16">
           {/* Logo */}
@@ -124,7 +124,7 @@ const Header: React.FC = () => {
           <button
             type="button"
             onClick={toggleMenu}
-            className="lg:hidden inline-flex items-center justify-center p-2 -mr-2 text-slate-600 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-slate-400 rounded-md"
+            className="lg:hidden inline-flex items-center justify-center p-2 -mr-2 text-white hover:text-white/90 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-blue rounded-md"
             aria-expanded={isMenuOpen}
             aria-label="Open menu"
           >
@@ -140,11 +140,11 @@ const Header: React.FC = () => {
       {/* Mobile menu – full-screen overlay (Payhawk-style: simple list) */}
       {isMenuOpen && (
         <div
-          className="fixed inset-0 z-[999] bg-white flex flex-col lg:hidden animate-fade-in"
+          className="fixed inset-0 z-overlay bg-gradient-to-b from-white to-blue-50/30 flex flex-col lg:hidden animate-fade-in"
           aria-modal="true"
           role="dialog"
         >
-          <div className="flex items-center justify-between h-14 px-4 border-b border-slate-200">
+          <div className="flex items-center justify-between h-14 px-4 border-b border-primary-blue/20">
             <Link href="/" onClick={closeMenu} className="flex-shrink-0">
               <div className="relative h-8 w-[120px]">
                 <Image
@@ -159,7 +159,7 @@ const Header: React.FC = () => {
             <button
               type="button"
               onClick={closeMenu}
-              className="p-2 text-slate-600 hover:text-slate-900 rounded-md"
+              className="p-2 text-navy-blue hover:text-primary-blue rounded-md focus:outline-none focus:ring-2 focus:ring-primary-blue"
               aria-label="Close menu"
             >
               <X className="h-6 w-6" />
@@ -172,24 +172,24 @@ const Header: React.FC = () => {
                   <Link
                     href={link.href}
                     onClick={closeMenu}
-                    className="block py-3 text-base font-medium text-slate-800 hover:text-[var(--color-primary)]"
+                    className="block py-3 text-base font-medium text-navy-blue hover:text-primary-blue transition-colors"
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
               <li>
-                <Link href={ROUTES.BECOME_A_TRAINER} onClick={closeMenu} className="block py-3 text-base font-medium text-slate-800 hover:text-[var(--color-primary)]">
+                <Link href={ROUTES.BECOME_A_TRAINER} onClick={closeMenu} className="block py-3 text-base font-medium text-navy-blue hover:text-primary-blue transition-colors">
                   Become a Trainer
                 </Link>
               </li>
             </ul>
-            <div className="mt-6 pt-6 border-t border-slate-200 flex flex-col gap-2">
+            <div className="mt-6 pt-6 border-t border-primary-blue/20 flex flex-col gap-2">
               <ThemeToggle />
               <AuthButtons isMobile />
             </div>
           </nav>
-          <p className="px-4 py-4 text-center text-xs text-slate-500 border-t border-slate-100">
+          <p className="px-4 py-4 text-center text-xs text-navy-blue/70 border-t border-primary-blue/10">
             &copy; {new Date().getFullYear()} CAMS Services
           </p>
         </div>

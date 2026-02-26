@@ -48,6 +48,11 @@ export const API_ENDPOINTS = {
 
   // Admin Public Pages
   ADMIN_PUBLIC_PAGES: '/admin/public-pages',
+  ADMIN_PUBLIC_PAGE_BY_ID: (id: string | number) => `/admin/public-pages/${id}`,
+  ADMIN_PUBLIC_PAGE_BLOCKS: (pageId: string | number) => `/admin/public-pages/${pageId}/blocks`,
+  ADMIN_PUBLIC_PAGE_BLOCK: (pageId: string | number, blockId: string | number) =>
+    `/admin/public-pages/${pageId}/blocks/${blockId}`,
+  ADMIN_PUBLIC_PAGE_BLOCKS_REORDER: (pageId: string | number) => `/admin/public-pages/${pageId}/blocks/reorder`,
 
   // Admin Services (full CRUD)
   ADMIN_SERVICES: '/admin/services',

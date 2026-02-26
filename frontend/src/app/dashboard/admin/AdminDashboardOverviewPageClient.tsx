@@ -121,7 +121,10 @@ function buildAdminTodaySessions(bookings: AdminBookingDTO[], todayStr: string):
       const start = new Date(`${session.date}T${session.startTime}`);
       const end = new Date(`${session.date}T${session.endTime}`);
 
-      const isOngoing = start <= now && now < end;
+      const timeInWindow = start <= now && now < end;
+      const hasClockedIn = !!session.clockedInAt;
+      const hasClockedOut = !!session.clockedOutAt;
+      const isOngoing = timeInWindow && hasClockedIn && !hasClockedOut;
       const isUpcoming = now < start;
       const isPast = now >= end;
 

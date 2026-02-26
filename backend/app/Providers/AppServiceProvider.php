@@ -12,6 +12,7 @@ use App\Models\BookingSchedule;
 use App\Models\Child;
 use App\Models\FAQ;
 use App\Models\Page;
+use App\Models\PageBlock;
 use App\Models\Package;
 use App\Models\Service;
 use App\Models\SiteSetting;
@@ -24,6 +25,7 @@ use App\Observers\BookingScheduleObserver;
 use App\Observers\ChildObserver;
 use App\Observers\FAQObserver;
 use App\Observers\PackageObserver;
+use App\Observers\PageBlockObserver;
 use App\Observers\PageObserver;
 use App\Observers\ServiceObserver;
 use App\Observers\SiteSettingObserver;
@@ -128,6 +130,7 @@ class AppServiceProvider extends ServiceProvider
 
         SiteSetting::observe(SiteSettingObserver::class);
         Page::observe(PageObserver::class);
+        PageBlock::observe(PageBlockObserver::class);
         BlogPost::observe(BlogPostObserver::class);
         Service::observe(ServiceObserver::class);
         FAQ::observe(FAQObserver::class);

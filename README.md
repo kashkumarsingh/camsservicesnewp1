@@ -159,7 +159,7 @@ frontend/src/
 - **Framework**: Laravel 12.x LTS
 - **Language**: PHP 8.3+
 - **API**: RESTful API with Sanctum authentication
-- **CMS**: Filament 4.x (Laravel-native admin panel)
+- **Admin**: Next.js dashboard at `/dashboard/admin` (API-only backend; no Filament)
 - **Database**: MySQL 8.0+
 
 ## 📦 Project Structure

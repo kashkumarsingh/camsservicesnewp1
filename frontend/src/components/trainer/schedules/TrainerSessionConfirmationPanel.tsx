@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Calendar, Clock, User, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import moment from 'moment';
 import Button from '@/components/ui/Button';
@@ -120,7 +121,7 @@ export default function TrainerSessionConfirmationPanel({
       ? `${moment(schedule.start_time, 'HH:mm:ss').format('h:mm A')} – ${moment(schedule.end_time, 'HH:mm:ss').format('h:mm A')}`
       : '';
 
-  return (
+  const panel = (
     <>
       {/* Backdrop */}
       <div
@@ -260,4 +261,6 @@ export default function TrainerSessionConfirmationPanel({
       </aside>
     </>
   );
+
+  return typeof document !== 'undefined' ? createPortal(panel, document.body) : panel;
 }

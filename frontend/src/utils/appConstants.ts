@@ -30,6 +30,19 @@ export const DATE_FORMAT_LONG: Intl.DateTimeFormatOptions = {
   day: 'numeric',
 };
 
+/** Short display date (e.g. Jan 15) for lists/sidebars */
+export const DATE_FORMAT_MONTH_DAY: Intl.DateTimeFormatOptions = {
+  month: 'short',
+  day: 'numeric',
+};
+
+/** Short display date with year (e.g. Jan 15, 2025) */
+export const DATE_FORMAT_MONTH_DAY_YEAR: Intl.DateTimeFormatOptions = {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+};
+
 /** Currency code for display (GBP) */
 export const CURRENCY_CODE = 'GBP' as const;
 

@@ -63,7 +63,7 @@ export default async function PoliciesIndexPage() {
                   <li key={policy.id}>
                     <Link
                       href={ROUTES.POLICIES_BY_SLUG(policy.slug)}
-                      className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 bg-white hover:border-primary-blue/30 hover:shadow-md transition-all text-navy-blue font-medium"
+                      className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary-blue/20 bg-white hover:border-primary-blue/30 hover:shadow-card transition-all text-navy-blue font-medium"
                     >
                       <FileText className="h-5 w-5 text-primary-blue flex-shrink-0" />
                       <span>{policy.title}</span>
@@ -72,14 +72,14 @@ export default async function PoliciesIndexPage() {
                 ))}
               </ul>
             ) : (
-              <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-600">
-                <p className="mb-4">No published policies are available at the moment.</p>
+              <div className="rounded-xl border-2 border-primary-blue/20 bg-white p-8 text-center text-navy-blue/80">
+                <p className="mb-4">{POLICIES_PAGE.EMPTY_MESSAGE}</p>
                 <p className="text-sm">
-                  You can still reach us at{' '}
-                  <a href="mailto:info@camsservices.co.uk" className="text-primary-blue hover:underline">
-                    info@camsservices.co.uk
+                  {POLICIES_PAGE.EMPTY_CONTACT}{' '}
+                  <a href={POLICIES_PAGE.CONTACT_EMAIL_MAILTO} className="text-primary-blue hover:underline">
+                    {POLICIES_PAGE.CONTACT_EMAIL}
                   </a>{' '}
-                  for any questions.
+                  {POLICIES_PAGE.EMPTY_CONTACT_SUFFIX}
                 </p>
               </div>
             )}

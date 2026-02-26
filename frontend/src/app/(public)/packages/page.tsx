@@ -96,13 +96,13 @@ export default async function PackagesPage() {
 
 
       {/* Packages Grid - Clean & Simple */}
-      <Section id="packages" className="py-16 bg-white">
+      <Section id="packages" className="py-16 bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-navy-blue mb-3">
               {PACKAGES_PAGE.SECTION_AVAILABLE_TITLE}
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-navy-blue/80 max-w-2xl mx-auto">
               {PACKAGES_PAGE.SECTION_AVAILABLE_SUBTITLE}
             </p>
           </div>
@@ -111,8 +111,8 @@ export default async function PackagesPage() {
           <PackageList />
 
           {/* Help Section - Compact */}
-          <div className="mt-16 bg-blue-50 rounded-card border border-blue-200 p-6 text-center">
-            <p className="text-gray-700 mb-4">
+          <div className="mt-16 bg-primary-blue/10 rounded-card border-2 border-primary-blue/20 p-6 text-center">
+            <p className="text-navy-blue/80 mb-4">
               {PACKAGES_PAGE.HELP_NEED} <span className="font-semibold text-primary-blue">{PACKAGES_PAGE.HELP_BOOK}</span> or{' '}
               <a href={`tel:${phoneNumber}`} className="font-semibold text-primary-blue hover:underline">
                 {PACKAGES_PAGE.HELP_CALL}
@@ -126,24 +126,24 @@ export default async function PackagesPage() {
       </Section>
 
       {/* Package Comparison - Simplified */}
-      <Section id="compare" className="py-16 bg-gray-50">
+      <Section id="compare" className="py-16 bg-gradient-to-br from-primary-blue/10 via-white to-purple-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-heading font-bold text-navy-blue mb-2">
               {PACKAGES_PAGE.COMPARE_TITLE}
             </h2>
-            <p className="text-gray-600">
+            <p className="text-navy-blue/80">
               {PACKAGES_PAGE.COMPARE_SUBTITLE}
             </p>
           </div>
-          <div className="bg-white rounded-card shadow-sm p-4 md:p-6 border border-gray-200 overflow-x-auto">
+          <div className="bg-white rounded-card shadow-card p-4 md:p-6 border-2 border-primary-blue/20 overflow-x-auto">
             <PackageComparisonTable />
           </div>
         </div>
       </Section>
 
       {/* FAQ Section - Compact */}
-      <Section className="py-16 bg-white">
+      <Section className="py-16 bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-heading font-bold text-navy-blue mb-2">

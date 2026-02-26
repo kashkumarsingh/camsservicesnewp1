@@ -27,7 +27,7 @@ export default function ContactVisitSection({ mapEmbedUrl, address }: ContactVis
           </div>
 
           <div className="grid lg:grid-cols-2 gap-6 md:gap-8">
-            <div className="rounded-card overflow-hidden shadow-2xl border border-gray-200 h-96">
+            <div className="rounded-card overflow-hidden shadow-card border-2 border-primary-blue/20 h-96">
               {mapEmbedUrl ? (
                 <iframe
                   src={mapEmbedUrl}
@@ -40,20 +40,20 @@ export default function ContactVisitSection({ mapEmbedUrl, address }: ContactVis
                   title={CONTACT_VISIT.MAP_TITLE}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-600 font-medium">
+                <div className="w-full h-full flex items-center justify-center bg-primary-blue/10 text-navy-blue/80 font-medium">
                   {CONTACT_VISIT.MAP_COMING_SOON}
                 </div>
               )}
             </div>
 
             <div className="space-y-4">
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 card-hover-lift transition-all duration-300">
+              <div className="bg-white rounded-card p-6 shadow-card border-2 border-primary-blue/20 card-hover-lift transition-all duration-300">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-primary-blue to-light-blue-cyan text-white rounded-full flex items-center justify-center flex-shrink-0">
                     <MapPin size={24} aria-hidden />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-navy-blue mb-2">
+                    <h3 className="text-xl font-heading font-bold text-navy-blue mb-2">
                       {CONTACT_VISIT.ADDRESS_LABEL}
                     </h3>
                     <p className="text-navy-blue">{displayAddress}</p>
@@ -63,19 +63,20 @@ export default function ContactVisitSection({ mapEmbedUrl, address }: ContactVis
                       size="sm"
                       className="rounded-full border-2 border-primary-blue text-primary-blue bg-white hover:bg-primary-blue hover:text-white hover:shadow-2xl hover:scale-105 transition-all duration-300 mt-3 px-4 py-2 text-sm"
                     >
+                      <MapPin size={20} className="mr-2" />
                       {CONTACT_VISIT.GET_DIRECTIONS}
                     </Button>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 card-hover-lift transition-all duration-300">
+              <div className="bg-white rounded-card p-6 shadow-card border-2 border-primary-blue/20 card-hover-lift transition-all duration-300">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-primary-blue to-light-blue-cyan text-white rounded-full flex items-center justify-center flex-shrink-0">
                     <Users size={24} aria-hidden />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-navy-blue mb-2">
+                    <h3 className="text-xl font-heading font-bold text-navy-blue mb-2">
                       {CONTACT_VISIT.PARKING_LABEL}
                     </h3>
                     <p className="text-navy-blue">{CONTACT_VISIT.PARKING_DESCRIPTION}</p>
@@ -83,13 +84,13 @@ export default function ContactVisitSection({ mapEmbedUrl, address }: ContactVis
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 card-hover-lift transition-all duration-300">
+              <div className="bg-white rounded-card p-6 shadow-card border-2 border-primary-blue/20 card-hover-lift transition-all duration-300">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-primary-blue to-light-blue-cyan text-white rounded-full flex items-center justify-center flex-shrink-0">
                     <Calendar size={24} aria-hidden />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-navy-blue mb-2">
+                    <h3 className="text-xl font-heading font-bold text-navy-blue mb-2">
                       {CONTACT_VISIT.BOOK_VISIT_LABEL}
                     </h3>
                     <p className="text-navy-blue mb-3">{CONTACT_VISIT.BOOK_VISIT_DESCRIPTION}</p>
@@ -98,8 +99,8 @@ export default function ContactVisitSection({ mapEmbedUrl, address }: ContactVis
                       variant="secondary"
                       size="sm"
                       className="rounded-full bg-navy-blue text-white hover:bg-primary-blue hover:shadow-2xl hover:scale-105 transition-all duration-300 px-4 py-2 text-sm"
-                      withArrow
                     >
+                      <Calendar size={20} className="mr-2" />
                       {CONTACT_VISIT.SCHEDULE_TOUR}
                     </Button>
                   </div>
