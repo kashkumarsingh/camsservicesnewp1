@@ -77,7 +77,7 @@ export function TodaySessionsSidePanel({
         onClick={handleBackdropClick}
       />
       <aside
-        className="fixed right-0 top-0 z-sidepanel flex h-full w-full flex-col bg-white shadow-xl dark:bg-slate-900 sm:w-[400px] md:max-w-[32rem]"
+        className="fixed right-0 top-0 z-sidePanel flex h-full w-full flex-col bg-white shadow-xl dark:bg-slate-900 sm:w-[400px] md:max-w-[32rem]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="today-sessions-panel-title"

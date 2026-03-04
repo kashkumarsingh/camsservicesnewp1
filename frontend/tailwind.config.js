@@ -13,7 +13,11 @@ module.exports = {
         heading: ['var(--font-kid-heading)', 'sans-serif'],
       },
       fontSize: {
-        '2xs': ['0.6875rem', { lineHeight: '1rem' }], // 11px
+        // Dashboard typography: avoid tiny type; keep hierarchy (3xs < 2xs < xs < sm < base)
+        '3xs': ['0.6875rem', { lineHeight: '1rem' }],   // 11px – badges, tiny labels only
+        '2xs': ['0.75rem', { lineHeight: '1.125rem' }], // 12px – captions, secondary labels
+        'dashboard-xs': ['0.8125rem', { lineHeight: '1.25rem' }],  // 13px – compact body
+        'dashboard-sm': ['0.9375rem', { lineHeight: '1.375rem' }], // 15px – body secondary
       },
       borderRadius: {
         card: '30px',

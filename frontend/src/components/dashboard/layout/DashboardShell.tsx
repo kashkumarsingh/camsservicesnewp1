@@ -44,9 +44,11 @@ import { ROUTES } from "@/utils/routes";
 import type { User } from "@/core/application/auth/types";
 import { ThemeToggle } from "@/components/theme";
 import ToastContainer from "@/components/ui/Toast/ToastContainer";
+import { BaseSonner, showNotificationToast } from "@/components/ui/Sonner";
 import { DashboardSkeleton, ListRowsSkeleton } from "@/components/ui/Skeleton";
 import { getDashboardSkeletonVariantFromPath } from "@/utils/skeletonManager";
 import { SKELETON_COUNTS } from "@/utils/skeletonConstants";
+import { DASHBOARD_BASE_FONT_SIZE } from "@/utils/appConstants";
 import { toastManager, type Toast } from "@/utils/toast";
 import ParentSettingsModal from "@/components/dashboard/modals/ParentSettingsModal";
 
@@ -275,6 +277,14 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
     setTimeout(() => setRefreshAllBusy(false), 1500);
   }, [liveRefreshContext, refreshAllBusy]);
 
+  // Dashboard: slightly larger base font size for readability (all rem-based typography scales up).
+  useEffect(() => {
+    document.documentElement.style.fontSize = DASHBOARD_BASE_FONT_SIZE;
+    return () => {
+      document.documentElement.style.fontSize = "";
+    };
+  }, []);
+
   // Restore collapsed preference from localStorage (client-only to avoid hydration mismatch).
   // Until hydrated we show sidebar narrow (lg:w-16) so it never "widens then shrinks" for users who had it collapsed.
   const [sidebarHydrated, setSidebarHydrated] = useState(false);
@@ -325,6 +335,30 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
       setExpandedNotificationCategory(latestNotificationCategoryLabel(notifications));
     }
   }, [notificationsOpen, notifications]);
+
+  // Sonner notification toast: when unread count increases (e.g. after live refresh), show one toast for the newest unread with intelligent link
+  const prevUnreadCountRef = useRef<number>(0);
+  const hasNotificationsInitiallyLoadedRef = useRef(false);
+  useEffect(() => {
+    if (notificationsLoading) return;
+    if (!hasNotificationsInitiallyLoadedRef.current) {
+      hasNotificationsInitiallyLoadedRef.current = true;
+      prevUnreadCountRef.current = unreadCount;
+      return;
+    }
+    if (unreadCount > prevUnreadCountRef.current) {
+      const newestUnread = notifications.find((n) => !n.readAt);
+      if (newestUnread) {
+        showNotificationToast(
+          { title: newestUnread.title, message: newestUnread.message, link: newestUnread.link },
+          { navigate: (path) => router.push(path) }
+        );
+      }
+      prevUnreadCountRef.current = unreadCount;
+    } else {
+      prevUnreadCountRef.current = unreadCount;
+    }
+  }, [notificationsLoading, unreadCount, notifications, router]);
 
   const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -411,8 +445,8 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden bg-slate-50 dark:bg-slate-950">
-      {/* Top bar – h-16 fixed; content aligned with main container; glassmorphism and touch-friendly on mobile */}
-      <header className="sticky top-0 z-[300] isolate flex h-16 min-h-[4rem] flex-shrink-0 items-center border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-slate-900/80 shadow-card transition-shadow duration-dashboard">
+      {/* Top bar – fixed so it stays visible on scroll; spacer below keeps content from sliding under header */}
+      <header className="fixed top-0 left-0 right-0 z-header isolate flex h-16 min-h-[4rem] flex-shrink-0 items-center border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-slate-900/80 shadow-card transition-shadow duration-dashboard">
         <div className={`${contentContainerClass} h-full`}>
           <div className="flex h-full w-full items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
@@ -478,25 +512,29 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
             {/* Parent: horizontal header nav (replaces sidebar on desktop) */}
             {sectionRole === "parent" && (
               <nav
-                className="hidden md:flex items-center gap-0.5 ml-2 border-l border-slate-200 dark:border-slate-700 pl-4"
+                className="hidden md:flex items-center gap-0 ml-2 border-l border-slate-200 dark:border-slate-700 pl-4"
                 aria-label="Parent dashboard navigation"
               >
-                {ROLE_SECTIONS.find((s) => s.role === "parent")?.items.map((item) => {
+                {ROLE_SECTIONS.find((s) => s.role === "parent")?.items.map((item, index) => {
                   const active = isActive(item.href);
                   const Icon = item.icon;
                   return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors duration-150 whitespace-nowrap ${
-                        active
-                          ? "bg-gcal-primary-light text-gcal-primary dark:bg-gcal-primary/20 dark:text-gcal-primary font-semibold"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200"
-                      }`}
-                    >
-                      <Icon className="h-4 w-4 shrink-0" aria-hidden />
-                      <span>{item.label}</span>
-                    </Link>
+                    <React.Fragment key={item.href}>
+                      {index > 0 && (
+                        <span className="h-4 w-px flex-shrink-0 bg-slate-200 dark:bg-slate-600 mx-1" aria-hidden />
+                      )}
+                      <Link
+                        href={item.href}
+                        className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors duration-150 whitespace-nowrap ${
+                          active
+                            ? "bg-gcal-primary-light text-gcal-primary dark:bg-gcal-primary/20 dark:text-gcal-primary font-semibold"
+                            : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200"
+                        }`}
+                      >
+                        <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                        <span>{item.label}</span>
+                      </Link>
+                    </React.Fragment>
                   );
                 })}
               </nav>
@@ -521,7 +559,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                 type="button"
                 onClick={handleRefreshAll}
                 disabled={refreshAllBusy}
-                className="flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-dashboard border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 hover:border-slate-300 dark:hover:bg-slate-700 dark:hover:border-slate-600 transition-colors duration-dashboard disabled:opacity-60 disabled:cursor-not-allowed"
+                className="flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-dashboard text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors duration-dashboard disabled:opacity-60 disabled:cursor-not-allowed"
                 aria-label="Refresh dashboard"
                 title="Refresh dashboard"
               >
@@ -539,14 +577,17 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                   setNotificationsOpen((prev) => !prev);
                   if (!notificationsOpen) refetchNotifications(true);
                 }}
-                className="relative flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-dashboard border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 hover:border-slate-300 dark:hover:bg-slate-700 dark:hover:border-slate-600 transition-colors duration-dashboard"
+                className="relative flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-dashboard text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors duration-dashboard"
                 aria-label="Notifications"
                 aria-expanded={notificationsOpen}
               >
                 <Bell className="h-4 w-4" aria-hidden />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-gcal-destructive px-1 text-[10px] font-bold text-white">
-                    {unreadCount > 99 ? "99+" : unreadCount}
+                  <span
+                    className="absolute -top-1 -right-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-slate-900 bg-amber-500 text-2xs font-bold text-slate-900 shadow-sm dark:border-white dark:bg-amber-500 dark:text-slate-900"
+                    aria-label={`${unreadCount} unread notification${unreadCount !== 1 ? "s" : ""}`}
+                  >
+                    {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
               </button>
@@ -605,7 +646,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                                       prev === categoryLabel ? null : categoryLabel
                                     )
                                   }
-                                  className="sticky top-0 z-raised flex w-full items-center justify-between gap-2 bg-slate-50/95 dark:bg-slate-900/95 px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-100/95 dark:hover:bg-slate-800/95"
+                                  className="sticky top-0 z-raised flex w-full items-center justify-between gap-2 bg-slate-50/95 dark:bg-slate-900/95 px-3 py-1.5 text-left text-2xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-100/95 dark:hover:bg-slate-800/95"
                                   aria-expanded={isExpanded}
                                 >
                                   {categoryLabel}
@@ -635,7 +676,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                                               {n.title}
                                             </span>
                                             {n.createdAtLabel && (
-                                              <span className="shrink-0 text-[10px] font-medium text-slate-400 dark:text-slate-500 tabular-nums">
+                                              <span className="shrink-0 text-2xs font-medium text-slate-400 dark:text-slate-500 tabular-nums">
                                                 {n.createdAtLabel}
                                               </span>
                                             )}
@@ -663,7 +704,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               <button
                 type="button"
                 onClick={() => setUserMenuOpen((prev) => !prev)}
-                className="flex min-h-[44px] md:min-h-0 items-center gap-2 rounded-dashboard border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 pl-2 pr-2.5 py-1.5 md:py-1 text-left hover:bg-slate-50 hover:border-slate-300 dark:hover:bg-slate-700 dark:hover:border-slate-600 transition-colors duration-dashboard min-w-0 overflow-hidden"
+                className="flex min-h-[44px] md:min-h-0 items-center gap-2 rounded-dashboard pl-2 pr-2.5 py-1.5 md:py-1 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors duration-dashboard min-w-0 overflow-hidden"
                 aria-label="User menu"
                 aria-expanded={userMenuOpen}
               >
@@ -747,9 +788,12 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
         </div>
       </header>
 
-      {/* Body: no z-index needed to sit below header (header is 1000). Parent: no sidebar. Others: two-column grid; when mobile sidebar open, raise with z-overlay so backdrop/sidebar draw on top. */}
+      {/* Spacer: reserves height so main content starts below the fixed header (h-16) */}
+      <div className="h-16 min-h-[4rem] flex-shrink-0" aria-hidden />
+
+      {/* Body: min-h-0 so flex child can shrink; main is the scroll container so in-page sticky (e.g. parent right sidebar) sticks to visible area. */}
       <div
-        className={`relative flex flex-1 min-w-0 ${sectionRole === "parent" ? "" : "lg:grid"} ${
+        className={`relative flex min-h-0 flex-1 min-w-0 ${sectionRole === "parent" ? "" : "lg:grid"} ${
           sectionRole === "parent"
             ? ""
             : sidebarEffectivelyCollapsed
@@ -845,16 +889,16 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
         </aside>
         )}
 
-        {/* Main content area – same container as header so content aligns; bottom padding when mobile nav present */}
+        {/* Main content area – scroll container (overflow-y-auto min-h-0) so sticky sidebars stick to visible area; same horizontal alignment as header. */}
         <main
-          className={`min-w-0 flex-1 ${
+          className={`min-h-0 min-w-0 flex-1 overflow-y-auto ${
             sectionRole === "parent" || sectionRole === "trainer" || sectionRole === "admin"
               ? "pb-[calc(3.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0"
               : ""
           }`}
         >
           <div className={contentContainerClass}>
-            <div className="min-w-0 pt-6 sm:pt-8">
+            <div className="min-w-0 pt-2 sm:pt-3">
               <div className="min-w-0 space-y-6 pb-8">
                 {children}
               </div>
@@ -987,6 +1031,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
       )}
 
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+      <BaseSonner />
 
       {sectionRole === "parent" && (
         <ParentSettingsModal

@@ -46,6 +46,7 @@ import { getStatusBadgeClasses, getPaymentStatusBadgeClasses } from '@/utils/sta
 import {
   BOOKING_STATUS,
   PAYMENT_STATUS,
+  SCHEDULE_SESSION_STATUS,
   type BookingStatusValue,
 } from '@/utils/dashboardConstants';
 import { EMPTY_STATE } from '@/utils/emptyStateConstants';
@@ -64,7 +65,7 @@ import Button from '@/components/ui/Button';
 import { ROUTES } from '@/utils/routes';
 import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/utils/appConstants';
 import Link from 'next/link';
-import { ArrowDown, ArrowUp, ArrowUpDown, CheckCircle, Download, Plus, XCircle } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, CalendarDays, CheckCircle, Download, FileText, Plus, Receipt, XCircle } from 'lucide-react';
 import { toastManager } from '@/utils/toast';
 import { AdminTopUpModal } from '@/components/dashboard/admin/AdminTopUpModal';
 
@@ -94,6 +95,12 @@ function formatDate(value?: string) {
     month: 'short',
     year: 'numeric',
   });
+}
+
+/** Session time from API may be HH:mm or HH:mm:ss; show HH:mm. */
+function formatSessionTime(t?: string) {
+  if (!t || t.length < 5) return t ?? '—';
+  return t.slice(0, 5);
 }
 
 function getTrainerNames(booking: AdminBookingDTO): string {
@@ -184,11 +191,18 @@ export const AdminBookingsPageClient: React.FC = () => {
   const [assigningSessionId, setAssigningSessionId] = useState<string | null>(null);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [isTopUpSubmitting, setIsTopUpSubmitting] = useState(false);
+  type BookingDetailTab = 'overview' | 'sessions' | 'details' | 'audit';
+  const [bookingDetailTab, setBookingDetailTab] = useState<BookingDetailTab>('sessions');
 
   /** Per-session available trainers (conflict + availability + qualifications) for Assign dropdown */
   const [availableTrainersBySessionId, setAvailableTrainersBySessionId] = useState<
     Record<string, { id: string; name: string }[]>
   >({});
+
+  /** Reset to Sessions tab when opening a different booking */
+  useEffect(() => {
+    if (selectedBooking) setBookingDetailTab('sessions');
+  }, [selectedBooking?.id]);
 
   /** Fetch available trainers for each session when side panel opens */
   const sessionIdsKey = useMemo(
@@ -606,7 +620,7 @@ export const AdminBookingsPageClient: React.FC = () => {
           Bookings Management
         </h1>
         <p className="text-sm text-slate-600 dark:text-slate-400">
-          Manage all bookings, update statuses, assign trainers, and export data
+          Each row is a booking (package purchase). Click a row to see that booking&apos;s <strong>sessions</strong>—each date/time slot parents have booked. For a calendar of all sessions, use <strong>Admin → Overview</strong> (Schedule).
         </p>
       </header>
 
@@ -964,249 +978,183 @@ export const AdminBookingsPageClient: React.FC = () => {
         widthClassName="md:w-[520px] lg:w-[640px]"
       >
         {selectedBooking && (
-          <div className="space-y-4 text-sm">
-            {/* Overview */}
-            <section className="space-y-1">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Overview
-              </h3>
-              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/60">
-                <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
-                  {selectedBooking.packageName ?? 'Package'}
-                </p>
-                <div className="mt-1 flex flex-wrap items-center gap-1 text-xs text-slate-600 dark:text-slate-400">
-                  <span className="font-medium">
-                    Ref {selectedBooking.reference}
-                  </span>
-                  <span
-                    className={`inline-flex rounded-full px-2 py-0.5 ${getStatusBadgeClasses(
-                      selectedBooking.status
-                    )}`}
+          <div className="flex flex-col h-full min-h-0">
+            {/* Tab list */}
+            <nav className="flex shrink-0 border-b border-slate-200 dark:border-slate-700 -mx-4 px-4 md:-mx-6 md:px-6" aria-label="Booking details" role="tablist">
+              <div className="flex gap-1">
+                {(
+                  [
+                    { id: 'overview' as const, label: 'Overview', icon: FileText },
+                    { id: 'sessions' as const, label: 'Sessions', icon: CalendarDays },
+                    { id: 'details' as const, label: 'Details', icon: Receipt },
+                    { id: 'audit' as const, label: 'Audit', icon: CheckCircle },
+                  ] as const
+                ).map(({ id, label, icon: Icon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setBookingDetailTab(id)}
+                    aria-selected={bookingDetailTab === id}
+                    role="tab"
+                    className={`flex items-center gap-1.5 rounded-t-lg border-b-2 px-3 py-2.5 text-2xs font-medium transition-colors ${
+                      bookingDetailTab === id
+                        ? 'border-primary-blue bg-primary-blue/5 text-primary-blue dark:text-primary-blue'
+                        : 'border-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
+                    }`}
                   >
-                    {selectedBooking.status}
-                  </span>
-                  <span
-                    className={`inline-flex rounded-full px-2 py-0.5 ${getPaymentStatusBadgeClasses(
-                      selectedBooking.paymentStatus
-                    )}`}
-                  >
-                    {selectedBooking.paymentStatus}
-                  </span>
-                </div>
-                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-                  Total £{selectedBooking.totalPrice.toFixed(2)} · Outstanding £
-                  {(
-                    selectedBooking.totalPrice - selectedBooking.paidAmount
-                  ).toFixed(2)}
-                </p>
+                    <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                    {label}
+                  </button>
+                ))}
               </div>
-            </section>
+            </nav>
 
-            {/* Key Details */}
-            <div className="grid gap-4 md:grid-cols-2">
-              {/* Parent Information */}
-              <section className="space-y-1">
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Parent information
-                </h3>
-                <dl className="grid grid-cols-1 gap-1 text-xs text-slate-700 dark:text-slate-200">
-                  <div>
-                    <dt className="font-medium">Name</dt>
-                    <dd>{selectedBooking.parentName}</dd>
+            {/* Tab panels */}
+            <div className="flex-1 overflow-y-auto py-4 text-sm min-h-0" role="tabpanel">
+              {bookingDetailTab === 'overview' && (
+                <section className="space-y-3">
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/60">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                      {selectedBooking.packageName ?? 'Package'}
+                    </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-1 text-xs text-slate-600 dark:text-slate-400">
+                      <span className="font-medium">Ref {selectedBooking.reference}</span>
+                      <span className={`inline-flex rounded-full px-2 py-0.5 ${getStatusBadgeClasses(selectedBooking.status)}`}>
+                        {selectedBooking.status}
+                      </span>
+                      <span className={`inline-flex rounded-full px-2 py-0.5 ${getPaymentStatusBadgeClasses(selectedBooking.paymentStatus)}`}>
+                        {selectedBooking.paymentStatus}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                      Total £{selectedBooking.totalPrice.toFixed(2)} · Outstanding £{(selectedBooking.totalPrice - selectedBooking.paidAmount).toFixed(2)}
+                    </p>
                   </div>
-                  <div>
-                    <dt className="font-medium">Email</dt>
-                    <dd>{selectedBooking.parentEmail}</dd>
-                  </div>
-                  <div>
-                    <dt className="font-medium">Phone</dt>
-                    <dd>{selectedBooking.parentPhone}</dd>
-                  </div>
-                </dl>
-              </section>
+                  <p className="text-2xs text-slate-500 dark:text-slate-400">
+                    {selectedBooking.sessionCount} session{selectedBooking.sessionCount !== 1 ? 's' : ''} · {selectedBooking.children?.length ?? 0} child{(selectedBooking.children?.length ?? 0) !== 1 ? 'ren' : ''}
+                  </p>
+                </section>
+              )}
 
-              {/* Financial & Hours */}
-              <section className="space-y-1">
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Financial & hours
-                </h3>
-                <dl className="grid grid-cols-2 gap-2 text-xs text-slate-700 dark:text-slate-200">
-                  <div>
-                    <dt className="font-medium">Total price</dt>
-                    <dd>£{selectedBooking.totalPrice.toFixed(2)}</dd>
-                  </div>
-                  <div>
-                    <dt className="font-medium">Paid amount</dt>
-                    <dd>£{selectedBooking.paidAmount.toFixed(2)}</dd>
-                  </div>
-                  <div>
-                    <dt className="font-medium">Outstanding</dt>
-                    <dd>
-                      £
-                      {(
-                        selectedBooking.totalPrice - selectedBooking.paidAmount
-                      ).toFixed(2)}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="font-medium">Total hours</dt>
-                    <dd>{selectedBooking.totalHours}h</dd>
-                  </div>
-                  <div>
-                    <dt className="font-medium">Booked hours</dt>
-                    <dd>{selectedBooking.bookedHours}h</dd>
-                  </div>
-                  <div>
-                    <dt className="font-medium">Used hours</dt>
-                    <dd>{selectedBooking.usedHours}h</dd>
-                  </div>
-                  <div>
-                    <dt className="font-medium">Remaining hours</dt>
-                    <dd>{selectedBooking.remainingHours}h</dd>
-                  </div>
-                </dl>
-              </section>
+              {bookingDetailTab === 'sessions' && (
+                <section className="space-y-3">
+                  {selectedBooking.sessions.length === 0 ? (
+                    <p className="text-xs text-slate-500 dark:text-slate-400">No sessions scheduled.</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {selectedBooking.sessions.map((session) => {
+                        const isCancelled = session.status === SCHEDULE_SESSION_STATUS.CANCELLED;
+                        const activities = session.activities ?? [];
+                        const hasChosenActivities = activities.length > 0;
+                        return (
+                          <li
+                            key={session.id}
+                            className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs dark:border-slate-700 dark:bg-slate-900/60"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium">{formatDate(session.date)}</span>
+                              <span className={`inline-flex rounded-full px-2 py-0.5 ${getStatusBadgeClasses(session.status as BookingStatusValue)}`}>
+                                {session.status}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-slate-600 dark:text-slate-400">
+                              {formatSessionTime(session.startTime)} – {formatSessionTime(session.endTime)}
+                            </p>
+                            <p className="mt-0.5 text-slate-600 dark:text-slate-400">
+                              Trainer: {session.trainerName || 'Unassigned'}
+                            </p>
+                            <p className="mt-0.5 text-2xs text-slate-500 dark:text-slate-400">
+                              Activities: {hasChosenActivities
+                                ? activities.map((a) => a.name).join(', ')
+                                : "Trainer's choice"}
+                            </p>
+                            {!isCancelled && (
+                              <div className="mt-2">
+                                <label className="mb-1 block text-2xs font-medium text-slate-700 dark:text-slate-300">Assign trainer</label>
+                                {(() => {
+                                  const { list, loading } = getSessionTrainerOptions(session);
+                                  if (loading) return <p className="text-2xs text-slate-500 dark:text-slate-400">Checking availability…</p>;
+                                  if (list.length === 0) return <p className="text-2xs text-slate-500 dark:text-slate-400">No available trainers</p>;
+                                  return (
+                                    <select
+                                      value={session.trainerId ?? ''}
+                                      onChange={(e) => handleTrainerAssign(session.id, e.target.value)}
+                                      disabled={assigningSessionId === session.id}
+                                      className="h-8 w-full rounded-md border border-slate-300 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+                                    >
+                                      <option value="">Unassigned</option>
+                                      {list.map((trainer) => (
+                                        <option key={trainer.id} value={trainer.id}>{trainer.name}</option>
+                                      ))}
+                                    </select>
+                                  );
+                                })()}
+                                {assigningSessionId === session.id && (
+                                  <p className="mt-1 text-2xs text-slate-500 dark:text-slate-400">Saving…</p>
+                                )}
+                              </div>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </section>
+              )}
+
+              {bookingDetailTab === 'details' && (
+                <div className="space-y-4">
+                  <section className="space-y-1">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Parent</h3>
+                    <dl className="grid grid-cols-1 gap-1 text-xs text-slate-700 dark:text-slate-200">
+                      <div><dt className="font-medium">Name</dt><dd>{selectedBooking.parentName}</dd></div>
+                      <div><dt className="font-medium">Email</dt><dd>{selectedBooking.parentEmail}</dd></div>
+                      <div><dt className="font-medium">Phone</dt><dd>{selectedBooking.parentPhone}</dd></div>
+                    </dl>
+                  </section>
+                  <section className="space-y-1">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Financial & hours</h3>
+                    <dl className="grid grid-cols-2 gap-2 text-xs text-slate-700 dark:text-slate-200">
+                      <div><dt className="font-medium">Total price</dt><dd>£{selectedBooking.totalPrice.toFixed(2)}</dd></div>
+                      <div><dt className="font-medium">Paid</dt><dd>£{selectedBooking.paidAmount.toFixed(2)}</dd></div>
+                      <div><dt className="font-medium">Outstanding</dt><dd>£{(selectedBooking.totalPrice - selectedBooking.paidAmount).toFixed(2)}</dd></div>
+                      <div><dt className="font-medium">Total hours</dt><dd>{selectedBooking.totalHours}h</dd></div>
+                      <div><dt className="font-medium">Booked</dt><dd>{selectedBooking.bookedHours}h</dd></div>
+                      <div><dt className="font-medium">Used</dt><dd>{selectedBooking.usedHours}h</dd></div>
+                      <div><dt className="font-medium">Remaining</dt><dd>{selectedBooking.remainingHours}h</dd></div>
+                    </dl>
+                  </section>
+                  {canTopUpBooking && (
+                    <section className="space-y-1">
+                      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Top up</h3>
+                      <p className="text-2xs text-slate-600 dark:text-slate-400 mb-2">Add hours to this package. Create a payment link and share it with the parent.</p>
+                      <Button type="button" variant="bordered" size="sm" onClick={handleOpenTopUpModal} icon={<Plus className="h-3.5 w-3.5" />}>
+                        Create top-up link
+                      </Button>
+                    </section>
+                  )}
+                  <section className="space-y-1">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Children ({selectedBooking.children.length})</h3>
+                    {selectedBooking.children.length === 0 ? (
+                      <p className="text-xs text-slate-500 dark:text-slate-400">No children recorded.</p>
+                    ) : (
+                      <ul className="text-xs text-slate-700 dark:text-slate-200 space-y-0.5">
+                        {selectedBooking.children.map((child) => <li key={child.id}>{child.name}</li>)}
+                      </ul>
+                    )}
+                  </section>
+                </div>
+              )}
+
+              {bookingDetailTab === 'audit' && (
+                <section className="space-y-1">
+                  <dl className="grid grid-cols-1 gap-1 text-xs text-slate-700 dark:text-slate-200">
+                    <div><dt className="font-medium">Created</dt><dd>{formatDateTime(selectedBooking.createdAt)}</dd></div>
+                    <div><dt className="font-medium">Last updated</dt><dd>{formatDateTime(selectedBooking.updatedAt)}</dd></div>
+                  </dl>
+                </section>
+              )}
             </div>
-
-            {/* Top up (confirmed + paid only) */}
-            {canTopUpBooking && (
-              <section className="space-y-1">
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Top up
-                </h3>
-                <p className="text-2xs text-slate-600 dark:text-slate-400">
-                  Add hours to this package. Create a payment link and share it with the parent.
-                </p>
-                <Button
-                  type="button"
-                  variant="bordered"
-                  size="sm"
-                  onClick={handleOpenTopUpModal}
-                  icon={<Plus className="h-3.5 w-3.5" />}
-                >
-                  Create top-up link
-                </Button>
-              </section>
-            )}
-
-            {/* Children */}
-            <section className="space-y-1">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Children ({selectedBooking.children.length})
-              </h3>
-              {selectedBooking.children.length === 0 ? (
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  No children recorded.
-                </p>
-              ) : (
-                <ul className="space-y-1 text-xs text-slate-700 dark:text-slate-200">
-                  {selectedBooking.children.map((child) => (
-                    <li key={child.id}>{child.name}</li>
-                  ))}
-                </ul>
-              )}
-            </section>
-
-            {/* Sessions */}
-            <section className="space-y-1">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Sessions ({selectedBooking.sessionCount})
-              </h3>
-              {selectedBooking.sessions.length === 0 ? (
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  No sessions scheduled.
-                </p>
-              ) : (
-                <ul className="space-y-2">
-                  {selectedBooking.sessions.map((session) => (
-                    <li
-                      key={session.id}
-                      className="rounded border border-slate-200 bg-slate-50 p-2 text-xs dark:border-slate-700 dark:bg-slate-900/60"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">
-                          {formatDate(session.date)}
-                        </span>
-                        <span
-                          className={`inline-flex rounded-full px-2 py-0.5 ${getStatusBadgeClasses(
-                            session.status as BookingStatusValue
-                          )}`}
-                        >
-                          {session.status}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-slate-600 dark:text-slate-400">
-                        {session.startTime} - {session.endTime}
-                      </p>
-                      <p className="mt-1 text-slate-600 dark:text-slate-400">
-                        Current trainer: {session.trainerName || 'Unassigned'}
-                      </p>
-                      <div className="mt-2">
-                        <label className="mb-1 block text-2xs font-medium text-slate-700 dark:text-slate-300">
-                          Assign trainer
-                        </label>
-                        {(() => {
-                          const { list, loading } = getSessionTrainerOptions(session);
-                          if (loading) {
-                            return (
-                              <p className="text-2xs text-slate-500 dark:text-slate-400">
-                                Checking availability…
-                              </p>
-                            );
-                          }
-                          if (list.length === 0) {
-                            return (
-                              <p className="text-2xs text-slate-500 dark:text-slate-400">
-                                No available trainers
-                              </p>
-                            );
-                          }
-                          return (
-                            <select
-                              value={session.trainerId ?? ''}
-                              onChange={(event) =>
-                                handleTrainerAssign(session.id, event.target.value)
-                              }
-                              disabled={assigningSessionId === session.id}
-                              className="h-8 w-full rounded-md border border-slate-300 bg-white px-2 text-xs text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-                            >
-                              <option value="">Unassigned</option>
-                              {list.map((trainer) => (
-                                <option key={trainer.id} value={trainer.id}>
-                                  {trainer.name}
-                                </option>
-                              ))}
-                            </select>
-                          );
-                        })()}
-                        {assigningSessionId === session.id && (
-                          <p className="mt-1 text-2xs text-slate-500 dark:text-slate-400">
-                            Saving trainer assignment…
-                          </p>
-                        )}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-
-            {/* Audit */}
-            <section className="space-y-1">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Audit
-              </h3>
-              <dl className="grid grid-cols-1 gap-1 text-xs text-slate-700 dark:text-slate-200">
-                <div>
-                  <dt className="font-medium">Created</dt>
-                  <dd>{formatDateTime(selectedBooking.createdAt)}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Last Updated</dt>
-                  <dd>{formatDateTime(selectedBooking.updatedAt)}</dd>
-                </div>
-              </dl>
-            </section>
           </div>
         )}
       </SideCanvas>

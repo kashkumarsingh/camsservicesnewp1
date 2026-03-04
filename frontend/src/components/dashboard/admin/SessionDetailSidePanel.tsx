@@ -397,12 +397,12 @@ export function SessionDetailSidePanel({
   const panel = (
     <>
       <div
-        className="fixed inset-0 z-overlay bg-slate-900/30 transition-opacity duration-300 ease-out"
+        className="fixed inset-0 z-modal bg-slate-900/30 transition-opacity duration-300 ease-out"
         aria-hidden
         onClick={handleBackdropClick}
       />
       <aside
-        className="fixed right-0 top-0 z-sidepanel flex h-full w-full flex-col bg-white shadow-xl dark:bg-slate-900 sm:w-[480px] md:max-w-[40%]"
+        className="fixed right-0 top-0 z-modal flex h-full w-full flex-col bg-white shadow-xl dark:bg-slate-900 sm:w-[480px] md:max-w-[40%]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="session-detail-title"

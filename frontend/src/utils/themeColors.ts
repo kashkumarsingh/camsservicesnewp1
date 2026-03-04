@@ -27,4 +27,17 @@ export const themeColors = {
   /** Calendar label: past / completed — slate */
   calendarStatusPast: '#64748B',
   calendarStatusPastAlpha20: '#64748B20',
+
+  /** Per-child colour palette (multiple children). Same index = same childId via getChildColor. Use for inline styles only. */
+  childColors: [
+    '#4285F4', // Blue
+    '#34A853', // Green
+    '#FBBC04', // Yellow/Amber
+    '#EA4335', // Red
+    '#9C27B0', // Purple
+    '#FF9800', // Orange
+    '#00BCD4', // Cyan
+    '#795548', // Brown
+  ] as const,
+  childColorFallback: '#9E9E9E',
 } as const;

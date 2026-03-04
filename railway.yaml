@@ -94,14 +94,16 @@
 
 # ----- Reverb (cams-reverb, optional) -----
 #   RUN_MODE = reverb
-#   APP_KEY, APP_ENV, APP_URL (Reverb public URL for Laravel bootstrap)
-#   DB_* (same as backend)
+#   APP_KEY, APP_ENV, APP_NAME, APP_TIMEZONE, APP_DEBUG = false
+#   DB_* (same as backend; use ${{cams-database.PG*}} if linked)
 #   BROADCAST_CONNECTION = reverb
-#   REVERB_APP_ID, REVERB_APP_KEY, REVERB_APP_SECRET
+#   REVERB_APP_ID = 1
+#   REVERB_APP_KEY, REVERB_APP_SECRET (match backend; frontend uses same key in NEXT_PUBLIC_REVERB_APP_KEY)
 #   REVERB_HOST = 0.0.0.0
-#   REVERB_PORT = 8080 (or $PORT; entrypoint uses PORT)
+#   REVERB_PORT = ${PORT:-8080}   (Railway sets PORT)
 #   REVERB_SCHEME = https
 #   REVERB_APP_PING_INTERVAL = 30
+#   LOG_CHANNEL = errorlog, LOG_LEVEL = error
 
 # =============================================================================
 # FRONTEND (Vercel or Railway)

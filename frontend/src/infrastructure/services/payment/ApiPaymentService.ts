@@ -14,6 +14,7 @@
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+import { PAYMENT_CONFIRM_FROM_SESSION_ERROR_FALLBACK } from '@/utils/appConstants';
 import type { PaymentMethod, PaymentStatus, PaymentResult } from './types';
 
 let stripePromise: Promise<Stripe | null> | null = null;
@@ -215,48 +216,17 @@ export class ApiPaymentService {
         };
       }
 
-      // Confirm payment with backend
-      // Handle case where API_ENDPOINTS might be undefined at runtime (build cache issue)
-      let confirmEndpoint: string;
-      
-      if (typeof API_ENDPOINTS !== 'undefined' && API_ENDPOINTS?.CONFIRM_PAYMENT) {
-        confirmEndpoint = API_ENDPOINTS.CONFIRM_PAYMENT;
-      } else {
-        confirmEndpoint = '/payments/confirm';
-      }
-      
-      // Final validation - ensure endpoint is a valid string
-      if (!confirmEndpoint || typeof confirmEndpoint !== 'string') {
-        const errorMsg = 'Payment confirmation endpoint is not available. Please check API_ENDPOINTS configuration.';
-        console.error('[ApiPaymentService]', errorMsg, {
-          hasApiEndpoints: typeof API_ENDPOINTS !== 'undefined',
-          confirmPaymentValue: typeof API_ENDPOINTS !== 'undefined' ? API_ENDPOINTS?.CONFIRM_PAYMENT : 'API_ENDPOINTS is undefined',
-          confirmEndpoint,
-        });
-        throw new Error(errorMsg);
-      }
-      
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[ApiPaymentService] Confirming payment with endpoint:', confirmEndpoint);
-      }
-      
-      const confirmResponse = await apiClient.post<ConfirmPaymentResponse>(
-        confirmEndpoint,
-        {
-          payment_intent_id: paymentIntent.id,
-        }
-      );
-
-      if (!confirmResponse.data.success) {
+      // Confirm payment with backend (uses correct unwrap: success = booking+payment present, not response.data.success)
+      const confirmResult = await ApiPaymentService.confirmPayment(paymentIntent.id);
+      if (!confirmResult.success) {
         return {
           success: false,
-          error: confirmResponse.data.message || 'Payment confirmation failed',
+          error: confirmResult.error || 'Payment confirmation failed',
           method: 'stripe',
           amount,
           status: 'failed',
         };
       }
-
       return {
         success: true,
         method: 'stripe',
@@ -364,6 +334,35 @@ export class ApiPaymentService {
         success: false,
         error: error.message || 'Payment confirmation failed',
       };
+    }
+  }
+
+  /**
+   * Confirm payment from Stripe Checkout session (redirect flow).
+   * Call this when the user returns from Stripe with ?purchase=success&session_id=...
+   *
+   * Contract: ApiClient unwraps the API envelope, so response.data has no "success" field.
+   * Success = request did not throw. Do NOT check response.data.success in callers.
+   */
+  static async confirmPaymentFromSession(sessionId: string): Promise<
+    | { ok: true }
+    | { ok: false; error: string }
+  > {
+    try {
+      await apiClient.post<{ booking?: unknown; payment?: unknown }>(
+        API_ENDPOINTS.CONFIRM_PAYMENT_FROM_SESSION,
+        { session_id: sessionId }
+      );
+      return { ok: true };
+    } catch (err: unknown) {
+      const message =
+        (err as { message?: string })?.message ??
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        PAYMENT_CONFIRM_FROM_SESSION_ERROR_FALLBACK;
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[ApiPaymentService] confirmPaymentFromSession failed:', err);
+      }
+      return { ok: false, error: message };
     }
   }
 }

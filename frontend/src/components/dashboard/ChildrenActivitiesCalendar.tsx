@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import moment, { Moment } from 'moment';
-import { Activity, Users, Clock, CheckCircle, X, ChevronLeft, ChevronRight, MapPin, User, FileText, Package, Circle, Square, CheckSquare, GripVertical, XCircle } from 'lucide-react';
+import { Activity, Users, Clock, CheckCircle, X, ChevronLeft, ChevronRight, MapPin, User, FileText, Package, Circle, Square, CheckSquare, GripVertical, XCircle, Plus } from 'lucide-react';
 import { BookingCalendar } from '@/components/ui/Calendar';
 import { calendarUtils } from '@/components/ui/Calendar/useCalendarGrid';
 import { BookingDTO } from '@/core/application/booking';
@@ -614,9 +614,9 @@ export default function ChildrenActivitiesCalendar({
   }[spacing];
 
   return (
-    <div id="children-activities-calendar" className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 ${paddingClass}`}>
+    <div id="children-activities-calendar" className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 ${paddingClass}`}>
       {/* Legend. View mode (month/week/day) is driven by parent toolbar (1 month / 1 week / 1 day) when calendarPeriod + calendarAnchor are provided. */}
-      <div className="mb-2 sm:mb-3 flex flex-wrap items-center gap-x-2 sm:gap-x-3 gap-y-1.5 sm:gap-y-2 text-[10px] sm:text-xs pb-2 sm:pb-3 border-b border-gray-200 dark:border-gray-700">
+      <div className="mb-2 sm:mb-3 flex flex-wrap items-center gap-x-2 sm:gap-x-3 gap-y-1.5 sm:gap-y-2 text-2xs sm:text-sm pb-2 sm:pb-3 border-b border-gray-200 dark:border-gray-700">
         {/* Children - inline: only when 2+ children to avoid redundant label */}
         {uniqueChildren.length >= 2 && (
           <>
@@ -626,7 +626,7 @@ export default function ChildrenActivitiesCalendar({
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: getChildColor(child.id) }}
                 />
-                <span className="text-xs text-gray-700 dark:text-gray-300">{child.name}</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">{child.name}</span>
               </div>
             ))}
             {filteredSessions.length > 0 && (
@@ -640,17 +640,17 @@ export default function ChildrenActivitiesCalendar({
           <>
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-gray-400 opacity-60" />
-              <span className="text-xs text-gray-600 dark:text-gray-400 dark:text-gray-500">Past</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">Past</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-green-500 relative">
                 <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
               </div>
-              <span className="text-xs text-green-700 dark:text-green-400">Live</span>
+              <span className="text-sm text-green-700 dark:text-green-400">Live</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-blue-500 dark:bg-blue-400" />
-              <span className="text-xs text-blue-700 dark:text-blue-300">Upcoming</span>
+              <span className="text-sm text-blue-700 dark:text-blue-300">Upcoming</span>
             </div>
           </>
         )}
@@ -847,7 +847,7 @@ export default function ChildrenActivitiesCalendar({
                                         {session.childName}
                                       </p>
                                     )}
-                                    <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+                                    <span className="px-1.5 py-0.5 rounded text-2xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
                                       Past
                                     </span>
                                   </div>
@@ -966,12 +966,12 @@ export default function ChildrenActivitiesCalendar({
                                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate flex items-center gap-1.5">
                                       {session.childName}
                                       {isNewChild(session.childId) && (
-                                        <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 shrink-0" aria-hidden>🆕</span>
+                                        <span className="px-1.5 py-0.5 rounded text-2xs font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 shrink-0" aria-hidden>🆕</span>
                                       )}
                                     </p>
                                   )}
                                   {session.isOngoing && (
-                                    <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">
+                                    <span className="px-1.5 py-0.5 rounded text-2xs font-medium bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">
                                       LIVE
                                     </span>
                                   )}
@@ -1196,16 +1196,19 @@ export default function ChildrenActivitiesCalendar({
                     className="grid grid-cols-[55px_1fr] divide-y divide-gray-100 dark:divide-gray-700 max-h-[500px] overflow-y-auto relative"
                   >
                     {/* Time column + Hour slots */}
-                    {Array.from({ length: 24 }, (_, hour) => {
+                    {(() => {
+                      // Date-level rule: tomorrow only bookable until 6:00 PM today (bookingCutoffRules)
+                      const dayDateStatus = getDateBookingStatus(dateStr, currentTime);
+                      return Array.from({ length: 24 }, (_, hour) => {
                       const timeStr = `${hour.toString().padStart(2, '0')}:00`;
                       const hourMoment = moment(`${dateStr} ${timeStr}`, 'YYYY-MM-DD HH:mm');
                       
                       const isPast = hourMoment.isBefore(currentTime, 'hour');
                       const isNow = hourMoment.isSame(currentTime, 'hour');
                       
-                      // Check if this time slot is available for booking (at least 24 hours away)
+                      // Slot available only if date is bookable (e.g. tomorrow disabled after 6 PM today) and at least 24h ahead
                       const minBookingTime = currentTime.clone().add(24, 'hours');
-                      const isAvailableForBooking = !isPast && hourMoment.isAfter(minBookingTime);
+                      const isAvailableForBooking = dayDateStatus.bookable && !isPast && hourMoment.isAfter(minBookingTime);
                       const isWithin24Hours = !isPast && !isAvailableForBooking;
                       
                       // Only show time slot if it has sessions, is available, or is past/within 24h
@@ -1265,19 +1268,26 @@ export default function ChildrenActivitiesCalendar({
                                 <span className="text-xs text-gray-400 dark:text-gray-400 font-medium">Not available</span>
                               </div>
                             )}
+                            {/* Add-session affordance when slot is bookable (bottom centred, neutral) */}
+                            {isAvailableForBooking && onDateClick && (
+                              <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex h-5 w-5 items-center justify-center text-gray-400 dark:text-gray-500 pointer-events-none" aria-hidden>
+                                <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+                              </div>
+                            )}
                             {/* Drop hint when dragging */}
                             {onRescheduleRequest && isAvailableForBooking && isDraggingSession && (
                               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <span className="text-[10px] font-medium text-blue-600 dark:text-blue-400 bg-white/90 dark:bg-gray-800/90 px-1.5 py-0.5 rounded">
+                                <span className="text-2xs font-medium text-blue-600 dark:text-blue-400 bg-white/90 dark:bg-gray-800/90 px-1.5 py-0.5 rounded">
                                   Drop to reschedule
                                 </span>
                               </div>
                             )}
                             {/* Sessions will be absolutely positioned here */}
-                          </div>
+                            </div>
                         </React.Fragment>
                       );
-                    }).filter(Boolean)}
+                    });
+                    })().filter(Boolean)}
                     
                     {/* Session blocks with start/end dots on time labels */}
                     {/* Dots positioned on time label column (right edge at 55px) */}
@@ -1422,16 +1432,16 @@ export default function ChildrenActivitiesCalendar({
                               />
                               {showChildLabel && <span className="truncate">{session.childName}</span>}
                               {showChildLabel && isNewChild(session.childId) && (
-                                <span className="px-1 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[9px] rounded font-medium shrink-0" aria-hidden>🆕</span>
+                                <span className="px-1 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-3xs rounded font-medium shrink-0" aria-hidden>🆕</span>
                               )}
                               {session.isOngoing && (
-                                <span className="px-1 py-0.5 bg-green-500 text-white text-[9px] rounded animate-pulse">
+                                <span className="px-1 py-0.5 bg-green-500 text-white text-3xs rounded animate-pulse">
                                   LIVE
                                 </span>
                               )}
                             </div>
                             {isNewChild(session.childId) && onBuyHoursForChild && (
-                              <div className="text-[10px] mt-0.5 flex items-center gap-1.5 flex-wrap">
+                              <div className="text-2xs mt-0.5 flex items-center gap-1.5 flex-wrap">
                                 <span className="text-amber-600 dark:text-amber-400">{EMPTY_STATE.NO_HOURS_PURCHASED_YET.title}</span>
                                 <button
                                   type="button"
@@ -1445,28 +1455,28 @@ export default function ChildrenActivitiesCalendar({
                             
                             {/* Compact view: Time + first activity */}
                             {isCompactView ? (
-                              <div className="text-[10px] text-gray-600 dark:text-gray-400 dark:text-gray-500 truncate mt-0.5">
+                              <div className="text-2xs text-gray-600 dark:text-gray-400 dark:text-gray-500 truncate mt-0.5">
                                 {startTime} - {endTimeDisplay}
                                 {session.trainerName && ` • ${session.trainerName}`}
                               </div>
                             ) : (
                               <>
                                 {/* Detailed view: Time */}
-                                <div className="text-[10px] text-gray-600 dark:text-gray-400 dark:text-gray-500 mt-0.5 flex items-center gap-1">
+                                <div className="text-2xs text-gray-600 dark:text-gray-400 dark:text-gray-500 mt-0.5 flex items-center gap-1">
                                   <Clock className="w-2.5 h-2.5" />
                                   <span>{startTime} - {endTimeDisplay}</span>
                                 </div>
                                 
                                 {/* Trainer */}
                                 {session.trainerName && (
-                                  <div className="text-[10px] text-gray-600 dark:text-gray-400 dark:text-gray-500 mt-0.5 flex items-center gap-1 truncate">
+                                  <div className="text-2xs text-gray-600 dark:text-gray-400 dark:text-gray-500 mt-0.5 flex items-center gap-1 truncate">
                                     <User className="w-2.5 h-2.5 flex-shrink-0" />
                                     <span className="truncate">{session.trainerName}</span>
                                   </div>
                                 )}
                                 
                                 {/* Activities */}
-                                <div className="text-[10px] text-gray-700 dark:text-gray-300 mt-0.5 flex items-start gap-1">
+                                <div className="text-2xs text-gray-700 dark:text-gray-300 mt-0.5 flex items-start gap-1">
                                   <Activity className="w-2.5 h-2.5 mt-0.5 flex-shrink-0" />
                                   <span className="truncate">
                                     {isTrainersChoice ? (
@@ -1479,7 +1489,7 @@ export default function ChildrenActivitiesCalendar({
                                 
                                 {/* Custom Activity indicator */}
                                 {hasCustomActivity && (
-                                  <div className="text-[10px] text-purple-600 mt-0.5 flex items-center gap-1 truncate">
+                                  <div className="text-2xs text-purple-600 mt-0.5 flex items-center gap-1 truncate">
                                     <FileText className="w-2.5 h-2.5 flex-shrink-0" />
                                     <span className="font-medium truncate">Custom Activity</span>
                                   </div>
@@ -1591,7 +1601,7 @@ export default function ChildrenActivitiesCalendar({
                       {day.format('D')}
                     </div>
                     {isToday && (
-                      <div className="text-[9px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide mt-0.5">
+                      <div className="text-3xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide mt-0.5">
                         Today
                       </div>
                     )}
@@ -1640,6 +1650,16 @@ export default function ChildrenActivitiesCalendar({
                       onDateChange?.(dateStr);
                     }}
                   >
+                    {/* Add-session affordance when bookable (bottom centred, neutral) */}
+                    {onDateClick && !isUnavailable && (
+                      <span
+                        className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex h-5 w-5 items-center justify-center text-gray-400 dark:text-gray-500 cursor-pointer"
+                        aria-hidden
+                        title="Add session"
+                      >
+                        <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+                      </span>
+                    )}
                     {/* Sessions List */}
                     <div className="relative z-sidebar space-y-1">
                       {Array.from(sessionsByChild.entries()).map(([key, childSessions]) => {
@@ -1703,7 +1723,7 @@ export default function ChildrenActivitiesCalendar({
                               handleSessionClick(e, firstSession);
                             }}
                             className={`
-                              min-h-[44px] text-[13px] sm:text-sm px-2 py-1.5 rounded border-l-4 truncate transition-opacity text-gray-900 dark:text-gray-100 flex items-start gap-1.5
+                              min-h-[44px] text-dashboard-xs sm:text-sm px-2 py-1.5 rounded border-l-4 truncate transition-opacity text-gray-900 dark:text-gray-100 flex items-start gap-1.5
                               ${statusBorder}
                               ${isPast ? 'opacity-70' : ''}
                               ${isOngoing ? 'ring-1 ring-green-500' : ''}
@@ -1793,6 +1813,7 @@ export default function ChildrenActivitiesCalendar({
         renderDayCell={(date, index) => {
           const dateSessions = getDateSessions(date);
           const isTodayDate = calendarUtils.isToday(date);
+          const isPastDate = calendarUtils.isPast(date);
           const isCurrentMonthDate = calendarUtils.isCurrentMonth(date, currentMonth);
           
           // Check if date is available for booking (all rules from bookingCutoffRules)
@@ -1818,7 +1839,6 @@ export default function ChildrenActivitiesCalendar({
               className={`
                 ${CALENDAR_GRID_DAY_CELL_CLASSES} border-r border-b border-gray-200 dark:border-gray-700 relative p-0.5 sm:p-1 transition-colors
                 ${!isCurrentMonthDate ? 'bg-gray-50 dark:bg-gray-800' : 
-                  isTodayDate ? 'bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500 ring-inset' :
                   'bg-white dark:bg-gray-800'
                 }
                 ${
@@ -1855,93 +1875,65 @@ export default function ChildrenActivitiesCalendar({
                 },
               })}
             >
-              {/* Today: pulse dot top-right */}
-              {isTodayDate && (
+              {/* Add-session affordance: + icon when date is bookable (bottom centred, neutral) */}
+              {onDateClick && !isUnavailable && (
                 <span
-                  className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"
+                  className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex h-5 w-5 items-center justify-center text-gray-400 dark:text-gray-500 cursor-pointer"
                   aria-hidden
-                />
+                  title="Add session"
+                >
+                  <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+                </span>
               )}
               {/* Drop hint when dragging over a bookable date */}
               {canDropReschedule && isDraggingSession && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-sidebar">
-                  <span className="text-[9px] font-medium text-blue-600 dark:text-blue-400 bg-white/95 dark:bg-gray-800/95 px-1 py-0.5 rounded shadow-sm">
+                  <span className="text-3xs font-medium text-blue-600 dark:text-blue-400 bg-white/95 dark:bg-gray-800/95 px-1 py-0.5 rounded shadow-sm">
                     Drop here
                   </span>
                 </div>
               )}
-              {/* Date number - Balanced; today: bold blue-700 + optional TODAY badge */}
+              {/* Date number: past = grayed out; today = round circle with colour; else normal */}
               <div className="flex flex-col items-center justify-center mb-1 w-full">
                 {isTodayDate ? (
-                  <>
-                    <span className="text-xs font-bold text-blue-700 dark:text-blue-300">
-                      {date.format('D')}
-                    </span>
-                    <span className="text-[9px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide mt-0.5">
-                      Today
-                    </span>
-                  </>
+                  <span
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-blue text-white text-xs font-semibold"
+                    aria-hidden
+                  >
+                    {date.format('D')}
+                  </span>
                 ) : (
                   <span className={`
                     text-xs font-medium
-                    ${!isCurrentMonthDate ? 'text-gray-400 dark:text-gray-500' : isUnavailable ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-300'}
+                    ${isPastDate || !isCurrentMonthDate || isUnavailable ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-300'}
                   `}>
                     {date.format('D')}
                   </span>
                 )}
               </div>
 
-              {/* Sessions for this date - compact, child + activities */}
+              {/* Sessions for this date - one card per session (same child, different times shown separately) */}
               <div className="space-y-0.5">
                 {(() => {
-                  // Group sessions by child
-                  const sessionsByChild = new Map<string, ChildActivitySession[]>();
-                  dateSessions.forEach((session) => {
-                    const key = `${session.childId}-${session.childName}`;
-                    const existing = sessionsByChild.get(key) || [];
-                    existing.push(session);
-                    sessionsByChild.set(key, existing);
-                  });
-
-                  const childGroups = Array.from(sessionsByChild.entries());
-                  const maxToShow = 3; // Show up to 3 event cards per day (by child group)
-                  const displayedGroups = childGroups.slice(0, maxToShow);
-                  const hasMoreGroups = childGroups.length > maxToShow;
-                  const hasMoreSessions = dateSessions.length > 3;
+                  const maxToShow = 5; // Max session cards per day cell
+                  const displayedSessions = dateSessions.slice(0, maxToShow);
+                  const hasMoreSessions = dateSessions.length > maxToShow;
 
                   return (
                     <>
-                      {displayedGroups.map(([key, childSessions], groupIndex) => {
-                        const firstSession = childSessions[0];
-                        const childColor = getChildColor(firstSession.childId);
+                      {displayedSessions.map((session) => {
+                        const childColor = getChildColor(session.childId);
                         const showChildLabel = uniqueChildren.length >= 2;
-                        const uniqueActivities = Array.from(
-                          new Set(
-                            childSessions.flatMap((s) => s.activities || []),
-                          ),
-                        );
-                        
-                        // Determine overall status for this child (prioritize ongoing > upcoming > past)
-                        const hasOngoing = childSessions.some(s => s.isOngoing);
-                        const hasUpcoming = childSessions.some(s => s.isUpcoming);
-                        const allPast = childSessions.every(s => s.isPast);
-                        
-                        const isOngoing = hasOngoing;
-                        const isPast = allPast && !hasOngoing && !hasUpcoming;
-                        const sessionCount = childSessions.length;
-                        const durationMins = sessionDurationMinutes(firstSession.startTime, firstSession.endTime);
-
-                        // Google Calendar–style: child colour as primary label (left border + fill), status as small dot
-                        const childBgAlpha = `${childColor}20`;
-
-                        // Format time (bold) and activities - compact month view min 11px
-                        const startTime = moment(firstSession.startTime, 'HH:mm').format('h:mm a');
-                        const timeLabel =
-                          sessionCount > 1 ? `${sessionCount} sessions` : startTime;
-                        const activityDisplay = uniqueActivities.length > 0 
-                          ? uniqueActivities.slice(0, 2).join(', ') + (uniqueActivities.length > 2 ? '…' : '')
+                        const activities = session.activities?.length
+                          ? session.activities.slice(0, 2).join(', ') + (session.activities.length > 2 ? '…' : '')
                           : "Trainer's Choice";
 
+                        const isOngoing = !!session.isOngoing;
+                        const isPast = !!session.isPast;
+                        const durationMins = sessionDurationMinutes(session.startTime, session.endTime);
+                        const startTime = moment(session.startTime, 'HH:mm').format('h:mm a');
+
+                        const childBgAlpha = `${childColor}20`;
                         const statusDotClass = isOngoing
                           ? 'bg-green-500 animate-pulse'
                           : isPast
@@ -1950,36 +1942,34 @@ export default function ChildrenActivitiesCalendar({
                         const statusText = isOngoing ? 'Live' : isPast ? 'Past' : 'Upcoming';
 
                         const titleParts = [
-                          firstSession.childName,
+                          session.childName,
                           startTime,
                           durationMins ? formatDurationMinutesForDisplay(durationMins) : '',
-                          firstSession.trainerName || '',
-                          activityDisplay,
+                          session.trainerName || '',
+                          activities,
                           isPast ? 'Past' : isOngoing ? 'Live now' : 'Upcoming',
                         ].filter(Boolean);
 
-                        const canDragMonth = onRescheduleRequest && (firstSession.isUpcoming || childSessions.some((s) => s.isUpcoming));
+                        const canDragMonth = onRescheduleRequest && !!session.isUpcoming;
 
                         return (
                           <div
-                            key={key}
+                            key={session.id}
                             draggable={canDragMonth}
                             onDragStart={(e) => {
                               if (!canDragMonth) return;
                               e.stopPropagation();
                               setIsDraggingSession(true);
-                              const start = firstSession.startTime;
-                              const end = firstSession.endTime;
                               e.dataTransfer.setData('application/x-session-reschedule', JSON.stringify({
-                                scheduleId: firstSession.scheduleId,
-                                durationMinutes: sessionDurationMinutes(start, end),
-                                startTime: start,
-                                endTime: end,
+                                scheduleId: session.scheduleId,
+                                durationMinutes: sessionDurationMinutes(session.startTime, session.endTime),
+                                startTime: session.startTime,
+                                endTime: session.endTime,
                               }));
                               e.dataTransfer.effectAllowed = 'move';
                             }}
                             onDragEnd={() => setIsDraggingSession(false)}
-                            onClick={(e) => handleSessionClick(e, firstSession)}
+                            onClick={(e) => handleSessionClick(e, session)}
                             className={`
                               min-h-[44px] min-w-[44px] text-xs rounded border-l-4 truncate relative mb-0.5 transition-opacity text-gray-900 dark:text-gray-100 flex items-start gap-1
                               ${showCompactView ? 'px-1 py-0.5' : 'px-1.5 py-1'}
@@ -1993,7 +1983,7 @@ export default function ChildrenActivitiesCalendar({
                               backgroundColor: childBgAlpha,
                             }}
                             title={[...titleParts, canDragMonth ? 'Drag to another date or time to reschedule' : ''].filter(Boolean).join(' · ')}
-                            aria-label={canDragMonth ? `${firstSession.childName}, ${startTime}. Drag to another date or time to reschedule.` : undefined}
+                            aria-label={canDragMonth ? `${session.childName}, ${startTime}. Drag to another date or time to reschedule.` : undefined}
                           >
                             {canDragMonth && (
                               <span className="flex-shrink-0 text-gray-400" aria-hidden>
@@ -2001,44 +1991,39 @@ export default function ChildrenActivitiesCalendar({
                               </span>
                             )}
                             <div className="flex flex-col flex-1 min-w-0">
-                            <div className="flex items-center gap-1 flex-1 min-w-0">
-                              <span
-                                className={`flex-shrink-0 w-1.5 h-1.5 rounded-full ${statusDotClass}`}
-                                aria-hidden
-                              />
-                              <span className="sr-only">{statusText}. </span>
-                              {showChildLabel && (
-                                <>
-                                  <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">
-                                    {firstSession.childName}
-                                  </span>
-                                  <span className="text-gray-500 dark:text-gray-400 mx-0.5">·</span>
-                                </>
-                              )}
-                              <span className="font-bold text-gray-800 dark:text-gray-200 truncate">
-                                {timeLabel}
-                              </span>
-                            </div>
-                            <div className="text-[11px] text-gray-700 dark:text-gray-300 truncate font-medium mt-0.5">
-                              {activityDisplay}
-                              {durationMins > 0 && (
-                                <span className="text-gray-500 dark:text-gray-400 ml-1">
-                                  {formatDurationMinutesForDisplay(durationMins)}
+                              <div className="flex items-center gap-1 flex-1 min-w-0">
+                                <span
+                                  className={`flex-shrink-0 w-1.5 h-1.5 rounded-full ${statusDotClass}`}
+                                  aria-hidden
+                                />
+                                <span className="sr-only">{statusText}. </span>
+                                {showChildLabel && (
+                                  <>
+                                    <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                                      {session.childName}
+                                    </span>
+                                    <span className="text-gray-500 dark:text-gray-400 mx-0.5">·</span>
+                                  </>
+                                )}
+                                <span className="font-bold text-gray-800 dark:text-gray-200 truncate">
+                                  {startTime}
                                 </span>
-                              )}
-                            </div>
+                              </div>
+                              <div className="text-2xs text-gray-700 dark:text-gray-300 truncate font-medium mt-0.5">
+                                {activities}
+                                {durationMins > 0 && (
+                                  <span className="text-gray-500 dark:text-gray-400 ml-1">
+                                    {formatDurationMinutesForDisplay(durationMins)}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         );
                       })}
-                      {hasMoreGroups && (
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400 font-medium px-1">
-                          +{childGroups.length - maxToShow} more
-                        </div>
-                      )}
-                      {hasMoreSessions && !hasMoreGroups && (
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400 font-medium px-1">
-                          +{dateSessions.length - 3} more
+                      {hasMoreSessions && (
+                        <div className="text-2xs text-gray-500 dark:text-gray-400 font-medium px-1">
+                          +{dateSessions.length - maxToShow} more
                         </div>
                       )}
                     </>

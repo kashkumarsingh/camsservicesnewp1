@@ -5,7 +5,7 @@ import moment, { Moment } from 'moment';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCalendarGrid } from './useCalendarGrid';
 import { isDateBookable, getDateBookingStatus } from '@/utils/bookingCutoffRules';
-import { CALENDAR_GRID_DAY_CELL_CLASSES } from '@/utils/appConstants';
+import { CALENDAR_GRID_DAY_CELL_CLASSES, CALENDAR_WEEKDAY_HEADERS } from '@/utils/appConstants';
 
 export interface BookingCalendarProps {
   /** Size of the calendar: 'small' for mini calendar, 'large' for main calendar */
@@ -375,23 +375,25 @@ export default function BookingCalendar({
           </button>
         </div>
 
-        {/* Weekday Headers */}
-        <div className="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+        {/* Weekday Headers — columnheader for grid accessibility */}
+        <div className="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700" role="row">
+          {CALENDAR_WEEKDAY_HEADERS.map((day) => (
             <div
               key={day}
-              className="text-center text-[10px] sm:text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400 py-1 sm:py-1.5 border-r border-gray-200 dark:border-gray-700 last:border-r-0"
+              role="columnheader"
+              className="text-center text-2xs sm:text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400 py-1 sm:py-1.5 border-r border-gray-200 dark:border-gray-700 last:border-r-0"
+              aria-label={day}
             >
               {day}
             </div>
           ))}
         </div>
 
-        {/* Calendar Grid with Custom Day Cells – role="grid" for screen readers */}
+        {/* Calendar Grid with Custom Day Cells — role="grid" for screen readers (square cells, fills container) */}
         <div
           className="grid grid-cols-7 border-l border-t border-gray-200 dark:border-gray-700"
           role="grid"
-          aria-label="Calendar month view"
+          aria-label={`Calendar month view, ${currentMonth.format('MMMM YYYY')}. Click a date to view or book.`}
         >
           {calendarDays.map((date, index) => (
             <React.Fragment key={`day-${date.format('YYYY-MM-DD')}-${index}`}>
@@ -417,39 +419,45 @@ export default function BookingCalendar({
           <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gray-600 dark:text-gray-400" />
         </button>
         
-        <button
-          type="button"
-          onClick={handleToday}
-          className="text-sm sm:text-base md:text-xl lg:text-2xl font-bold text-navy-blue dark:text-gray-100 px-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-          aria-label="Go to current month"
-        >
-          {currentMonth.format('MMMM YYYY')}
-        </button>
-        
-        <button
-          type="button"
-          onClick={handleNextMonth}
-          className="p-1.5 sm:p-2 md:p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-          aria-label="Next month"
-        >
-          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gray-600 dark:text-gray-400" />
-        </button>
-      </div>
-
-      {/* Weekday Headers */}
-      <div className="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700">
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-          <div
-            key={day}
-            className="text-center text-[10px] sm:text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400 py-1 sm:py-1.5 border-r border-gray-200 dark:border-gray-700 last:border-r-0"
+          <button
+            type="button"
+            onClick={handleToday}
+            className="text-sm sm:text-base md:text-xl lg:text-2xl font-bold text-navy-blue dark:text-gray-100 px-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+            aria-label={`${currentMonth.format('MMMM YYYY')}. Click to go to current month.`}
           >
-            {day}
-          </div>
-        ))}
-      </div>
+            {currentMonth.format('MMMM YYYY')}
+          </button>
+          
+          <button
+            type="button"
+            onClick={handleNextMonth}
+            className="p-1.5 sm:p-2 md:p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label="Next month"
+          >
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gray-600 dark:text-gray-400" />
+          </button>
+        </div>
 
-      {/* Calendar Grid - Default Day Cells (Google Calendar–style square cells) */}
-      <div className="grid grid-cols-7 border-l border-t border-gray-200 dark:border-gray-700">
+        {/* Weekday Headers — columnheader for grid accessibility */}
+        <div className="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700" role="row">
+          {CALENDAR_WEEKDAY_HEADERS.map((day) => (
+            <div
+              key={day}
+              role="columnheader"
+              className="text-center text-2xs sm:text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400 py-1 sm:py-1.5 border-r border-gray-200 dark:border-gray-700 last:border-r-0"
+              aria-label={day}
+            >
+              {day}
+            </div>
+          ))}
+        </div>
+
+      {/* Calendar Grid - Default Day Cells (square cells, fills container) */}
+      <div
+        className="grid grid-cols-7 border-l border-t border-gray-200 dark:border-gray-700"
+        role="grid"
+        aria-label={`Calendar month view, ${currentMonth.format('MMMM YYYY')}. Click a date to view or book.`}
+      >
         {dayData.map((day, index) => (
           <button
             key={index}

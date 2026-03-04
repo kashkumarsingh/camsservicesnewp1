@@ -83,7 +83,7 @@ export function AdminTrainerAvailabilityPanel({
         onClick={onClose}
         aria-label="Close"
       />
-      <div className="z-sidepanel w-full max-w-md flex flex-col bg-white dark:bg-slate-900 shadow-xl border-l border-slate-200 dark:border-slate-800">
+      <div className="z-sidePanel w-full max-w-md flex flex-col bg-white dark:bg-slate-900 shadow-xl border-l border-slate-200 dark:border-slate-800">
         <header className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-4 py-3">
           <div>
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">

@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { Plus, Loader2 } from "lucide-react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
+import { Plus, Loader2, Info } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { BaseModal } from "@/components/ui/Modal";
+import { TOP_UP_CALCULATION_TOOLTIP } from "@/utils/appConstants";
 import type { BookingDTO } from "@/core/application/booking/dto/BookingDTO";
 
 function formatCurrency(amount: number): string {
@@ -44,6 +45,18 @@ export default function TopUpModal({
 }: TopUpModalProps) {
   const [selectedHours, setSelectedHours] = useState<number>(5);
   const [customHours, setCustomHours] = useState<string>("");
+  const [showCalcPopover, setShowCalcPopover] = useState(false);
+  const calcPopoverRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showCalcPopover) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (calcPopoverRef.current?.contains(e.target as Node)) return;
+      setShowCalcPopover(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showCalcPopover]);
 
   const { packageName, hourlyRate, totalPrice, isValid } = useMemo(() => {
     if (!booking?.package) {
@@ -77,7 +90,7 @@ export default function TopUpModal({
       onClose={onClose}
       title={
         <span className="flex items-center gap-2">
-          <Plus size={18} className="text-green-600" />
+          <Plus size={18} className="text-primary-blue" />
           Add hours (top-up)
         </span>
       }
@@ -107,22 +120,14 @@ export default function TopUpModal({
       }
     >
       <div className="space-y-4">
-        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-          <p className="text-sm text-gray-700">
-            <span className="font-semibold text-gray-900">{childName}</span>
-            {" · "}
-            <span className="text-gray-600">{packageName}</span>
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            Add more hours to this package at the same rate. Your existing expiry date stays the same.
-          </p>
-        </div>
+        <p className="text-2xs text-slate-500 dark:text-slate-400">
+          <span className="font-medium text-slate-700 dark:text-slate-200">{childName}</span>
+          {" · "}
+          <span>{packageName}</span>
+        </p>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            How many hours do you want to add?
-          </label>
-          <div className="flex flex-wrap gap-2 mb-3">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
             {PRESET_HOURS.map((h) => (
               <button
                 key={h}
@@ -131,18 +136,16 @@ export default function TopUpModal({
                   setSelectedHours(h);
                   setCustomHours("");
                 }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors ${
+                className={`rounded-lg border-2 px-3 py-1.5 text-sm font-medium transition-colors ${
                   !customHours && selectedHours === h
-                    ? "border-blue-600 bg-blue-50 text-blue-800"
-                    : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                    ? "border-primary-blue bg-primary-blue/10 text-primary-blue"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
                 }`}
               >
                 {h}h
               </button>
             ))}
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Other:</span>
+            <span className="text-2xs text-slate-500 dark:text-slate-400">Other</span>
             <input
               type="number"
               min={1}
@@ -150,32 +153,43 @@ export default function TopUpModal({
               step={0.5}
               value={customHours}
               onChange={(e) => setCustomHours(e.target.value)}
-              placeholder="e.g. 7"
-              className="w-24 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="0"
+              className="w-14 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-primary-blue focus:outline-none focus:ring-2 focus:ring-primary-blue/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+              aria-label="Custom hours"
             />
-            <span className="text-sm text-gray-500">hours</span>
+            <span className="text-2xs text-slate-500 dark:text-slate-400">h</span>
           </div>
         </div>
 
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg space-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-green-800">
-              {isValid ? (
-                <>
-                  {displayHours} {displayHours === 1 ? "hour" : "hours"} × {formatCurrency(hourlyRate)}/h
-                </>
-              ) : (
-                "Select or enter hours"
-              )}
-            </span>
-            <span className="text-lg font-bold text-green-900">
+        <div ref={calcPopoverRef} className="relative flex items-center justify-between rounded-lg border border-primary-blue/20 bg-gcal-primary-light px-3 py-2 dark:border-primary-blue/30 dark:bg-primary-blue/10">
+          <span className="text-sm text-navy-blue dark:text-slate-200">
+            {isValid ? (
+              <>{displayHours}h × {formatCurrency(hourlyRate)}/h</>
+            ) : (
+              "—"
+            )}
+          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-lg font-bold text-navy-blue dark:text-slate-50">
               {isValid ? formatCurrency(totalPrice) : "—"}
             </span>
+            <button
+              type="button"
+              onClick={() => setShowCalcPopover((v) => !v)}
+              className="rounded-full p-1 text-slate-500 hover:bg-slate-200/80 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-1 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-slate-200"
+              aria-label="How is top-up calculated?"
+              aria-expanded={showCalcPopover}
+            >
+              <Info size={14} aria-hidden />
+            </button>
           </div>
-          {isValid && totalPrice > 0 && (
-            <p className="text-2xs text-green-700">
-              You will pay {formatCurrency(totalPrice)} on the next screen. Your new hours will appear after payment completes.
-            </p>
+          {showCalcPopover && (
+            <div
+              className="absolute right-0 bottom-full z-dropdown mb-1.5 w-64 rounded-lg border border-slate-200 bg-white px-3 py-2 text-2xs text-slate-600 shadow-lg dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
+              role="tooltip"
+            >
+              {TOP_UP_CALCULATION_TOOLTIP}
+            </div>
           )}
         </div>
       </div>

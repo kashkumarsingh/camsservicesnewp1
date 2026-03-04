@@ -47,11 +47,15 @@ class NewContactSubmissionNotification extends Notification implements ShouldQue
         // Use noreply@domain for system notifications to avoid confusion
         $fromAddress = 'noreply@' . $domain;
 
+        // Link must point to the frontend admin dashboard (Next.js), not the backend
+        $viewUrl = frontend_url('/dashboard/admin/contact-submissions/' . $submission->id);
+
         return (new MailMessage)
             ->from($fromAddress, $fromName)
             ->subject(sprintf('New Contact Request: %s', $submission->name))
             ->markdown('mail.admin.contact-submission', [
                 'submission' => $submission,
+                'viewUrl' => $viewUrl,
             ]);
     }
 }

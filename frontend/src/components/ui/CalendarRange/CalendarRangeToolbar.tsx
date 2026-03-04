@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, Calendar } from 'lucide-react';
 import {
   getMonday,
   getMonthStart,
@@ -12,6 +12,9 @@ import {
 import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
 import { useCalendarRangePopover } from './useCalendarRangePopover';
 import { CalendarRangePopoverContent } from './CalendarRangePopoverContent';
+
+/** Breakpoint max-width (px) below which calendar view (Day/Week/Month + range) collapses into a filter popover. Tailwind lg = 1024 → use 1023. */
+const CALENDAR_VIEW_POPOVER_MAX_WIDTH_LG = 1023;
 
 export interface CalendarRangeToolbarProps {
   /** Current period (1 day, 1 week, 1 month). */
@@ -34,6 +37,8 @@ export interface CalendarRangeToolbarProps {
   compact?: boolean;
   /** Optional: render extra buttons after the range controls (e.g. Refresh). */
   children?: React.ReactNode;
+  /** When set, below this breakpoint (md = 768px, lg = 1024px) the full toolbar is shown inside a filter popover; trigger shows "View" + current range. */
+  collapseToPopoverBelow?: 'md' | 'lg';
 }
 
 /**
@@ -55,9 +60,37 @@ export function CalendarRangeToolbar({
   className = '',
   compact = false,
   children,
+  collapseToPopoverBelow,
 }: CalendarRangeToolbarProps) {
   const popover = useCalendarRangePopover();
   const { rangeLabel } = getRangeFromPeriodAnchor(period, anchor);
+
+  const maxWidth = collapseToPopoverBelow === 'lg' ? CALENDAR_VIEW_POPOVER_MAX_WIDTH_LG : 767;
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [viewPopoverOpen, setViewPopoverOpen] = useState(false);
+  const viewPopoverTriggerRef = useRef<HTMLButtonElement>(null);
+  const viewPopoverPanelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!collapseToPopoverBelow) {
+      setIsCollapsed(false);
+      return;
+    }
+    const mq = window.matchMedia(`(max-width: ${maxWidth}px)`);
+    const update = () => setIsCollapsed(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, [collapseToPopoverBelow, maxWidth]);
+
+  useEffect(() => {
+    if (!viewPopoverOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setViewPopoverOpen(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [viewPopoverOpen]);
 
   const handlePeriodChange = (newPeriod: CalendarPeriod) => {
     popover.closeCalendarPopover();
@@ -100,6 +133,67 @@ export function CalendarRangeToolbar({
 
   const defaultGoToLabel = period === '1_day' ? 'Today' : period === '1_month' ? 'This month' : 'This week';
   const label = goToCurrentLabel ?? defaultGoToLabel;
+
+  const periodTabLabel = period === '1_month' ? 'Month' : period === '1_week' ? 'Week' : 'Day';
+
+  if (collapseToPopoverBelow && isCollapsed) {
+    const triggerRect = viewPopoverTriggerRef.current?.getBoundingClientRect();
+    const popoverPanel = viewPopoverOpen && typeof document !== 'undefined' && document.body && triggerRect && (
+      createPortal(
+        <div className="fixed inset-0 z-popover flex flex-col items-start">
+          <div
+            className="fixed inset-0 flex-1"
+            aria-hidden
+            onClick={() => setViewPopoverOpen(false)}
+          />
+          <div
+            ref={viewPopoverPanelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={periodSelectLabel}
+            className="relative z-10 w-[min(320px,calc(100vw-1rem))] max-h-[85vh] overflow-y-auto rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-700 dark:bg-slate-900"
+            style={{
+              top: triggerRect.bottom + 8,
+              left: Math.max(8, Math.min(triggerRect.left, window.innerWidth - 320 - 8)),
+            }}
+          >
+            <CalendarRangeToolbar
+              period={period}
+              setPeriod={setPeriod}
+              anchor={anchor}
+              setAnchor={setAnchor}
+              periodSelectId={`${periodSelectId}-popover`}
+              periodSelectLabel={periodSelectLabel}
+              showWeekShortcuts={showWeekShortcuts}
+              goToCurrentLabel={goToCurrentLabel}
+              compact={true}
+            />
+          </div>
+        </div>,
+        document.body
+      )
+    );
+    return (
+      <div className={className}>
+        <button
+          ref={viewPopoverTriggerRef}
+          type="button"
+          onClick={() => setViewPopoverOpen((o) => !o)}
+          aria-expanded={viewPopoverOpen}
+          aria-haspopup="dialog"
+          aria-label={`Calendar view: ${periodTabLabel}, ${rangeLabel}. Open to change.`}
+          className="flex min-h-[44px] w-full min-w-0 max-w-[280px] items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+        >
+          <span className="flex items-center gap-2 truncate">
+            <Calendar className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden />
+            <span className="truncate">{periodTabLabel} · {rangeLabel}</span>
+          </span>
+          <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${viewPopoverOpen ? 'rotate-180' : ''}`} aria-hidden />
+        </button>
+        {popoverPanel}
+      </div>
+    );
+  }
 
   const triggerButtonClass =
     'flex min-w-[140px] max-w-[260px] items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700';

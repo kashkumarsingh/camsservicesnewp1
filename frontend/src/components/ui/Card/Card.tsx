@@ -18,8 +18,8 @@ const Card: React.FC<CardProps> = ({ title, description, imageSrc, imageAlt, chi
           <Image src={imageSrc} alt={imageAlt || ''} width={128} height={128} className="w-32 h-32 rounded-full mx-auto object-cover" />
         </div>
       )}
-      {title && <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>}
-      {description && <p className="text-gray-600 text-sm">{description}</p>}
+      {title && <h3 className="text-lg font-bold text-navy-blue dark:text-white mb-2">{title}</h3>}
+      {description && <p className="text-navy-blue/80 dark:text-white/80 text-sm">{description}</p>}
       {children}
     </div>
   );

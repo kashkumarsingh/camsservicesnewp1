@@ -42,7 +42,6 @@ export const CONTACT_FORM = {
   LABEL_URGENCY: 'When do you need support? *',
   LABEL_PREFERRED_CONTACT: 'Best way to reach you? *',
   LABEL_MESSAGE: 'Tell us about your needs (Optional)',
-  CHECKBOX_MARKETING: 'I am happy to receive marketing information',
   CHECKBOX_TERMS: 'I agree to the Terms & Conditions and Privacy Policy *',
   PLACEHOLDER_FIRST_NAME: 'First name',
   PLACEHOLDER_LAST_NAME: 'Last name',

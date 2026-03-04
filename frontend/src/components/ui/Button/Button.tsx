@@ -17,9 +17,12 @@ interface ButtonProps {
   form?: string; // Form ID to associate button with (for buttons outside forms)
   /** Set when the button triggers an in-progress action (e.g. form submit). Forwarded as aria-busy. */
   ariaBusy?: boolean;
+  /** For link buttons: e.g. target="_blank" rel="noopener noreferrer" for external URLs. */
+  target?: string;
+  rel?: string;
 }
 
-const Button: React.FC<ButtonProps> = ({ href, onClick, children, variant = 'primary', size = 'md', className = '', type = 'button', disabled = false, icon, withArrow = false, title, form, ariaBusy }) => {
+const Button: React.FC<ButtonProps> = ({ href, onClick, children, variant = 'primary', size = 'md', className = '', type = 'button', disabled = false, icon, withArrow = false, title, form, ariaBusy, target, rel }) => {
   /** Pill (rounded-header-button) when className has rounded-full; otherwise rounded-form-button (12px) per tailwind config. */
   const usePill = Boolean(className && className.includes('rounded-full'));
   const radiusClass = usePill ? 'rounded-full' : 'rounded-form-button';
@@ -142,8 +145,9 @@ const Button: React.FC<ButtonProps> = ({ href, onClick, children, variant = 'pri
   ) : null;
 
   if (href && !disabled) {
+    const linkProps = { href, className: `${baseStyles} ${disabledStyles} ${variantStyles} ${sizeStyles} ${className} group`, title, ...(target && { target }), ...(rel && { rel }) };
     return (
-      <Link href={href} className={`${baseStyles} ${disabledStyles} ${variantStyles} ${sizeStyles} ${className} group`} title={title}>
+      <Link {...linkProps}>
         {icon && <span className="mr-2">{icon}</span>}
         {children}
         {arrowIcon}

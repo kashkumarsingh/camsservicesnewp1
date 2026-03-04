@@ -574,16 +574,6 @@ export default function ContactFormSection({
           <label className="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"
-              name="marketingConsent"
-              checked={formData.marketingConsent}
-              onChange={handleChange}
-              className="mt-1 w-4 h-4 text-primary-blue border-gray-300 rounded focus:ring-2 focus:ring-primary-blue"
-            />
-            <span className="text-sm text-navy-blue/80">{CONTACT_FORM.CHECKBOX_MARKETING}</span>
-          </label>
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
               name="termsAccepted"
               required
               checked={formData.termsAccepted}

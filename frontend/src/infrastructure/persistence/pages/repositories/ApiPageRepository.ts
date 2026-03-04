@@ -95,19 +95,26 @@ export class ApiPageRepository implements IPageRepository {
         createTimeoutPromise(5000, `Page fetch timeout for slug: ${slug}`),
       ]);
       
-      // Check if response has data
-      if (!response.data) {
+      // Check if response has data and is a plain object (not error envelope or string)
+      const raw = response.data;
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
         console.error(`Invalid API response for page "${slug}":`, response);
         return null;
       }
       
       // Check if it's an error response (ApiClient might not unwrap error responses)
-      if ('success' in response.data && response.data.success === false) {
-        console.warn(`Page "${slug}" not found or error:`, (response.data as any).message);
+      if ('success' in raw && raw.success === false) {
+        console.warn(`Page "${slug}" not found or error:`, (raw as { message?: string }).message);
         return null;
       }
       
-      return this.toDomain(response.data);
+      // Require minimal fields so toDomain does not throw
+      if (typeof (raw as RemotePageResponse).title !== 'string' || typeof (raw as RemotePageResponse).slug !== 'string') {
+        console.error(`Page "${slug}" response missing title/slug:`, raw);
+        return null;
+      }
+      
+      return this.toDomain(raw as RemotePageResponse);
     } catch (error: any) {
       // Handle timeout errors gracefully - return null instead of throwing
       if (error.message?.includes('timeout') || error.code === 'TIMEOUT' || error.message?.includes('Page fetch timeout')) {

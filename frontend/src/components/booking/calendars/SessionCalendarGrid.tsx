@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import moment, { Moment } from 'moment';
-import { ChevronLeft, ChevronRight, Calendar, Clock, Edit2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Clock, Edit2, Plus } from 'lucide-react';
 
 export interface CalendarSession {
   id?: string;
@@ -183,13 +183,23 @@ export default function SessionCalendarGrid({
               <div
                 key={index}
                 className={`
-                  min-h-[100px] rounded-xl border-2 transition-all
+                  relative min-h-[100px] rounded-xl border-2 transition-all
                   ${!inCurrentMonth ? 'bg-gray-50 border-gray-100' : 'bg-white border-gray-200'}
                   ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:border-blue-300 hover:shadow-md'}
                   ${today ? 'ring-2 ring-blue-500' : ''}
                 `}
                 onClick={() => !disabled && handleDateClick(date)}
               >
+                {/* Add-session affordance when date is bookable (bottom centred, neutral) */}
+                {!disabled && (
+                  <span
+                    className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex h-5 w-5 items-center justify-center text-gray-400 cursor-pointer"
+                    aria-hidden
+                    title="Add session"
+                  >
+                    <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+                  </span>
+                )}
                 {/* Date Number */}
                 <div className="p-2">
                   <div

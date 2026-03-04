@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Page;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Page Controller (Interface Layer - API)
@@ -34,17 +35,17 @@ class PageController extends Controller
     {
         $data = [
             'id' => (string) $page->id,
-            'title' => $page->title,
-            'slug' => $page->slug,
-            'type' => $page->type,
+            'title' => $page->title ?? '',
+            'slug' => $page->slug ?? '',
+            'type' => $page->type ?? 'other',
             'summary' => $page->summary,
-            'content' => $page->content,
+            'content' => $page->content ?? '',
             'sections' => $page->sections ?? [],
             'blocks' => $this->formatBlocks($page),
-            'lastUpdated' => optional($page->last_updated)->toIso8601String(),
-            'effectiveDate' => optional($page->effective_date)->toDateString(),
-            'version' => $page->version,
-            'views' => $page->views,
+            'lastUpdated' => $this->safeDateToIso8601($page->last_updated),
+            'effectiveDate' => $this->safeDateToDateString($page->effective_date),
+            'version' => $page->version ?? '1.0.0',
+            'views' => (int) ($page->views ?? 0),
             'published' => (bool) $page->published,
         ];
 
@@ -74,10 +75,40 @@ class PageController extends Controller
         }
         return $page->blocks->map(fn ($b) => [
             'id' => (string) $b->id,
-            'type' => $b->type,
+            'type' => $b->type ?? 'unknown',
             'payload' => $b->payload ?? [],
             'meta' => $b->meta ?? null,
         ])->values()->all();
+    }
+
+    /**
+     * Safe date to ISO8601 string (handles null or invalid cast).
+     */
+    private function safeDateToIso8601(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        try {
+            return $value instanceof \DateTimeInterface ? $value->format(\DateTimeInterface::ATOM) : null;
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * Safe date to Y-m-d string (handles null or invalid cast).
+     */
+    private function safeDateToDateString(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        try {
+            return $value instanceof \DateTimeInterface ? $value->format('Y-m-d') : null;
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**
@@ -99,6 +130,13 @@ class PageController extends Controller
             return $this->successResponse($this->formatPageResponse($page));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return $this->notFoundResponse('Page');
+        } catch (\Throwable $e) {
+            Log::error('PageController::show failed for slug ['.$slug.']', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return $this->errorResponse('Failed to load page.', 500);
         }
     }
 

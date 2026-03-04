@@ -32,7 +32,7 @@ const CTASection: React.FC<CTASectionProps> = ({
       case 'solid':
         return 'bg-navy-blue border-t border-navy-blue';
       default:
-        return 'bg-gradient-to-br from-blue-50 via-white to-purple-50 border-t border-primary-blue/20';
+        return 'bg-gradient-to-br from-primary-blue/5 via-white to-primary-blue/5 border-t border-primary-blue/20';
     }
   };
 

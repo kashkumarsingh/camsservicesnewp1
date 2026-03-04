@@ -7,6 +7,9 @@
 /** Locale for date/number formatting (en-GB for UK) */
 export const DATE_LOCALE = 'en-GB' as const;
 
+/** Time display format for UK 24-hour clock (e.g. 14:00, 17:00). Use with moment().format(TIME_FORMAT_24H). */
+export const TIME_FORMAT_24H = 'HH:mm' as const;
+
 /** Default Intl date format options for short dates (e.g. 01/02/2025) */
 export const DATE_FORMAT_SHORT: Intl.DateTimeFormatOptions = {
   year: 'numeric',
@@ -73,6 +76,9 @@ export const UNASSIGN_TRAINER_ERROR_FALLBACK = 'Failed to unassign trainer. Plea
 /** Success message shown after creating a trainer */
 export const TRAINER_ADDED_SUCCESS_MESSAGE = 'Trainer added successfully.';
 
+/** Weekday headers for month calendar grid (Sunday first; matches useCalendarGrid startOf('week')). Single source for calendar column headers. */
+export const CALENDAR_WEEKDAY_HEADERS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
+
 /**
  * Calendar grid — Google Calendar–style square day cells.
  * Use for month/week grids in admin, parent, and trainer dashboards so cells are square (aspect 1:1).
@@ -88,3 +94,20 @@ export const ADMIN_SCHEDULE_MONTH_DAY_CELL_CLASSES = 'min-w-0 w-12 max-w-[4rem] 
 /** Success toast after parent submits child checklist — sets expectation that Buy hours is available only after approval. */
 export const CHECKLIST_SUBMIT_SUCCESS_MESSAGE =
   "Checklist submitted. We're reviewing it — you'll be able to buy hours once we've approved.";
+
+/** Fallback error when confirm-from-session API fails (e.g. network); payment was received but booking may update later. */
+export const PAYMENT_CONFIRM_FROM_SESSION_ERROR_FALLBACK =
+  'Payment was received but we could not confirm it. Your booking may update shortly—check back in a moment.';
+
+/** Top-up modal: tooltip/popover copy explaining how the total is calculated. */
+export const TOP_UP_CALCULATION_TOOLTIP =
+  'Top-up uses your package hourly rate (package price ÷ package hours). Your expiry date stays the same.';
+
+/** Sonner toast: default duration in ms (top-center notification toasts). */
+export const SONNER_TOAST_DURATION_MS = 6000;
+
+/** Sonner notification toast: action button label when notification has a link. */
+export const NOTIFICATION_TOAST_VIEW_LABEL = 'View';
+
+/** Dashboard: root font size when viewing dashboard (rem). Slightly larger than default 16px for readability. */
+export const DASHBOARD_BASE_FONT_SIZE = '1.125rem';

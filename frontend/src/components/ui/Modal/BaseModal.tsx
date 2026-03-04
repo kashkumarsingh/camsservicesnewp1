@@ -361,8 +361,8 @@ export default function BaseModal({
           </div>
         )}
 
-        {/* Content - Scrollable area (flex-1 ensures it takes available space) */}
-        <div className="flex-1 overflow-y-auto overscroll-contain min-h-0 p-4 md:p-6">
+        {/* Content - Scrollable area (flex-1 ensures it takes available space); overflow-x-hidden + min-w-0 prevent horizontal scroll from negative-margin children */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain min-h-0 min-w-0 p-4 md:p-6">
           {children}
         </div>
 

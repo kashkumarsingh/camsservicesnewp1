@@ -24,7 +24,6 @@ export interface ContactFormData {
   preferredContact: 'email' | 'phone' | 'whatsapp';
   message: string;
   hearAboutUs: string;
-  marketingConsent: boolean;
   termsAccepted: boolean;
 }
 

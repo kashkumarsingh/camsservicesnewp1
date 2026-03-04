@@ -143,6 +143,8 @@ export const EMPTY_STATE = {
   NO_ACTIVITIES_FOUND_DROPDOWN: { title: 'No activities found', message: 'Try a different search or add a custom activity.' },
   NO_ACTIVITIES_FOUND_IN_DATABASE: { title: 'No activities found in database', message: 'Contact admin to add activities.' },
   NO_HOURS_PURCHASED_YET: { title: 'No hours purchased yet', message: 'Buy hours to book sessions.' },
+  /** Panel shown when parent clicks calendar but has no hours left (only option is top up) */
+  NO_HOURS_LEFT_PANEL: { title: 'No hours left', message: 'Top up to add more hours.', actionLabel: 'Top up' },
   NO_BOOKINGS_YET_HEADING: { title: 'No Bookings Yet', message: 'Create a booking to get started.' },
 
   /** Parent dashboard right sidebar – minimal, calendar-style labels */
@@ -185,6 +187,31 @@ export const EMPTY_STATE = {
       NO_LOW_HOURS_TITLE: 'No children with low hours',
       NO_LOW_HOURS_MESSAGE: 'All children have more than 25% of their package remaining.',
     },
+  },
+
+  /** Parent booking modal – standard activities (database list) collapsible section */
+  STANDARD_ACTIVITY_SECTION: {
+    TOOLTIP_TITLE: 'Standard Activities',
+    SHORT_LABEL: 'Standard Activities',
+    /** When session is at cap; no "remove one" – section is disabled. */
+    SESSION_FULL: 'Session full',
+    /** Shown when session exceeds remaining hours: how to reduce total. */
+    REMOVE_ACTIVITIES_HINT:
+      'To fit within your hours: uncheck activities in the list above, or click the × next to each selected activity below.',
+  },
+
+  /** Parent booking modal – custom activity (optional) collapsible section */
+  CUSTOM_ACTIVITY_SECTION: {
+    TOOLTIP_TITLE: 'Add Custom Activity',
+    /** Tooltip for the + icon beside Standard Activities that opens the add-your-own popover */
+    ADD_YOUR_OWN_ACTIVITY_TOOLTIP: 'Add your own activity',
+    SHORT_LABEL: 'Custom',
+    NOT_IN_LIST: 'Not in the list? Add one here.',
+    PLACEHOLDER: 'e.g., Baking, Lego building...',
+    HOURS_LABEL: 'Hours',
+    REMAINING_MESSAGE: 'You can still add more custom activities within the remaining session time.',
+    NO_REMAINING_MESSAGE: 'No remaining time available for additional custom activities in this session.',
+    ADD_BUTTON: 'Add custom activity',
   },
 } as const;
 

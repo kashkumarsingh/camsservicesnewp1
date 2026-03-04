@@ -33,6 +33,14 @@ export type TrainerAssignmentStatus =
   | 'admin_assigned'
   | null;
 
+/** Activity chosen for this session (parent or package selection). */
+export interface RemoteBookingSessionActivity {
+  id: string;
+  name: string;
+  durationHours?: number;
+  order?: number;
+}
+
 export interface RemoteBookingSession {
   id: string;
   date: string;
@@ -63,6 +71,10 @@ export interface RemoteBookingSession {
   currentActivityName?: string | null;
   /** Session activities: trainer "completed X" / "is performing X" at location (chronological). */
   currentActivityUpdates?: SessionActivityUpdate[];
+  /** Activities chosen for this session (parent selected or trainer's choice when empty). */
+  activities?: RemoteBookingSessionActivity[];
+  /** Custom activity notes / itinerary (e.g. from parent). */
+  itineraryNotes?: unknown;
   completedAt?: string | null;
   cancelledAt?: string | null;
   cancellationReason?: string | null;

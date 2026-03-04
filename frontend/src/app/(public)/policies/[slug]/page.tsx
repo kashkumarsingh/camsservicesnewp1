@@ -91,8 +91,8 @@ export default async function PolicyPage({ params }: PolicyPageProps) {
           <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm text-white/80">
             {lastUpdated && <span>{P.LAST_UPDATED}: {formatDate(lastUpdated, DATE_FORMAT_LONG)}</span>}
             {effectiveDate && <span>{P.EFFECTIVE_DATE}: {formatDate(effectiveDate, DATE_FORMAT_LONG)}</span>}
-            <span>{P.VERSION}: {page.version}</span>
-            <span>{page.views} {P.VIEWS}</span>
+            <span>{P.VERSION}: {page.version ?? '1.0'}</span>
+            <span>{page.views ?? 0} {P.VIEWS}</span>
           </div>
         </div>
       </Section>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import moment, { Moment } from 'moment';
+import { Plus } from 'lucide-react';
 import BaseMonthCalendar from '@/components/ui/Calendar/BaseMonthCalendar';
 import { calendarUtils } from '@/components/ui/Calendar/useCalendarGrid';
 
@@ -156,6 +157,16 @@ export default function MonthCalendar({
           ${editing ? 'ring-2 ring-amber-400 ring-offset-1 bg-amber-50/70' : ''}
         `}
       >
+        {/* Add-session affordance when date is bookable (bottom centred, neutral) */}
+        {!disabled && !blocked && (
+          <span
+            className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex h-5 w-5 items-center justify-center text-gray-400 z-[1] cursor-pointer"
+            aria-hidden
+            title="Add session"
+          >
+            <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+          </span>
+        )}
         <button
           type="button"
           onClick={() => handleDateClick(date)}

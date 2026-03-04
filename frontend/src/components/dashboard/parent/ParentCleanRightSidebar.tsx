@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import moment from 'moment';
 import { AlertTriangle, CheckCircle, Calendar, ChevronRight, ChevronDown, Plus, UserPlus, Clock, Ban, Filter, LayoutGrid, List, BarChart3, MoreVertical, CalendarDays, X, ShieldAlert } from 'lucide-react';
+import Button from '@/components/ui/Button';
 import { BaseModal } from '@/components/ui/Modal';
 import { SideCanvas } from '@/components/ui/SideCanvas';
 import { getChildColor } from '@/utils/childColorUtils';
@@ -276,9 +277,9 @@ function NextUpSection({ sessions, getCountdownLabel, onViewDetails, onCancel, o
     if (dropdownPosition == null) return null;
     const overlayAndMenu = (
       <>
-        <div className="fixed inset-0 z-dropdown" aria-hidden onClick={() => setOpenMenuScheduleId(null)} />
+        <div className="fixed inset-0 z-overlay" aria-hidden onClick={() => setOpenMenuScheduleId(null)} />
         <div
-          className="fixed z-dropdown w-40 rounded-xl border border-slate-200 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-900"
+          className="fixed z-overlay w-40 rounded-xl border border-slate-200 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-900"
           role="menu"
           aria-label="Session actions"
           style={{ top: dropdownPosition.top, right: dropdownPosition.right }}
@@ -339,7 +340,7 @@ function NextUpSection({ sessions, getCountdownLabel, onViewDetails, onCancel, o
                             type="button"
                             ref={(el) => { if (isMenuOpen) menuTriggerRef.current = el; }}
                             onClick={(e) => { menuTriggerRef.current = e.currentTarget; setOpenMenuScheduleId(isMenuOpen ? null : session.scheduleId); }}
-                            className="p-1 rounded text-gray-500 hover:bg-gray-200 cursor-pointer"
+                            className="p-1 rounded text-primary-blue hover:bg-primary-blue/10 dark:hover:bg-primary-blue/20 cursor-pointer transition-colors"
                             aria-label="Session actions"
                             aria-expanded={isMenuOpen}
                           >
@@ -348,13 +349,13 @@ function NextUpSection({ sessions, getCountdownLabel, onViewDetails, onCancel, o
                         </div>
                       )}
                     </div>
-                  <div className="px-2.5 pb-1.5 text-[10px] text-gray-500 truncate">{dateLabel}{timeLabel ? ` · ${timeLabel}` : ''}{session.trainerName ? ` · ${session.trainerName}` : ''}</div>
+                  <div className="px-2.5 pb-1.5 text-2xs text-gray-500 dark:text-slate-400 truncate">{dateLabel}{timeLabel ? ` · ${timeLabel}` : ''}{session.trainerName ? ` · ${session.trainerName}` : ''}</div>
                   {isCancelConfirm && (
                     <div className="mx-2.5 mb-1.5 rounded-lg border border-rose-200 bg-rose-50 p-2 dark:border-rose-800 dark:bg-rose-950/30">
                       <p className="mb-1.5 text-xs font-medium text-slate-900 dark:text-slate-100">Cancel?</p>
                       <div className="flex gap-1.5">
                         <button type="button" onClick={() => { onCancel?.(session); setCancelConfirmScheduleId(null); }} className="cursor-pointer rounded-full bg-rose-600 px-2 py-1 text-xs font-medium text-white hover:bg-rose-700">Yes</button>
-                        <button type="button" onClick={() => setCancelConfirmScheduleId(null)} className="cursor-pointer rounded-full border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50">No</button>
+                        <button type="button" onClick={() => setCancelConfirmScheduleId(null)} className="cursor-pointer rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-2 py-1 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">No</button>
                       </div>
                     </div>
                   )}
@@ -441,7 +442,7 @@ function NextUpSection({ sessions, getCountdownLabel, onViewDetails, onCancel, o
                       <button
                         type="button"
                         onClick={(e) => { menuTriggerRef.current = e.currentTarget; setOpenMenuScheduleId(isMenuOpen ? null : session.scheduleId); }}
-                        className="rounded-full p-2 text-slate-500 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                        className="rounded-full p-2 text-primary-blue transition-colors duration-150 hover:bg-primary-blue/10 hover:text-primary-blue focus:outline-none focus:ring-2 focus:ring-primary-blue dark:hover:bg-primary-blue/20 dark:hover:text-primary-blue"
                         aria-label="Session actions"
                         aria-expanded={isMenuOpen}
                       >
@@ -468,7 +469,7 @@ function NextUpSection({ sessions, getCountdownLabel, onViewDetails, onCancel, o
                       <button
                         type="button"
                         onClick={() => setCancelConfirmScheduleId(null)}
-                        className="cursor-pointer rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50"
+                        className="cursor-pointer rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 transition-colors duration-150 hover:bg-slate-50 dark:hover:bg-slate-700"
                       >
                         No
                       </button>
@@ -857,7 +858,7 @@ export default function ParentCleanRightSidebar({
   const isStandalone = variant === 'standalone';
   const wrapperClass = isStandalone
     ? 'w-full space-y-6 sm:space-y-8 p-0'
-    : 'w-full bg-transparent lg:bg-white lg:border-l lg:border-gray-200 p-4 md:p-4 lg:px-5 lg:py-4 lg:min-w-0 space-y-4 lg:space-y-4 lg:sticky lg:top-14 lg:z-sidebar lg:self-start lg:max-h-[calc(100vh-4.5rem)] lg:overflow-y-auto';
+    : 'w-full bg-transparent lg:bg-white lg:border-l lg:border-gray-200 dark:lg:bg-slate-900 dark:lg:border-slate-700 p-4 md:p-4 lg:px-5 lg:pt-2 lg:pb-4 lg:min-w-0 space-y-4 lg:space-y-4 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto';
 
   const Wrapper = isStandalone ? 'div' : 'aside';
 
@@ -916,25 +917,25 @@ export default function ParentCleanRightSidebar({
     <>
       {/* Actions dropdown – individual, outside sidebar container */}
       {showCreateButton && (
-        <div className="mb-4">
+        <div className="mb-3">
           <button
             ref={createTriggerRef}
             type="button"
             onClick={() => setCreateDropdownOpen((o) => !o)}
-            className="flex items-center gap-2 w-full min-h-[44px] px-4 py-2 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/80 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-150 cursor-pointer"
+            className="flex items-center gap-2 w-full min-h-[44px] px-4 py-2 rounded-full border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
             aria-expanded={createDropdownOpen}
             aria-haspopup="true"
             aria-label={`${EMPTY_STATE.PARENT_SIDEBAR.CREATE_BUTTON_LABEL} – add child or report a concern`}
           >
-            <Plus className="w-5 h-5 shrink-0 text-slate-600 dark:text-slate-300" aria-hidden />
-            <span className="flex-1 text-left text-sm font-medium">{EMPTY_STATE.PARENT_SIDEBAR.CREATE_BUTTON_LABEL}</span>
-            <ChevronDown className={`w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400 transition-transform ${createDropdownOpen ? 'rotate-180' : ''}`} aria-hidden />
+            <Plus className="w-5 h-5 shrink-0" aria-hidden />
+            <span className="flex-1 text-left">{EMPTY_STATE.PARENT_SIDEBAR.CREATE_BUTTON_LABEL}</span>
+            <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${createDropdownOpen ? 'rotate-180' : ''}`} aria-hidden />
           </button>
           {createDropdownOpen && createDropdownPosition != null && typeof document !== 'undefined' && createPortal(
             <>
-              <div className="fixed inset-0 z-dropdown" aria-hidden onClick={() => setCreateDropdownOpen(false)} />
+              <div className="fixed inset-0 z-overlay" aria-hidden onClick={() => setCreateDropdownOpen(false)} />
               <div
-                className="fixed z-dropdown min-w-[200px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg py-1"
+                className="fixed z-overlay min-w-[200px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg py-1"
                 role="menu"
                 aria-label="Create options"
                 style={{ top: createDropdownPosition.top, left: createDropdownPosition.left }}
@@ -943,7 +944,7 @@ export default function ParentCleanRightSidebar({
                   <button
                     type="button"
                     role="menuitem"
-                    className="w-full text-left px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"
+                    className="w-full text-left px-3 py-2.5 text-sm font-medium text-primary-blue hover:bg-primary-blue/10 dark:hover:bg-primary-blue/20 flex items-center gap-2 rounded-t-md"
                     onClick={() => {
                       onAddChild();
                       setCreateDropdownOpen(false);
@@ -957,13 +958,13 @@ export default function ParentCleanRightSidebar({
                   <button
                     type="button"
                     role="menuitem"
-                    className="w-full text-left px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"
+                    className="w-full text-left px-3 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 rounded-b-md"
                     onClick={() => {
                       onReportConcern();
                       setCreateDropdownOpen(false);
                     }}
                   >
-                    <ShieldAlert className="w-4 h-4 shrink-0 text-primary-blue" aria-hidden />
+                    <ShieldAlert className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden />
                     {EMPTY_STATE.PARENT_SIDEBAR.REPORT_CONCERN_LABEL}
                   </button>
                 )}
@@ -1065,37 +1066,42 @@ export default function ParentCleanRightSidebar({
         </div>
       )}
 
-      {/* 1c. NO HOURS LEFT – had package, ran out; red section. "Top up" = buy more hours for this child. */}
+      {/* 1c. No hours left – GCal-style: compact card, one-line summary, tappable rows like ACTIONS NEEDED */}
       {depletedChildren.length > 0 && (
         <div
-          className="rounded-xl border-2 border-red-500 bg-[#FEF2F2] dark:bg-red-900/30 p-3"
+          className="rounded-xl border border-red-200 bg-white dark:border-red-800 dark:bg-slate-900/50 p-3"
           role="region"
           aria-labelledby="sidebar-depleted-heading"
         >
-          <h2 id="sidebar-depleted-heading" className="font-bold text-red-800 dark:text-red-200 flex items-center gap-2 mb-2">
-            <Ban className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" aria-hidden />
-            NO HOURS LEFT
+          <h2 id="sidebar-depleted-heading" className="text-xs font-semibold text-red-700 dark:text-red-300 tracking-wide mb-1.5 flex items-center gap-2">
+            <Ban className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" aria-hidden />
+            No hours left
           </h2>
-          <p className="text-2xs text-red-700 dark:text-red-300 mb-2">These children have used all their package hours. Top up to buy more.</p>
-          {depletedChildren.map((c) => (
-            <div key={c.childId} className="mb-3 last:mb-0">
-              <p className="text-sm font-medium text-red-800 dark:text-red-200 flex items-center gap-1.5">
-                <span aria-hidden>👶</span> {c.childName}
-              </p>
-              {(c.packageName || c.bookedHours > 0) && (
-                <p className="text-xs text-red-700 dark:text-red-300 mt-0.5">
-                  {c.packageName ? `${c.packageName}: ` : ''}{c.bookedHours.toFixed(1)}h used
-                </p>
-              )}
-              <button
-                type="button"
-                onClick={() => (onTopUpChild ? onTopUpChild(c.childId) : onBuyHoursForChild(c.childId))}
-                className="mt-2 px-3 py-1.5 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700 cursor-pointer"
-              >
-                Top up for {c.childName} →
-              </button>
-            </div>
-          ))}
+          <p className="text-2xs text-slate-600 dark:text-slate-400 mb-2">Top up to add more hours.</p>
+          <ul className="space-y-1.5" role="list">
+            {depletedChildren.map((c) => (
+              <li key={c.childId}>
+                <button
+                  type="button"
+                  onClick={() => (onTopUpChild ? onTopUpChild(c.childId) : onBuyHoursForChild(c.childId))}
+                  className="flex min-h-[44px] w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-primary-blue transition-colors duration-150 hover:bg-primary-blue/10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                  <span className="min-w-0 truncate">
+                    {c.childName}
+                    {(c.packageName || c.bookedHours > 0) && (
+                      <span className="text-slate-500 dark:text-slate-400 font-normal">
+                        {' · '}{c.packageName ? `${c.packageName}: ` : ''}{c.bookedHours.toFixed(1)}h used
+                      </span>
+                    )}
+                  </span>
+                  <span className="shrink-0 flex items-center gap-0.5">
+                    Top up
+                    <ChevronRight className="w-4 h-4" aria-hidden />
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
@@ -1123,9 +1129,9 @@ export default function ParentCleanRightSidebar({
 
       {/* 2. Actions needed – checklist, payment, low hours */}
       {actionItems.length > 0 && (
-        <div className="bg-white rounded-xl border border-amber-200 p-3">
-          <h3 className="text-xs font-semibold text-amber-700 tracking-wide mb-2 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-500" aria-hidden />
+        <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-amber-200 dark:border-amber-800 p-3">
+          <h3 className="text-xs font-semibold text-amber-700 dark:text-amber-300 tracking-wide mb-2 flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-amber-500 dark:text-amber-400" aria-hidden />
             ACTIONS NEEDED
           </h3>
           <ul className="space-y-1.5" role="list">
@@ -1188,10 +1194,10 @@ export default function ParentCleanRightSidebar({
       {hasAlerts ? (
         <div className="rounded-xl border-2 border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10 shadow-sm p-3">
           <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-wide mb-2 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-gray-500" aria-hidden />
+            <AlertTriangle className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden />
             ALERTS
             {visibleAlerts.length > 1 && (
-              <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-600 px-1.5 text-[10px] font-bold text-gray-700 dark:text-gray-300">
+              <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-600 px-1.5 text-2xs font-bold text-gray-700 dark:text-gray-300">
                 {visibleAlerts.length}
               </span>
             )}
@@ -1383,13 +1389,15 @@ export default function ParentCleanRightSidebar({
                       Add a child, then purchase a package to book sessions and see hours here.
                     </p>
                     {onAddChild && (
-                      <button
+                      <Button
                         type="button"
                         onClick={closeBreakdownThen(onAddChild)}
-                        className="mt-4 min-h-[44px] cursor-pointer rounded-full bg-primary-blue px-6 py-2.5 text-sm font-medium text-white transition-all duration-150 hover:opacity-90"
+                        variant="primary"
+                        size="sm"
+                        className="mt-4 min-h-[44px] rounded-full"
                       >
                         Add child
-                      </button>
+                      </Button>
                     )}
                   </div>
                 );
@@ -1625,12 +1633,12 @@ export default function ParentCleanRightSidebar({
             {/* Filter popover – portaled, anchored to trigger */}
             {breakdownFilterOpen && typeof document !== 'undefined' && breakdownFilterPanelRect && createPortal(
               <>
-                <div className="fixed inset-0 z-dropdown" aria-hidden onClick={() => setBreakdownFilterOpen(false)} />
+                <div className="fixed inset-0 z-overlay" aria-hidden onClick={() => setBreakdownFilterOpen(false)} />
                 <div
                   id="hours-breakdown-filter-panel"
                   role="dialog"
                   aria-label="Sort and filter hours by child"
-                  className="fixed z-dropdown min-w-[200px] max-w-[calc(100vw-1rem)] rounded-xl border border-slate-200 bg-white py-2 shadow-lg dark:border-slate-700 dark:bg-slate-800"
+                  className="fixed z-overlay min-w-[200px] max-w-[calc(100vw-1rem)] rounded-xl border border-slate-200 bg-white py-2 shadow-lg dark:border-slate-700 dark:bg-slate-800"
                   style={{ top: breakdownFilterPanelRect.top, right: breakdownFilterPanelRect.right }}
                 >
                   <p className="px-3 py-1.5 text-2xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -1693,15 +1701,17 @@ export default function ParentCleanRightSidebar({
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Add a child and purchase a package to get started.
               </p>
-              {onAddChild && (
-                <button
-                  type="button"
-                  onClick={closeBreakdownThen(onAddChild)}
-                  className="w-full py-2.5 rounded-lg font-medium text-sm bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 cursor-pointer"
-                >
-                  Add child
-                </button>
-              )}
+                    {onAddChild && (
+                        <Button
+                          type="button"
+                          onClick={closeBreakdownThen(onAddChild)}
+                          variant="primary"
+                          size="sm"
+                          className="w-full rounded-lg"
+                        >
+                          Add child
+                        </Button>
+                      )}
             </div>
           ) : (
             <>
@@ -1776,7 +1786,7 @@ export default function ParentCleanRightSidebar({
                             <button
                               type="button"
                               onClick={closeBreakdownThen(() => onBuyHoursForChild(c.childId))}
-                              className="min-h-[36px] px-2 py-1.5 text-[11px] font-medium text-blue-600 dark:text-blue-400"
+                              className="min-h-[36px] px-2 py-1.5 text-2xs font-medium text-blue-600 dark:text-blue-400"
                             >
                               {EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.BUY_HOURS_LABEL}
                             </button>
@@ -1794,7 +1804,7 @@ export default function ParentCleanRightSidebar({
                             <button
                               type="button"
                               onClick={closeBreakdownThen(() => (onTopUpChild ? onTopUpChild(c.childId) : onBuyHoursForChild(c.childId)))}
-                              className="min-h-[36px] px-2 py-1.5 text-[11px] font-medium text-blue-600 dark:text-blue-400"
+                              className="min-h-[36px] px-2 py-1.5 text-2xs font-medium text-blue-600 dark:text-blue-400"
                             >
                               {onTopUpChild ? 'Top up' : 'Buy hours'}
                             </button>
@@ -1961,13 +1971,15 @@ export default function ParentCleanRightSidebar({
                       Add a child before purchasing hours.
                     </p>
                     {onAddChild && (
-                      <button
+                      <Button
                         type="button"
                         onClick={closeBreakdownThen(onAddChild)}
-                        className="mt-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                        variant="ghost"
+                        size="sm"
+                        className="mt-2"
                       >
                         Add child
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -2043,38 +2055,23 @@ export default function ParentCleanRightSidebar({
         }
         return null;
       })()}
-      {/* Approved – book session (when child is approved and no longer under review) */}
+      {/* Approved – book session (only when child is approved, no alerts, and they have hours to book) */}
       {(() => {
         const hasAwaitingReview = (childrenAwaitingChecklistReview?.length ?? 0) > 0;
         const hasPendingNoAction = (childrenPendingApproval?.length ?? 0) > 0 && (childrenNeedingChecklist?.length ?? 0) === 0;
         const showApprovedCard = !hasAlerts && approvedChildren.length > 0 && !hasAwaitingReview && !hasPendingNoAction;
-        if (!showApprovedCard) return null;
         const canBook = totalRemainingHours > 0 && onBookSession && approvedChildren.length > 0;
+        if (!showApprovedCard || !canBook) return null;
         return (
           <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 shadow-sm p-4 transition-shadow duration-200 hover:shadow-md">
-            {canBook ? (
-              <>
-                <p className="text-2xs text-slate-500 dark:text-slate-400 mb-3">{EMPTY_STATE.PARENT_SIDEBAR.BOOK_SESSION_READY}</p>
-                <button
-                  type="button"
-                  onClick={() => onBookSession(approvedChildren[0].id)}
-                  className="w-full min-h-[40px] px-4 py-2 rounded-full font-medium text-sm bg-primary-blue text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150 cursor-pointer"
-                >
-                  {EMPTY_STATE.PARENT_SIDEBAR.BOOK_SESSION}
-                </button>
-              </>
-            ) : (
-              onOpenGenericBuyHours &&
-              approvedChildren.length === 0 && (
-                <button
-                  type="button"
-                  onClick={onOpenGenericBuyHours}
-                  className="w-full min-h-[40px] px-4 py-2 rounded-full font-medium text-sm bg-primary-blue text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150 cursor-pointer"
-                >
-                  {EMPTY_STATE.PARENT_SIDEBAR.BUY_HOURS}
-                </button>
-              )
-            )}
+            <p className="text-2xs text-slate-500 dark:text-slate-400 mb-3">{EMPTY_STATE.PARENT_SIDEBAR.BOOK_SESSION_READY}</p>
+            <button
+              type="button"
+              onClick={() => onBookSession(approvedChildren[0].id)}
+              className="w-full min-h-[40px] px-4 py-2 rounded-full font-medium text-sm bg-primary-blue text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150 cursor-pointer"
+            >
+              {EMPTY_STATE.PARENT_SIDEBAR.BOOK_SESSION}
+            </button>
           </div>
         );
       })()}

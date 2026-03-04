@@ -70,4 +70,5 @@ export const ROUTES = {
   DASHBOARD_ADMIN_ACTIVITIES: '/dashboard/admin/activities',
   DASHBOARD_ADMIN_SERVICES: '/dashboard/admin/services',
   DASHBOARD_ADMIN_SETTINGS: '/dashboard/admin/settings',
+  DASHBOARD_ADMIN_CONTACT_SUBMISSIONS: '/dashboard/admin/contact-submissions',
 } as const;

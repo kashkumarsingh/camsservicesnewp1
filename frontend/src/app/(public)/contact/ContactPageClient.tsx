@@ -35,7 +35,6 @@ const INITIAL_FORM_STATE: ContactFormData = {
   preferredContact: 'email',
   message: '',
   hearAboutUs: '',
-  marketingConsent: false,
   termsAccepted: false,
 };
 
@@ -192,7 +191,7 @@ export default function ContactPageClient({ packages, services, contactInfo }: C
         urgency: urgency as 'urgent' | 'soon' | 'exploring',
         preferredContact: formData.preferredContact,
         message: messageWithSource || undefined,
-        newsletter: formData.marketingConsent,
+        newsletter: false,
         sourcePage: typeof window !== 'undefined' ? window.location.pathname : ROUTES.CONTACT,
       });
       setFormData(INITIAL_FORM_STATE);

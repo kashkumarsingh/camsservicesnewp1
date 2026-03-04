@@ -40,6 +40,9 @@ function getFocusableElements(container: HTMLElement): HTMLElement[] {
  * - Focus is trapped inside the panel when open so the trigger/focused element behind is not visible or interactive.
  * - Accessible: focus trap, Escape to close, correct aria roles and labels.
  * - When opened, scrolls the content area to top so content is in view.
+ *
+ * When the panel has many distinct sections (overview, list, details, audit), use TabbedSidePanelContent
+ * as the default: pass it as children so the panel is tabbed and stays scannable. See .cursor/rules/side-panel-tabs.mdc.
  */
 export function SideCanvas({
   isOpen,

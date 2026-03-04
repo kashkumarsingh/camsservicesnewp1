@@ -7,26 +7,20 @@
  * - Buy Hours modal and any other child lists
  *
  * Same childId always gets the same colour (deterministic, Google Calendar–style).
- * No local copies, temporary palettes, or patch workarounds — import from here only.
+ * Hex values live in themeColors.ts; this module re-exports and provides getChildColor.
  */
 
-export const CHILD_COLOR_FALLBACK = '#9E9E9E';
+import { themeColors } from '@/utils/themeColors';
 
-export const CHILD_COLORS = [
-  '#4285F4', // Blue
-  '#34A853', // Green
-  '#FBBC04', // Yellow/Amber
-  '#EA4335', // Red
-  '#9C27B0', // Purple
-  '#FF9800', // Orange
-  '#00BCD4', // Cyan
-  '#795548', // Brown
-] as const;
+export const CHILD_COLOR_FALLBACK = themeColors.childColorFallback;
+
+export const CHILD_COLORS: readonly string[] = themeColors.childColors;
 
 /**
  * Returns a stable colour for a child by ID. Same childId always gets the same colour.
  */
 export function getChildColor(childId: number): string {
-  const index = childId % CHILD_COLORS.length;
-  return CHILD_COLORS[index] ?? CHILD_COLOR_FALLBACK;
+  const colors = themeColors.childColors;
+  const index = childId % colors.length;
+  return colors[index] ?? themeColors.childColorFallback;
 }

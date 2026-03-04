@@ -228,15 +228,17 @@ export default function TrainerDashboardLeftSidebar({
         <button
           type="button"
           onClick={() => setShowActionsDropdown((prev) => !prev)}
-          className="w-full flex items-center justify-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all duration-150 hover:border-slate-400 hover:bg-slate-50 hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-full shadow-md hover:shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 text-gray-700 dark:text-gray-300 font-medium focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2"
+          aria-expanded={showActionsDropdown}
+          aria-haspopup="true"
+          aria-label="Actions"
         >
-          <Plus size={18} className="text-gcal-primary" />
+          <Plus size={20} className="text-primary-blue" aria-hidden />
           <span>Actions</span>
           <ChevronDown
             size={16}
-            className={`text-slate-500 transition-transform duration-200 dark:text-slate-400 ${
-              showActionsDropdown ? 'rotate-180' : ''
-            }`}
+            className={`text-gray-500 dark:text-gray-400 transition-transform duration-200 ${showActionsDropdown ? 'rotate-180' : ''}`}
+            aria-hidden
           />
         </button>
         {showActionsDropdown && (

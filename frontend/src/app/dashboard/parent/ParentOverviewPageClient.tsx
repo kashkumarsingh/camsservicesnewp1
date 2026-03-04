@@ -20,6 +20,7 @@ import AddChildModal from "@/components/dashboard/modals/AddChildModal";
 import { useActivities } from "@/interfaces/web/hooks/activities/useActivities";
 import { apiClient } from "@/infrastructure/http/ApiClient";
 import { API_ENDPOINTS } from "@/infrastructure/http/apiEndpoints";
+import { ApiPaymentService } from "@/infrastructure/services/payment/ApiPaymentService";
 import { toastManager, type Toast } from "@/utils/toast";
 import { CHECKLIST_SUBMIT_SUCCESS_MESSAGE } from "@/utils/appConstants";
 import { EMPTY_STATE } from "@/utils/emptyStateConstants";
@@ -91,24 +92,10 @@ export default function ParentOverviewPageClient() {
       const run = async () => {
         if (sessionId && !hasConfirmedPaymentFromSessionRef.current) {
           hasConfirmedPaymentFromSessionRef.current = true;
-          try {
-            const response = await apiClient.post<{ success?: boolean; message?: string }>(
-              API_ENDPOINTS.CONFIRM_PAYMENT_FROM_SESSION,
-              { session_id: sessionId }
-            );
-            const data = response.data as { success?: boolean; message?: string } | undefined;
-            if (data && !data.success) {
-              hasShownPurchaseToastRef.current = true;
-              toastManager.error(
-                "Payment could not be confirmed. Your payment was received; the booking may update shortly."
-              );
-            }
-          } catch (err) {
-            console.error("[ParentOverview] Failed to confirm payment from session:", err);
+          const result = await ApiPaymentService.confirmPaymentFromSession(sessionId);
+          if (!result.ok) {
             hasShownPurchaseToastRef.current = true;
-            toastManager.error(
-              "Payment was received but we could not confirm it. Your booking may update shortly—check back in a moment."
-            );
+            toastManager.error(result.error);
           }
         }
 
@@ -922,22 +909,22 @@ export default function ParentOverviewPageClient() {
                   >
                     <button
                       type="button"
-                      className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                      className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm font-medium text-primary-blue hover:bg-primary-blue/10 rounded-t-lg dark:text-primary-blue dark:hover:bg-primary-blue/20"
                       role="menuitem"
                       onClick={() => { setShowAddChildModal(true); setShowMoreDropdown(false); }}
                       title="Register a new child to book sessions"
                     >
-                      <UserPlus className="h-4 w-4 shrink-0 text-slate-500" aria-hidden />
+                      <UserPlus className="h-4 w-4 shrink-0 text-primary-blue" aria-hidden />
                       Add child
                     </button>
                     <button
                       type="button"
-                      className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                      className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 rounded-b-lg"
                       role="menuitem"
                       onClick={() => { setShowSafeguardingModal(true); setShowMoreDropdown(false); }}
                       title="Report a safeguarding concern"
                     >
-                      <ShieldAlert className="h-4 w-4 shrink-0 text-slate-500" aria-hidden />
+                      <ShieldAlert className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden />
                       Report a concern
                     </button>
                   </div>
@@ -1352,10 +1339,10 @@ export default function ParentOverviewPageClient() {
               </div>
               {(approvedChildren.length > 0 || children.length > 0) && (
                 <Button
-                  variant="outline"
+                  variant="primary"
                   size="sm"
                   onClick={() => setShowAddChildModal(true)}
-                  className="shrink-0 inline-flex items-center gap-2 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
+                  className="shrink-0 inline-flex items-center gap-2"
                   title="Register a new child to book sessions"
                 >
                   <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
@@ -1368,7 +1355,7 @@ export default function ParentOverviewPageClient() {
               <div className="mt-6 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 px-4 py-8 text-center">
                 <p className="text-sm text-slate-600 dark:text-slate-400">{EMPTY_STATE.NO_CHILDREN_ADDED_YET.title}</p>
                 <Button
-                  variant="outline"
+                  variant="primary"
                   size="sm"
                   className="mt-3 inline-flex items-center gap-2"
                   onClick={() => setShowAddChildModal(true)}
@@ -1591,6 +1578,7 @@ export default function ParentOverviewPageClient() {
         onSubmit={handleBookingSave}
         preSelectedChildId={bookingModalChildId}
         children={childrenForBookingModal}
+        bookings={bookings}
         renderAsPanel
         onBuyMoreHours={handleBuyHours}
         onTopUp={handleOpenTopUp}

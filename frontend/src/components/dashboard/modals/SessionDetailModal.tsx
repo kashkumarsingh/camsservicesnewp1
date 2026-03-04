@@ -85,8 +85,6 @@ export default function SessionDetailModal({
   session,
   onEdit,
   onCancel,
-  otherSessionsOnDayCount,
-  sessionsOnSameDay,
   variant = 'modal',
 }: SessionDetailModalProps) {
   const [isCancelling, setIsCancelling] = useState(false);
@@ -152,32 +150,6 @@ export default function SessionDetailModal({
     const customFromNotes = parseCustomActivityFromNotes(session.itineraryNotes);
     return { ...detected, customFromNotes };
   }, [session?.activities, session?.itineraryNotes]);
-
-  // When we know all sessions on this day, build an ordered list for the header summary.
-  const sameDaySessions = useMemo(() => {
-    if (!session || !sessionsOnSameDay || sessionsOnSameDay.length === 0) {
-      return [] as Array<{
-        id: string;
-        date: string;
-        startTime: string;
-        endTime: string;
-        childName: string;
-        childId: number;
-      }>;
-    }
-
-    // Only keep sessions that share the same normalised date AND the same child
-    const targetDate = session.date;
-    const targetChildId = session.childId;
-    const filtered = sessionsOnSameDay.filter(
-      (s) => s.date === targetDate && s.childId === targetChildId,
-    );
-
-    // Sort by start time for a clear, chronological list
-    return filtered.sort((a, b) =>
-      moment(a.startTime, 'HH:mm').diff(moment(b.startTime, 'HH:mm')),
-    );
-  }, [session, sessionsOnSameDay]);
 
   // Early return AFTER all hooks have been called
   if (!isOpen || !session) return null;
@@ -391,55 +363,6 @@ export default function SessionDetailModal({
               </div>
             </div>
           </div>
-
-          {/* Sessions today – explicit list when multiple sessions exist on this date */}
-          {sameDaySessions.length > 1 && (
-            <div className="pt-3 mt-1 border-t border-gray-100">
-              <p className="text-xs font-semibold text-gray-700 mb-1">
-                Sessions today
-              </p>
-              <ul className="space-y-1">
-                {sameDaySessions.map((daySession) => {
-                  const isCurrent = daySession.id === session.id;
-                  const startLabel = moment(daySession.startTime, 'HH:mm').format(
-                    'h:mm A',
-                  );
-                  const endLabel = moment(daySession.endTime, 'HH:mm').format(
-                    'h:mm A',
-                  );
-                  return (
-                    <li
-                      key={daySession.id}
-                      className={`rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[11px] ${
-                        isCurrent ? 'border-blue-300 bg-blue-50' : ''
-                      }`}
-                    >
-                      <div className="font-medium text-gray-800 truncate">
-                        {daySession.childName}
-                      </div>
-                      <div className="mt-0.5 text-gray-600">
-                        {startLabel} – {endLabel}
-                        {isCurrent && (
-                          <span className="ml-1 text-[10px] font-semibold text-blue-700">
-                            (this session)
-                          </span>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-          {sameDaySessions.length === 0 &&
-            otherSessionsOnDayCount &&
-            otherSessionsOnDayCount > 1 && (
-              <div className="pt-3 mt-1 border-t border-gray-100">
-                <p className="text-xs font-semibold text-gray-700">
-                  {otherSessionsOnDayCount} sessions today
-                </p>
-              </div>
-            )}
 
           {/* Status / cancellation rules */}
           {!session.trainerName && (

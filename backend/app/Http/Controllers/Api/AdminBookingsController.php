@@ -55,7 +55,7 @@ class AdminBookingsController extends Controller
     {
         try {
             $query = Booking::query()
-                ->with(['user', 'package', 'participants.child', 'schedules.trainer', 'schedules.timeEntries', 'schedules.currentActivity:id,name']);
+                ->with(['user', 'package', 'participants.child', 'schedules.trainer', 'schedules.activities', 'schedules.timeEntries', 'schedules.currentActivity:id,name']);
 
             // Filter by status
             if ($status = $request->query('status')) {
@@ -155,6 +155,16 @@ class AdminBookingsController extends Controller
                     $entries = $schedule->timeEntries ?? collect();
                     $clockIn = $entries->where('type', \App\Models\TimeEntry::TYPE_CLOCK_IN)->sortByDesc('recorded_at')->first();
                     $clockOut = $entries->where('type', \App\Models\TimeEntry::TYPE_CLOCK_OUT)->sortByDesc('recorded_at')->first();
+                    $activities = $schedule->activities
+                        ? $schedule->activities->map(function ($activity) {
+                            return [
+                                'id' => (string) $activity->id,
+                                'name' => $activity->name,
+                                'durationHours' => (float) ($activity->pivot->duration_hours ?? 0),
+                                'order' => (int) ($activity->pivot->order ?? 0),
+                            ];
+                        })->sortBy('order')->values()->all()
+                        : [];
 
                     return [
                         'id' => (string) $schedule->id,
@@ -173,6 +183,8 @@ class AdminBookingsController extends Controller
                         'clockedOutAt' => $clockOut?->recorded_at?->toIso8601String(),
                         'currentActivityId' => $schedule->current_activity_id ? (string) $schedule->current_activity_id : null,
                         'currentActivityName' => $schedule->currentActivity?->name ?? null,
+                        'activities' => $activities,
+                        'itineraryNotes' => $schedule->itinerary_notes,
                     ];
                 });
 
@@ -257,6 +269,16 @@ class AdminBookingsController extends Controller
                 $entries = $schedule->timeEntries ?? collect();
                 $clockIn = $entries->where('type', \App\Models\TimeEntry::TYPE_CLOCK_IN)->sortByDesc('recorded_at')->first();
                 $clockOut = $entries->where('type', \App\Models\TimeEntry::TYPE_CLOCK_OUT)->sortByDesc('recorded_at')->first();
+                $activities = $schedule->activities
+                    ? $schedule->activities->map(function ($activity) {
+                        return [
+                            'id' => (string) $activity->id,
+                            'name' => $activity->name,
+                            'durationHours' => (float) ($activity->pivot->duration_hours ?? 0),
+                            'order' => (int) ($activity->pivot->order ?? 0),
+                        ];
+                    })->sortBy('order')->values()->all()
+                    : [];
 
                 return [
                     'id' => (string) $schedule->id,
@@ -282,6 +304,8 @@ class AdminBookingsController extends Controller
                     'completedAt' => $schedule->completed_at?->toIso8601String(),
                     'cancelledAt' => $schedule->cancelled_at?->toIso8601String(),
                     'cancellationReason' => $schedule->cancellation_reason,
+                    'activities' => $activities,
+                    'itineraryNotes' => $schedule->itinerary_notes,
                     'currentActivityUpdates' => $schedule->currentActivityUpdates
                         ->sortBy('created_at')
                         ->values()

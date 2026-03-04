@@ -44,9 +44,11 @@ const reassuranceHighlights = [
 export default async function ContactThankYouPage() {
   const settings = await getSiteSettings().catch(() => null);
   const contact = settings?.contact;
+  const phone = contact?.phone || C.PHONE_FALLBACK;
+  const whatsappUrl = contact?.whatsappUrl || C.WHATSAPP_URL_FALLBACK;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-white">
+    <div className="min-h-screen bg-gradient-to-b from-primary-blue/5 via-white to-white">
       {/* Hero Section - Enhanced with Video Background */}
       <Section className="relative pt-20 pb-32 px-4 sm:px-6 lg:px-8 text-white overflow-hidden min-h-[85vh] flex items-center">
         <video
@@ -112,7 +114,7 @@ export default async function ContactThankYouPage() {
             <Button href={ROUTES.PACKAGES} variant="superPlayful" size="lg" className="shadow-2xl text-lg" withArrow>
               {C.CTA_EXPLORE}
             </Button>
-            <Button href="/booking" variant="outline" size="lg" className="text-lg shadow-lg" withArrow>
+            <Button href={ROUTES.CONTACT} variant="outline" size="lg" className="text-lg shadow-lg" withArrow>
               {C.CTA_BOOK_CALL}
             </Button>
           </div>
@@ -120,9 +122,9 @@ export default async function ContactThankYouPage() {
       </Section>
 
       {/* Next Steps & Support Section */}
-      <Section className="py-20 bg-gradient-to-br from-blue-50 to-white">
+      <Section className="py-20 bg-gradient-to-br from-primary-blue/5 to-white">
         <div className="grid gap-8 lg:grid-cols-2 max-w-7xl mx-auto">
-          <Card className="rounded-3xl border-2 border-primary-blue/20 shadow-card hover:shadow-card-hover transition-shadow duration-300">
+          <Card className="rounded-3xl border-2 border-primary-blue/20 bg-white shadow-card hover:shadow-card-hover transition-shadow duration-300">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-primary-blue/10">
                 <Clock className="text-primary-blue" size={24} />
@@ -135,7 +137,7 @@ export default async function ContactThankYouPage() {
             </p>
             <div className="mt-8 space-y-5">
               {nextSteps.map((step, index) => (
-                <div key={step.title} className="flex gap-5 rounded-card border-2 border-primary-blue/20 bg-gradient-to-r from-white to-blue-50/50 p-5 hover:border-primary-blue/30 hover:shadow-card-hover transition-all duration-300">
+                <div key={step.title} className="flex gap-5 rounded-card border-2 border-primary-blue/20 bg-gradient-to-r from-white to-primary-blue/5 p-5 hover:border-primary-blue/30 hover:shadow-card-hover transition-all duration-300">
                   <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-primary-blue to-light-blue-cyan flex items-center justify-center">
                     <span className="text-xl font-bold text-white">{index + 1}</span>
                   </div>
@@ -148,53 +150,56 @@ export default async function ContactThankYouPage() {
             </div>
           </Card>
 
-          <Card className="rounded-3xl border-2 border-navy-blue bg-gradient-to-br from-navy-blue to-footer-dark text-white shadow-card hover:shadow-card-hover transition-shadow duration-300">
+          <Card className="rounded-3xl border-2 border-primary-blue/20 bg-white shadow-card hover:shadow-card-hover transition-shadow duration-300">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-white/20">
-                <MessageSquare className="text-white" size={24} />
+              <div className="p-2 rounded-lg bg-primary-blue/10">
+                <MessageSquare className="text-primary-blue" size={24} />
               </div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-white/90">{C.URGENT_LABEL}</p>
+              <p className="text-sm font-semibold uppercase tracking-wide text-primary-blue">{C.URGENT_LABEL}</p>
             </div>
-            <h2 className="mt-2 text-3xl font-bold">{C.URGENT_TITLE}</h2>
-            <p className="mt-4 text-lg text-white/90 leading-relaxed">
+            <h2 className="mt-2 text-3xl font-heading font-bold text-navy-blue">{C.URGENT_TITLE}</h2>
+            <p className="mt-4 text-lg text-navy-blue/80 leading-relaxed">
               {C.URGENT_DESC}
             </p>
             <div className="mt-8 space-y-4">
               <Button
-                href={contact?.phone ? `tel:${contact.phone}` : undefined}
-                variant="outlineWhite"
-                className="w-full justify-between border-2 border-white/40 text-white hover:bg-white/10 hover:border-white/60 transition-all duration-300"
-                disabled={!contact?.phone}
+                href={`tel:${phone.replace(/\s/g, '')}`}
+                variant="outline"
+                size="lg"
+                className="w-full justify-between border-2 border-primary-blue/40 text-navy-blue hover:bg-primary-blue/10 hover:border-primary-blue transition-all duration-300"
               >
                 <span className="flex items-center gap-3">
                   <Phone size={20} />
-                  <span className="font-semibold">{contact?.phone ?? C.PHONE_PLACEHOLDER}</span>
+                  <span className="font-semibold">{phone}</span>
                 </span>
-                <span className="text-sm opacity-70">{C.CALL_US}</span>
+                <span className="text-2xs text-navy-blue/70">{C.CALL_US}</span>
               </Button>
               <Button
-                href={contact?.whatsappUrl || undefined}
-                variant="bordered"
-                className="w-full justify-between border-2 border-white/60 !bg-white/10 hover:!bg-white/20 text-white transition-all duration-300"
-                disabled={!contact?.whatsappUrl}
+                href={whatsappUrl}
+                variant="primary"
+                size="lg"
+                className="w-full justify-between"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <span className="flex items-center gap-3">
                   <MessageSquare size={20} />
                   <span className="font-semibold">{C.WHATSAPP}</span>
                 </span>
-                <span className="text-sm opacity-70">{C.WHATSAPP_SUB}</span>
+                <span className="text-2xs opacity-90">{C.WHATSAPP_SUB}</span>
               </Button>
               <Button
-                href="/booking"
-                variant="outlineWhite"
-                className="w-full justify-between border-2 border-white/40 text-white hover:bg-white/10 hover:border-white/60 transition-all duration-300"
+                href={ROUTES.CONTACT}
+                variant="bordered"
+                size="lg"
+                className="w-full justify-between border-2 border-primary-blue text-primary-blue hover:bg-primary-blue/10 transition-all duration-300"
                 withArrow
               >
                 <span className="flex items-center gap-3">
                   <Calendar size={20} />
                   <span className="font-semibold">{C.SCHEDULE_CALL}</span>
                 </span>
-                <span className="text-sm opacity-70">{C.SCHEDULE_SUB}</span>
+                <span className="text-2xs text-navy-blue/70">{C.SCHEDULE_SUB}</span>
               </Button>
             </div>
           </Card>
@@ -202,9 +207,9 @@ export default async function ContactThankYouPage() {
       </Section>
 
       {/* Trust & Preparation Section */}
-      <Section className="py-20 bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <Section className="py-20 bg-gradient-to-br from-primary-blue/5 via-white to-primary-blue/5">
         <div className="grid gap-8 lg:grid-cols-2 max-w-7xl mx-auto">
-          <Card className="rounded-3xl border-2 border-primary-blue/20 shadow-card hover:shadow-card-hover transition-shadow duration-300">
+          <Card className="rounded-3xl border-2 border-primary-blue/20 bg-white shadow-card hover:shadow-card-hover transition-shadow duration-300">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 rounded-lg bg-primary-blue/10">
                 <Shield className="text-primary-blue" size={24} />
@@ -214,7 +219,7 @@ export default async function ContactThankYouPage() {
             <IconList items={reassuranceHighlights} />
           </Card>
 
-          <Card className="rounded-3xl border-2 border-primary-blue/20 shadow-card hover:shadow-card-hover transition-shadow duration-300">
+          <Card className="rounded-3xl border-2 border-primary-blue/20 bg-white shadow-card hover:shadow-card-hover transition-shadow duration-300">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 rounded-lg bg-primary-blue/10">
                 <Calendar className="text-primary-blue" size={24} />
