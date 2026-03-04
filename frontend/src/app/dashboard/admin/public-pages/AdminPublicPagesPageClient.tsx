@@ -382,6 +382,7 @@ export const AdminPublicPagesPageClient: React.FC = () => {
         columns={pageColumns}
         data={sortedPages}
         isLoading={loading}
+        responsive
         error={error}
         onRetry={() => updateFilters({})}
         emptyTitle={EMPTY_STATE.NO_PAGES_FOUND.title}
@@ -409,7 +410,6 @@ export const AdminPublicPagesPageClient: React.FC = () => {
           </RowActions>
         )}
         onRowClick={(page) => handleEdit(page)}
-        responsive
       />
 
       {/* Create Page SideCanvas */}

@@ -81,7 +81,7 @@ export default async function PackagesPage() {
       <Section className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 text-white overflow-hidden bg-gradient-to-br from-primary-blue to-navy-blue">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url('/svgs/orbit-pattern.svg')", backgroundRepeat: "repeat", backgroundSize: "40px 40px" }}></div>
         
-        <div className="relative z-20 text-center max-w-4xl mx-auto">
+        <div className="relative text-center max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-extrabold mb-4 leading-tight">
             {PACKAGES_PAGE.HERO_TITLE}
           </h1>

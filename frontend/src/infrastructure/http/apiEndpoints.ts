@@ -90,6 +90,7 @@ export const API_ENDPOINTS = {
     `/admin/bookings/sessions/${sessionId}/activity-logs`,
   ADMIN_BOOKINGS_BULK_CANCEL: '/admin/bookings/bulk-cancel',
   ADMIN_BOOKINGS_BULK_CONFIRM: '/admin/bookings/bulk-confirm',
+  ADMIN_BOOKING_TOP_UP: (id: string | number) => `/admin/bookings/${id}/top-up`,
   ADMIN_BOOKINGS_EXPORT: '/admin/bookings/export',
 
   // Admin Trainers (full CRUD + activate/deactivate + export)

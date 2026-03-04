@@ -188,7 +188,8 @@ class PackageController extends Controller
      * Get all packages.
      *
      * GET /api/v1/packages
-     * 
+     * Query param `q`: optional search term (uses Meilisearch/Scout when set).
+     *
      * @param Request $request
      * @return JsonResponse
      */
@@ -205,22 +206,81 @@ class PackageController extends Controller
             'sort_order',
         ]);
 
-        $packages = $this->listPackagesAction->execute($filters);
-        
+        $packages = $this->requestWantsSearch($request, 'q') && config('scout.driver') === 'meilisearch'
+            ? $this->searchPackages($request->input('q'), $filters)
+            : $this->listPackagesAction->execute($filters);
+
         // Calculate metrics efficiently (uses already loaded relationships)
         $metrics = $this->calculatePackageMetricsAction->execute($packages);
 
-        // All relationships are already eager loaded in the action (no N+1 queries)
-        // Format response (all data is already in memory, no additional queries)
-        $formattedPackages = $packages->map(function ($package) {
-            return $this->formatPackageResponse($package);
-        });
+        $formattedPackages = $packages->map(fn ($package) => $this->formatPackageResponse($package));
 
         return $this->collectionResponse(
             $formattedPackages,
             null,
             ['metrics' => $metrics]
         );
+    }
+
+    /**
+     * Search packages via Scout/Meilisearch with same filters and eager loading as list.
+     *
+     * @param string $query
+     * @param array<string, mixed> $filters
+     * @return \Illuminate\Database\Eloquent\Collection<int, Package>
+     */
+    private function searchPackages(string $query, array $filters): \Illuminate\Database\Eloquent\Collection
+    {
+        $sortBy = $filters['sort_by'] ?? 'created_at';
+        $sortOrder = $filters['sort_order'] ?? 'desc';
+
+        $builder = Package::search($query)->query(function ($q) use ($filters, $sortBy, $sortOrder) {
+            $q->active();
+            if (! empty($filters['popular'])) {
+                $q->popular();
+            }
+            if (! empty($filters['difficulty_level'])) {
+                $q->byDifficulty($filters['difficulty_level']);
+            }
+            if (! empty($filters['age_group'])) {
+                $q->byAgeGroup($filters['age_group']);
+            }
+            if (isset($filters['price_min'])) {
+                $q->where('price', '>=', $filters['price_min']);
+            }
+            if (isset($filters['price_max'])) {
+                $q->where('price', '<=', $filters['price_max']);
+            }
+            if (! empty($filters['has_spots'])) {
+                $q->where('spots_remaining', '>', 0);
+            }
+            $q->with([
+                'activities',
+                'activities.trainers:id,name,slug,image,role,rating,total_reviews,specialties',
+                'testimonials' => fn ($tq) => $tq->published()
+                    ->select('testimonials.id', 'testimonials.public_id', 'testimonials.slug',
+                        'testimonials.author_name', 'testimonials.author_role', 'testimonials.author_avatar_url',
+                        'testimonials.quote', 'testimonials.rating', 'testimonials.source_label',
+                        'testimonials.source_type', 'testimonials.source_url')
+                    ->orderBy('package_testimonial.order'),
+            ])->orderBy($sortBy, $sortOrder);
+        });
+
+        return $builder->take(100)->get();
+    }
+
+    /**
+     * Whether the request has a non-empty search query param.
+     *
+     * @param Request $request
+     * @param string $param
+     * @return bool
+     */
+    private function requestWantsSearch(Request $request, string $param = 'q'): bool
+    {
+        $value = $request->input($param);
+
+        return is_string($value) && trim($value) !== '';
     }
 
     /**

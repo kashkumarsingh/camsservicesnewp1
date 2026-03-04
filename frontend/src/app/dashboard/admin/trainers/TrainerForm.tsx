@@ -132,8 +132,8 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex h-full flex-col text-sm space-y-4">
-      <div className="flex-1 space-y-4 pb-4">
+    <form onSubmit={handleSubmit} className="flex h-full min-h-0 flex-col text-sm space-y-4">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pb-4">
       {/* Basic Information */}
       <section className="space-y-3">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -148,6 +148,7 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
             type="text"
             id="name"
             required
+            placeholder="e.g. Jane Smith"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
@@ -164,6 +165,7 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
                 type="email"
                 id="email"
                 required
+                placeholder="e.g. trainer@example.com"
                 value={(formData as CreateTrainerDTO).email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
@@ -178,6 +180,7 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
                 type="password"
                 id="password"
                 required
+                placeholder="Min. 8 characters (trainer can change it later)"
                 value={(formData as CreateTrainerDTO).password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
@@ -300,6 +303,7 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
             id="experienceYears"
             min="0"
             max="99"
+            placeholder="e.g. 5"
             value={formData.experience_years || 0}
             onChange={(e) =>
               setFormData({ ...formData, experience_years: parseInt(e.target.value, 10) || 0 })
@@ -344,6 +348,7 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
                   </label>
                   <input
                     type="text"
+                    placeholder="e.g. Level 3 Personal Training"
                     value={qualificationForm.name}
                     onChange={(e) =>
                       setQualificationForm((prev) => ({ ...prev, name: e.target.value }))
@@ -359,6 +364,7 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
                     type="number"
                     min="1900"
                     max={new Date().getFullYear()}
+                    placeholder="e.g. 2024"
                     value={qualificationForm.year}
                     onChange={(e) =>
                       setQualificationForm((prev) => ({ ...prev, year: e.target.value }))
@@ -372,6 +378,7 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
                   </label>
                   <input
                     type="text"
+                    placeholder="e.g. REPs, CIMSPA"
                     value={qualificationForm.issuer}
                     onChange={(e) =>
                       setQualificationForm((prev) => ({ ...prev, issuer: e.target.value }))
@@ -558,6 +565,7 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
             id="travelRadius"
             min="0"
             max="999"
+            placeholder="e.g. 25"
             value={formData.travel_radius_km || 0}
             onChange={(e) =>
               setFormData({ ...formData, travel_radius_km: parseInt(e.target.value, 10) || 0 })

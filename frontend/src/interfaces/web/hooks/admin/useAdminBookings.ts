@@ -13,6 +13,9 @@ import { useDashboardSyncEnabled } from '@/core/dashboardSync/DashboardSyncConte
 import { dashboardSyncStore } from '@/core/dashboardSync/dashboardSyncStore';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+import { getApiErrorMessage } from '@/utils/errorUtils';
+import { ASSIGN_TRAINER_ERROR_FALLBACK } from '@/utils/appConstants';
+import type { BookingTopUpApiResponse } from '@/core/application/booking/dto/BookingTopUpApiResponse';
 import type {
   AdminBookingDTO,
   RemoteBookingsListResponse,
@@ -198,11 +201,7 @@ export function useAdminBookings(initialFilters?: AdminBookingsFilters) {
       // Refetch to get latest data
       await fetchBookings();
     } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'Failed to assign trainer to session';
-      setError(message);
+      setError(getApiErrorMessage(err, ASSIGN_TRAINER_ERROR_FALLBACK));
       console.error('[useAdminBookings] assignTrainer error:', err);
       throw err;
     }
@@ -346,6 +345,25 @@ export function useAdminBookings(initialFilters?: AdminBookingsFilters) {
   }, []);
 
   /**
+   * Create a top-up for a booking (admin on behalf of parent). Returns checkout URL to share with parent.
+   */
+  const createTopUp = useCallback(async (
+    bookingId: string,
+    hours: number,
+    currency = 'GBP'
+  ): Promise<BookingTopUpApiResponse> => {
+    const response = await apiClient.post<BookingTopUpApiResponse>(
+      API_ENDPOINTS.ADMIN_BOOKING_TOP_UP(bookingId),
+      { hours, currency }
+    );
+    const data = response.data;
+    if (!data) {
+      throw new Error('Invalid response from top-up API');
+    }
+    return data;
+  }, []);
+
+  /**
    * Export bookings to CSV
    */
   const exportBookings = useCallback(async (
@@ -459,6 +477,7 @@ export function useAdminBookings(initialFilters?: AdminBookingsFilters) {
     bulkConfirm,
     updateNotes,
     getBooking,
+    createTopUp,
     exportBookings,
     updateFilters,
   };

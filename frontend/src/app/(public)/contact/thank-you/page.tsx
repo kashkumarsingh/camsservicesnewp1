@@ -50,17 +50,17 @@ export default async function ContactThankYouPage() {
       {/* Hero Section - Enhanced with Video Background */}
       <Section className="relative pt-20 pb-32 px-4 sm:px-6 lg:px-8 text-white overflow-hidden min-h-[85vh] flex items-center">
         <video
-          className="absolute inset-0 w-full h-full object-cover z-0"
+          className="absolute inset-0 w-full h-full object-cover"
           src="/videos/space-bg-2.mp4"
           loop
           autoPlay
           muted
           playsInline
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/40 to-navy-blue/60 z-10"></div>
-        <div className="absolute inset-0 z-10 opacity-10" style={{ backgroundImage: "url('/svgs/star.svg')", backgroundRepeat: "repeat", backgroundSize: "40px 40px" }}></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/40 to-navy-blue/60"></div>
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url('/svgs/star.svg')", backgroundRepeat: "repeat", backgroundSize: "40px 40px" }}></div>
         
-        <div className="relative z-20 text-center max-w-5xl mx-auto space-y-8">
+        <div className="relative text-center max-w-5xl mx-auto space-y-8">
           {/* Success Icon */}
           <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-white/20 backdrop-blur-sm shadow-2xl shadow-blue-500/20 border border-white/30">
             <CheckCircle2 className="text-green-400" size={56} strokeWidth={2.5} />

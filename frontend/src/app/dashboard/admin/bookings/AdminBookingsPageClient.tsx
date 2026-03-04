@@ -64,7 +64,9 @@ import Button from '@/components/ui/Button';
 import { ROUTES } from '@/utils/routes';
 import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/utils/appConstants';
 import Link from 'next/link';
-import { ArrowDown, ArrowUp, ArrowUpDown, CheckCircle, Download, XCircle } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, CheckCircle, Download, Plus, XCircle } from 'lucide-react';
+import { toastManager } from '@/utils/toast';
+import { AdminTopUpModal } from '@/components/dashboard/admin/AdminTopUpModal';
 
 // ==========================================================================
 // Helper Functions
@@ -139,6 +141,7 @@ export const AdminBookingsPageClient: React.FC = () => {
     updateStatus,
     assignTrainer,
     getBooking,
+    createTopUp,
     bulkCancel,
     bulkConfirm,
     exportBookings,
@@ -179,6 +182,8 @@ export const AdminBookingsPageClient: React.FC = () => {
   const [bulkOperationLoading, setBulkOperationLoading] = useState(false);
 
   const [assigningSessionId, setAssigningSessionId] = useState<string | null>(null);
+  const [showTopUpModal, setShowTopUpModal] = useState(false);
+  const [isTopUpSubmitting, setIsTopUpSubmitting] = useState(false);
 
   /** Per-session available trainers (conflict + availability + qualifications) for Assign dropdown */
   const [availableTrainersBySessionId, setAvailableTrainersBySessionId] = useState<
@@ -536,6 +541,49 @@ export const AdminBookingsPageClient: React.FC = () => {
     }
   };
 
+  const canTopUpBooking =
+    selectedBooking &&
+    selectedBooking.status === BOOKING_STATUS.CONFIRMED &&
+    selectedBooking.paymentStatus === PAYMENT_STATUS.PAID;
+
+  const handleTopUpSuccess = useCallback(async () => {
+    if (!selectedBooking) return;
+    try {
+      const updated = await getBooking(selectedBooking.id);
+      setSelectedBooking(updated);
+      liveRefreshContext?.invalidate('bookings');
+      toastManager.success('Payment link created. Share it with the parent to complete the top-up.');
+    } catch {
+      // getBooking error already surfaced
+    }
+  }, [selectedBooking, getBooking, liveRefreshContext]);
+
+  const handleOpenTopUpModal = useCallback(() => {
+    setShowTopUpModal(true);
+  }, []);
+
+  const handleCloseTopUpModal = useCallback(() => {
+    setShowTopUpModal(false);
+  }, []);
+
+  const handleAdminTopUpSubmit = useCallback(
+    async (bookingId: string, hours: number, currency: string) => {
+      setIsTopUpSubmitting(true);
+      try {
+        const result = await createTopUp(bookingId, hours, currency);
+        await handleTopUpSuccess();
+        return result;
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to create top-up link.';
+        toastManager.error(message);
+        throw err;
+      } finally {
+        setIsTopUpSubmitting(false);
+      }
+    },
+    [createTopUp, handleTopUpSuccess]
+  );
+
   return (
     <section className="space-y-4">
       {/* Header with back navigation */}
@@ -679,9 +727,9 @@ export const AdminBookingsPageClient: React.FC = () => {
         )}
       </div>
 
-      {/* Bookings Table */}
+      {/* Bookings Table – mobile: horizontal scroll; hide Created, Updated, Package, Trainers on small screens */}
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="max-h-[420px] overflow-x-auto overflow-y-auto text-sm">
+        <div className="max-h-[420px] overflow-x-auto overflow-y-auto text-sm -mx-3 px-3 md:mx-0 md:px-0">
           <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
             <thead className="bg-slate-50 dark:bg-slate-950/40">
               <tr>
@@ -704,6 +752,7 @@ export const AdminBookingsPageClient: React.FC = () => {
                   ] as const
                 ).map(({ key, label }) => {
                   const isSorted = sortBy === key;
+                  const hideOnMobile = key === 'created_at' || key === 'updated_at';
                   const ariaLabel = isSorted
                     ? `Sort by ${label} ${order === 'asc' ? 'ascending' : 'descending'}. Click to change.`
                     : `Sort by ${label}. Click to sort.`;
@@ -711,7 +760,7 @@ export const AdminBookingsPageClient: React.FC = () => {
                     <th
                       key={key}
                       scope="col"
-                      className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+                      className={`px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 ${hideOnMobile ? 'hidden md:table-cell' : ''}`}
                     >
                       <button
                         type="button"
@@ -747,7 +796,7 @@ export const AdminBookingsPageClient: React.FC = () => {
                 <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Parent
                 </th>
-                <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                <th className="hidden px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 md:table-cell">
                   Package
                 </th>
                 <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -756,7 +805,7 @@ export const AdminBookingsPageClient: React.FC = () => {
                 <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Payment status
                 </th>
-                <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                <th className="hidden px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 md:table-cell">
                   Trainers
                 </th>
                 <th className="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -795,16 +844,16 @@ export const AdminBookingsPageClient: React.FC = () => {
                     <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
                       {booking.reference}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
+                    <td className="hidden whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200 md:table-cell">
                       {formatDate(booking.createdAt)}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
+                    <td className="hidden whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200 md:table-cell">
                       {formatDate(booking.updatedAt)}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
                       {booking.parentName}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
+                    <td className="hidden whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200 md:table-cell">
                       {booking.packageName || '—'}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-xs">
@@ -834,7 +883,7 @@ export const AdminBookingsPageClient: React.FC = () => {
                         {booking.paymentStatus}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
+                    <td className="hidden whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200 md:table-cell">
                       <div className="flex flex-col gap-1">
                         <span className="text-2xs text-slate-600 dark:text-slate-300">
                           {getTrainerNames(booking)}
@@ -1019,6 +1068,27 @@ export const AdminBookingsPageClient: React.FC = () => {
               </section>
             </div>
 
+            {/* Top up (confirmed + paid only) */}
+            {canTopUpBooking && (
+              <section className="space-y-1">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  Top up
+                </h3>
+                <p className="text-2xs text-slate-600 dark:text-slate-400">
+                  Add hours to this package. Create a payment link and share it with the parent.
+                </p>
+                <Button
+                  type="button"
+                  variant="bordered"
+                  size="sm"
+                  onClick={handleOpenTopUpModal}
+                  icon={<Plus className="h-3.5 w-3.5" />}
+                >
+                  Create top-up link
+                </Button>
+              </section>
+            )}
+
             {/* Children */}
             <section className="space-y-1">
               <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -1140,6 +1210,14 @@ export const AdminBookingsPageClient: React.FC = () => {
           </div>
         )}
       </SideCanvas>
+
+      <AdminTopUpModal
+        isOpen={showTopUpModal}
+        onClose={handleCloseTopUpModal}
+        booking={selectedBooking}
+        onCreateTopUp={handleAdminTopUpSubmit}
+        isSubmitting={isTopUpSubmitting}
+      />
     </section>
   );
 };

@@ -109,6 +109,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Load broadcast channel authorization rules so Broadcast::auth() can authorize private channels.
+        // See https://laravel.com/docs/12.x/broadcasting#authorizing-channels
+        if (file_exists($channelsPath = base_path('routes/channels.php'))) {
+            require $channelsPath;
+        }
+
         // Register policies
         $this->registerPolicies();
 

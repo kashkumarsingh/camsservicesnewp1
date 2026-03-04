@@ -44,7 +44,7 @@ export default async function PoliciesIndexPage() {
             backgroundRepeat: 'repeat',
           }}
         />
-        <div className="relative z-20 max-w-4xl mx-auto text-center">
+        <div className="relative max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-heading font-extrabold leading-tight tracking-tight">
             {POLICIES_PAGE.HERO_TITLE}
           </h1>

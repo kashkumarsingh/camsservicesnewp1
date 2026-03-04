@@ -64,7 +64,7 @@ export default function DashboardLeftSidebar({
         </button>
 
         {showCreateDropdown && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-popover animate-in fade-in slide-in-from-top-1 duration-150">
             <button
               onClick={() => {
                 onBookSession?.();

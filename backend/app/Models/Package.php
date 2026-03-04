@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Package extends Model
 {
     use HasFactory;
+    use Searchable;
 
     /**
      * The attributes that are mass assignable.
@@ -83,6 +85,33 @@ class Package extends Model
         'is_active' => 'boolean',
         'is_popular' => 'boolean',
     ];
+
+    /**
+     * Get the indexable data array for Meilisearch/Scout.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'description' => $this->description,
+            'age_group' => $this->age_group,
+            'difficulty_level' => $this->difficulty_level,
+            'what_to_expect' => $this->what_to_expect,
+            'features' => is_array($this->features ?? []) ? implode(' ', array_map(fn ($f) => is_string($f) ? $f : (is_array($f) ? ($f['feature'] ?? '') : ''), $this->features)) : '',
+        ];
+    }
+
+    /**
+     * Only index active packages.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return (bool) $this->is_active;
+    }
 
     /**
      * Get the difficulty level options.

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, X } from 'lucide-react';
 
@@ -24,14 +24,22 @@ interface SideCanvasProps {
   children: React.ReactNode;
 }
 
+/** Collects focusable elements inside a container (buttons, links, inputs with no disabled/hidden). */
+function getFocusableElements(container: HTMLElement): HTMLElement[] {
+  const selector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  return Array.from(container.querySelectorAll<HTMLElement>(selector)).filter(
+    (el) => !el.hasAttribute('disabled') && el.offsetParent !== null
+  );
+}
+
 /**
  * SideCanvas
  *
  * A reusable right-hand slide-over panel (side canvas) for dashboards.
- * - Uses a semi-opaque backdrop to focus attention
- * - Accessible: focus trap can be layered on later; for now we provide correct
- *   aria roles and labels and ensure keyboard users can close the panel.
- * - Default width is tuned for detail views (e.g. "day summary", "session details").
+ * - Uses a semi-opaque backdrop; z-overlay + z-sidePanel so it sits above header (Tier 3 > Tier 2).
+ * - Focus is trapped inside the panel when open so the trigger/focused element behind is not visible or interactive.
+ * - Accessible: focus trap, Escape to close, correct aria roles and labels.
+ * - When opened, scrolls the content area to top so content is in view.
  */
 export function SideCanvas({
   isOpen,
@@ -44,6 +52,17 @@ export function SideCanvas({
   footer,
   children,
 }: SideCanvasProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
+
+  // Scroll content to top when panel opens so content is in view
+  useEffect(() => {
+    if (!isOpen) return;
+    const content = contentRef.current;
+    if (content) content.scrollTop = 0;
+  }, [isOpen]);
+
   useEffect(() => {
     if (!isOpen) return;
     const handleEscape = (e: KeyboardEvent) => {
@@ -53,36 +72,89 @@ export function SideCanvas({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
+  // Focus trap: when open, move focus into the panel and keep it there; restore on close
+  useEffect(() => {
+    if (!isOpen) return;
+    previousActiveElement.current = document.activeElement as HTMLElement | null;
+    const panel = panelRef.current;
+    if (!panel) return;
+    const focusables = getFocusableElements(panel);
+    const first = focusables[0];
+    if (first) {
+      first.focus();
+    }
+    return () => {
+      if (previousActiveElement.current && typeof previousActiveElement.current.focus === 'function') {
+        previousActiveElement.current.focus();
+      }
+      previousActiveElement.current = null;
+    };
+  }, [isOpen]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key !== 'Tab' || !panelRef.current) return;
+      const focusables = getFocusableElements(panelRef.current);
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const current = document.activeElement as HTMLElement;
+      if (e.shiftKey) {
+        if (current === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (current === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    },
+    []
+  );
+
   if (!isOpen) return null;
 
   const hasFooter = Boolean(footer);
 
   const panel = (
-    <div
-      className="fixed inset-0 z-overlay flex justify-end"
-      aria-modal="true"
-      role="dialog"
-      aria-label={title}
-    >
-      {/* Backdrop */}
+    <>
+      {/* Backdrop – z-overlay (above header); click closes */}
       <button
         type="button"
-        className="flex-1 bg-black/30 backdrop-blur-sm"
+        className="fixed inset-0 z-overlay cursor-default bg-black/40 backdrop-blur-sm"
         onClick={onClose}
         aria-label="Close backdrop"
+        tabIndex={-1}
       />
 
-      {/* Panel */}
+      {/* Panel – z-sidePanel (above overlay); mobile: bottom sheet (flex-col justify-end); md+: right panel */}
       <div
-        className={`relative flex h-full flex-col bg-white dark:bg-gray-900 shadow-2xl border-l border-gray-200 dark:border-gray-800 w-full sm:w-[380px] md:w-[420px] ${widthClassName ?? ''}`}
+        className="pointer-events-none fixed inset-0 z-sidePanel flex flex-col justify-end md:flex-row md:justify-end"
+        aria-modal="true"
+        role="dialog"
+        aria-label={title}
       >
-        <div className="flex shrink-0 items-start justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-800">
-          <div className="min-w-0">
-            <h2 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
+        <div
+          ref={panelRef}
+          tabIndex={-1}
+          onKeyDown={handleKeyDown}
+          className={`pointer-events-auto flex max-h-[90vh] w-full flex-col overflow-hidden border-l border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900
+            rounded-t-2xl border-t md:max-h-screen md:rounded-none md:border-t-0
+            md:w-[420px] md:max-w-[80vw] lg:w-[480px] xl:w-[520px] ${widthClassName ?? ''}`}
+        >
+        {/* Mobile: drag handle (visual only) */}
+        <div className="flex shrink-0 justify-center pt-3 md:hidden">
+          <div className="h-1 w-12 shrink-0 rounded-full bg-slate-300 dark:bg-slate-600" aria-hidden />
+        </div>
+        <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-slate-800 md:px-6 md:py-4">
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate text-base font-semibold text-slate-900 dark:text-slate-100 md:text-lg">
               {title}
             </h2>
             {description && (
-              <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
+              <p className="mt-1 line-clamp-2 text-sm text-slate-500 dark:text-slate-400">
                 {description}
               </p>
             )}
@@ -90,7 +162,7 @@ export function SideCanvas({
           <button
             type="button"
             onClick={onClose}
-            className="ml-3 inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="ml-3 inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full p-2 text-slate-600 transition-colors duration-150 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 md:min-h-0 md:min-w-0"
             aria-label={closeLabel}
           >
             {showCloseText ? (
@@ -104,21 +176,23 @@ export function SideCanvas({
           </button>
         </div>
         <div
+          ref={contentRef}
           className={
             hasFooter
-              ? 'min-h-0 flex-1 overflow-y-auto px-4 sm:px-5 py-3 sm:py-4'
-              : 'h-[calc(100%-3.25rem)] sm:h-[calc(100%-3.5rem)] overflow-y-auto px-4 sm:px-5 py-3 sm:py-4'
+              ? 'min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-4 py-3 md:px-6 md:py-4'
+              : 'min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-4 py-3 md:px-6 md:py-4'
           }
         >
           {children}
         </div>
         {hasFooter && (
-          <div className="shrink-0 border-t border-gray-200 bg-gray-50 px-4 sm:px-5 py-3 dark:border-gray-800 dark:bg-gray-900/50">
+          <div className="flex shrink-0 justify-end gap-3 border-t border-slate-200 px-4 py-3 dark:border-slate-800 md:px-6 md:py-4">
             {footer}
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 
   return typeof document !== 'undefined' ? createPortal(panel, document.body) : null;

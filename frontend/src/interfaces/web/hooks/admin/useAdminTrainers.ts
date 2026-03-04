@@ -14,8 +14,22 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { apiClient } from '@/infrastructure/http/ApiClient';
+import { apiClient, type ApiError } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+
+/** Format Laravel 422 validation errors into a single message for display. */
+function formatValidationErrorMessage(err: unknown): string | null {
+  const apiErr = err as ApiError;
+  const data = apiErr?.response?.data as { errors?: Record<string, string[]> } | undefined;
+  if (!data?.errors || typeof data.errors !== 'object') return null;
+  const parts: string[] = [];
+  for (const [field, messages] of Object.entries(data.errors)) {
+    if (Array.isArray(messages) && messages.length > 0) {
+      parts.push(`${field}: ${messages.join(', ')}`);
+    }
+  }
+  return parts.length > 0 ? parts.join('; ') : null;
+}
 import type {
   AdminTrainerDTO,
   RemoteTrainersListResponse,
@@ -96,6 +110,20 @@ export function useAdminTrainers(initialFilters?: AdminTrainersFilters) {
   }, [filters]);
 
   /**
+   * Build user-facing error message from API error (including 422 validation).
+   * ApiClient throws plain ApiError objects (not Error instances), so we must read .message and .response.data.
+   */
+  const getCreateErrorMessage = useCallback((err: unknown): string => {
+    const validationMsg = formatValidationErrorMessage(err);
+    if (validationMsg) return validationMsg;
+    const apiErr = err as ApiError;
+    if (apiErr?.message && typeof apiErr.message === 'string') return apiErr.message;
+    const data = apiErr?.response?.data as { message?: string } | undefined;
+    if (data?.message && typeof data.message === 'string') return data.message;
+    return err instanceof Error ? err.message : 'Failed to create trainer';
+  }, []);
+
+  /**
    * Create a new trainer
    */
   const createTrainer = useCallback(async (
@@ -116,13 +144,19 @@ export function useAdminTrainers(initialFilters?: AdminTrainersFilters) {
 
       return mapRemoteTrainerToAdminTrainerDTO(response.data);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to create trainer';
-      setError(message);
-      console.error('[useAdminTrainers] createTrainer error:', err);
-      throw err;
+      const message = getCreateErrorMessage(err);
+      // Do not set hook error on create failure — page shows error inside create modal only
+      const apiErr = err as ApiError;
+      const summary = {
+        userMessage: message,
+        apiMessage: apiErr?.message ?? (err instanceof Error ? err.message : undefined),
+        status: apiErr?.response?.status,
+        data: apiErr?.response?.data,
+      };
+      console.error('[useAdminTrainers] createTrainer error:', summary, err);
+      throw new Error(message);
     }
-  }, [fetchTrainers]);
+  }, [fetchTrainers, getCreateErrorMessage]);
 
   /**
    * Update an existing trainer
@@ -450,6 +484,10 @@ export function useAdminTrainers(initialFilters?: AdminTrainersFilters) {
     fetchTrainers();
   }, []);
 
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
   return {
     trainers,
     loading,
@@ -464,6 +502,8 @@ export function useAdminTrainers(initialFilters?: AdminTrainersFilters) {
     getTrainer,
     exportTrainers,
     updateFilters,
+    clearError,
+    getCreateErrorMessage,
     uploadTrainerImage,
     uploadTrainerQualification,
     deleteTrainerQualification,

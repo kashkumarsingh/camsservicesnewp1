@@ -207,43 +207,64 @@ class TrainerController extends Controller
 
     /**
      * Get all active trainers.
+     * Query param `q`: optional search term (uses Meilisearch/Scout when set).
      *
      * @param Request $request
      * @return JsonResponse
      */
     public function index(Request $request): JsonResponse
     {
+        $queryParam = $request->input('q');
+        if (is_string($queryParam) && trim($queryParam) !== '' && config('scout.driver') === 'meilisearch') {
+            $sortBy = $request->input('sort_by', 'created_at');
+            $sortOrder = $request->input('sort_order', 'desc');
+            $trainers = Trainer::search($queryParam)
+                ->query(function ($q) use ($request, $sortBy, $sortOrder) {
+                    $q->where('is_active', true);
+                    if ($request->boolean('featured')) {
+                        $q->featured();
+                    }
+                    if ($request->filled('min_rating')) {
+                        $q->minRating((float) $request->input('min_rating'));
+                    }
+                    if ($request->filled('min_experience')) {
+                        $q->minExperience((int) $request->input('min_experience'));
+                    }
+                    if ($request->filled('package_id')) {
+                        $q->whereHas('packages', fn ($pq) => $pq->where('packages.id', $request->input('package_id')));
+                    }
+                    $q->orderBy($sortBy, $sortOrder);
+                })
+                ->take(100)
+                ->get();
+
+            return $this->collectionResponse(
+                $trainers->map(fn ($trainer) => $this->formatTrainerResponse($trainer))
+            );
+        }
+
         $filters = [];
-        
         if ($request->has('featured')) {
             $filters['featured'] = $request->boolean('featured');
         }
-
         if ($request->has('min_rating')) {
             $filters['min_rating'] = $request->input('min_rating');
         }
-
         if ($request->has('min_experience')) {
             $filters['min_experience'] = $request->input('min_experience');
         }
-
         if ($request->has('package_id')) {
             $filters['package_id'] = $request->input('package_id');
         }
-
         if ($request->has('available')) {
-            // Frontend uses 'available', backend uses 'is_active'
             $filters['available'] = $request->boolean('available');
         }
-
         if ($request->has('with_relations')) {
             $filters['with_relations'] = $request->boolean('with_relations');
         }
-
         if ($request->has('sort_by')) {
             $filters['sort_by'] = $request->input('sort_by');
         }
-
         if ($request->has('sort_order')) {
             $filters['sort_order'] = $request->input('sort_order');
         }
@@ -251,9 +272,7 @@ class TrainerController extends Controller
         $trainers = $this->listTrainersAction->execute($filters);
 
         return $this->collectionResponse(
-            $trainers->map(function ($trainer) {
-                return $this->formatTrainerResponse($trainer);
-            })
+            $trainers->map(fn ($trainer) => $this->formatTrainerResponse($trainer))
         );
     }
 

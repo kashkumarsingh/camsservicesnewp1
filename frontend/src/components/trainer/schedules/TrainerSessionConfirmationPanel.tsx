@@ -54,7 +54,8 @@ export default function TrainerSessionConfirmationPanel({
       .then((s) => {
         if (!cancelled) {
           setSchedule(s);
-          if ((s.trainer_assignment_status ?? '') !== PENDING_CONFIRMATION) {
+          const status = s.trainerAssignmentStatus ?? (s as { trainer_assignment_status?: string }).trainer_assignment_status ?? '';
+          if (status !== PENDING_CONFIRMATION) {
             setError('This session is not pending your confirmation.');
           }
         }
@@ -213,10 +214,10 @@ export default function TrainerSessionConfirmationPanel({
             )}
           </div>
 
-          {/* Footer actions */}
+          {/* Footer actions: same bar style as SideCanvas (sticky bottom) */}
           {schedule && !loading && !error && (
-            <div className="border-t border-gray-200 px-4 py-3 dark:border-gray-700">
-              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <div className="shrink-0 border-t border-gray-200 bg-gray-50 px-4 sm:px-5 py-3 dark:border-gray-800 dark:bg-gray-900/50">
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
                 <Button
                   type="button"
                   variant="outline"

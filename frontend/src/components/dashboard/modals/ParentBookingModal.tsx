@@ -7,7 +7,7 @@ import { Calendar, Clock, User, FileText, Loader2, Activity, Search, AlertTriang
 import moment from 'moment';
 import Button from '@/components/ui/Button';
 import { BaseModal } from '@/components/ui/Modal';
-import { BOOKING_VALIDATION_MESSAGES, getMessageForDateReason, meetsMinimumDuration, formatDurationDisplay, formatActivityDurationDisplay, getHoursNeededForMinimum } from '@/utils/bookingValidationMessages';
+import { BOOKING_VALIDATION_MESSAGES, getMessageForDateReason, meetsMinimumDuration, formatDurationDisplay, formatActivityDurationDisplay, getHoursNeededForMinimum, toWholeActivityHours } from '@/utils/bookingValidationMessages';
 import { getDateBookingStatus, getEarliestBookableDate, isTomorrowBookable } from '@/utils/bookingCutoffRules';
 import { useActivities } from '@/interfaces/web/hooks/activities/useActivities';
 import { MIN_DURATION_HOURS } from '@/utils/bookingConstants';
@@ -16,6 +16,7 @@ import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
 import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 import { parseCustomActivityFromNotes, parseAllCustomActivitiesFromNotes, removeCustomActivityFromNotes, normaliseNotesFromApi } from '@/utils/activitySelectionUtils';
 import { toastManager } from '@/utils/toast';
+import { getApiErrorMessage } from '@/utils/errorUtils';
 import { ROUTES } from '@/utils/routes';
 import type { FC } from 'react';
 
@@ -126,6 +127,14 @@ interface ParentBookingModalProps {
   onTopUp?: (childId: number) => void;
   /** When provided and there are no approved children, "Add child" opens this (e.g. dashboard Add Child modal). When not provided, we link to dashboard to add a child there. */
   onAddChild?: () => void;
+  /** Children who need to complete their checklist. When set and no approved children, show "Complete checklist" instead of "Add child". */
+  childrenNeedingChecklist?: { id: number; name: string }[];
+  /** Children whose checklist is submitted and awaiting admin review. When set and no approved children, show "We're reviewing" instead of "Add child". */
+  childrenAwaitingChecklistReview?: { id: number; name: string }[];
+  /** All children still pending approval (any reason). When set with no checklist action needed, show "We're reviewing". */
+  childrenPendingApproval?: { id: number; name: string }[];
+  /** Open the Complete Checklist flow for a specific child. Used when no approved children but childrenNeedingChecklist is set. */
+  onCompleteChecklist?: (childId: number) => void;
   /** When true, render as a right-side slide-over panel instead of a modal (dashboard sidebar pattern) */
   renderAsPanel?: boolean;
 }
@@ -176,6 +185,10 @@ export default function ParentBookingModal({
   onBuyMoreHours,
   onTopUp,
   onAddChild,
+  childrenNeedingChecklist,
+  childrenAwaitingChecklistReview,
+  childrenPendingApproval,
+  onCompleteChecklist,
   renderAsPanel = false,
 }: ParentBookingModalProps) {
   /** Submit handler: required onSubmit takes precedence; fallback to deprecated onSave for backward compat. */
@@ -188,6 +201,7 @@ export default function ParentBookingModal({
   const trainerModeSectionRef = useRef<HTMLDivElement | null>(null);
   const hasUserChosenSelectionModeRef = useRef(false);
   const [showCustomSection, setShowCustomSection] = useState(false);
+  const [dismissedHints, setDismissedHints] = useState<Record<string, boolean>>({});
 
   // Selection mode for parent/trainer control over activities:
   // - 'all_parent'  → Parent specifies activities for the full duration
@@ -289,11 +303,18 @@ export default function ParentBookingModal({
     return Math.max(MIN_DURATION_HOURS, cappedBy24);
   }, [formData.date, formData.startTime, selectedChildRemainingHours]);
 
+  // Reset dismissed hints when modal closes so they show again next open
+  useEffect(() => {
+    if (!isOpen) {
+      hasUserChosenSelectionModeRef.current = false;
+      setDismissedHints({});
+      return;
+    }
+  }, [isOpen]);
+
   // Derive a sensible initial selection mode whenever the modal is (re)opened
   useEffect(() => {
     if (!isOpen) {
-      // Reset flag when modal is closed so defaults apply next time it opens
-      hasUserChosenSelectionModeRef.current = false;
       return;
     }
 
@@ -402,7 +423,21 @@ export default function ParentBookingModal({
     // Fallback: for trainer_choice or legacy custom, use selected duration (defaults to minimum)
     return formData.duration || MIN_DURATION_HOURS;
   }, [formData.selectedActivityIds, formData.customActivities, formData.duration, formData.activitySelectionType, availableActivities]);
-  
+
+  // Display total using whole hours so summary matches activity chips (e.g. 0.8h activity shows "1h" chip → total "1h" not "0.8h")
+  const sessionDurationForDisplay = useMemo(() => {
+    const selectedIds = formData.selectedActivityIds || [];
+    const customActivities = formData.customActivities || [];
+    const dbDisplay = selectedIds.reduce((total, activityId) => {
+      const activity = availableActivities.find(a => a.id === activityId);
+      return total + (activity != null ? toWholeActivityHours(activity.duration) : 0);
+    }, 0);
+    const customDisplay = customActivities.reduce((total, custom) => total + toWholeActivityHours(custom.duration || 0), 0);
+    const combined = dbDisplay + customDisplay;
+    if (combined > 0) return combined;
+    return sessionDuration;
+  }, [formData.selectedActivityIds, formData.customActivities, availableActivities, sessionDuration]);
+
   // Check if session duration is valid (MIN_DURATION_HOURS to maxAvailableDuration)
   const isDurationValid = useMemo(() => {
     if (sessionDuration < MIN_DURATION_HOURS) return false;
@@ -683,9 +718,12 @@ export default function ParentBookingModal({
     
     // If current duration exceeds maximum available, adjust it
     if (formData.duration > maxAvailableDuration) {
+      const capped = formData.activitySelectionType === 'trainer_choice'
+        ? Math.floor(maxAvailableDuration)
+        : maxAvailableDuration;
       setFormData(prev => ({
         ...prev,
-        duration: maxAvailableDuration,
+        duration: capped,
       }));
     }
   }, [formData.date, formData.startTime, maxAvailableDuration, formData.activitySelectionType, formData.duration]);
@@ -763,8 +801,10 @@ export default function ParentBookingModal({
       setShowNotes(false);
       setActivitySearch('');
     } catch (error: unknown) {
-      console.error('Failed to save booking:', error);
-      toastManager.error(error instanceof Error ? error.message : 'Failed to save booking. Please try again.');
+      const errorMessage = getApiErrorMessage(error, 'Failed to save booking. Please try again.');
+      const err = error as { response?: { data?: unknown } };
+      console.error('Failed to save booking:', errorMessage, err?.response?.data ?? error);
+      toastManager.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -901,23 +941,78 @@ export default function ParentBookingModal({
               )}
             </select>
             {children.length === 0 ? (
-              <p className="text-xs text-gray-600 mt-1">
-                You do not yet have any approved children to book for.{' '}
-                {onAddChild ? (
-                  <button
-                    type="button"
-                    onClick={() => onAddChild()}
-                    className="text-blue-600 hover:underline font-medium"
-                  >
-                    Add child
-                  </button>
-                ) : (
-                  <Link href={ROUTES.DASHBOARD_PARENT} className="text-blue-600 hover:underline font-medium">
-                    Go to dashboard to add a child
-                  </Link>
-                )}{' '}
-                to create a child profile before booking a session.
-              </p>
+              (() => {
+                const needsChecklist = (childrenNeedingChecklist?.length ?? 0) > 0;
+                const awaitingReview = (childrenAwaitingChecklistReview?.length ?? 0) > 0;
+                const pendingNoAction = (childrenPendingApproval?.length ?? 0) > 0 && (childrenNeedingChecklist?.length ?? 0) === 0;
+                if (needsChecklist && childrenNeedingChecklist?.[0] && onCompleteChecklist) {
+                  const first = childrenNeedingChecklist[0];
+                  const dropdownChecklistLabel = first.name?.trim() ? `${first.name}'s checklist` : BOOKING_VALIDATION_MESSAGES.YOUR_CHILD_CHECKLIST;
+                  return (
+                    <p className="text-xs text-amber-700 mt-1 flex flex-wrap items-center gap-x-1 gap-y-1">
+                      <AlertTriangle className="inline w-3 h-3 shrink-0" />
+                      {BOOKING_VALIDATION_MESSAGES.NO_APPROVED_CHILDREN_TO_BOOK} Complete{' '}
+                      <button
+                        type="button"
+                        onClick={() => onCompleteChecklist(first.id)}
+                        className="text-amber-700 hover:underline font-medium"
+                      >
+                        {dropdownChecklistLabel}
+                      </button>
+                      {BOOKING_VALIDATION_MESSAGES.CREATE_CHILD_PROFILE_BEFORE_BOOKING}
+                      {onAddChild ? (
+                        <>
+                          {' '}
+                          <button
+                            type="button"
+                            onClick={() => onAddChild()}
+                            className="text-amber-700 hover:underline font-medium"
+                          >
+                            {BOOKING_VALIDATION_MESSAGES.OR_ADD_ANOTHER_CHILD}
+                          </button>
+                          .
+                        </>
+                      ) : (
+                        <>
+                          {' '}
+                          <Link href={ROUTES.DASHBOARD_PARENT} className="text-amber-700 hover:underline font-medium">
+                            {BOOKING_VALIDATION_MESSAGES.OR_ADD_ANOTHER_CHILD}
+                          </Link>
+                          .
+                        </>
+                      )}
+                    </p>
+                  );
+                }
+                if (awaitingReview || pendingNoAction) {
+                  const names = (childrenAwaitingChecklistReview ?? childrenPendingApproval ?? []);
+                  const label = names.length === 1 ? `${names[0].name}'s` : 'your children\'s';
+                  return (
+                    <p className="text-xs text-gray-600 mt-1">
+                      We&apos;re reviewing {label} details. You&apos;ll be able to book sessions once we&apos;ve approved. No need to do anything – we&apos;ll email you when it&apos;s done.
+                    </p>
+                  );
+                }
+                return (
+                  <p className="text-xs text-gray-600 mt-1">
+                    {BOOKING_VALIDATION_MESSAGES.NO_APPROVED_CHILDREN_TO_BOOK}{' '}
+                    {onAddChild ? (
+                      <button
+                        type="button"
+                        onClick={() => onAddChild()}
+                        className="text-blue-600 hover:underline font-medium"
+                      >
+                        {BOOKING_VALIDATION_MESSAGES.ADD_CHILD_LABEL}
+                      </button>
+                    ) : (
+                      <Link href={ROUTES.DASHBOARD_PARENT} className="text-blue-600 hover:underline font-medium">
+                        {BOOKING_VALIDATION_MESSAGES.GO_TO_DASHBOARD_TO_ADD_CHILD}
+                      </Link>
+                    )}
+                    {BOOKING_VALIDATION_MESSAGES.CREATE_CHILD_PROFILE_BEFORE_BOOKING}
+                  </p>
+                );
+              })()
             ) : selectedChildHasNoHours && !isEditMode ? (
               <p className="text-xs text-amber-700 mt-1 flex flex-wrap items-center gap-x-1">
                 <AlertTriangle className="inline w-3 h-3 shrink-0" />
@@ -1025,40 +1120,31 @@ export default function ParentBookingModal({
               
                 if (!formData.startTime) {
                 if (!formData.date) {
-                  return (
-                    <p className="text-xs text-gray-500 mt-1">
-                      Please select a date first to see available times
-                    </p>
-                  );
+                  return <p className="text-xs text-gray-500 mt-1">Select date first.</p>;
                 }
-
                   if (selectedChildHasNoHours && !isEditMode) {
                     return (
                       <p className="text-xs text-amber-600 mt-1">
                         <AlertTriangle className="inline w-3 h-3 mr-1" />
-                        {selectedChildNeedsTopUp ? 'Top up to unlock time selection.' : 'Buy hours to unlock time selection.'}
+                        {selectedChildNeedsTopUp ? 'Top up to book.' : 'Buy hours to book.'}
                       </p>
                     );
                   }
                   if (!canSelectStartTime) {
-                    return (
-                      <p className="text-xs text-gray-500 mt-1">
-                        Please select a child before choosing a start time
-                      </p>
-                    );
+                    return <p className="text-xs text-gray-500 mt-1">Select child first.</p>;
                   }
                 if (availableTimes.length === 0) {
                   return (
                     <p className="text-xs text-amber-600 mt-1">
                       <AlertTriangle className="inline w-3 h-3 mr-1" />
-                      No times for this date. Pick a date from the calendar above.
+                      No times this date.
                     </p>
                   );
                 }
                 
                 return (
                   <p className="text-xs text-gray-500 mt-1">
-                    {availableTimes.length} available time{availableTimes.length !== 1 ? 's' : ''} • Select a start time
+                    {availableTimes.length} time{availableTimes.length !== 1 ? 's' : ''} available
                   </p>
                 );
               }
@@ -1071,47 +1157,28 @@ export default function ParentBookingModal({
                 {BOOKING_VALIDATION_MESSAGES.INSUFFICIENT_NOTICE}
             </p>
             )}
-            {/* Show session duration and end time */}
-            {formData.startTime && sessionEndTime.display && (
-              <div className={`mt-2 p-2 border rounded-lg ${
-                isDurationValid 
-                  ? 'bg-green-50 border-green-200' 
-                  : 'bg-amber-50 border-amber-300'
+            {/* Session time/duration – compact; dismissible */}
+            {formData.startTime && sessionEndTime.display && !dismissedHints.sessionSummary && (
+              <div className={`mt-2 p-2 border rounded-lg flex items-center justify-between gap-2 ${
+                isDurationValid ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-300'
               }`}>
                 <p className="text-xs text-gray-700">
-                  <span className="font-semibold">Session:</span> {moment(formData.startTime, 'HH:mm').format('h:mm A')} - {sessionEndTime.display}
-                  {sessionEndTime.isNextDay && <span className="text-blue-600 font-medium"> (next day)</span>}
+                  {moment(formData.startTime, 'HH:mm').format('h:mm A')} – {sessionEndTime.display}
+                  {sessionEndTime.isNextDay && <span className="text-blue-600"> (next day)</span>}
+                  {' · '}
+                  <span className={isDurationValid ? 'text-green-700 font-medium' : 'text-amber-700'}>
+                    {isDurationValid ? `✓ ${formatDurationDisplay(sessionDuration)}` : `${formatDurationDisplay(sessionDuration)}${sessionDuration < MIN_DURATION_HOURS ? ` (min ${MIN_DURATION_HOURS}h)` : ` (max ${formatDurationDisplay(maxAvailableDuration)})`}`}
+                  </span>
                 </p>
-                <p className={`text-xs mt-0.5 font-medium ${
-                  isDurationValid ? 'text-green-700' : 'text-amber-700'
-                }`}>
-                  {isDurationValid ? (
-                    <>
-                      <span className="text-green-600">✓ </span>
-                      Duration: {formatDurationDisplay(sessionDuration)} (Valid)
-                    </>
-                  ) : (
-                    <>
-                      <AlertTriangle className="inline w-3 h-3 mr-1" />
-                      Duration: {formatDurationDisplay(sessionDuration)}
-                    </>
-                  )}
-                </p>
-                {!isDurationValid && (
-                  <p className="text-xs text-amber-600 mt-1">
-                    {sessionDuration < MIN_DURATION_HOURS 
-                      ? `⚠️ Sessions must be at least ${MIN_DURATION_HOURS} hours. Add ${formatDurationDisplay(getHoursNeededForMinimum(sessionDuration))} more.` 
-                      : `⚠️ Maximum ${formatDurationDisplay(maxAvailableDuration)} available (until 11:59 PM on ${moment(formData.date).format('MMM D')}).`
-                    }
-                  </p>
-                )}
-                {isDurationValid && sessionDuration >= MIN_DURATION_HOURS && (
-                  <p className="text-xs text-green-600 mt-1">
-                    ✓ Meets {MIN_DURATION_HOURS}-hour minimum
-                    {maxAvailableDuration > sessionDuration && ` • Can book up to ${formatDurationDisplay(maxAvailableDuration)}${selectedChildRemainingHours < 24 && maxAvailableDuration <= selectedChildRemainingHours ? ' (package limit)' : ''}`}
-                  </p>
-                )}
-            </div>
+                <button
+                  type="button"
+                  onClick={() => setDismissedHints(prev => ({ ...prev, sessionSummary: true }))}
+                  className="text-gray-400 hover:text-gray-600 shrink-0"
+                  aria-label="Dismiss"
+                >
+                  <X size={12} />
+                </button>
+              </div>
             )}
           </div>
 
@@ -1125,8 +1192,8 @@ export default function ParentBookingModal({
             {!canSelectActivities && (
               <p className="text-xs text-gray-500 mb-2">
                 {selectedChildHasNoHours
-                  ? (selectedChildNeedsTopUp ? 'This child has no hours left. Top up to add more hours.' : 'This child has no package. Buy hours to book sessions.')
-                  : '⏰ Please select a start time first. We need to know when the session starts to calculate the available duration (until 11:59 PM on the same day).'}
+                  ? (selectedChildNeedsTopUp ? 'No hours left. Top up to book.' : 'No package. Buy hours to book.')
+                  : 'Select date and start time first.'}
               </p>
             )}
 
@@ -1214,24 +1281,22 @@ export default function ParentBookingModal({
                             className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           />
                         </div>
-                        {/* Cap message: once remaining hours are used, no more activities can be added */}
-                        {/* Session cap upfront: so parents know the limit before selecting */}
-                        {canSelectActivities && formData.date && formData.startTime && (
-                          <p className="text-xs text-gray-700 bg-blue-50 border border-blue-200 rounded px-2 py-1.5 mb-2">
-                            Add activities up to <strong>{formatDurationDisplay(maxAvailableDuration)}</strong> for this session
-                            {selectedChildRemainingHours < 24 && maxAvailableDuration <= selectedChildRemainingHours
-                              ? ` (${formatDurationDisplay(selectedChildRemainingHours)} left in package).`
-                              : ` (until 11:59 PM on ${moment(formData.date).format('MMM D')}).`}
+                        {canSelectActivities && formData.date && formData.startTime && !dismissedHints.activityCap && (
+                          <p className="text-xs text-gray-700 bg-blue-50 border border-blue-200 rounded px-2 py-1.5 mb-2 flex items-center justify-between gap-2">
+                            <span>Up to <strong>{formatDurationDisplay(maxAvailableDuration)}</strong> for this session</span>
+                            <button type="button" onClick={() => setDismissedHints(prev => ({ ...prev, activityCap: true }))} className="text-gray-400 hover:text-gray-600 shrink-0" aria-label="Dismiss"><X size={12} /></button>
                           </p>
                         )}
-                        {hasReachedRemainingHoursCap && !hasReachedSessionCap && (
-                          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 mb-2">
-                            You&apos;ve used all {selectedChildRemainingHours}h for this package. Remove an activity to swap, or buy more hours.
+                        {hasReachedRemainingHoursCap && !hasReachedSessionCap && !dismissedHints.activityCapHours && (
+                          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 mb-2 flex items-center justify-between gap-2">
+                            <span>Package hours used. Remove one or top up.</span>
+                            <button type="button" onClick={() => setDismissedHints(prev => ({ ...prev, activityCapHours: true }))} className="text-amber-600 hover:text-amber-800 shrink-0" aria-label="Dismiss"><X size={12} /></button>
                           </p>
                         )}
-                        {hasReachedSessionCap && (
-                          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 mb-2">
-                            Session is full ({formatDurationDisplay(maxAvailableDuration)} max until 11:59 PM). Remove an activity to swap, or choose an earlier start time for a longer session.
+                        {hasReachedSessionCap && !dismissedHints.activityCapFull && (
+                          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 mb-2 flex items-center justify-between gap-2">
+                            <span>Session full ({formatDurationDisplay(maxAvailableDuration)} max). Remove one or pick earlier time.</span>
+                            <button type="button" onClick={() => setDismissedHints(prev => ({ ...prev, activityCapFull: true }))} className="text-amber-600 hover:text-amber-800 shrink-0" aria-label="Dismiss"><X size={12} /></button>
                           </p>
                         )}
                         {/* Multiple activity selection - checkboxes (Fixed max height) */}
@@ -1335,9 +1400,7 @@ export default function ParentBookingModal({
                         <p className="text-sm font-medium text-gray-900">
                           + Add Custom Activity (optional)
                         </p>
-                        <p className="text-xs text-gray-600">
-                          Use this if you cannot find an activity in the list above.
-                        </p>
+                        <p className="text-xs text-gray-600">Not in the list? Add one here.</p>
                       </div>
                       {showCustomSection ? (
                         <ChevronUp className="w-4 h-4 text-gray-500" />
@@ -1384,25 +1447,12 @@ export default function ParentBookingModal({
                             : 'text-amber-700'
                       }`}>
                         {sessionDuration > maxAvailableDuration ? (
-                          <>
-                            {totalSelectedActivities} activity(ies) • {formatDurationDisplay(sessionDuration)} selected — max for this session is {formatDurationDisplay(maxAvailableDuration)} (until 11:59 PM). Remove activities or choose an earlier start time.
-                          </>
+                          <>{totalSelectedActivities} activities · {formatDurationDisplay(sessionDurationForDisplay)} — max {formatDurationDisplay(maxAvailableDuration)}. Remove or pick earlier time.</>
                         ) : (
                           <>
                             {sessionDuration >= MIN_DURATION_HOURS ? '✓ ' : '⚠️ '}
-                            {totalSelectedActivities} activity(ies) • Total: {formatDurationDisplay(sessionDuration)}
-                            {sessionDuration < MIN_DURATION_HOURS && (
-                              <span className="text-amber-600">
-                                {' '}
-                                (Need {formatDurationDisplay(getHoursNeededForMinimum(sessionDuration))} more)
-                              </span>
-                            )}
-                            {sessionDuration >= MIN_DURATION_HOURS && (
-                              <span className="text-green-600">
-                                {' '}
-                                (Meets {MIN_DURATION_HOURS}h minimum • up to {formatDurationDisplay(maxAvailableDuration)} for this session)
-                              </span>
-                            )}
+                            {totalSelectedActivities} {totalSelectedActivities === 1 ? 'activity' : 'activities'} · {formatDurationDisplay(sessionDurationForDisplay)}
+                            {sessionDuration < MIN_DURATION_HOURS && <span className="text-amber-600"> (add {formatDurationDisplay(getHoursNeededForMinimum(sessionDuration))})</span>}
                           </>
                         )}
                       </p>
@@ -1422,13 +1472,9 @@ export default function ParentBookingModal({
                       </button>
                     </div>
                     {sessionDuration > maxAvailableDuration ? (
-                      <p className="text-2xs text-red-700">
-                        Adding more package hours won&apos;t extend the session past 11:59 PM. Remove activities or pick an earlier start time.
-                      </p>
+                      <p className="text-2xs text-red-700">Remove activities or pick earlier start time.</p>
                     ) : maxAvailableDuration > sessionDuration && (
-                      <p className="text-2xs text-gray-600">
-                        Available: {formatDurationDisplay(maxAvailableDuration - sessionDuration)} remaining for this session
-                      </p>
+                      <p className="text-2xs text-gray-600">{formatDurationDisplay(maxAvailableDuration - sessionDuration)} left for this session</p>
                     )}
                     <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
                       {formData.selectedActivityIds?.map(activityId => {
@@ -1498,59 +1544,54 @@ export default function ParentBookingModal({
                 className="mt-2 p-3 border border-gray-300 rounded-lg bg-blue-50/40"
               >
                 <div className="font-medium text-sm text-gray-900 mb-1">Trainer&apos;s choice</div>
-                <p className="text-xs text-gray-600 mb-2">
-                  The trainer will select all activities for this session based on your child&apos;s
-                  needs. You only need to choose how long the session should be.
-                </p>
+                <p className="text-xs text-gray-600 mb-2">Choose session length; trainer selects activities.</p>
                 <div className="mt-2">
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     Session Duration <span className="text-red-500">*</span>
                   </label>
                   <select
-                    value={formData.duration ?? MIN_DURATION_HOURS}
+                    value={Math.min(
+                      Math.floor(maxAvailableDuration),
+                      Math.max(MIN_DURATION_HOURS, Math.round(Number(formData.duration) || MIN_DURATION_HOURS))
+                    )}
                     onChange={(e) =>
                       setFormData(prev => ({
                         ...prev,
-                        duration: parseFloat(e.target.value),
+                        duration: parseInt(e.target.value, 10),
                       }))
                     }
                     className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     {(() => {
-                      const maxHours = maxAvailableDuration;
+                      const maxHours = Math.floor(maxAvailableDuration);
                       const options = [];
-                      // Half-hour steps from MIN_DURATION_HOURS up to max (e.g. 3, 3.5, 4 when 4h remaining)
-                      for (let h = MIN_DURATION_HOURS; h <= maxHours; h += 0.5) {
-                        const value = Math.round(h * 10) / 10;
+                      for (let h = MIN_DURATION_HOURS; h <= maxHours; h += 1) {
                         options.push(
-                          <option key={value} value={value}>
-                            {value} {value === 1 ? 'hour' : 'hours'}
+                          <option key={h} value={h}>
+                            {h} {h === 1 ? 'hour' : 'hours'}
                           </option>
                         );
                       }
                       return options;
                     })()}
                   </select>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Minimum {MIN_DURATION_HOURS} hours required
-                    {formData.date && formData.startTime && maxAvailableDuration > MIN_DURATION_HOURS && (
-                      <span className="text-green-600">
-                        {' '}
-                        • Up to {formatDurationDisplay(maxAvailableDuration)} available
+                  {!dismissedHints.trainerDuration && (formData.date && formData.startTime) && (
+                    <p className="text-xs text-gray-500 mt-1 flex items-center justify-between gap-2">
+                      <span>
+                        Min {MIN_DURATION_HOURS}h
+                        {maxAvailableDuration > MIN_DURATION_HOURS && ` · Up to ${formatDurationDisplay(maxAvailableDuration)}`}
+                        {selectedChildRemainingHours < 24 && !isEditMode && ` · ${selectedChildRemainingHours.toFixed(1)}h left`}
                       </span>
-                    )}
-                    {formData.date && formData.startTime && maxAvailableDuration === MIN_DURATION_HOURS && (
-                      <span className="text-amber-600">
-                        {' '}
-                        • {formatDurationDisplay(maxAvailableDuration)} max (until 11:59 PM)
-                      </span>
-                    )}
-                    {selectedChildRemainingHours < 24 && !isEditMode && (
-                      <span className="block mt-0.5 text-blue-600">
-                        {selectedChildRemainingHours.toFixed(1)}h remaining in package
-                      </span>
-                    )}
-                  </p>
+                      <button
+                        type="button"
+                        onClick={() => setDismissedHints(prev => ({ ...prev, trainerDuration: true }))}
+                        className="text-gray-400 hover:text-gray-600 shrink-0"
+                        aria-label="Dismiss"
+                      >
+                        <X size={12} />
+                      </button>
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -1592,38 +1633,29 @@ export default function ParentBookingModal({
             </div>
           )}
 
-          {/* Validation warnings */}
+          {/* Validation – short; disappears when user fixes the issue */}
           {(!isDurationValid || !isTimeValid) && formData.startTime && (
             <div className="p-2 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-xs text-red-700 font-medium text-center">
-                <AlertTriangle className="inline w-4 h-4 mr-1" />
-                {!isTimeValid && (!dateBookingStatus.bookable ? `${getMessageForDateReason(dateBookingStatus.reason, { now: moment() })} ` : `${BOOKING_VALIDATION_MESSAGES.INSUFFICIENT_NOTICE}. `)}
-                {!isDurationValid && (
-                  sessionDuration < MIN_DURATION_HOURS 
-                    ? `Sessions must be at least ${MIN_DURATION_HOURS} hours. Select more activities or increase duration.`
-                    : `Session exceeds ${formatDurationDisplay(maxAvailableDuration)} maximum (until 11:59 PM on selected date).`
-                )}
+              <p className="text-xs text-red-700 font-medium">
+                <AlertTriangle className="inline w-3 h-3 mr-1" />
+                {!isTimeValid && (!dateBookingStatus.bookable ? getMessageForDateReason(dateBookingStatus.reason, { now: moment() }) : BOOKING_VALIDATION_MESSAGES.INSUFFICIENT_NOTICE)}
+                {!isTimeValid && !isDurationValid && ' · '}
+                {!isDurationValid && (sessionDuration < MIN_DURATION_HOURS ? `Min ${MIN_DURATION_HOURS}h. Add activities or duration.` : `Max ${formatDurationDisplay(maxAvailableDuration)} for this time.`)}
               </p>
             </div>
           )}
 
-          {/* Add hours: Top up (has package) or Buy hours (no package) – only when package hours are the limit; hide in edit mode */}
-          {formData.childId && selectedChildRemainingHours < 24 && (onTopUp || onBuyMoreHours) && !(sessionDuration > maxAvailableDuration) && !isEditMode && (
-            <div className="p-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
+          {/* Top up / Buy hours – short; dismissible */}
+          {formData.childId && selectedChildRemainingHours < 24 && (onTopUp || onBuyMoreHours) && !(sessionDuration > maxAvailableDuration) && !isEditMode && !dismissedHints.topUp && (
+            <div className="p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg flex items-center justify-between gap-2">
               <p className="text-xs text-amber-800 dark:text-amber-200">
-                {selectedChildRemainingHours <= 0
-                  ? 'No hours left in this package.'
-                  : `Only ${selectedChildRemainingHours.toFixed(1)}h left in this package.`}
+                {selectedChildRemainingHours <= 0 ? 'No hours left.' : `${selectedChildRemainingHours.toFixed(1)}h left.`}
                 {' '}
-                Need more? {selectedChildHasPackage ? 'Top up' : 'Buy hours'} before booking.
+                <button type="button" onClick={() => (selectedChildHasPackage && onTopUp ? onTopUp(formData.childId) : onBuyMoreHours?.(formData.childId))} className="font-semibold underline">
+                  {selectedChildHasPackage ? 'Top up' : 'Buy hours'}
+                </button>
               </p>
-              <button
-                type="button"
-                onClick={() => (selectedChildHasPackage && onTopUp ? onTopUp(formData.childId) : onBuyMoreHours?.(formData.childId))}
-                className="mt-1.5 text-xs font-semibold text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 underline focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1 rounded"
-              >
-                {selectedChildHasPackage && onTopUp ? 'Top up' : 'Buy hours'}
-              </button>
+              <button type="button" onClick={() => setDismissedHints(prev => ({ ...prev, topUp: true }))} className="text-amber-600 hover:text-amber-800 shrink-0" aria-label="Dismiss"><X size={12} /></button>
             </div>
           )}
       </form>
@@ -1659,7 +1691,7 @@ export default function ParentBookingModal({
           <div className="flex-1 overflow-y-auto p-4">
             {formContent}
           </div>
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700 shrink-0 bg-gray-50 dark:bg-gray-800/50">
+          <div className="shrink-0 border-t border-gray-200 bg-gray-50 px-4 sm:px-5 py-3 dark:border-gray-800 dark:bg-gray-900/50">
             {footerContent}
           </div>
         </div>

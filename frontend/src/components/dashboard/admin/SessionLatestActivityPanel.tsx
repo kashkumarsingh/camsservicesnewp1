@@ -667,7 +667,7 @@ export function SessionLatestActivityPanel({
         onClick={handleClose}
       />
       <aside
-        className="fixed right-0 top-0 z-overlay flex h-full w-full flex-col bg-white shadow-xl dark:bg-slate-900 sm:w-[420px] md:max-w-[32%]"
+        className="fixed right-0 top-0 z-sidepanel flex h-full w-full flex-col bg-white shadow-xl dark:bg-slate-900 sm:w-[420px] md:max-w-[32%]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="latest-activity-title"

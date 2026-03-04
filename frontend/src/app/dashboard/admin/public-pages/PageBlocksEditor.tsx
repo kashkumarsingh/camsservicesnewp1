@@ -175,12 +175,12 @@ export function PageBlocksEditor({
             {addBlockOpen && (
               <>
                 <div
-                  className="fixed inset-0 z-10"
+                  className="fixed inset-0"
                   aria-hidden
                   onClick={() => setAddBlockOpen(false)}
                 />
                 <ul
-                  className="absolute right-0 top-full z-20 mt-1 min-w-[180px] rounded-md border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-900"
+                  className="absolute right-0 top-full mt-1 min-w-[180px] rounded-md border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-900"
                   role="listbox"
                 >
                   {PAGE_BLOCK_TYPES.map((type) => (

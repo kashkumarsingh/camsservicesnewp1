@@ -7,42 +7,43 @@ import { BookingCalendar } from '@/components/ui/Calendar';
 import { calendarUtils } from '@/components/ui/Calendar/useCalendarGrid';
 import type { TrainerBooking } from '@/core/application/trainer/types';
 import { getTrainerChildDisplayName } from '@/utils/trainerPrivacy';
-
-/** Status-based colours for session indicators (no per-child colour). Past, live, upcoming, absent, confirmation. */
-function getSessionStatusStyle(session: TrainerSession): { bg: string; border: string } {
-  if (session.status === 'cancelled') {
-    return { bg: 'bg-red-100 dark:bg-red-900/30', border: 'border-red-500' };
-  }
-  if (session.trainerAssignmentStatus === PENDING_CONFIRMATION) {
-    return { bg: 'bg-amber-100 dark:bg-amber-900/30', border: 'border-amber-500' };
-  }
-  if (session.isOngoing) {
-    return { bg: 'bg-green-100 dark:bg-green-900/30', border: 'border-green-500' };
-  }
-  if (session.isUpcoming) {
-    return { bg: 'bg-blue-100 dark:bg-blue-900/30', border: 'border-blue-500' };
-  }
-  return { bg: 'bg-slate-100 dark:bg-slate-800/50', border: 'border-slate-400' };
-}
-
-/** Inline style for day-view dots/blocks (hex). */
-function getSessionStatusInlineStyle(session: TrainerSession): { backgroundColor: string; borderLeft: string } {
-  if (session.status === 'cancelled') {
-    return { backgroundColor: 'rgba(239, 68, 68, 0.2)', borderLeft: '3px solid #ef4444' };
-  }
-  if (session.trainerAssignmentStatus === PENDING_CONFIRMATION) {
-    return { backgroundColor: 'rgba(245, 158, 11, 0.2)', borderLeft: '3px solid #f59e0b' };
-  }
-  if (session.isOngoing) {
-    return { backgroundColor: 'rgba(34, 197, 94, 0.2)', borderLeft: '3px solid #22c55e' };
-  }
-  if (session.isUpcoming) {
-    return { backgroundColor: 'rgba(59, 130, 246, 0.2)', borderLeft: '3px solid #3b82f6' };
-  }
-  return { backgroundColor: 'rgba(148, 163, 184, 0.25)', borderLeft: '3px solid #94a3b8' };
-}
+import { getChildColor } from '@/utils/childColorUtils';
+import {
+  getCalendarLabelClasses,
+  getCalendarStatusDotColor,
+  type CalendarSessionTimeStatus,
+} from '@/utils/calendarLabelConstants';
+import { CALENDAR_GRID_DAY_CELL_CLASSES } from '@/utils/appConstants';
 
 const PENDING_CONFIRMATION = 'pending_trainer_confirmation';
+
+/** Map trainer session to calendar label status (Google Calendar–style; shared with parent/admin). */
+function getTrainerSessionCalendarStatus(session: TrainerSession): CalendarSessionTimeStatus {
+  if (session.status === 'cancelled') return 'cancelled';
+  if (session.trainerAssignmentStatus === PENDING_CONFIRMATION) return 'pending_confirmation';
+  if (session.isOngoing) return 'live';
+  if (session.isUpcoming) return 'upcoming';
+  return 'past';
+}
+
+/** Status-based Tailwind classes for session blocks (includes dot for status indicator). */
+function getSessionStatusStyle(session: TrainerSession): { bg: string; border: string; dot: string } {
+  return getCalendarLabelClasses(getTrainerSessionCalendarStatus(session));
+}
+
+/** Google Calendar–style: child colour as primary label (left border + fill). Used for day/week view blocks and time-axis dots. */
+function getSessionBlockInlineStyle(session: TrainerSession): { backgroundColor: string; borderLeft: string } {
+  const childColor = getChildColor(session.childId);
+  return {
+    backgroundColor: `${childColor}20`,
+    borderLeft: `3px solid ${childColor}`,
+  };
+}
+
+/** Status dot colour for legend/dots (from shared calendar label constants). */
+function getSessionStatusDotColor(session: TrainerSession): string {
+  return getCalendarStatusDotColor(getTrainerSessionCalendarStatus(session));
+}
 
 interface TrainerSession {
   date: string;
@@ -94,6 +95,8 @@ interface TrainerSessionsCalendarProps {
   pendingAbsenceDates?: Set<string>;
   /** Dates explicitly marked unavailable (red in panel); only these show as unavailable on calendar */
   unavailableDates?: Set<string>;
+  /** When false, hide the "Filter by type" activity-type checkboxes (e.g. on overview to reduce clutter). Default false. */
+  showSessionTypeFilter?: boolean;
 }
 
 /**
@@ -120,6 +123,7 @@ export default function TrainerSessionsCalendar({
   approvedAbsenceDates,
   pendingAbsenceDates,
   unavailableDates,
+  showSessionTypeFilter = false,
 }: TrainerSessionsCalendarProps) {
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
   const [internalMonth, setInternalMonth] = useState<Moment>(moment());
@@ -194,7 +198,7 @@ export default function TrainerSessionsCalendar({
           isOngoing,
           isUpcoming,
           status: schedule.status,
-          trainerAssignmentStatus: (schedule as { trainer_assignment_status?: string | null }).trainer_assignment_status ?? null,
+          trainerAssignmentStatus: schedule.trainerAssignmentStatus ?? (schedule as { trainer_assignment_status?: string | null }).trainer_assignment_status ?? null,
         });
       });
     });
@@ -218,6 +222,17 @@ export default function TrainerSessionsCalendar({
     const dateStr = date.format('YYYY-MM-DD');
     return sessionsByDate.get(dateStr) || [];
   };
+
+  // Unique trainees for "by child" legend (Google Calendar–style; only when 2+)
+  const uniqueTrainees = useMemo(() => {
+    const map = new Map<number, string>();
+    allSessions.forEach((session) => {
+      if (!map.has(session.childId)) {
+        map.set(session.childId, session.childName);
+      }
+    });
+    return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+  }, [allSessions]);
 
   // Handle month change (controlled/uncontrolled)
   const handleMonthChange = useCallback(
@@ -461,9 +476,9 @@ export default function TrainerSessionsCalendar({
   }, [selectedDate, currentMonth, handleMonthChange, switchToDayView]);
 
   return (
-    <div id="trainer-sessions-calendar" className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5">
-      {/* Session Type Filters (top of calendar) */}
-      {sessionTypes.length > 0 && (
+    <div id="trainer-sessions-calendar" className="min-w-0 bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-5">
+      {/* Session Type Filters (top of calendar) – optional to avoid long activity lists on overview */}
+      {showSessionTypeFilter && sessionTypes.length > 0 && (
         <div className="mb-4 pb-2 border-b border-gray-200 dark:border-gray-700 flex flex-wrap items-center gap-2">
           <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Filter by type:</span>
           {sessionTypes.map((type) => {
@@ -479,7 +494,7 @@ export default function TrainerSessionsCalendar({
                   type="checkbox"
                   checked={isChecked}
                   onChange={() => toggleSessionType(type)}
-                  className="w-4 h-4 rounded border-gray-300 focus:ring-2 focus:ring-[#4A90E2]"
+                  className="w-4 h-4 rounded border-gray-300 focus:ring-2 focus:ring-primary-blue"
                   style={{ accentColor: color }}
                 />
                 <div
@@ -494,17 +509,17 @@ export default function TrainerSessionsCalendar({
       )}
 
       {/* Header - Title + helper text + view mode toggle */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-        <div>
-          <h2 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
+        <div className="min-w-0">
+          <h2 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
             Scheduled Sessions
           </h2>
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">
             Click any date to review your schedule. Sessions marked <span className="font-medium text-amber-600 dark:text-amber-400">Confirm</span> need your response – click to confirm or decline.
           </p>
         </div>
-        {/* View Mode Toggle */}
-        <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 self-start sm:self-auto">
+        {/* View Mode Toggle - compact on mobile */}
+        <div className="flex items-center gap-0.5 sm:gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 sm:p-1 self-start sm:self-auto shrink-0">
           <button
             type="button"
             onClick={() => {
@@ -514,7 +529,7 @@ export default function TrainerSessionsCalendar({
               }
               setSelectedDay(null);
             }}
-            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+            className={`px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm font-medium rounded-md transition-colors ${
               viewMode === 'month'
                 ? 'bg-white text-gray-900 dark:bg-gray-600 dark:text-white shadow-sm'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
@@ -534,7 +549,7 @@ export default function TrainerSessionsCalendar({
               handleMonthChange(today);
               onDateChange?.(today.format('YYYY-MM-DD'));
             }}
-            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+            className={`px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm font-medium rounded-md transition-colors ${
               viewMode === 'week'
                 ? 'bg-white text-gray-900 dark:bg-gray-600 dark:text-white shadow-sm'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
@@ -552,7 +567,7 @@ export default function TrainerSessionsCalendar({
               handleMonthChange(today);
               onDateChange?.(today.format('YYYY-MM-DD'));
             }}
-            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+            className={`px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm font-medium rounded-md transition-colors ${
               viewMode === 'day'
                 ? 'bg-white text-gray-900 dark:bg-gray-600 dark:text-white shadow-sm'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
@@ -563,21 +578,38 @@ export default function TrainerSessionsCalendar({
         </div>
       </div>
 
-      {/* Legend: status only (past, live, upcoming, confirmation – no per-child colour) */}
+      {/* Legend: by trainee (when 2+) then status – Google Calendar–style */}
       <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs pb-3 border-b border-gray-200 dark:border-gray-700">
+        {uniqueTrainees.length >= 2 && (
+          <>
+            {uniqueTrainees.map((trainee) => (
+              <div key={trainee.id} className="flex items-center gap-1.5">
+                <div
+                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: getChildColor(trainee.id) }}
+                  aria-hidden
+                />
+                <span className="text-xs text-gray-700 dark:text-gray-300 truncate max-w-[120px]">
+                  {trainee.name}
+                </span>
+              </div>
+            ))}
+            <div className="w-px h-3 bg-gray-300 dark:bg-gray-600 flex-shrink-0" aria-hidden />
+          </>
+        )}
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-sm bg-gray-400 opacity-50" />
-          <span className="text-xs text-gray-600">Past</span>
+          <span className="text-xs text-gray-600 dark:text-gray-400">Past</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-sm bg-green-500 relative">
             <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
           </div>
-          <span className="text-xs text-green-700">Live</span>
+          <span className="text-xs text-green-700 dark:text-green-400">Live</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-sm bg-blue-500" />
-          <span className="text-xs text-blue-700">Upcoming</span>
+          <span className="text-xs text-blue-700 dark:text-blue-300">Upcoming</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-sm bg-amber-500" />
@@ -587,9 +619,9 @@ export default function TrainerSessionsCalendar({
 
       {/* Day View - Google Calendar-style time grid (aligned with parent dashboard) */}
       {viewMode === 'day' && (
-        <div className="mb-4">
+        <div className="mb-4 min-w-0">
           {/* Day Navigation (mirrors parent dashboard) */}
-          <div className="flex items-center justify-between mb-3 py-2">
+          <div className="flex items-center justify-between gap-2 mb-3 py-2">
             <button
               type="button"
               onClick={() => {
@@ -603,9 +635,9 @@ export default function TrainerSessionsCalendar({
             >
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
-            <div className="text-center">
+            <div className="text-center min-w-0 flex-1 px-1">
               <div className="flex flex-col items-center gap-1">
-                <h3 className="text-base font-semibold text-gray-900">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100 truncate w-full">
                   {(selectedDay || moment()).format('dddd, MMMM D, YYYY')}
                 </h3>
                 {(selectedDay || moment()).isSame(moment(), 'day') ? (
@@ -713,7 +745,8 @@ export default function TrainerSessionsCalendar({
                 <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
                   <div
                     ref={dayTimelineRef}
-                    className="grid grid-cols-[55px_1fr] divide-y divide-gray-100 dark:divide-gray-700 max-h-[500px] overflow-y-auto relative"
+                    className="grid grid-cols-[55px_1fr] divide-y divide-gray-100 dark:divide-gray-700 max-h-[70vh] sm:max-h-[500px] overflow-y-auto overflow-x-hidden relative"
+                    style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
                   >
                     {/* Time column + hour slots */}
                     {Array.from({ length: 24 }, (_, hour) => {
@@ -750,7 +783,7 @@ export default function TrainerSessionsCalendar({
                     {/* Start/end dots aligned to time labels (status colour, not per-child) */}
                     <div className="absolute inset-0 pointer-events-none">
                       {sessionsWithPosition.map((session, idx) => {
-                        const dotColor = getSessionStatusInlineStyle(session).borderLeft.replace('3px solid ', '');
+                        const dotColor = getSessionStatusDotColor(session);
                         const startTime = moment(session.startTime, ['HH:mm', 'HH:mm:ss']).format(
                           'h:mm A',
                         );
@@ -762,7 +795,7 @@ export default function TrainerSessionsCalendar({
                           <React.Fragment key={idx}>
                             {/* Start dot */}
                             <div
-                              className="absolute pointer-events-auto z-20"
+                              className="absolute pointer-events-auto z-dropdown"
                               style={{
                                 left: '55px',
                                 top: `${session.startTop}px`,
@@ -782,7 +815,7 @@ export default function TrainerSessionsCalendar({
 
                             {/* End dot */}
                             <div
-                              className="absolute pointer-events-auto z-20"
+                              className="absolute pointer-events-auto z-dropdown"
                               style={{
                                 left: '55px',
                                 top: `${session.endTop}px`,
@@ -807,7 +840,7 @@ export default function TrainerSessionsCalendar({
                     {/* Session blocks in main column (status colour, not per-child) */}
                     <div className="absolute inset-0 pointer-events-none" style={{ marginLeft: '55px' }}>
                       {sessionsWithPosition.map((session, idx) => {
-                        const blockStyle = getSessionStatusInlineStyle(session);
+                        const blockStyle = getSessionBlockInlineStyle(session);
                         const startTime = moment(session.startTime, ['HH:mm', 'HH:mm:ss']).format(
                           'h:mm A',
                         );
@@ -824,7 +857,7 @@ export default function TrainerSessionsCalendar({
                               e.stopPropagation();
                               handleSessionClick(e, session);
                             }}
-                            className="absolute left-0 right-0 px-2 py-1.5 rounded text-xs cursor-pointer hover:opacity-90 transition-opacity pointer-events-auto z-10 overflow-hidden"
+                            className="absolute left-0 right-0 px-2 py-1.5 rounded text-xs cursor-pointer hover:opacity-90 transition-opacity pointer-events-auto z-sidebar overflow-hidden"
                             style={{
                               top: `${session.startTop}px`,
                               height: `${session.height}px`,
@@ -891,11 +924,11 @@ export default function TrainerSessionsCalendar({
         </div>
       )}
 
-      {/* Week View */}
+      {/* Week View - horizontal scroll on narrow screens */}
       {viewMode === 'week' && (
-        <div className="mb-4">
+        <div className="mb-4 min-w-0">
           {/* Week Navigation */}
-          <div className="flex items-center justify-between mb-3 py-2">
+          <div className="flex items-center justify-between gap-2 mb-3 py-2 flex-wrap sm:flex-nowrap">
             <button
               type="button"
               onClick={handlePrevWeek}
@@ -904,10 +937,10 @@ export default function TrainerSessionsCalendar({
             >
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
-            <div className="text-center">
+            <div className="text-center min-w-0 px-1">
               <div className="flex flex-col items-center gap-1">
-                <h3 className="text-base font-semibold text-gray-900">
-                  {weekDays[0].format('MMM D')} - {weekDays[6].format('MMM D, YYYY')}
+                <h3 className="text-xs sm:text-base font-semibold text-gray-900 dark:text-gray-100 truncate w-full">
+                  {weekDays[0].format('MMM D')} – {weekDays[6].format('MMM D, YYYY')}
                 </h3>
                 {weekDays[0].isSame(moment().isoWeekday(1).startOf('day'), 'day') ? (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
@@ -935,8 +968,9 @@ export default function TrainerSessionsCalendar({
             </button>
           </div>
 
-          {/* Week Grid */}
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
+          {/* Week Grid - scroll horizontally on narrow screens */}
+          <div className="overflow-x-auto -mx-1 px-1 sm:mx-0 sm:px-0" style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
+            <div className="min-w-[320px] border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
             {/* Weekday Headers */}
             <div className="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
               {weekDays.map((day) => {
@@ -965,8 +999,8 @@ export default function TrainerSessionsCalendar({
               })}
             </div>
 
-            {/* Week Days Grid with Sessions */}
-            <div className="grid grid-cols-7 divide-x divide-gray-200 dark:divide-gray-700 min-h-[300px]">
+            {/* Week Days Grid with Sessions — Google Calendar–style square cells */}
+            <div className="grid grid-cols-7 divide-x divide-gray-200 dark:divide-gray-700">
               {weekDays.map((day) => {
                 const dateStr = day.format('YYYY-MM-DD');
                 const daySessions = getDateSessions(day);
@@ -990,7 +1024,7 @@ export default function TrainerSessionsCalendar({
                 return (
                   <div
                     key={dateStr}
-                    className={`relative border-b border-gray-200 dark:border-gray-700 p-1 sm:p-2 min-h-[90px] ${
+                    className={`relative border-b border-gray-200 dark:border-gray-700 p-1 sm:p-2 ${CALENDAR_GRID_DAY_CELL_CLASSES} ${
                       isToday ? 'bg-blue-50 dark:bg-blue-900/30' : isPast ? 'bg-gray-50 dark:bg-gray-800' : isApprovedAbsence ? 'bg-rose-100 dark:bg-rose-900/30 border-l border-dashed border-rose-400' : isPendingAbsence ? 'bg-amber-50 dark:bg-amber-900/20 border-l border-dashed border-amber-400' : isAvailableSync ? 'bg-emerald-50/70 dark:bg-emerald-900/20' : isUnavailable ? 'bg-rose-50/80 dark:bg-rose-900/10' : 'bg-white dark:bg-gray-800'
                     } ${
                       isPast
@@ -1013,10 +1047,10 @@ export default function TrainerSessionsCalendar({
                     {isPendingAbsence && !isApprovedAbsence && <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-amber-500" aria-label="Pending absence" title="Pending approval" />}
                     {isUnavailable && <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-rose-400 dark:bg-rose-500" aria-label="Unavailable" title="Unavailable" />}
                     {isAvailableSync && !isApprovedAbsence && !isPendingAbsence && !isUnavailable && <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-500" aria-label="Available" title="Available" />}
-                    <div className="relative z-10 space-y-1">
+                    <div className="relative z-sidebar space-y-1">
                       {Array.from(sessionsByChild.entries()).map(([key, childSessions]) => {
                         const firstSession = childSessions[0];
-                        const blockStyle = getSessionStatusInlineStyle(firstSession);
+                        const blockStyle = getSessionBlockInlineStyle(firstSession);
                         const uniqueActivities = Array.from(
                           new Set(childSessions.flatMap((s) => s.activities || [])),
                         );
@@ -1088,12 +1122,14 @@ export default function TrainerSessionsCalendar({
                 );
               })}
             </div>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Month View */}
+      {/* Month View - scroll horizontally on narrow screens */}
       {viewMode === 'month' && (
+        <div className="overflow-x-auto min-w-0 -mx-1 px-1 sm:mx-0 sm:px-0" style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
         <BookingCalendar
           size="large"
           currentMonth={currentMonth}
@@ -1127,7 +1163,7 @@ export default function TrainerSessionsCalendar({
                   onClick={handleCellClick}
                   onKeyDown={isEditableForAvailability ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onAvailabilitySet?.(dateStr, !isAvailable); } } : undefined}
                   className={`
-                    min-h-[65px] sm:min-h-[75px] border-r border-b border-gray-200 dark:border-gray-700 relative p-1 transition-colors
+                    ${CALENDAR_GRID_DAY_CELL_CLASSES} border-r border-b border-gray-200 dark:border-gray-700 relative p-1 transition-colors
                     ${!isCurrentMonthDate ? 'bg-gray-50 dark:bg-gray-800 opacity-60' : 
                       !isEditableForAvailability ? 'bg-gray-50 dark:bg-gray-800/80' :
                       isAvailable ? 'bg-emerald-50 dark:bg-emerald-900/30' :
@@ -1182,7 +1218,7 @@ export default function TrainerSessionsCalendar({
                 key={index}
                 onClick={() => handleDateClick(date, dateSessions)}
                 className={`
-                  min-h-[65px] sm:min-h-[75px] border-r border-b border-gray-200 dark:border-gray-700 relative p-1 transition-colors
+                  ${CALENDAR_GRID_DAY_CELL_CLASSES} border-r border-b border-gray-200 dark:border-gray-700 relative p-1 transition-colors
                   ${!isCurrentMonthDate ? 'bg-gray-50 dark:bg-gray-800' : 
                     isTodayDate ? 'bg-blue-50 dark:bg-blue-900/30' :
                     isApprovedAbsence ? 'bg-rose-100 dark:bg-rose-900/30 border border-dashed border-rose-400 dark:border-rose-500' :
@@ -1278,6 +1314,7 @@ export default function TrainerSessionsCalendar({
                         {displayedGroups.map(([key, childSessions]) => {
                           const firstSession = childSessions[0];
                           const statusStyle = getSessionStatusStyle(firstSession);
+                          const childColor = getChildColor(firstSession.childId);
                           const uniqueActivities = Array.from(
                             new Set(
                               childSessions.flatMap((s) => s.activities || []),
@@ -1303,21 +1340,28 @@ export default function TrainerSessionsCalendar({
                               onClick={(e) => handleSessionClick(e, firstSession)}
                               className={`
                                 text-[10px] px-1 py-0.5 rounded truncate relative mb-0.5 transition-opacity border-l-4
-                                ${statusStyle.bg} ${statusStyle.border}
                                 ${isPast ? 'opacity-50' : ''}
                                 ${isOngoing ? 'ring-1 ring-green-500' : ''}
                                 ${onSessionClick ? 'cursor-pointer hover:opacity-80' : 'cursor-default'}
                               `}
+                              style={{
+                                borderLeftColor: childColor,
+                                backgroundColor: `${childColor}20`,
+                              }}
                               title={`${firstSession.childName} - ${startTime}${sessionCount > 1 ? ` (${sessionCount} session${sessionCount > 1 ? 's' : ''})` : ''} - ${activityDisplay}${isPast ? ' - past' : isOngoing ? ' - live now' : ''}`}
                             >
                               <div className="flex items-center gap-0.5">
-                                <span className="font-semibold text-gray-900 truncate text-[10px]">
+                                <span
+                                  className={`flex-shrink-0 w-1.5 h-1.5 rounded-full ${statusStyle.dot}`}
+                                  aria-hidden
+                                />
+                                <span className="font-semibold text-gray-900 dark:text-gray-100 truncate text-[10px]">
                                   {firstSession.childName}
                                 </span>
-                                <span className="text-gray-500 mx-0.5">•</span>
-                                <span className="text-gray-600 text-[9px]">{startTime}</span>
+                                <span className="text-gray-500 dark:text-gray-400 mx-0.5">•</span>
+                                <span className="text-gray-600 dark:text-gray-300 text-[9px]">{startTime}</span>
                               </div>
-                              <div className="text-[9px] text-gray-700 truncate font-medium mt-0.5">
+                              <div className="text-[9px] text-gray-700 dark:text-gray-200 truncate font-medium mt-0.5">
                                 {activityDisplay}
                               </div>
                               {firstSession.status === 'cancelled' && (
@@ -1341,6 +1385,7 @@ export default function TrainerSessionsCalendar({
             );
           }}
         />
+        </div>
       )}
     </div>
   );

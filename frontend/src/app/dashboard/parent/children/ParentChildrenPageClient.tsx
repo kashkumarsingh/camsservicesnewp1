@@ -217,6 +217,40 @@ export default function ParentChildrenPageClient() {
     return <DashboardSkeleton variant="parent-children" />;
   }
 
+  /** Card background + border by status (Google Calendar–style: colour signals situation at a glance). */
+  const getChildCardClasses = (child: typeof children[0]) => {
+    const base =
+      'group relative flex min-w-0 flex-col rounded-lg border p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5 ';
+    if (child.approvalStatus === 'approved') {
+      return (
+        base +
+        'border-emerald-200 bg-emerald-50/60 dark:border-emerald-800/60 dark:bg-emerald-950/30'
+      );
+    }
+    if (child.approvalStatus === 'rejected') {
+      return (
+        base +
+        'border-rose-200 bg-rose-50/60 dark:border-rose-800/60 dark:bg-rose-950/30'
+      );
+    }
+    if (child.approvalStatus === 'pending') {
+      if (child.hasChecklist !== true) {
+        return (
+          base +
+          'border-amber-200 bg-amber-50/70 dark:border-amber-800/60 dark:bg-amber-950/30'
+        );
+      }
+      return (
+        base +
+        'border-blue-200 bg-blue-50/60 dark:border-blue-800/60 dark:bg-blue-950/30'
+      );
+    }
+    return (
+      base +
+      'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800'
+    );
+  };
+
   // Get status badge for a child
   const getStatusBadge = (child: typeof children[0]) => {
     if (child.approvalStatus === 'approved') {
@@ -302,22 +336,23 @@ export default function ParentChildrenPageClient() {
       </Button>
     );
 
-    // Buy package / Top up (only if approved): "Top up" opens modal when 0h left; else "Buy package" goes to dashboard
+    // Buy package / Top up (only if approved): "Top up" when child has a package (add more hours); "Buy package" when no package. 0h left opens modal; else go to dashboard.
     if (child.approvalStatus === 'approved') {
       const summary = childPackageSummary.get(child.id);
       const hasActivePackage = summary !== undefined;
       const needsTopUp = hasActivePackage && summary.remainingHours <= 0;
+      const label = hasActivePackage ? 'Top up' : 'Buy package';
       actions.push(
         <Button
           key="buy"
           size="sm"
           variant="bordered"
-          icon={needsTopUp ? <PlusCircle size={14} /> : <Package size={14} />}
+          icon={hasActivePackage ? <PlusCircle size={14} /> : <Package size={14} />}
           onClick={() =>
             needsTopUp ? handleOpenTopUp(child) : router.push(`/dashboard/parent?childId=${child.id}`)
           }
         >
-          {needsTopUp ? 'Top up' : 'Buy package'}
+          {label}
         </Button>
       );
     }
@@ -355,7 +390,7 @@ export default function ParentChildrenPageClient() {
   };
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-4 overflow-x-hidden">
       <header className="space-y-2">
         <Breadcrumbs
           items={[
@@ -363,9 +398,9 @@ export default function ParentChildrenPageClient() {
             { label: 'My children' },
           ]}
         />
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-3 md:gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <h1 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+            <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-2xl">
               My children
             </h1>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
@@ -400,12 +435,9 @@ export default function ParentChildrenPageClient() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 xl:grid-cols-3">
           {children.map((child) => (
-            <div
-              key={child.id}
-              className="group relative flex min-w-0 flex-col rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800 sm:p-5"
-            >
+            <div key={child.id} className={getChildCardClasses(child)}>
               {/* Child info */}
               <div className="mb-4 flex flex-wrap items-start justify-between gap-2 sm:gap-3">
                 <div className="min-w-0 flex-1">

@@ -66,7 +66,7 @@ export default function PackageDetailsTooltip({
 
   return (
     <div
-      className={`absolute z-50 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 ${positionClasses[position]}`}
+      className={`absolute z-dropdown w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 ${positionClasses[position]}`}
       role="tooltip"
       aria-label="Package details"
     >

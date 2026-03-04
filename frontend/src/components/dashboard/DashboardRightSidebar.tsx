@@ -7,7 +7,7 @@ import Button from '@/components/ui/Button';
 import { BaseModal } from '@/components/ui/Modal';
 import { getChildColor } from '@/utils/childColorUtils';
 import type { Child } from '@/core/application/auth/types';
-import { getChildChecklistFlags, childNeedsChecklistCta } from '@/core/application/auth/types';
+import { getChildChecklistFlags, canChildBuyHours, childNeedsChecklistCta } from '@/core/application/auth/types';
 import type { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
 
 interface DashboardRightSidebarProps {
@@ -344,7 +344,7 @@ export default function DashboardRightSidebar({
                     const childColor = getChildColor(childHour.childId);
                     const showCalendarCheckbox = onToggleChildVisibility && filterableChildren.some(c => c.id === childHour.childId);
                     return (
-                      <div key={childHour.childId} className={`rounded-r-md border-l-4 px-3 py-2 relative tooltip-container dark:bg-gray-800/50 hover:bg-[#f1f3f4] dark:hover:bg-gray-700/50 transition-colors ${tooltipChildId === childHour.childId ? 'z-[100]' : ''}`} style={{ borderLeftColor: childColor, backgroundColor: `${childColor}15` }} role="article" aria-label={`Hours for ${childHour.childName}`}>
+                      <div key={childHour.childId} className={`rounded-r-md border-l-4 px-3 py-2 relative tooltip-container dark:bg-gray-800/50 hover:bg-[#f1f3f4] dark:hover:bg-gray-700/50 transition-colors ${tooltipChildId === childHour.childId ? 'z-dropdown' : ''}`} style={{ borderLeftColor: childColor, backgroundColor: `${childColor}15` }} role="article" aria-label={`Hours for ${childHour.childName}`}>
                         <div className="flex items-center gap-2 flex-wrap">
                           {showCalendarCheckbox && (
                             <label className="flex items-center shrink-0 cursor-pointer" onClick={(e) => e.stopPropagation()}>
@@ -488,14 +488,14 @@ export default function DashboardRightSidebar({
                     })();
                     const child = children.find(c => c.id === childHour.childId) || approvedChildren.find(c => c.id === childHour.childId);
                     const flags = getChildChecklistFlags(child);
-                    const hasCompletedChecklist = flags.hasChecklist && flags.checklistCompleted;
                     const checklistState: 'missing' | 'submitted' | 'completed' | 'unknown' = (() => {
                       if (!child) return 'unknown';
                       if (!flags.hasChecklist) return 'missing';
                       if (flags.checklistCompleted) return 'completed';
                       return 'submitted';
                     })();
-                    const canBuyHours = child !== undefined && child !== null && hasCompletedChecklist === true;
+                    /** Show Buy hours only after checklist is approved (never before). */
+                    const canBuyHours = canChildBuyHours(child);
                     const hasPendingPayment = childHour.pendingHours > 0;
                     const draftBooking = childHour.draftBooking;
                     const childColor = getChildColor(childHour.childId);
@@ -509,7 +509,7 @@ export default function DashboardRightSidebar({
                             : isNeedsHoursOnly
                               ? 'bg-[#fef7e0] dark:bg-amber-900/20'
                               : 'dark:bg-gray-800/50 hover:bg-[#f1f3f4] dark:hover:bg-gray-700/50'
-                        } ${tooltipChildId === childHour.childId ? 'z-[100]' : ''}`}
+                        } ${tooltipChildId === childHour.childId ? 'z-dropdown' : ''}`}
                       style={!isNeedsHoursOnly ? {
                         borderLeftColor: hasPendingPayment ? '#d93025' : childColor,
                         backgroundColor: hasPendingPayment ? '#fce8e6' : `${childColor}15`,

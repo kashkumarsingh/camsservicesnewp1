@@ -6,15 +6,19 @@ Clean Architecture: Infrastructure/Presentation Layer (UI Component)
 
 ## Z-Index
 
-Modals and overlay panels use the Tailwind z-index scale from `tailwind.config.js`:
+Single source of truth: `tailwind.config.js` zIndex scale.
 
-- **z-mobileNav** (30): Mobile sidebar and bottom nav (below header)
-- **z-sticky** (40): Sticky headers, nav
-- **z-dropdown** (50): Dropdowns, popovers
-- **z-overlay** (1000): Modals, side panels, full overlays (BaseModal, SideCanvas, etc.)
-- **z-toast** (9999): Toasts
+**Tier 1 – Page (0–200):** base, raised, content, dropdown, sidebar, sticky.  
+**Tier 2 – Header (1000):** `z-header`. Topmost on the page so nav is always above content.  
+**Tier 3 – Overlays (1100+):** overlay, sidePanel, modal, popover, toast, critical. When open, these sit *above* the header so SideCanvas and BaseModal are never behind it.
 
-Use `z-overlay` for any new modal or overlay. **Modals and side panels must render via `createPortal(..., document.body)`** so they sit above the dashboard header; otherwise they can appear behind it due to stacking context.
+- **z-header** (1000): Public and dashboard headers – above all page content.
+- **z-overlay** (1100): Backdrops, generic overlays.
+- **z-sidePanel** (1200): Side panels (SideCanvas).
+- **z-modal** (1300): BaseModal – above side panels and header.
+- **z-toast** (1400), **z-critical** (1500).
+
+Use `z-modal` in BaseModal and `z-overlay`/`z-sidePanel` in SideCanvas. **Overlays must render via `createPortal(..., document.body)`** so they escape parent stacking context and sit above the header.
 
 ## Overview
 

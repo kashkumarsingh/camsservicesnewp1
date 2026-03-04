@@ -15,9 +15,13 @@ use Illuminate\Support\Facades\Broadcast;
 */
 
 Broadcast::channel('live-refresh.{userId}', function (User $user, $userId) {
-    return (int) $user->id === (int) $userId;
+    $uid = (int) $user->id;
+    $requested = (int) $userId;
+    return $requested > 0 && $uid === $requested;
 }, ['guards' => ['sanctum']]);
 
 Broadcast::channel('live-refresh.admin', function (User $user) {
-    return in_array($user->role ?? '', ['admin', 'super_admin'], true);
+    // Role column (case-insensitive) or Spatie roles, so both storage paths authorize.
+    $role = strtolower(trim((string) ($user->role ?? '')));
+    return in_array($role, ['admin', 'super_admin'], true) || $user->hasRole(['admin', 'super_admin']);
 }, ['guards' => ['sanctum']]);

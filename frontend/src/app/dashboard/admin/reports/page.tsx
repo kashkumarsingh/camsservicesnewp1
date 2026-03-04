@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import React from "react";
+import { Breadcrumbs } from "@/components/dashboard/universal/Breadcrumbs";
+import { ROUTES } from "@/utils/routes";
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from "@/utils/appConstants";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard - Reports",
@@ -10,6 +14,20 @@ export default function AdminReportsPage() {
   return (
     <section className="space-y-4">
       <header className="space-y-1">
+        <Breadcrumbs
+          items={[
+            { label: "Admin", href: ROUTES.DASHBOARD_ADMIN },
+            { label: "Reports" },
+          ]}
+          trailing={
+            <Link
+              href={ROUTES.DASHBOARD_ADMIN}
+              className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+            >
+              {BACK_TO_ADMIN_DASHBOARD_LABEL}
+            </Link>
+          }
+        />
         <h1 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50">
           Reports & analytics
         </h1>

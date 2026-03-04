@@ -545,7 +545,7 @@ export default function BuyHoursModal({
             
             {/* Dropdown Menu - Inline Status Indicators */}
             {showChildSelector && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-80 overflow-auto">
+              <div className="absolute z-sidebar w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-80 overflow-auto">
                 {/* Available Children (without active packages) */}
                 {[...groupedChildren.needsHours, ...groupedChildren.sufficientHours]
                   .sort((a, b) => {

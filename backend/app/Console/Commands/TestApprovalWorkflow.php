@@ -66,9 +66,9 @@ class TestApprovalWorkflow extends Command
                 
                 // Create admin user for testing
                 $admin = User::firstOrCreate(
-                    ['email' => 'admin@test.com'],
+                    ['email' => 'admin@camsservices.co.uk'],
                     [
-                        'name' => 'Test Admin',
+                        'name' => 'Admin',
                         'password' => bcrypt('password'),
                         'role' => 'admin',
                         'email_verified_at' => now(),

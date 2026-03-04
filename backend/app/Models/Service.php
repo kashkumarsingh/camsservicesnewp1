@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -19,6 +20,7 @@ use Illuminate\Support\Str;
 class Service extends Model
 {
     use HasFactory;
+    use Searchable;
     use SoftDeletes;
 
     protected $fillable = [
@@ -81,6 +83,31 @@ class Service extends Model
                 $service->slug = Str::slug($service->title);
             }
         });
+    }
+
+    /**
+     * Get the indexable data array for Meilisearch/Scout.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'slug' => $this->slug,
+            'summary' => $this->summary ?? '',
+            'description' => $this->description ?? '',
+            'category' => $this->category ?? '',
+        ];
+    }
+
+    /**
+     * Only index published services.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return $this->published && ($this->publish_at === null || $this->publish_at->isPast());
     }
 
     /**

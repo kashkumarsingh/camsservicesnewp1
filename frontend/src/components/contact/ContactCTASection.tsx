@@ -19,9 +19,9 @@ export default function ContactCTASection({
 }: ContactCTASectionProps) {
   return (
     <Section className="relative py-20 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-navy-blue to-primary-blue z-0" />
-      <div className="absolute inset-0 z-10 opacity-10" style={{ backgroundImage: "url('/svgs/star.svg')", backgroundRepeat: 'repeat', backgroundSize: '40px 40px' }} />
-      <div className="relative z-20 max-w-4xl mx-auto px-4 text-center">
+      <div className="absolute inset-0 bg-gradient-to-br from-navy-blue to-primary-blue z-base" />
+      <div className="absolute inset-0 z-raised opacity-10" style={{ backgroundImage: "url('/svgs/star.svg')", backgroundRepeat: 'repeat', backgroundSize: '40px 40px' }} />
+      <div className="relative z-raised max-w-4xl mx-auto px-4 text-center">
         <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-3">{CONTACT_CTA.TITLE}</h2>
         <p className="text-lg text-white/90 mb-8">{CONTACT_CTA.SUBTITLE}</p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">

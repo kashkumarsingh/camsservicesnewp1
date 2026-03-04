@@ -7,7 +7,6 @@ import { trainerScheduleRepository } from '@/infrastructure/http/trainer/Trainer
 import type { TrainerSchedule } from '@/core/application/trainer/types';
 import ScheduleCalendar from '@/components/trainer/schedules/ScheduleCalendar';
 import ScheduleList from '@/components/trainer/schedules/ScheduleList';
-import TrainerSessionConfirmationPanel from '@/components/trainer/schedules/TrainerSessionConfirmationPanel';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
 import { Calendar, List, Bell } from 'lucide-react';
 import Button from '@/components/ui/Button';
@@ -30,19 +29,23 @@ export default function SchedulesPageClient() {
 
   const confirmScheduleId = searchParams.get('confirm');
   const declineScheduleId = searchParams.get('decline');
-  const confirmationScheduleId =
-    confirmScheduleId != null && confirmScheduleId !== ''
-      ? parseInt(String(confirmScheduleId), 10)
-      : declineScheduleId != null && declineScheduleId !== ''
-        ? parseInt(String(declineScheduleId), 10)
-        : null;
-  const isConfirmationPanelOpen = confirmationScheduleId != null && !Number.isNaN(confirmationScheduleId);
+
+  // Confirmation is handled on the overview; redirect so trainer stays on one place
+  useEffect(() => {
+    if (confirmScheduleId != null && confirmScheduleId !== '') {
+      router.replace(`/dashboard/trainer?confirm=${confirmScheduleId}`, { scroll: false });
+      return;
+    }
+    if (declineScheduleId != null && declineScheduleId !== '') {
+      router.replace(`/dashboard/trainer?decline=${declineScheduleId}`, { scroll: false });
+    }
+  }, [confirmScheduleId, declineScheduleId, router]);
 
   const pendingConfirmationSchedules = schedules.filter(
-    (s) => (s.trainer_assignment_status ?? '') === PENDING_CONFIRMATION
+    (s) => (s.trainerAssignmentStatus ?? (s as { trainer_assignment_status?: string }).trainer_assignment_status ?? '') === PENDING_CONFIRMATION
   );
   const openConfirmPanelForSchedule = (scheduleId: number) => {
-    router.replace(`/dashboard/trainer/schedules?confirm=${scheduleId}`, { scroll: false });
+    router.replace(`/dashboard/trainer?confirm=${scheduleId}`, { scroll: false });
   };
 
   useEffect(() => {
@@ -100,20 +103,6 @@ export default function SchedulesPageClient() {
   useLiveRefresh('bookings', schedulesRefetch, {
     enabled: LIVE_REFRESH_ENABLED && !!user && user.role === 'trainer' && user.approvalStatus === 'approved',
   });
-
-  const closeConfirmationPanel = () => {
-    const url = new URL(window.location.href);
-    url.searchParams.delete('confirm');
-    url.searchParams.delete('decline');
-    router.replace(url.pathname + url.search, { scroll: false });
-  };
-
-  const refreshSchedulesAfterConfirmation = () => {
-    trainerScheduleRepository
-      .list({ month: selectedMonth, year: selectedYear })
-      .then((response) => setSchedules(response.schedules))
-      .catch(() => {});
-  };
 
   if (authLoading || loading) {
     return <DashboardSkeleton variant="trainer" />;
@@ -198,13 +187,6 @@ export default function SchedulesPageClient() {
         ) : (
           <ScheduleList schedules={schedules} />
         )}
-
-        <TrainerSessionConfirmationPanel
-          scheduleId={confirmationScheduleId}
-          isOpen={isConfirmationPanelOpen}
-          onClose={closeConfirmationPanel}
-          onConfirmedOrDeclined={refreshSchedulesAfterConfirmation}
-        />
       </div>
     </div>
   );

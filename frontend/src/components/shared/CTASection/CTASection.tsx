@@ -49,13 +49,13 @@ const CTASection: React.FC<CTASectionProps> = ({
         />
       )}
       {variant === 'default' && (
-        <div className="absolute inset-0 bg-gradient-to-r from-primary-blue/5 to-light-blue-cyan/5 pointer-events-none z-[1]" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary-blue/5 to-light-blue-cyan/5 pointer-events-none z-base" aria-hidden />
       )}
       {variant !== 'default' && (
-        <div className="absolute inset-0 bg-white opacity-5 hover:opacity-10 transition-opacity duration-500 pointer-events-none z-[1]" aria-hidden />
+        <div className="absolute inset-0 bg-white opacity-5 hover:opacity-10 transition-opacity duration-500 pointer-events-none z-base" aria-hidden />
       )}
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4">
+      <div className="relative z-raised max-w-4xl mx-auto px-4">
         <h2 className={`text-2xl md:text-3xl font-heading font-bold mb-4 leading-tight ${getTextColor()}`}>
           {title}
         </h2>

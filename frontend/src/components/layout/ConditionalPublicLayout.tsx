@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
+import { createPortal } from 'react-dom';
 import Header from '@/components/layout/Header';
 import ToastContainer from '@/components/ui/Toast/ToastContainer';
 import { toastManager, type Toast } from '@/utils/toast';
@@ -41,7 +42,10 @@ export default function ConditionalPublicLayout({
 
   return (
     <>
-      <Header />
+      {typeof document !== 'undefined'
+        ? createPortal(<Header />, document.body)
+        : <Header />}
+      {/* Header has z-header (1000) so it stays above main and hero; main needs no z-index to stack below. */}
       <main className={PUBLIC_MAIN_CLASS}>{children}</main>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </>

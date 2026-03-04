@@ -1,5 +1,6 @@
 # Railway config for CAMS Frontend (Next.js)
-# Set this service's Root Directory to "frontend" in Railway Dashboard.
+# Optional: use this if you deploy the frontend on Railway. Set this service's Root Directory to "frontend" in Railway Dashboard.
+# For Vercel deployment, use frontend/vercel.json and set env vars in Vercel Dashboard.
 
 [build]
 builder = "DOCKERFILE"

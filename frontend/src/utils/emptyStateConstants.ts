@@ -144,6 +144,48 @@ export const EMPTY_STATE = {
   NO_ACTIVITIES_FOUND_IN_DATABASE: { title: 'No activities found in database', message: 'Contact admin to add activities.' },
   NO_HOURS_PURCHASED_YET: { title: 'No hours purchased yet', message: 'Buy hours to book sessions.' },
   NO_BOOKINGS_YET_HEADING: { title: 'No Bookings Yet', message: 'Create a booking to get started.' },
+
+  /** Parent dashboard right sidebar – minimal, calendar-style labels */
+  PARENT_SIDEBAR: {
+    /** Dropdown at top of right sidebar (Add child, Report a concern) */
+    CREATE_BUTTON_LABEL: 'Actions',
+    ADD_CHILD_LABEL: 'Add child',
+    REPORT_CONCERN_LABEL: 'Report a concern',
+    ALL_CLEAR: 'All clear',
+    HOURS_AVAILABLE: 'available',
+    HOURS_REMAINING: 'remaining',
+    HOURS_USED: 'used',
+    VIEW_BREAKDOWN: 'View breakdown',
+    BOOK_SESSION: 'Book session',
+    BOOK_SESSION_READY: 'Ready to book',
+    BUY_HOURS: 'Buy hours',
+    /** Hours breakdown panel (Google Calendar–style) */
+    BREAKDOWN: {
+      TITLE: 'Package hours by child',
+      DESCRIPTION: 'Remaining hours, low-hours alerts and quick actions.',
+      CLOSE_LABEL: 'Close',
+      SECTION_HEADING: 'By child',
+      SORT_LABEL: 'Sort by',
+      SORT_NAME: 'Name',
+      SORT_HOURS_LEFT: 'Hours left',
+      SORT_USAGE_PCT: 'Usage %',
+      FILTER_LOW_ONLY: 'Low hours only',
+      CLEAR_FILTERS: 'Clear filters',
+      VIEW_CARDS: 'Cards',
+      VIEW_LIST: 'List',
+      VIEW_COMPARISON: 'Comparison',
+      LEFT_OF: 'left of',
+      REMAINING: 'remaining',
+      UPCOMING: 'upcoming',
+      EXPIRES: 'Expires',
+      BOOK_SESSION_LABEL: 'Book session',
+      TOP_UP: 'Top up',
+      BUY_HOURS_LABEL: 'Buy hours',
+      ALL_SET_MESSAGE: 'All set – all children have active packages.',
+      NO_LOW_HOURS_TITLE: 'No children with low hours',
+      NO_LOW_HOURS_MESSAGE: 'All children have more than 25% of their package remaining.',
+    },
+  },
 } as const;
 
 export type EmptyStateKey = keyof typeof EMPTY_STATE;

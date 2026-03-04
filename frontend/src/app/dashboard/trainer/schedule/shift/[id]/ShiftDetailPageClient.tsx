@@ -45,7 +45,7 @@ export default function ShiftDetailPageClient() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-16">
-      <header className="bg-[#004E89] text-white px-4 sm:px-6 py-4 sm:py-5">
+      <header className="bg-navy-blue text-white px-4 sm:px-6 py-4 sm:py-5">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
           <button
             type="button"

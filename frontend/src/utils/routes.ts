@@ -66,5 +66,8 @@ export const ROUTES = {
   DASHBOARD_ADMIN_PACKAGES: '/dashboard/admin/packages',
   DASHBOARD_ADMIN_TRAINER_APPLICATIONS: '/dashboard/admin/trainer-applications',
   DASHBOARD_ADMIN_PUBLIC_PAGES: '/dashboard/admin/public-pages',
+  DASHBOARD_ADMIN_REPORTS: '/dashboard/admin/reports',
+  DASHBOARD_ADMIN_ACTIVITIES: '/dashboard/admin/activities',
+  DASHBOARD_ADMIN_SERVICES: '/dashboard/admin/services',
   DASHBOARD_ADMIN_SETTINGS: '/dashboard/admin/settings',
 } as const;

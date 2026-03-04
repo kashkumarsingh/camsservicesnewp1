@@ -4,6 +4,8 @@ import React from 'react';
 import moment from 'moment';
 import { Activity, ChevronRight } from 'lucide-react';
 import type { ChildActivitySession } from '@/components/dashboard/ChildrenActivitiesCalendar';
+import { getChildColor } from '@/utils/childColorUtils';
+import { getCalendarLabelClasses, type CalendarSessionTimeStatus } from '@/utils/calendarLabelConstants';
 
 function formatDurationMinutes(startTime: string, endTime: string): string {
   const start = moment(startTime, ['HH:mm', 'HH:mm:ss']);
@@ -30,9 +32,16 @@ interface SelectedDayEventCardsProps {
   emptyMessage?: string;
 }
 
+/** Map session timing to calendar label status (Google Calendar–style meaningful label). */
+function getSessionTimeStatus(session: ChildActivitySession): CalendarSessionTimeStatus {
+  if (session.isOngoing) return 'live';
+  if (session.isPast) return 'past';
+  return 'upcoming';
+}
+
 /**
- * Event cards for the selected day (reference: calendar app with "Sick Leave" style card).
- * Shows icon, title, duration, date range and arrow; tappable to open session detail.
+ * Event cards for the selected day (Google Calendar–style: coloured by child label, status dot).
+ * Shows child colour as left border + fill, small status dot (Past/Live/Upcoming), title, duration; tappable to open session detail.
  */
 export default function SelectedDayEventCards({
   sessions,
@@ -56,44 +65,46 @@ export default function SelectedDayEventCards({
             : "Trainer's choice";
         const duration = formatDurationMinutes(session.startTime, session.endTime);
         const dateRange = formatDateRange(session.date, session.startTime, session.endTime);
-        const isPast = session.isPast;
-        const isOngoing = session.isOngoing;
-
-        const statusStyles = isOngoing
-          ? 'border-l-green-500 bg-green-50/80 dark:bg-green-900/20'
-          : isPast
-            ? 'border-l-slate-400 bg-slate-100 dark:bg-slate-800/50'
-            : 'border-l-blue-500 bg-blue-50/80 dark:bg-blue-900/20';
+        const timeStatus = getSessionTimeStatus(session);
+        const statusClasses = getCalendarLabelClasses(timeStatus);
+        const childColor = getChildColor(session.childId);
+        const childBgAlpha = `${childColor}18`;
 
         return (
           <li key={session.scheduleId}>
             <button
               type="button"
               onClick={() => onSessionClick?.(session)}
-              className={`w-full text-left rounded-xl border border-slate-200 dark:border-slate-700 ${statusStyles} px-4 py-3 flex items-center gap-3 transition-colors hover:opacity-90 active:opacity-95`}
+              className="flex w-full items-center gap-3 rounded-xl border border-l-4 border-slate-200 px-4 py-3 text-left transition-all duration-150 hover:shadow-md active:opacity-95 dark:border-slate-700"
+              style={{
+                borderLeftColor: childColor,
+                backgroundColor: childBgAlpha,
+              }}
             >
               <span
-                className={`flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full ${
-                  isOngoing
-                    ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300'
-                    : isPast
-                      ? 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
-                      : 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
-                }`}
+                className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full text-slate-700 dark:text-slate-200"
+                style={{ backgroundColor: `${childColor}30` }}
                 aria-hidden
               >
                 <Activity className="w-5 h-5" />
               </span>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">
-                  {title}
-                </p>
-                <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-0.5">
-                  {duration}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {session.childName} · {dateRange}
-                </p>
+              <div className="flex-1 min-w-0 flex items-center gap-2">
+                <span
+                  className={`flex-shrink-0 w-2 h-2 rounded-full ${statusClasses.dot}`}
+                  title={timeStatus === 'live' ? 'Live' : timeStatus === 'past' ? 'Past' : 'Upcoming'}
+                  aria-hidden
+                />
+                <div className="min-w-0">
+                  <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">
+                    {title}
+                  </p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-0.5">
+                    {duration}
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    {session.childName} · {dateRange}
+                  </p>
+                </div>
               </div>
               <ChevronRight
                 className="flex-shrink-0 w-5 h-5 text-slate-400 dark:text-slate-500"

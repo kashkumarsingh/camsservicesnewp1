@@ -25,15 +25,15 @@ export default function TrainersPageClient() {
       {/* Hero Section - For Parents to Meet the Team */}
       <Section className="relative pt-16 pb-16 px-4 sm:px-6 lg:px-8 text-white overflow-hidden min-h-[40vh] flex items-center">
         <video
-          className="absolute inset-0 w-full h-full object-cover z-0"
+          className="absolute inset-0 w-full h-full object-cover"
           src="/videos/space-bg-2.webm"
           loop
           autoPlay
           muted
           playsInline
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/50 to-light-blue-cyan/30 z-10" />
-        <div className="relative z-20 text-center max-w-4xl mx-auto">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/50 to-light-blue-cyan/30" />
+        <div className="relative text-center max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-heading font-extrabold mb-6 leading-tight tracking-tight heading-text-shadow">
             {TRAINERS_PAGE.HERO_TITLE}
           </h1>

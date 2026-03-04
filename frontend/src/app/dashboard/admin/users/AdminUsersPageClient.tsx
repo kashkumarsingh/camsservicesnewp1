@@ -68,6 +68,9 @@ export const AdminUsersPageClient: React.FC = () => {
   });
   const [submitting, setSubmitting] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [inlineDraft, setInlineDraft] = useState<{ name: string; email: string; approvalStatus: string } | null>(null);
+  const [inlineSaving, setInlineSaving] = useState(false);
 
   // Data hooks
   const { users, loading, error, refetch, createUser, updateUser, deleteUser, approveUser, rejectUser } = useAdminUsers({
@@ -147,26 +150,91 @@ export const AdminUsersPageClient: React.FC = () => {
     setSortDirection(dir ?? "asc");
   };
 
+  const inputClass =
+    "h-8 w-full min-w-0 rounded border border-slate-200 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50";
+
   const userColumns: Column<AdminUserRow>[] = useMemo(
     () => [
-      { id: "name", header: "Name", sortable: true, accessor: (row) => row.name },
-      { id: "email", header: "Email", sortable: true, accessor: (row) => row.email },
+      {
+        id: "name",
+        header: "Name",
+        sortable: true,
+        accessor: (row, context) => {
+          if (context?.isEditing && inlineDraft) {
+            return (
+              <input
+                type="text"
+                required
+                aria-label="Name"
+                value={inlineDraft.name}
+                onChange={(e) =>
+                  setInlineDraft((prev) => (prev ? { ...prev, name: e.target.value } : null))
+                }
+                className={inputClass}
+              />
+            );
+          }
+          return row.name;
+        },
+      },
+      {
+        id: "email",
+        header: "Email",
+        sortable: true,
+        accessor: (row, context) => {
+          if (context?.isEditing && inlineDraft) {
+            return (
+              <input
+                type="email"
+                required
+                aria-label="Email"
+                value={inlineDraft.email}
+                onChange={(e) =>
+                  setInlineDraft((prev) => (prev ? { ...prev, email: e.target.value } : null))
+                }
+                className={inputClass}
+              />
+            );
+          }
+          return row.email;
+        },
+      },
       {
         id: "approvalStatus",
         header: "Approval",
         sortable: true,
-        accessor: (row) => (
-          <span
-            className={`inline-flex rounded-full px-2 py-0.5 text-2xs font-medium ${getApprovalBadgeClasses(
-              row.approvalStatus
-            )}`}
-          >
-            {row.approvalStatus}
-          </span>
-        ),
+        accessor: (row, context) => {
+          if (context?.isEditing && inlineDraft) {
+            return (
+              <select
+                aria-label="Approval status"
+                value={inlineDraft.approvalStatus}
+                onChange={(e) =>
+                  setInlineDraft((prev) =>
+                    prev ? { ...prev, approvalStatus: e.target.value } : null
+                  )
+                }
+                className={inputClass}
+              >
+                <option value="pending">pending</option>
+                <option value="approved">approved</option>
+                <option value="rejected">rejected</option>
+              </select>
+            );
+          }
+          return (
+            <span
+              className={`inline-flex rounded-full px-2 py-0.5 text-2xs font-medium ${getApprovalBadgeClasses(
+                row.approvalStatus
+              )}`}
+            >
+              {row.approvalStatus}
+            </span>
+          );
+        },
       },
     ],
-    []
+    [inlineDraft, inputClass]
   );
 
   /**
@@ -226,6 +294,40 @@ export const AdminUsersPageClient: React.FC = () => {
     setSelectedUser(user);
     setIsEditing(true);
   };
+
+  const handleStartInlineEdit = useCallback((user: AdminUserRow) => {
+    setEditingId(user.id);
+    setInlineDraft({
+      name: user.name ?? "",
+      email: user.email ?? "",
+      approvalStatus: user.approvalStatus ?? "pending",
+    });
+  }, []);
+
+  const handleCancelInlineEdit = useCallback(() => {
+    setEditingId(null);
+    setInlineDraft(null);
+  }, []);
+
+  const handleSaveInlineEdit = useCallback(async () => {
+    if (editingId == null || !inlineDraft) return;
+    setInlineSaving(true);
+    try {
+      await updateUser(editingId, {
+        name: inlineDraft.name.trim(),
+        email: inlineDraft.email.trim(),
+        approvalStatus: inlineDraft.approvalStatus as "pending" | "approved" | "rejected",
+      });
+      toastManager.success("User updated");
+      setEditingId(null);
+      setInlineDraft(null);
+      void refetch();
+    } catch (err: unknown) {
+      toastManager.error(err instanceof Error ? err.message : "Failed to save user");
+    } finally {
+      setInlineSaving(false);
+    }
+  }, [editingId, inlineDraft, updateUser, refetch]);
 
   /**
    * Handle form submit (create or update)
@@ -404,6 +506,7 @@ export const AdminUsersPageClient: React.FC = () => {
         columns={userColumns}
         data={sortedUsers}
         isLoading={loading}
+        responsive
         error={error}
         onRetry={() => void refetch()}
         emptyTitle={EMPTY_STATE.NO_USERS_FOUND.title}
@@ -416,20 +519,46 @@ export const AdminUsersPageClient: React.FC = () => {
         sortKey={sortKey}
         sortDirection={sortDirection}
         onSortChange={handleSortChange}
-        renderRowActions={(user) => (
-          <RowActions>
-            {user.approvalStatus === "pending" && (
-              <>
-                <ApproveAction onClick={() => handleApprove(user.id)} aria-label="Approve" />
-                <RejectAction onClick={() => handleReject(user.id)} aria-label="Reject" />
-              </>
-            )}
-            <EditAction onClick={() => handleEditClick(user)} aria-label="Edit" />
-            <DeleteAction onClick={() => handleDelete(user.id)} aria-label="Delete" />
-          </RowActions>
-        )}
+        getRowId={(u) => u.id}
+        editingRowId={editingId}
+        renderRowActions={(user, context) =>
+          context?.isEditing ? (
+            <RowActions>
+              <Button
+                type="button"
+                size="sm"
+                variant="primary"
+                disabled={inlineSaving || !inlineDraft?.name?.trim() || !inlineDraft?.email?.trim()}
+                onClick={() => void handleSaveInlineEdit()}
+                aria-label="Save"
+              >
+                {inlineSaving ? "Saving…" : "Save"}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="bordered"
+                disabled={inlineSaving}
+                onClick={handleCancelInlineEdit}
+                aria-label="Cancel"
+              >
+                Cancel
+              </Button>
+            </RowActions>
+          ) : (
+            <RowActions>
+              {user.approvalStatus === "pending" && (
+                <>
+                  <ApproveAction onClick={() => handleApprove(user.id)} aria-label="Approve" />
+                  <RejectAction onClick={() => handleReject(user.id)} aria-label="Reject" />
+                </>
+              )}
+              <EditAction onClick={() => handleStartInlineEdit(user)} aria-label="Edit" />
+              <DeleteAction onClick={() => handleDelete(user.id)} aria-label="Delete" />
+            </RowActions>
+          )
+        }
         onRowClick={(user) => setSelectedUser(user)}
-        responsive
       />
 
       {/* Detail View Canvas */}

@@ -68,9 +68,12 @@ services:
       - REVERB_HOST=reverb
       - REVERB_PORT=8080
       - REVERB_SCHEME=http
+      - MEILISEARCH_HOST=http://meilisearch:7700
+      - MEILISEARCH_KEY=${MEILISEARCH_MASTER_KEY:-dev-meilisearch-master-key-min-16-chars}
+      - SCOUT_DRIVER=meilisearch
     volumes:
+      # Single mount so container sees full backend (artisan, app/, etc.). Nested ./backend/storage mount can cause WSL2 to show only storage.
       - ./backend:/var/www/html
-      - ./backend/storage:/var/www/html/storage
     depends_on:
       db:
         condition: service_healthy
@@ -107,7 +110,6 @@ services:
       - REVERB_SCHEME=http
     volumes:
       - ./backend:/var/www/html
-      - ./backend/storage:/var/www/html/storage
     ports:
       - "8080:8080"
     depends_on:
@@ -189,6 +191,27 @@ services:
       - camsnew-network
     restart: unless-stopped
 
+  # Meilisearch - Self-hosted search (free, open source). See https://www.meilisearch.com/docs/learn/self_hosted/getting_started_with_self_hosted_meilisearch
+  meilisearch:
+    image: getmeili/meilisearch:v1.11
+    container_name: camsnew-meilisearch
+    environment:
+      - MEILISEARCH_MASTER_KEY=${MEILISEARCH_MASTER_KEY:-dev-meilisearch-master-key-min-16-chars}
+      - MEILISEARCH_ENV=development
+    volumes:
+      - meilisearch_data:/meili_data
+    ports:
+      - "7701:7700"
+    networks:
+      - camsnew-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--spider", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
   # Stripe CLI - Webhook Forwarding (Development)
   # Note: Run manually with: docker compose run --rm stripe-cli listen --forward-to http://backend:80/api/v1/webhooks/stripe --print-secret
   # This will print a webhook secret - add it to backend/.env as STRIPE_WEBHOOK_SECRET
@@ -216,6 +239,7 @@ networks:
 volumes:
   db_data:
   redis_data:
+  meilisearch_data:
   # Named volume for node_modules (machine-independent IDE support)
   frontend_node_modules:
 

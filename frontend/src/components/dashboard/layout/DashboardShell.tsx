@@ -216,6 +216,39 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
         : "Overview"
     : "";
 
+  /** Admin mobile top bar title: reflects current section for context. */
+  const adminMobileTitle = pathname.startsWith("/dashboard/admin")
+    ? pathname === "/dashboard/admin"
+      ? "Overview"
+      : pathname.startsWith("/dashboard/admin/bookings")
+        ? "Bookings"
+        : pathname.startsWith("/dashboard/admin/users")
+          ? "Users"
+          : pathname.startsWith("/dashboard/admin/parents")
+            ? "Parents"
+            : pathname.startsWith("/dashboard/admin/children")
+              ? "Children"
+              : pathname.startsWith("/dashboard/admin/trainers")
+                ? "Trainers"
+                : pathname.startsWith("/dashboard/admin/activities")
+                  ? "Activities"
+                  : pathname.startsWith("/dashboard/admin/services")
+                    ? "Services"
+                    : pathname.startsWith("/dashboard/admin/packages")
+                      ? "Packages"
+                      : pathname.startsWith("/dashboard/admin/public-pages")
+                        ? "Public pages"
+                        : pathname.startsWith("/dashboard/admin/reports")
+                          ? "Reports"
+                          : pathname.startsWith("/dashboard/admin/settings")
+                            ? "Settings"
+                            : pathname.startsWith("/dashboard/admin/trainer-applications")
+                              ? "Trainer applications"
+                              : pathname.startsWith("/dashboard/admin/absence-requests")
+                                ? "Absence requests"
+                                : "Admin"
+    : "";
+
   const {
     notifications,
     unreadCount,
@@ -377,23 +410,23 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
   const contentContainerClass = "w-full px-4 sm:px-6 lg:px-8";
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
-      {/* Top bar – content aligned with main container */}
-      <header className="sticky top-0 z-sticky border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-slate-900/80">
-        <div className={contentContainerClass}>
-          <div className="flex h-11 w-full items-center justify-between gap-3">
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-slate-50 dark:bg-slate-950">
+      {/* Top bar – h-16 fixed; content aligned with main container; glassmorphism and touch-friendly on mobile */}
+      <header className="sticky top-0 z-[300] isolate flex h-16 min-h-[4rem] flex-shrink-0 items-center border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-slate-900/80 shadow-card transition-shadow duration-dashboard">
+        <div className={`${contentContainerClass} h-full`}>
+          <div className="flex h-full w-full items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             {sectionRole !== "parent" && (
             <button
               type="button"
-              className="shrink-0 inline-flex items-center justify-center rounded-lg p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 lg:hidden"
+              className="shrink-0 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-dashboard p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 lg:min-h-0 lg:min-w-0 lg:p-1.5 lg:hidden transition-colors duration-dashboard"
               onClick={() => setSidebarOpen((prev) => !prev)}
               aria-label="Toggle navigation"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-5 w-5" aria-hidden />
             </button>
             )}
-            {/* Parent/Trainer mobile: center shows current page title */}
+            {/* Parent/Trainer/Admin mobile: center shows current page title */}
             {sectionRole === "parent" ? (
               <span className="md:hidden flex-1 text-center text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
                 {parentMobileTitle}
@@ -401,6 +434,10 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
             ) : sectionRole === "trainer" ? (
               <span className="md:hidden flex-1 text-center text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
                 {trainerMobileTitle}
+              </span>
+            ) : sectionRole === "admin" ? (
+              <span className="lg:hidden flex-1 text-center text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
+                {adminMobileTitle}
               </span>
             ) : null}
             {!(sectionRole === "parent" || sectionRole === "trainer") ? (
@@ -416,7 +453,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                   fill
                   sizes="112px"
                   style={{ objectFit: "contain", objectPosition: "left center" }}
-                  priority={false}
+                  priority
                 />
               </div>
             </Link>
@@ -433,7 +470,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                     fill
                     sizes="112px"
                     style={{ objectFit: "contain", objectPosition: "left center" }}
-                    priority={false}
+                    priority
                   />
                 </div>
               </Link>
@@ -451,9 +488,9 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors whitespace-nowrap ${
+                      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors duration-150 whitespace-nowrap ${
                         active
-                          ? "bg-primary-blue/10 text-primary-blue dark:bg-primary-blue/20 dark:text-primary-blue font-semibold"
+                          ? "bg-gcal-primary-light text-gcal-primary dark:bg-gcal-primary/20 dark:text-gcal-primary font-semibold"
                           : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200"
                       }`}
                     >
@@ -484,7 +521,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                 type="button"
                 onClick={handleRefreshAll}
                 disabled={refreshAllBusy}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 hover:border-slate-300 dark:hover:bg-slate-700 dark:hover:border-slate-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                className="flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-dashboard border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 hover:border-slate-300 dark:hover:bg-slate-700 dark:hover:border-slate-600 transition-colors duration-dashboard disabled:opacity-60 disabled:cursor-not-allowed"
                 aria-label="Refresh dashboard"
                 title="Refresh dashboard"
               >
@@ -502,13 +539,13 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                   setNotificationsOpen((prev) => !prev);
                   if (!notificationsOpen) refetchNotifications(true);
                 }}
-                className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 hover:border-slate-300 dark:hover:bg-slate-700 dark:hover:border-slate-600 transition-colors"
+                className="relative flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-dashboard border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 hover:border-slate-300 dark:hover:bg-slate-700 dark:hover:border-slate-600 transition-colors duration-dashboard"
                 aria-label="Notifications"
                 aria-expanded={notificationsOpen}
               >
-                <Bell className="h-4 w-4" />
+                <Bell className="h-4 w-4" aria-hidden />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-semibold text-white">
+                  <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-gcal-destructive px-1 text-[10px] font-bold text-white">
                     {unreadCount > 99 ? "99+" : unreadCount}
                   </span>
                 )}
@@ -516,12 +553,13 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               {notificationsOpen && (
                 <>
                   <div
-                    className="fixed inset-0 z-sticky bg-transparent"
+                    className="fixed inset-0 z-overlay bg-transparent"
                     aria-hidden="true"
                     onClick={() => setNotificationsOpen(false)}
                   />
+                  {/* Mobile: full-width panel below header; md+: dropdown right-aligned */}
                   <div
-                    className="absolute right-0 top-full z-50 mt-1.5 w-80 max-h-[min(24rem,70vh)] flex flex-col rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl"
+                    className="fixed left-0 right-0 top-16 z-popover flex max-h-[60vh] flex-col overflow-y-auto rounded-t-xl border border-slate-200 border-t bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900 md:absolute md:left-auto md:right-0 md:top-full md:mt-1.5 md:max-h-96 md:w-80 md:rounded-xl md:border-t"
                     role="dialog"
                     aria-label="Notifications"
                   >
@@ -567,7 +605,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                                       prev === categoryLabel ? null : categoryLabel
                                     )
                                   }
-                                  className="sticky top-0 z-10 flex w-full items-center justify-between gap-2 bg-slate-50/95 dark:bg-slate-900/95 px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-100/95 dark:hover:bg-slate-800/95"
+                                  className="sticky top-0 z-raised flex w-full items-center justify-between gap-2 bg-slate-50/95 dark:bg-slate-900/95 px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-100/95 dark:hover:bg-slate-800/95"
                                   aria-expanded={isExpanded}
                                 >
                                   {categoryLabel}
@@ -625,16 +663,16 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               <button
                 type="button"
                 onClick={() => setUserMenuOpen((prev) => !prev)}
-                className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 pl-2 pr-2.5 py-1 text-left hover:bg-slate-50 hover:border-slate-300 dark:hover:bg-slate-700 dark:hover:border-slate-600 transition-colors min-w-0"
+                className="flex min-h-[44px] md:min-h-0 items-center gap-2 rounded-dashboard border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 pl-2 pr-2.5 py-1.5 md:py-1 text-left hover:bg-slate-50 hover:border-slate-300 dark:hover:bg-slate-700 dark:hover:border-slate-600 transition-colors duration-dashboard min-w-0 overflow-hidden"
                 aria-label="User menu"
                 aria-expanded={userMenuOpen}
               >
-                <UserCircle2 className="h-6 w-6 shrink-0 text-slate-500 dark:text-slate-400" />
-                <span className="hidden sm:inline-flex flex-col text-left leading-tight min-w-0 max-w-[140px]">
+                <UserCircle2 className="h-6 w-6 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden />
+                <span className="hidden md:inline-flex flex-col text-left leading-tight min-w-0 max-w-[140px] truncate">
                   <span className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
                     {user?.name ?? "Signed in"}
                   </span>
-                  <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <span className="text-2xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
                     {user?.role === "super_admin" ? "Admin" : (user?.role ?? "")}
                   </span>
                 </span>
@@ -642,12 +680,12 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               {userMenuOpen && (
                 <>
                   <div
-                    className="fixed inset-0 z-sticky bg-transparent"
+                    className="fixed inset-0 z-overlay bg-transparent"
                     aria-hidden="true"
                     onClick={() => setUserMenuOpen(false)}
                   />
                   <div
-                    className="absolute right-0 top-full z-50 mt-1.5 w-52 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-1 shadow-xl"
+                    className="absolute right-0 top-full z-popover mt-1.5 w-52 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-1 shadow-xl"
                     role="menu"
                   >
                     <Link
@@ -709,15 +747,19 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
         </div>
       </header>
 
-      {/* Body: for parent, no sidebar (nav in header); for others, grid with sidebar */}
+      {/* Body: no z-index needed to sit below header (header is 1000). Parent: no sidebar. Others: two-column grid; when mobile sidebar open, raise with z-overlay so backdrop/sidebar draw on top. */}
       <div
-        className={`flex flex-1 ${sectionRole === "parent" ? "" : "lg:grid"} ${
-          sectionRole === "parent" ? "" : sidebarEffectivelyCollapsed ? "lg:grid-cols-[4rem_minmax(0,1fr)]" : "lg:grid-cols-[20rem_minmax(0,1fr)]"
-        }`}
+        className={`relative flex flex-1 min-w-0 ${sectionRole === "parent" ? "" : "lg:grid"} ${
+          sectionRole === "parent"
+            ? ""
+            : sidebarEffectivelyCollapsed
+              ? "lg:grid-cols-[4rem_minmax(0,1fr)]"
+              : "lg:grid-cols-[16rem_minmax(0,1fr)]"
+        } ${sectionRole !== "parent" && sidebarOpen ? "z-overlay lg:z-auto" : ""}`}
       >
         {sectionRole !== "parent" && sidebarOpen && (
           <div
-            className="fixed inset-0 top-11 z-20 bg-slate-900/50 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 top-0 z-[500] bg-black/40 backdrop-blur-sm lg:hidden"
             onClick={() => setSidebarOpen(false)}
             aria-hidden="true"
           />
@@ -725,9 +767,9 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
 
         {sectionRole !== "parent" && (
         <aside
-          className={`fixed inset-y-0 left-0 z-mobileNav flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pt-11 transition-[transform,width] duration-200 ease-out lg:static lg:translate-x-0 lg:w-full ${
+          className={`fixed inset-y-0 left-0 z-[600] flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pt-16 transition-[transform,width] duration-dashboard ease-out lg:static lg:z-auto lg:translate-x-0 lg:pt-11 lg:w-full ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-          } w-80`}
+          } w-72 max-w-[85vw] shadow-panel lg:max-w-none lg:w-full lg:shadow-none`}
         >
           {/* Close button – only visible on mobile when sidebar is open */}
           <button
@@ -781,12 +823,12 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                         <Link
                           href={item.href}
                           title={item.description ?? (sidebarEffectivelyCollapsed ? item.label : undefined)}
-                          className={`flex items-center gap-2 rounded px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                          className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors duration-150 ${
                             sidebarEffectivelyCollapsed ? "lg:justify-center lg:px-1.5 lg:py-1.5" : ""
                           } ${
                             active
-                              ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200 font-bold border-l-4 border-blue-600 shadow-sm"
-                              : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
+                              ? "bg-gcal-primary-light text-gcal-primary dark:bg-gcal-primary/20 dark:text-gcal-primary font-medium border-l-4 border-gcal-primary"
+                              : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200"
                           }`}
                           onClick={() => setSidebarOpen(false)}
                         >
@@ -803,10 +845,10 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
         </aside>
         )}
 
-        {/* Main content area – same container as header so content aligns */}
+        {/* Main content area – same container as header so content aligns; bottom padding when mobile nav present */}
         <main
           className={`min-w-0 flex-1 ${
-            sectionRole === "parent" || sectionRole === "trainer"
+            sectionRole === "parent" || sectionRole === "trainer" || sectionRole === "admin"
               ? "pb-[calc(3.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0"
               : ""
           }`}
@@ -824,15 +866,15 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
       {/* Parent bottom nav – mobile only: Overview, Booked hours, Children */}
       {sectionRole === "parent" && (
         <nav
-          className="lg:hidden fixed bottom-0 left-0 right-0 z-mobileNav border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pb-[env(safe-area-inset-bottom,0px)]"
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-sticky border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-[0_-1px_3px_0_rgb(0_0_0/0.06)] pb-[env(safe-area-inset-bottom,0px)]"
           aria-label="Parent dashboard navigation"
         >
           <div className="grid grid-cols-3 h-14">
             <Link
               href={ROUTES.DASHBOARD_PARENT}
-              className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] ${
+              className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] min-w-0 touch-manipulation ${
                 pathname === ROUTES.DASHBOARD_PARENT && !pathname.startsWith(`${ROUTES.DASHBOARD_PARENT}/`)
-                  ? "text-blue-600 dark:text-blue-400"
+                  ? "text-gcal-primary dark:text-gcal-primary"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
             >
@@ -841,9 +883,9 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
             </Link>
             <Link
               href={ROUTES.DASHBOARD_PARENT_BOOKINGS}
-              className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] ${
+              className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] min-w-0 touch-manipulation ${
                 pathname.startsWith(ROUTES.DASHBOARD_PARENT_BOOKINGS)
-                  ? "text-blue-600 dark:text-blue-400"
+                  ? "text-gcal-primary dark:text-gcal-primary"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
             >
@@ -852,9 +894,9 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
             </Link>
             <Link
               href={ROUTES.DASHBOARD_PARENT_CHILDREN}
-              className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] ${
+              className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] min-w-0 touch-manipulation ${
                 pathname.startsWith(ROUTES.DASHBOARD_PARENT_CHILDREN)
-                  ? "text-blue-600 dark:text-blue-400"
+                  ? "text-gcal-primary dark:text-gcal-primary"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
             >
@@ -868,15 +910,15 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
       {/* Trainer bottom nav – mobile only: Schedule | More (same layout as parent, URL-driven) */}
       {sectionRole === "trainer" && (
         <nav
-          className="lg:hidden fixed bottom-0 left-0 right-0 z-mobileNav border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pb-[env(safe-area-inset-bottom,0px)]"
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-sticky border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-[0_-1px_3px_0_rgb(0_0_0/0.06)] pb-[env(safe-area-inset-bottom,0px)]"
           aria-label="Trainer dashboard navigation"
         >
           <div className="grid grid-cols-2 h-14 max-w-lg mx-auto">
             <Link
               href={ROUTES.DASHBOARD_TRAINER}
-              className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] ${
+              className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] min-w-[44px] touch-manipulation ${
                 trainerMobileTab === "schedule"
-                  ? "text-blue-600 dark:text-blue-400"
+                  ? "text-gcal-primary dark:text-gcal-primary"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
               aria-current={trainerMobileTab === "schedule" ? "page" : undefined}
@@ -886,9 +928,9 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
             </Link>
             <Link
               href={`${ROUTES.DASHBOARD_TRAINER}?tab=more`}
-              className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] ${
+              className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] min-w-[44px] touch-manipulation ${
                 trainerMobileTab === "more"
-                  ? "text-blue-600 dark:text-blue-400"
+                  ? "text-gcal-primary dark:text-gcal-primary"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
               aria-current={trainerMobileTab === "more" ? "page" : undefined}
@@ -896,6 +938,50 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               <UserCircle2 className="h-5 w-5 shrink-0" aria-hidden />
               <span>More</span>
             </Link>
+          </div>
+        </nav>
+      )}
+
+      {/* Admin bottom nav – mobile only: Overview | Bookings | More (opens sidebar) */}
+      {sectionRole === "admin" && (
+        <nav
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-sticky border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-[0_-1px_3px_0_rgb(0_0_0/0.06)] pb-[env(safe-area-inset-bottom,0px)]"
+          aria-label="Admin dashboard navigation"
+        >
+          <div className="grid grid-cols-3 h-14">
+            <Link
+              href={ROUTES.DASHBOARD_ADMIN}
+              className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] min-w-0 touch-manipulation ${
+                pathname === ROUTES.DASHBOARD_ADMIN
+                  ? "text-gcal-primary dark:text-gcal-primary"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+              }`}
+              aria-current={pathname === ROUTES.DASHBOARD_ADMIN ? "page" : undefined}
+            >
+              <LayoutDashboard className="h-5 w-5 shrink-0" aria-hidden />
+              <span>Overview</span>
+            </Link>
+            <Link
+              href={ROUTES.DASHBOARD_ADMIN_BOOKINGS}
+              className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] min-w-0 touch-manipulation ${
+                pathname.startsWith(ROUTES.DASHBOARD_ADMIN_BOOKINGS)
+                  ? "text-gcal-primary dark:text-gcal-primary"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+              }`}
+              aria-current={pathname.startsWith(ROUTES.DASHBOARD_ADMIN_BOOKINGS) ? "page" : undefined}
+            >
+              <Calendar className="h-5 w-5 shrink-0" aria-hidden />
+              <span>Bookings</span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="flex flex-col items-center justify-center gap-0.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors min-h-[44px] min-w-0 touch-manipulation"
+              aria-label="Open full menu"
+            >
+              <Menu className="h-5 w-5 shrink-0" aria-hidden />
+              <span>More</span>
+            </button>
           </div>
         </nav>
       )}

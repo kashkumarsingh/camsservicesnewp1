@@ -324,6 +324,26 @@ export default function TrainerDashboardPageClient() {
     const id = searchParams.get('openClockOut');
     setOpenClockOutScheduleId(id ?? null);
   }, [searchParams]);
+
+  /** Open confirmation panel when arriving with ?confirm= or ?decline= (e.g. from Schedules redirect or notification link). */
+  useEffect(() => {
+    const confirmId = searchParams.get('confirm');
+    const declineId = searchParams.get('decline');
+    const idStr = confirmId ?? declineId;
+    if (idStr != null && idStr !== '') {
+      const id = parseInt(String(idStr), 10);
+      if (!Number.isNaN(id)) {
+        setConfirmationScheduleId(id);
+        const url = new URL(window.location.href);
+        url.searchParams.delete('confirm');
+        url.searchParams.delete('decline');
+        const clean = url.pathname + (url.search || '');
+        if (clean !== window.location.pathname + (window.location.search || '')) {
+          router.replace(clean, { scroll: false });
+        }
+      }
+    }
+  }, [searchParams, router]);
   // Stats and bookings
   const [stats, setStats] = useState<TrainerDashboardStats | null>(null);
   const [bookings, setBookings] = useState<TrainerBooking[]>([]);
@@ -880,7 +900,8 @@ export default function TrainerDashboardPageClient() {
     let count = 0;
     bookings.forEach((b) => {
       b.schedules?.forEach((s) => {
-        if ((s as { trainer_assignment_status?: string }).trainer_assignment_status === 'pending_trainer_confirmation') count++;
+        const status = s.trainerAssignmentStatus ?? (s as { trainer_assignment_status?: string }).trainer_assignment_status ?? '';
+        if (status === 'pending_trainer_confirmation') count++;
       });
     });
     return count;
@@ -1096,18 +1117,18 @@ export default function TrainerDashboardPageClient() {
 
   if (user.approvalStatus !== 'approved') {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <div className="flex min-h-[60vh] items-center justify-center bg-slate-50">
+        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
           <AlertCircle className="mx-auto mb-4 h-16 w-16 text-amber-500" aria-hidden />
           <h1 className="mb-2 text-2xl font-semibold text-slate-900 dark:text-slate-50">
             {user.approvalStatus === 'pending' ? 'Account Pending Approval' : 'Account Not Approved'}
           </h1>
-          <p className="mb-6 text-slate-600 dark:text-slate-400">
+          <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
             {user.approvalStatus === 'pending'
               ? 'Your trainer account is pending admin approval. You\'ll be notified once approved.'
               : 'Your trainer account was not approved. Please contact us for more information.'}
           </p>
-          <Button onClick={() => router.push('/')} className="w-full">
+          <Button onClick={() => router.push('/')} className="w-full rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
             Go to Homepage
           </Button>
         </div>
@@ -1119,11 +1140,11 @@ export default function TrainerDashboardPageClient() {
     <section className={`space-y-4 ${paddingClasses}`}>
       <header className="space-y-0.5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-semibold text-slate-900 tracking-tight truncate dark:text-slate-50">
               {getGreeting()}, {trainerName.split(' ')[0]}
             </h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">
               Your schedule, sessions and time tracking.
             </p>
           </div>
@@ -1134,25 +1155,25 @@ export default function TrainerDashboardPageClient() {
               variant="primary"
               size="sm"
               icon={<CalendarCheck size={14} className="sm:h-4 sm:w-4" />}
-              className="text-xs sm:text-sm"
+              className="rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150"
             >
               Set my availability
             </Button>
             <Button
               onClick={() => setShowSafeguardingModal(true)}
-              variant="secondary"
+              variant="outline"
               size="sm"
               icon={<ShieldAlert size={14} className="sm:h-4 sm:w-4" />}
-              className="text-xs sm:text-sm"
+              className="rounded-full border border-slate-300 bg-white px-6 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all duration-150"
             >
               Log concern
             </Button>
             <Button
               onClick={() => setShowViewConcernsModal(true)}
-              variant="outline"
+              variant="ghost"
               size="sm"
               icon={<Eye size={14} className="sm:h-4 sm:w-4" />}
-              className="text-xs sm:text-sm"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-gcal-primary hover:bg-gcal-primary-light transition-colors duration-150"
             >
               View concerns
             </Button>
@@ -1161,9 +1182,9 @@ export default function TrainerDashboardPageClient() {
       </header>
 
       {error && (
-        <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200">
+        <div className="rounded-lg border border-rose-500 bg-white px-4 py-3 text-sm text-rose-600 shadow-sm dark:border-rose-500 dark:bg-rose-950/30 dark:text-rose-200">
           <div className="flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 shrink-0 text-rose-600 dark:text-rose-400" aria-hidden />
+            <AlertCircle className="h-5 w-5 shrink-0 text-rose-500 dark:text-rose-400" aria-hidden />
             {error}
           </div>
         </div>
@@ -1175,25 +1196,26 @@ export default function TrainerDashboardPageClient() {
         {/* Schedule: single calendar view; availability set on main calendar */}
         <div className={`flex flex-col ${spacingClasses} mb-6`}>
           {pendingConfirmationCount > 0 && (
-            <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
-              <p className="font-medium">
+            <div className="mb-3 rounded-xl border border-amber-500 border-l-4 bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-amber-500 dark:bg-amber-950/20 dark:text-amber-200">
+              <p className="text-sm font-medium text-slate-900 dark:text-slate-50">
                 You have {pendingConfirmationCount} session{pendingConfirmationCount !== 1 ? 's' : ''} waiting for your confirmation.
               </p>
-              <p className="mt-0.5 text-amber-700 dark:text-amber-300">
+              <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">
                 Click any session marked <span className="font-semibold">Confirm</span> on the calendar to confirm or decline.
               </p>
             </div>
           )}
-          <div className="mb-3 flex flex-wrap items-center justify-end gap-2">
+          <div className="mb-3 flex flex-wrap items-center justify-end gap-2 min-w-0">
             <TraineeFilter
               trainees={traineesForFilter}
               selectedIds={visibleTraineeIds}
               onChange={setVisibleTraineeIds}
               hideWhenSingle
+              className="w-full sm:w-auto"
             />
           </div>
 
-          <div className="mb-3">
+          <div className="mb-3 min-w-0 overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
             <CalendarRangeToolbar
               period={calendarPeriod}
               setPeriod={setCalendarPeriod}
@@ -1220,6 +1242,7 @@ export default function TrainerDashboardPageClient() {
               approvedAbsenceDates={approvedAbsenceDates}
               pendingAbsenceDates={pendingAbsenceDates}
               unavailableDates={unavailableDates}
+              showSessionTypeFilter={false}
               onDateClickOpenAvailability={(dateStr) => {
                 const month = moment(dateStr).format('YYYY-MM');
                 setCurrentCalendarMonth(month);
@@ -1229,9 +1252,9 @@ export default function TrainerDashboardPageClient() {
             />
           </div>
 
-          {/* Sessions for the selected period (1 day / 1 week / 1 month) – white card below calendar */}
+          {/* Sessions for the selected period (1 day / 1 week / 1 month) – Google Calendar–style list */}
           <div className="mt-4">
-            <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 overflow-hidden">
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
               <h3 className="sr-only">
                 Sessions for {calendarRange.rangeLabel}
               </h3>
@@ -1241,37 +1264,37 @@ export default function TrainerDashboardPageClient() {
                 </p>
               ) : (
                 <>
-                  <p className="px-4 pt-3 pb-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+                  <p className="px-4 pt-3 pb-1 text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     {calendarRange.rangeLabel}
                   </p>
-                  <ul className="divide-y divide-slate-200 dark:divide-slate-700">
+                  <ul className="divide-y divide-slate-100 dark:divide-slate-800">
                     {sessionsForPeriod.map((session) => {
                       const timeRange = `${moment(session.startTime, ['HH:mm', 'HH:mm:ss']).format('HH:mm')} – ${moment(session.endTime, ['HH:mm', 'HH:mm:ss']).format('HH:mm')}`;
                       const sessionType = session.activities?.length ? session.activities.slice(0, 2).join(', ') : 'Session';
                       const timing = getSessionTimingState(session);
                       const borderClass =
                         timing.statusVariant === 'cancelled'
-                          ? 'border-l-4 border-l-red-500 bg-red-50/50 dark:bg-red-950/20'
+                          ? 'border-l-4 border-l-rose-500 bg-rose-50/50 dark:bg-rose-950/20'
                           : timing.statusVariant === 'completed'
-                            ? 'border-l-4 border-l-slate-400 bg-slate-50/50 dark:bg-slate-800/30'
+                            ? 'border-l-4 border-l-slate-500 bg-slate-50/50 dark:bg-slate-800/30'
                             : timing.statusVariant === 'live'
-                              ? 'border-l-4 border-l-green-500 bg-green-50/50 dark:bg-green-950/20'
+                              ? 'border-l-4 border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20'
                               : 'border-l-4 border-l-blue-500 bg-blue-50/30 dark:bg-blue-950/20';
                       const dotClass =
                         timing.statusVariant === 'cancelled'
-                          ? 'bg-red-500'
+                          ? 'bg-rose-500'
                           : timing.statusVariant === 'completed'
-                            ? 'bg-slate-400'
+                            ? 'bg-slate-500'
                             : timing.statusVariant === 'live'
-                              ? 'bg-green-500'
+                              ? 'bg-emerald-500'
                               : 'bg-blue-500';
                       const pillClass =
                         timing.statusVariant === 'cancelled'
-                          ? 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200'
+                          ? 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-200'
                           : timing.statusVariant === 'completed'
-                            ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'
+                            ? 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200'
                             : timing.statusVariant === 'live'
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200'
+                              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200'
                               : 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200';
                       return (
                         <li key={`${session.date}-${session.scheduleId}`}>
@@ -1294,7 +1317,7 @@ export default function TrainerDashboardPageClient() {
                               });
                               setShowSessionModal(true);
                             }}
-                            className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:opacity-90 ${borderClass}`}
+                            className={`flex w-full cursor-pointer items-start gap-3 px-4 py-3 text-left transition-colors duration-100 hover:bg-slate-50 dark:hover:bg-slate-800/30 ${borderClass}`}
                           >
                             <span
                               className={`flex h-2 w-2 shrink-0 rounded-full mt-1.5 ${timing.statusVariant === 'live' ? 'animate-pulse' : ''} ${dotClass}`}
@@ -1308,7 +1331,7 @@ export default function TrainerDashboardPageClient() {
                                 <span className="text-slate-400">|</span>
                                 <span className="text-slate-600 dark:text-slate-400">{sessionType}</span>
                                 <span
-                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide ${pillClass}`}
+                              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${pillClass}`}
                               aria-label={`Session status: ${timing.statusLabel}`}
                             >
                               {timing.statusVariant === 'live' && (
@@ -1324,7 +1347,7 @@ export default function TrainerDashboardPageClient() {
                                     href={getGoogleMapsSearchUrl(session.pickupAddress)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="line-clamp-2 text-blue-600 dark:text-blue-400 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                                    className="line-clamp-2 break-words text-gcal-primary hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
                                     aria-label={`Open ${session.pickupAddress} in Google Maps`}
                                     onClick={(e) => e.stopPropagation()}
                                   >
@@ -1347,14 +1370,14 @@ export default function TrainerDashboardPageClient() {
           </div>
         </div>
 
-        {/* Mobile: FAB + actions dropdown (Availability, Concern, View) – profile is in top nav */}
+        {/* Mobile: FAB (Floating Action Button) + actions dropdown – profile is in top nav */}
         {!responsive.showSidebar && (
-          <div className="fixed bottom-20 right-4 z-30">
+          <div className="fixed bottom-20 right-4 z-dropdown">
             <button
               ref={actionsButtonRef}
               type="button"
               onClick={() => setShowMobileActionsDropdown((v) => !v)}
-              className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+              className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-blue text-white shadow-lg transition-all duration-150 hover:opacity-90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 dark:bg-primary-blue dark:text-white"
               aria-label="Actions"
               aria-expanded={showMobileActionsDropdown}
             >
@@ -1362,10 +1385,10 @@ export default function TrainerDashboardPageClient() {
             </button>
             {showMobileActionsDropdown && (
               <>
-                <div className="fixed inset-0 z-40" aria-hidden onClick={() => setShowMobileActionsDropdown(false)} />
+                <div className="fixed inset-0 z-sticky" aria-hidden onClick={() => setShowMobileActionsDropdown(false)} />
                 <div
                   id="trainer-mobile-actions-dropdown"
-                  className={`absolute z-50 w-56 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900 ${
+                  className={`absolute z-dropdown w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900 ${
                     dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'
                   } right-0`}
                 >
@@ -1375,7 +1398,7 @@ export default function TrainerDashboardPageClient() {
                       setShowMobileActionsDropdown(false);
                       setShowAvailabilityPanel(true);
                     }}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors duration-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                   >
                     <CalendarCheck size={18} className="shrink-0 text-slate-600 dark:text-slate-400" aria-hidden />
                     <div>
@@ -1389,7 +1412,7 @@ export default function TrainerDashboardPageClient() {
                       setShowMobileActionsDropdown(false);
                       setShowSafeguardingModal(true);
                     }}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors duration-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                   >
                     <ShieldAlert size={18} className="shrink-0 text-slate-600 dark:text-slate-400" aria-hidden />
                     <div>
@@ -1403,7 +1426,7 @@ export default function TrainerDashboardPageClient() {
                       setShowMobileActionsDropdown(false);
                       setShowViewConcernsModal(true);
                     }}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors duration-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                   >
                     <Eye size={18} className="shrink-0 text-slate-600 dark:text-slate-400" aria-hidden />
                     <div>
@@ -1422,21 +1445,21 @@ export default function TrainerDashboardPageClient() {
       {/* More tab: only real options – Settings (profile/qualifications), Contact, FAQ */}
       {activeTab === 'more' && (
         <div className={`${spacingClasses}`}>
-          <ul className="space-y-0.5 rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 overflow-hidden">
-            <li>
+          <ul className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
+            <li className="border-b border-slate-100 last:border-b-0 dark:border-slate-800">
               <Link
                 href="/dashboard/trainer/settings"
-                className="flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                className="flex items-center gap-3 px-4 py-3 text-left transition-colors duration-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
               >
                 <Settings size={20} className="shrink-0 text-slate-600 dark:text-slate-400" aria-hidden />
                 <span className="text-sm font-medium text-slate-900 dark:text-slate-50">Settings</span>
                 <ChevronRight size={18} className="ml-auto shrink-0 text-slate-400" aria-hidden />
               </Link>
             </li>
-            <li>
+            <li className="border-b border-slate-100 last:border-b-0 dark:border-slate-800">
               <Link
                 href={ROUTES.CONTACT}
-                className="flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                className="flex items-center gap-3 px-4 py-3 text-left transition-colors duration-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
               >
                 <Mail size={20} className="shrink-0 text-slate-600 dark:text-slate-400" aria-hidden />
                 <span className="text-sm font-medium text-slate-900 dark:text-slate-50">Contact</span>
@@ -1446,7 +1469,7 @@ export default function TrainerDashboardPageClient() {
             <li>
               <Link
                 href={ROUTES.FAQ}
-                className="flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                className="flex items-center gap-3 px-4 py-3 text-left transition-colors duration-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
               >
                 <HelpCircle size={20} className="shrink-0 text-slate-600 dark:text-slate-400" aria-hidden />
                 <span className="text-sm font-medium text-slate-900 dark:text-slate-50">FAQ</span>
@@ -1577,19 +1600,19 @@ export default function TrainerDashboardPageClient() {
               const timing = getSessionTimingState(session);
               const borderClass =
                 timing.statusVariant === 'cancelled'
-                  ? 'border-l-4 border-l-red-500 bg-red-50/70 dark:bg-red-950/30'
+                  ? 'border-l-4 border-l-rose-500 bg-rose-50/70 dark:bg-rose-950/30'
                   : timing.statusVariant === 'completed'
-                    ? 'border-l-4 border-l-slate-400 bg-slate-100/80 dark:bg-slate-800/50'
+                    ? 'border-l-4 border-l-slate-500 bg-slate-100/80 dark:bg-slate-800/50'
                     : timing.statusVariant === 'live'
-                      ? 'border-l-4 border-l-green-500 bg-green-50/70 dark:bg-green-950/30'
+                      ? 'border-l-4 border-l-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30'
                       : 'border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/30';
               const pillClass =
                 timing.statusVariant === 'cancelled'
-                  ? 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200'
+                  ? 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-200'
                   : timing.statusVariant === 'completed'
-                    ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'
+                    ? 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200'
                     : timing.statusVariant === 'live'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200'
+                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200'
                       : 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200';
 
               return (
@@ -1613,14 +1636,14 @@ export default function TrainerDashboardPageClient() {
                       });
                       setShowSessionModal(true);
                     }}
-                    className={`w-full rounded-lg border border-slate-200 px-3 py-2.5 text-left transition-colors hover:opacity-90 dark:border-slate-700 ${borderClass}`}
+                    className={`w-full rounded-xl border border-slate-200 px-3 py-2.5 text-left transition-all duration-150 hover:shadow-md dark:border-slate-700 ${borderClass}`}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <p className="truncate text-xs font-semibold text-slate-900 dark:text-slate-50">
                         {session.childName}
                       </p>
                       <span
-                        className={`shrink-0 rounded-full px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide ${pillClass}`}
+                        className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${pillClass}`}
                         aria-label={`Status: ${timing.statusLabel}`}
                       >
                         {timing.statusVariant === 'live' && (
@@ -1650,7 +1673,7 @@ export default function TrainerDashboardPageClient() {
                           href={getGoogleMapsSearchUrl(session.pickupAddress)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="line-clamp-2 text-blue-600 dark:text-blue-400 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                          className="line-clamp-2 text-gcal-primary hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
                           aria-label={`Open ${session.pickupAddress} in Google Maps`}
                           onClick={(e) => e.stopPropagation()}
                         >

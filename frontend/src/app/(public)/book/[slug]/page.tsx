@@ -240,7 +240,7 @@ export default async function BookPackagePage({ params }: Props) {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Hero Section - Compact (≈40% shorter) */}
       <Section className="relative pt-6 pb-4 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-br from-primary-blue via-primary-blue/90 to-light-blue-cyan">
-        <div className="relative z-10 max-w-7xl mx-auto">
+        <div className="relative max-w-7xl mx-auto">
           {/* Breadcrumb */}
           <div className="mb-4 flex items-center gap-2 text-white/90 text-sm">
             <span className="hover:text-white transition-colors cursor-pointer">Home</span>

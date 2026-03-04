@@ -20,7 +20,7 @@ export default function FooterSkeleton() {
           backgroundSize: '60px 60px',
         }}
       />
-      <div className="relative z-10">
+      <div className="relative">
         {/* Top Section Skeleton */}
         <div className="border-b border-white/20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">

@@ -42,18 +42,22 @@ class ProcessPaymentAction
      * @param float $amount
      * @param string $currency
      * @param string $paymentMethod
+     * @param bool $isTopUp When true, skip outstanding-amount check (top-up adds new charge; hours applied on payment success).
+     * @param array<string, string> $extraMetadata Merged into Stripe session metadata (e.g. top_up_hours, line_item_name, line_item_description).
      * @return array{success: bool, payment_intent_id?: string, client_secret?: string, checkout_url?: string, error?: string}
      */
     public function createPaymentIntent(
         int $bookingId,
         float $amount,
         string $currency = 'GBP',
-        string $paymentMethod = 'stripe'
+        string $paymentMethod = 'stripe',
+        bool $isTopUp = false,
+        array $extraMetadata = []
     ): array {
-        return DB::transaction(function () use ($bookingId, $amount, $currency, $paymentMethod) {
+        return DB::transaction(function () use ($bookingId, $amount, $currency, $paymentMethod, $isTopUp, $extraMetadata) {
             // Get booking (eager load user relationship for email access)
             $booking = $this->bookingRepository->findById($bookingId);
-            
+
             if (!$booking) {
                 return [
                     'success' => false,
@@ -67,8 +71,6 @@ class ProcessPaymentAction
             }
 
             // Validate amount
-            $outstandingAmount = $booking->total_price - $booking->paid_amount - $booking->discount_amount;
-            
             if ($amount <= 0) {
                 return [
                     'success' => false,
@@ -76,11 +78,14 @@ class ProcessPaymentAction
                 ];
             }
 
-            if ($amount > $outstandingAmount) {
-                return [
-                    'success' => false,
-                    'error' => "Payment amount (£{$amount}) exceeds outstanding balance (£{$outstandingAmount}).",
-                ];
+            if (!$isTopUp) {
+                $outstandingAmount = $booking->total_price - $booking->paid_amount - $booking->discount_amount;
+                if ($amount > $outstandingAmount) {
+                    return [
+                        'success' => false,
+                        'error' => "Payment amount (£{$amount}) exceeds outstanding balance (£{$outstandingAmount}).",
+                    ];
+                }
             }
 
             // Create payment record using Payment domain (independent domain)
@@ -97,11 +102,11 @@ class ProcessPaymentAction
             // Create checkout session with Stripe
             // Stripe Checkout automatically creates a payment intent when the customer starts checkout
             // We'll retrieve the payment intent ID later when confirming payment
-            $metadata = [
+            $metadata = array_merge([
                 'booking_id' => (string) $bookingId,
                 'booking_reference' => $booking->reference,
                 'payment_id' => $payment->id(),
-            ];
+            ], $extraMetadata);
 
             // Get parent email from booking (for pre-filling Stripe checkout)
             $parentEmail = null;
@@ -512,6 +517,22 @@ class ProcessPaymentAction
 
                 $newPaidAmount = $booking->paid_amount + $updatedPayment->amount();
                 $booking->paid_amount = $newPaidAmount;
+
+                // Top-up: apply hours and total_price only when payment succeeds (metadata set by TopUpBookingAction).
+                $sessionMetadata = $this->paymentService->getCheckoutSessionMetadataByPaymentIntent($paymentIntentId);
+                if (!empty($sessionMetadata['top_up_hours'])) {
+                    $topUpHours = (float) $sessionMetadata['top_up_hours'];
+                    if ($topUpHours > 0 && $topUpHours <= 100) {
+                        $booking->total_hours = $booking->total_hours + $topUpHours;
+                        $booking->remaining_hours = $booking->remaining_hours + $topUpHours;
+                        $booking->total_price = $booking->total_price + $updatedPayment->amount();
+                        Log::info('Applied top-up to booking after payment', [
+                            'booking_id' => $booking->id,
+                            'top_up_hours' => $topUpHours,
+                            'amount_added' => $updatedPayment->amount(),
+                        ]);
+                    }
+                }
 
                 // Update payment status
                 if ($newPaidAmount >= ($booking->total_price - $booking->discount_amount)) {

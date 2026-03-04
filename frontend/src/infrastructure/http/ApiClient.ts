@@ -411,11 +411,19 @@ function handleApiError(error: ApiError): void {
   const status = error.response?.status;
   const isClientError = status != null && status >= 400 && status < 500;
   const log = isClientError ? console.warn : console.error;
+  const data = error.response?.data;
+  const dataStr =
+    data === undefined || data === null
+      ? ''
+      : typeof data === 'object'
+        ? JSON.stringify(data)
+        : String(data);
 
   log(
     `[ApiClient] ${error.config?.method ?? 'REQUEST'} ${error.config?.url ?? ''}`,
-    `→ ${error.message}`,
-    error.response?.data ?? ''
+    status != null ? `→ ${status}` : '',
+    error.message,
+    dataStr ? dataStr : ''
   );
 }
 

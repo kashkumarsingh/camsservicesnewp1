@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Section from '@/components/layout/Section';
 import { Sparkles, CheckCircle2, Star, Award, Shield, ArrowRight } from 'lucide-react';
 import { ROUTES } from '@/utils/routes';
 import { ICON_COMPONENT_MAP } from '@/utils/iconMap';
@@ -26,6 +25,7 @@ export interface HeroSectionProps {
   isSiteSettingsLoading: boolean;
 }
 
+/** Hero — no z-index stacking; single background layer so fixed header stays on top. */
 export function HeroSection({
   config,
   impactStats,
@@ -37,49 +37,66 @@ export function HeroSection({
   const primaryCta = config.primaryCta;
   const secondaryCta = config.secondaryCta;
 
-  const heroButtonBase =
-    'rounded-full font-semibold font-bold transition-all duration-300 transform inline-flex items-center justify-center space-x-2 cursor-pointer px-8 py-4 text-lg w-full sm:w-auto group hover:shadow-2xl hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy-blue';
-
-  const heroButtonPrimary =
-    'bg-gradient-to-r from-primary-blue to-navy-blue text-white hover:from-primary-blue hover:to-light-blue-cyan border-0';
-  const heroButtonSecondary =
-    'bg-white text-primary-blue border-2 border-primary-blue hover:bg-white/95 hover:border-light-blue-cyan';
-  const heroButtonGradient =
-    'bg-gradient-to-r from-orbital-green to-star-gold text-navy-blue hover:from-star-gold hover:to-orbital-green border-0';
   return (
-    <Section className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 text-white overflow-hidden bg-gradient-to-br from-primary-blue to-navy-blue">
-      <video className="absolute inset-0 w-full h-full object-cover z-0" src={heroVideo} loop autoPlay muted playsInline />
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/70 to-navy-blue/85 z-10" aria-hidden />
-      <div
-        className="absolute inset-0 z-10 opacity-10"
-        style={{ backgroundImage: "url('/svgs/star.svg')", backgroundRepeat: 'repeat', backgroundSize: '40px 40px' }}
-      />
+    <section
+      className="relative min-h-[32rem] overflow-hidden bg-gradient-to-br from-primary-blue to-navy-blue text-white"
+      aria-label="Hero"
+    >
+      {/* Single background layer — no z-index */}
+      <div className="absolute inset-0">
+        {heroVideo ? (
+          <>
+            <video
+              className="h-full w-full object-cover"
+              src={heroVideo}
+              loop
+              autoPlay
+              muted
+              playsInline
+              aria-hidden
+            />
+            <div
+              className="absolute inset-0 bg-gradient-to-br from-primary-blue/75 to-navy-blue/80"
+              aria-hidden
+            />
+          </>
+        ) : null}
+      </div>
 
-      <div className="relative z-20 max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          <div>
+      {/* Content in normal flow — no z-index */}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 sm:pt-24 sm:pb-20">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+          <div className="space-y-6">
             {config.badgeText && (
-              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 sm:px-5 py-2 sm:py-2.5 rounded-full mb-5 border border-white/30">
-                <Sparkles className="text-star-gold" size={16} />
-                <span className="text-xs sm:text-sm font-bold">{config.badgeText}</span>
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-2 backdrop-blur-sm">
+                <Sparkles className="text-star-gold shrink-0" size={16} aria-hidden />
+                <span className="text-sm font-semibold">{config.badgeText}</span>
               </div>
             )}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-extrabold mb-5 leading-tight tracking-tight text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.5)]">
+            <h1 className="font-heading text-3xl font-extrabold leading-tight tracking-tight text-white drop-shadow-sm sm:text-4xl md:text-5xl lg:text-5xl">
               {config.heading}
             </h1>
-            {config.subheading && <p className="text-lg md:text-xl mb-8 text-white opacity-95 [text-shadow:0_1px_4px_rgba(0,0,0,0.4)]">{config.subheading}</p>}
+            {config.subheading && (
+              <p className="text-lg text-white/95 max-w-xl sm:text-xl">{config.subheading}</p>
+            )}
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
               {primaryCta && (
-                <Link href={primaryCta.href} className={`${heroButtonBase} ${heroButtonPrimary}`}>
+                <Link
+                  href={primaryCta.href}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-base font-semibold text-primary-blue transition hover:bg-white/95 focus-visible:outline focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy-blue"
+                >
                   <span>{primaryCta.label}</span>
-                  <ArrowRight size={20} className="text-white transition-transform duration-300 group-hover:translate-x-1" aria-hidden />
+                  <ArrowRight size={18} aria-hidden />
                 </Link>
               )}
               {secondaryCta && (
-                <Link href={secondaryCta.href} className={`${heroButtonBase} ${heroButtonSecondary}`}>
+                <Link
+                  href={secondaryCta.href}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white bg-transparent px-6 py-3.5 text-base font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy-blue"
+                >
                   <span>{secondaryCta.label}</span>
-                  <ArrowRight size={20} className="text-primary-blue transition-transform duration-300 group-hover:translate-x-1" aria-hidden />
+                  <ArrowRight size={18} aria-hidden />
                 </Link>
               )}
             </div>
@@ -129,9 +146,12 @@ export function HeroSection({
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2">{DEFAULT_HOME_STRINGS.READY_TO_GET_STARTED}</h3>
                 <p className="text-sm text-white/90 mb-6">{DEFAULT_HOME_STRINGS.QUICK_START_DESCRIPTION}</p>
-                <Link href={ROUTES.PACKAGES} className={`${heroButtonBase} ${heroButtonGradient} mb-4`}>
+                <Link
+                  href={ROUTES.PACKAGES}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orbital-green to-star-gold px-5 py-3 text-base font-bold text-navy-blue transition hover:opacity-95 focus-visible:outline focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy-blue"
+                >
                   <span>{DEFAULT_HOME_STRINGS.VIEW_ALL_PACKAGES}</span>
-                  <ArrowRight size={20} className="text-navy-blue transition-transform duration-300 group-hover:translate-x-1" aria-hidden />
+                  <ArrowRight size={18} aria-hidden />
                 </Link>
               </div>
               <div className="space-y-3 pt-6 border-t border-white/20">
@@ -181,6 +201,6 @@ export function HeroSection({
           </div>
         </div>
       </div>
-    </Section>
+    </section>
   );
 }

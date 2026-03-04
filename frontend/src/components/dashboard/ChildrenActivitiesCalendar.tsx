@@ -14,6 +14,7 @@ import { formatDurationMinutesForDisplay } from '@/utils/activitySelectionUtils'
 import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
 import { getMonthKey } from '@/utils/calendarRangeUtils';
 import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { CALENDAR_GRID_DAY_CELL_CLASSES } from '@/utils/appConstants';
 
 /** Normalise schedule date to YYYY-MM-DD (handles ISO strings from API). */
 function normaliseScheduleDate(date: string | undefined): string {
@@ -53,6 +54,8 @@ export interface ChildActivitySession {
   parentNotes?: string;
   trainerNotes?: string;
   itineraryNotes?: string; // Itinerary notes (includes Custom Activity info)
+  /** Schedule duration in hours from API; used for "X hours booked" display */
+  durationHours?: number;
 }
 
 interface ChildrenActivitiesCalendarProps {
@@ -401,6 +404,7 @@ export default function ChildrenActivitiesCalendar({
           parentNotes,
           trainerNotes,
           itineraryNotes,
+          durationHours: (schedule as { durationHours?: number }).durationHours,
         });
       });
     });
@@ -609,13 +613,6 @@ export default function ChildrenActivitiesCalendar({
     comfortable: 'p-4 sm:p-5 md:p-6',
   }[spacing];
 
-  // Day cell min-height: compact on mobile for more visible weeks, taller on large screens
-  const dayCellMinHeight = showCompactView
-    ? 'min-h-[52px] sm:min-h-[58px] md:min-h-[65px]'
-    : spacing === 'comfortable'
-      ? 'min-h-[65px] sm:min-h-[72px] md:min-h-[80px]'
-      : 'min-h-[60px] sm:min-h-[65px] md:min-h-[75px]';
-
   return (
     <div id="children-activities-calendar" className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 ${paddingClass}`}>
       {/* Legend. View mode (month/week/day) is driven by parent toolbar (1 month / 1 week / 1 day) when calendarPeriod + calendarAnchor are provided. */}
@@ -686,10 +683,10 @@ export default function ChildrenActivitiesCalendar({
         </div>
       )}
 
-      {/* Reschedule confirm modal (drag-to-reschedule) – portaled so it sits above dashboard header */}
+      {/* Reschedule confirm modal (drag-to-reschedule) – portaled so it sits above dashboard header and calendar grid */}
       {reschedulePending && onRescheduleRequest && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 z-overlay flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="reschedule-confirm-title">
-          <div className="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 p-4">
+        <div className="fixed inset-0 z-modal flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="reschedule-confirm-title">
+          <div className="relative z-10 w-full max-w-md rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 p-4">
             <h2 id="reschedule-confirm-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
               Reschedule session?
             </h2>
@@ -1296,7 +1293,7 @@ export default function ChildrenActivitiesCalendar({
                           <React.Fragment key={idx}>
                             {/* Start dot - positioned on time label at session start time */}
                             <div
-                              className="absolute pointer-events-auto z-20"
+                              className="absolute pointer-events-auto z-dropdown"
                               style={{
                                 left: '55px', // Right edge of time column (border between time labels and session area)
                                 top: `${session.startTop}px`,
@@ -1316,7 +1313,7 @@ export default function ChildrenActivitiesCalendar({
                             
                             {/* End dot - positioned on time label at session end time */}
                             <div
-                              className="absolute pointer-events-auto z-20"
+                              className="absolute pointer-events-auto z-dropdown"
                               style={{
                                 left: '55px', // Right edge of time column (border between time labels and session area)
                                 top: `${session.endTop}px`,
@@ -1389,7 +1386,7 @@ export default function ChildrenActivitiesCalendar({
                               e.stopPropagation();
                               handleSessionClick(e, session);
                             }}
-                            className={`absolute left-0 right-0 px-2 py-1.5 rounded text-xs cursor-pointer hover:opacity-90 transition-opacity pointer-events-auto z-10 overflow-hidden text-gray-900 dark:text-gray-100 flex items-start gap-1 ${isSelectedBlock ? 'ring-2 ring-blue-500 ring-inset' : ''}`}
+                            className={`absolute left-0 right-0 px-2 py-1.5 rounded text-xs cursor-pointer hover:opacity-90 transition-opacity pointer-events-auto z-sidebar overflow-hidden text-gray-900 dark:text-gray-100 flex items-start gap-1 ${isSelectedBlock ? 'ring-2 ring-blue-500 ring-inset' : ''}`}
                             style={{
                               top: `${session.startTop}px`,
                               height: `${session.height}px`,
@@ -1574,7 +1571,7 @@ export default function ChildrenActivitiesCalendar({
                   <div
                     key={day.format('YYYY-MM-DD')}
                     className={`relative text-center py-2 border-r border-gray-200 dark:border-gray-700 last:border-r-0 ${
-                      isToday ? 'bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500 ring-inset z-10' : ''
+                      isToday ? 'bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500 ring-inset' : ''
                     }`}
                     aria-label={isToday ? `Today, ${day.format('dddd D MMMM')}` : undefined}
                   >
@@ -1603,8 +1600,8 @@ export default function ChildrenActivitiesCalendar({
               })}
             </div>
 
-            {/* Week Days Grid with Sessions */}
-            <div className="grid grid-cols-7 divide-x divide-gray-200 dark:divide-gray-700 min-h-[400px]">
+            {/* Week Days Grid with Sessions — Google Calendar–style square cells */}
+            <div className="grid grid-cols-7 divide-x divide-gray-200 dark:divide-gray-700">
               {weekDays.map((day) => {
                 const now = moment();
                 const dateStr = day.format('YYYY-MM-DD');
@@ -1625,8 +1622,8 @@ export default function ChildrenActivitiesCalendar({
                 return (
                   <div
                     key={dateStr}
-                    className={`relative border-b border-gray-200 dark:border-gray-700 p-1 sm:p-2 min-h-[100px] ${
-                      isToday ? 'bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500 ring-inset z-10' : isPast ? 'bg-gray-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-800'
+                    className={`relative border-b border-gray-200 dark:border-gray-700 p-1 sm:p-2 ${CALENDAR_GRID_DAY_CELL_CLASSES} ${
+                      isToday ? 'bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500 ring-inset' : isPast ? 'bg-gray-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-800'
                     } ${
                       isUnavailable && daySessions.length === 0
                         ? 'opacity-60 cursor-not-allowed'
@@ -1644,7 +1641,7 @@ export default function ChildrenActivitiesCalendar({
                     }}
                   >
                     {/* Sessions List */}
-                    <div className="relative z-10 space-y-1">
+                    <div className="relative z-sidebar space-y-1">
                       {Array.from(sessionsByChild.entries()).map(([key, childSessions]) => {
                         const firstSession = childSessions[0];
                         const childColor = getChildColor(firstSession.childId);
@@ -1819,9 +1816,9 @@ export default function ChildrenActivitiesCalendar({
                 handleDateClick(date, dateSessions, isUnavailable, dateStatus.reason);
               }}
               className={`
-                ${dayCellMinHeight} border-r border-b border-gray-200 dark:border-gray-700 relative p-0.5 sm:p-1 transition-colors
+                ${CALENDAR_GRID_DAY_CELL_CLASSES} border-r border-b border-gray-200 dark:border-gray-700 relative p-0.5 sm:p-1 transition-colors
                 ${!isCurrentMonthDate ? 'bg-gray-50 dark:bg-gray-800' : 
-                  isTodayDate ? 'bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500 ring-inset z-10' :
+                  isTodayDate ? 'bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500 ring-inset' :
                   'bg-white dark:bg-gray-800'
                 }
                 ${
@@ -1867,7 +1864,7 @@ export default function ChildrenActivitiesCalendar({
               )}
               {/* Drop hint when dragging over a bookable date */}
               {canDropReschedule && isDraggingSession && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-sidebar">
                   <span className="text-[9px] font-medium text-blue-600 dark:text-blue-400 bg-white/95 dark:bg-gray-800/95 px-1 py-0.5 rounded shadow-sm">
                     Drop here
                   </span>
@@ -1934,17 +1931,8 @@ export default function ChildrenActivitiesCalendar({
                         const sessionCount = childSessions.length;
                         const durationMins = sessionDurationMinutes(firstSession.startTime, firstSession.endTime);
 
-                        // Status-based left border and icon: past=gray, live=green, upcoming=blue
-                        const statusBorder = isOngoing
-                          ? 'border-l-green-500'
-                          : isPast
-                            ? 'border-l-gray-400'
-                            : 'border-l-blue-500';
-                        const statusBg = isOngoing
-                          ? 'bg-green-50 dark:bg-green-900/20'
-                          : isPast
-                            ? 'bg-gray-100 dark:bg-gray-700/50'
-                            : 'bg-blue-50 dark:bg-blue-900/20';
+                        // Google Calendar–style: child colour as primary label (left border + fill), status as small dot
+                        const childBgAlpha = `${childColor}20`;
 
                         // Format time (bold) and activities - compact month view min 11px
                         const startTime = moment(firstSession.startTime, 'HH:mm').format('h:mm a');
@@ -1995,12 +1983,15 @@ export default function ChildrenActivitiesCalendar({
                             className={`
                               min-h-[44px] min-w-[44px] text-xs rounded border-l-4 truncate relative mb-0.5 transition-opacity text-gray-900 dark:text-gray-100 flex items-start gap-1
                               ${showCompactView ? 'px-1 py-0.5' : 'px-1.5 py-1'}
-                              ${statusBorder} ${statusBg}
                               ${isPast ? 'opacity-70' : ''}
                               ${isOngoing ? 'ring-1 ring-green-500' : ''}
                               ${onSessionClick ? 'cursor-pointer hover:opacity-90' : 'cursor-default'}
                               ${canDragMonth ? 'cursor-grab active:cursor-grabbing' : ''}
                             `}
+                            style={{
+                              borderLeftColor: childColor,
+                              backgroundColor: childBgAlpha,
+                            }}
                             title={[...titleParts, canDragMonth ? 'Drag to another date or time to reschedule' : ''].filter(Boolean).join(' · ')}
                             aria-label={canDragMonth ? `${firstSession.childName}, ${startTime}. Drag to another date or time to reschedule.` : undefined}
                           >

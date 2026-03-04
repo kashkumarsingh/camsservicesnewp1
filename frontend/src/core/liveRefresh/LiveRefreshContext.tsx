@@ -86,8 +86,21 @@ export function LiveRefreshProvider({ children }: { children: React.ReactNode })
     notifyContext(context);
   }, []);
 
+  /** Call each unique subscriber once (components that subscribe to multiple contexts were previously called multiple times). */
   const refreshAll = useCallback(() => {
-    LIVE_REFRESH_CONTEXTS_LIST.forEach((ctx) => notifyContext(ctx as LiveRefreshContextType));
+    const seen = new Set<RefetchFn>();
+    LIVE_REFRESH_CONTEXTS_LIST.forEach((ctx) => {
+      refetchRegistry.get(ctx as LiveRefreshContextType)?.forEach((fn) => {
+        if (!seen.has(fn)) {
+          seen.add(fn);
+          try {
+            void Promise.resolve(fn());
+          } catch {
+            // avoid one subscriber breaking others
+          }
+        }
+      });
+    });
   }, []);
 
   // WebSocket (Echo) when Reverb is configured – one connection per user, stored in ref.

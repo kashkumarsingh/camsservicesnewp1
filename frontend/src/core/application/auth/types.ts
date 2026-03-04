@@ -115,6 +115,16 @@ export function childAwaitingChecklistReview(child: ChildChecklistFlagsSource | 
   return hasChecklist === true && checklistCompleted !== true;
 }
 
+/**
+ * True only when the child is approved (checklist approved by admin).
+ * Use this to show or enable "Buy hours" only after approval — never before.
+ */
+export function canChildBuyHours(child: ChildChecklistFlagsSource | null | undefined): boolean {
+  if (!child) return false;
+  const { approvalStatus, checklistCompleted } = getChildChecklistFlags(child);
+  return approvalStatus === 'approved' && checklistCompleted === true;
+}
+
 export interface RegisterRequest {
   name: string;
   email: string;

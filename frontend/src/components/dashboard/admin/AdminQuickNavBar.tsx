@@ -100,7 +100,7 @@ export function AdminQuickNavBar() {
               id="quick-nav-more-menu"
               role="menu"
               aria-labelledby="quick-nav-more-trigger"
-              className="absolute left-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800"
+              className="absolute left-0 top-full z-dropdown mt-1 min-w-[180px] rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800"
             >
               {MORE_ITEMS.map(({ label, href, icon: Icon }) => {
                 const active = isActivePath(pathname, href);

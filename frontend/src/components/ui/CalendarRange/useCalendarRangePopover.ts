@@ -9,8 +9,11 @@ import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
  * openCalendarPopover(anchor, period) sets the right view from anchor/period, clears hovers, opens.
  * Changing period in the dropdown should call setCalendarPopoverOpen(false).
  */
+export type TriggerRect = { top: number; left: number; width: number; height: number };
+
 export function useCalendarRangePopover() {
   const [calendarPopoverOpen, setCalendarPopoverOpen] = useState(false);
+  const [triggerRect, setTriggerRect] = useState<TriggerRect | null>(null);
   const [calendarViewMonthKey, setCalendarViewMonthKey] = useState(() =>
     getMonthKey(getMonday(new Date()))
   );
@@ -23,31 +26,45 @@ export function useCalendarRangePopover() {
   useEffect(() => {
     if (!calendarPopoverOpen) return;
     const handleClick = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (calendarPopoverRef.current && !calendarPopoverRef.current.contains(target)) {
-        setCalendarPopoverOpen(false);
-      }
+      const target = e.target as HTMLElement;
+      if (calendarPopoverRef.current?.contains(target as Node)) return;
+      if (target.closest?.('[data-calendar-range-popover]')) return;
+      setCalendarPopoverOpen(false);
+      setTriggerRect(null);
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, [calendarPopoverOpen]);
 
-  const openCalendarPopover = useCallback((anchor: string, period: CalendarPeriod) => {
-    setHoveredDay(null);
-    setHoveredWeekMonday(null);
-    setHoveredMonthKey(null);
-    if (period === '1_day' || period === '1_week') {
-      setCalendarViewMonthKey(getMonthKey(anchor));
-    }
-    if (period === '1_month') {
-      setCalendarViewYear(new Date(anchor + 'T12:00:00').getFullYear());
-    }
-    setCalendarPopoverOpen(true);
+  const openCalendarPopover = useCallback(
+    (anchor: string, period: CalendarPeriod, rect?: TriggerRect) => {
+      setHoveredDay(null);
+      setHoveredWeekMonday(null);
+      setHoveredMonthKey(null);
+      if (rect) setTriggerRect(rect);
+      if (period === '1_day' || period === '1_week') {
+        setCalendarViewMonthKey(getMonthKey(anchor));
+      }
+      if (period === '1_month') {
+        setCalendarViewYear(new Date(anchor + 'T12:00:00').getFullYear());
+      }
+      setCalendarPopoverOpen(true);
+    },
+    []
+  );
+
+  const closeCalendarPopover = useCallback(() => {
+    setCalendarPopoverOpen(false);
+    setTriggerRect(null);
   }, []);
 
   return {
     calendarPopoverOpen,
-    setCalendarPopoverOpen,
+    setCalendarPopoverOpen: (open: boolean) => {
+      if (!open) setTriggerRect(null);
+      setCalendarPopoverOpen(open);
+    },
+    triggerRect,
     calendarViewMonthKey,
     setCalendarViewMonthKey,
     calendarViewYear,
@@ -60,5 +77,6 @@ export function useCalendarRangePopover() {
     setHoveredMonthKey,
     calendarPopoverRef,
     openCalendarPopover,
+    closeCalendarPopover,
   };
 }

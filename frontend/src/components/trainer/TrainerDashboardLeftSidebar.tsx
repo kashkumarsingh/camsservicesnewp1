@@ -228,32 +228,32 @@ export default function TrainerDashboardLeftSidebar({
         <button
           type="button"
           onClick={() => setShowActionsDropdown((prev) => !prev)}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-full shadow-md hover:shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 text-gray-700 dark:text-gray-300 font-medium"
+          className="w-full flex items-center justify-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all duration-150 hover:border-slate-400 hover:bg-slate-50 hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
         >
-          <Plus size={18} className="text-blue-600" />
+          <Plus size={18} className="text-gcal-primary" />
           <span>Actions</span>
           <ChevronDown
             size={16}
-            className={`text-gray-500 dark:text-gray-400 transition-transform duration-200 ${
+            className={`text-slate-500 transition-transform duration-200 dark:text-slate-400 ${
               showActionsDropdown ? 'rotate-180' : ''
             }`}
           />
         </button>
         {showActionsDropdown && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 dark:border-gray-700 overflow-hidden z-50">
+          <div className="absolute top-full left-0 right-0 z-dropdown mt-1 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900">
             {/* View This Week's Hours */}
             <button
               type="button"
-              className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700"
+              className="w-full flex items-center gap-3 border-b border-slate-100 px-4 py-3 text-left transition-colors duration-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50"
               onClick={() => {
                 setShowActionsDropdown(false);
                 onScrollToWeeklyHours?.();
               }}
             >
-              <ClockIcon size={18} className="text-gray-700 dark:text-gray-300" />
+              <ClockIcon size={18} className="text-slate-600 dark:text-slate-300" />
               <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">View this week&apos;s hours</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-sm font-medium text-slate-900 dark:text-slate-100">View this week&apos;s hours</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Booked hours, capacity, and any over-capacity
                 </p>
               </div>
@@ -262,16 +262,16 @@ export default function TrainerDashboardLeftSidebar({
             {/* Manage Profile */}
             <button
               type="button"
-              className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
               onClick={() => {
                 setShowActionsDropdown(false);
                 onOpenSettings?.('profile');
               }}
             >
-              <User size={18} className="text-gray-700 dark:text-gray-300" />
+              <User size={18} className="text-slate-600 dark:text-slate-300" />
               <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Manage profile</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Manage profile</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Update your trainer details and service area
                 </p>
               </div>
@@ -281,7 +281,7 @@ export default function TrainerDashboardLeftSidebar({
       </div>
 
       {/* Mini Calendar Widget */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 dark:border-gray-700 p-3">
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
         <BookingCalendar
           size="small"
           currentMonth={miniCalendarMonth}
@@ -296,18 +296,18 @@ export default function TrainerDashboardLeftSidebar({
       </div>
 
       {/* Upcoming Sessions Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 dark:border-gray-700 overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
         <button
           type="button"
           onClick={() => setShowUpcoming(!showUpcoming)}
-          className="w-full px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          className="flex w-full items-center justify-between border-b border-slate-200 px-4 py-3 transition-colors duration-100 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800/50"
           aria-label={showUpcoming ? 'Hide upcoming sessions' : 'Show upcoming sessions'}
         >
-          <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-            <Calendar size={16} className="text-gray-600 dark:text-gray-400" />
+          <span className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+            <Calendar size={16} className="text-slate-600 dark:text-slate-400" />
             Upcoming Sessions
             <span
-              className="ml-0.5 text-gray-400 hover:text-gray-600 dark:text-gray-400 cursor-help"
+              className="ml-0.5 cursor-help text-slate-400 hover:text-slate-600 dark:text-slate-400"
               title="Shows your next 5 assigned sessions. Click a session to jump to that day in the calendar."
               onClick={(e) => e.stopPropagation()}
             >
@@ -315,16 +315,16 @@ export default function TrainerDashboardLeftSidebar({
             </span>
           </span>
           {showUpcoming ? (
-            <ChevronUp size={16} className="text-gray-400" />
+            <ChevronUp size={16} className="text-slate-400" />
           ) : (
-            <ChevronDown size={16} className="text-gray-400" />
+            <ChevronDown size={16} className="text-slate-400" />
           )}
         </button>
         
         {showUpcoming && (
-          <div className="px-4 py-3 space-y-3 max-h-[300px] overflow-y-auto">
+          <div className="max-h-[300px] space-y-3 overflow-y-auto px-4 py-3">
             {upcomingSessions.length === 0 ? (
-              <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">No upcoming sessions</p>
+              <p className="py-4 text-center text-xs text-slate-500 dark:text-slate-400">No upcoming sessions</p>
             ) : (
               upcomingSessions.map((session, index) => {
                 const sessionDate = moment(`${session.date} ${session.startTime}`, 'YYYY-MM-DD HH:mm');
@@ -338,43 +338,43 @@ export default function TrainerDashboardLeftSidebar({
                     type="button"
                     onClick={() => onDateSelect?.(session.date)}
                     title={`${session.traineeName} – ${sessionDate.format('dddd, D MMMM YYYY')}\nTime: ${moment(session.startTime, 'HH:mm').format('h:mm A')} – ${moment(session.endTime, 'HH:mm').format('h:mm A')}${session.activities[0] ? `\nActivity: ${session.activities[0]}` : ''}\n\nClick to jump to this day in the calendar.`}
-                    className="w-full flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group text-left"
+                    className="group flex w-full items-start gap-3 rounded-lg p-2 text-left transition-colors duration-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                   >
                     {/* Date Badge */}
-                    <div className="flex-shrink-0 text-center min-w-[50px]">
-                      <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    <div className="min-w-[50px] flex-shrink-0 text-center">
+                      <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
                         {sessionDate.format('D')}
                       </div>
-                      <div className="text-[10px] text-gray-600 dark:text-gray-400 uppercase">
+                      <div className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">
                         {sessionDate.format('MMM')}
                       </div>
-                      <div className="text-[10px] text-gray-500 dark:text-gray-400">
+                      <div className="text-xs text-slate-500 dark:text-slate-400">
                         {sessionDate.format('ddd')}
                       </div>
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex items-center gap-2">
                         <div
-                          className="w-2 h-2 rounded-full flex-shrink-0"
+                          className="h-2 w-2 flex-shrink-0 rounded-full"
                           style={{ backgroundColor: sessionColor }}
                         />
-                        <p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
+                        <p className="truncate text-xs font-medium text-slate-900 dark:text-slate-100">
                           {session.traineeName}
                         </p>
                       </div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-1">
-                        <ClockIcon size={10} className="text-gray-500 dark:text-gray-400" />
+                      <p className="mb-1 flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400">
+                        <ClockIcon size={10} className="text-slate-500 dark:text-slate-400" />
                         <span>
                           {moment(session.startTime, 'HH:mm').format('h:mm A')} - {moment(session.endTime, 'HH:mm').format('h:mm A')}
                         </span>
                       </p>
                       {session.activities.length > 0 && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        <p className="truncate text-xs text-slate-500 dark:text-slate-400">
                           {session.activities[0]}
                         </p>
                       )}
-                      <p className="text-[10px] text-gray-400 mt-1">
+                      <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
                         {isToday ? 'Today' : isTomorrow ? 'Tomorrow' : sessionDate.format('MMM D')}
                       </p>
                     </div>
@@ -387,28 +387,28 @@ export default function TrainerDashboardLeftSidebar({
       </div>
 
       {/* My Trainees Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 dark:border-gray-700 overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
         <button
           type="button"
           onClick={() => setShowTrainees(!showTrainees)}
-          className="w-full px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          className="flex w-full items-center justify-between border-b border-slate-200 px-4 py-3 transition-colors duration-100 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800/50"
           aria-label={showTrainees ? 'Hide trainees list' : 'Show trainees list'}
         >
-          <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-            <User size={16} className="text-gray-600 dark:text-gray-400" />
+          <span className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+            <User size={16} className="text-slate-600 dark:text-slate-400" />
             My Trainees
           </span>
           {showTrainees ? (
-            <ChevronUp size={16} className="text-gray-400" />
+            <ChevronUp size={16} className="text-slate-400" />
           ) : (
-            <ChevronDown size={16} className="text-gray-400" />
+            <ChevronDown size={16} className="text-slate-400" />
           )}
         </button>
         
         {showTrainees && (
-          <div className="px-4 py-3 space-y-2 max-h-[300px] overflow-y-auto">
+          <div className="max-h-[300px] space-y-2 overflow-y-auto px-4 py-3">
             {trainees.length === 0 ? (
-              <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">{EMPTY_STATE.NO_TRAINEES_YET.title}</p>
+              <p className="py-4 text-center text-xs text-slate-500 dark:text-slate-400">{EMPTY_STATE.NO_TRAINEES_YET.title}</p>
             ) : (
               trainees.map((trainee) => {
                 const isVisible =
@@ -424,27 +424,27 @@ export default function TrainerDashboardLeftSidebar({
                 return (
                   <label
                     key={trainee.id}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                    className="flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors duration-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                   >
                     <input
                       type="checkbox"
                       checked={isVisible}
                       onChange={() => onToggleTraineeVisibility?.(trainee.id)}
-                      className="w-4 h-4 rounded border-gray-300 text-[#4A90E2] focus:ring-[#4A90E2] focus:ring-2"
+                      className="h-4 w-4 rounded border-slate-300 text-gcal-primary focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     />
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#2C5F8D] text-white flex items-center justify-center text-xs font-semibold">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gcal-primary text-xs font-medium text-white">
                         {initials || '?'}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1 mb-0.5">
-                          <p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-0.5 flex items-center gap-1">
+                          <p className="truncate text-xs font-medium text-slate-900 dark:text-slate-100">
                             {trainee.name}
                           </p>
-                          <span className="w-2 h-2 rounded-full bg-[#7ED321]" />
+                          <span className="h-2 w-2 rounded-full bg-emerald-500" />
                         </div>
                         {trainee.upcomingCount > 0 && (
-                          <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
                             {trainee.upcomingCount} upcoming session
                             {trainee.upcomingCount !== 1 ? 's' : ''}
                           </p>

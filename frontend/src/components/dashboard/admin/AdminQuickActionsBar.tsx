@@ -13,16 +13,17 @@ import {
   ClipboardList,
   CalendarOff,
 } from 'lucide-react';
+import { ROUTES } from '@/utils/routes';
 
 const QUICK_ACTION_ITEMS: {
   label: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
 }[] = [
-  { label: 'New Booking', href: '/dashboard/admin/bookings', icon: CalendarPlus },
-  { label: 'Add Parent', href: '/dashboard/admin/parents', icon: UserPlus },
-  { label: 'Add Child', href: '/dashboard/admin/children', icon: Baby },
-  { label: 'Add Trainer', href: '/dashboard/admin/trainers', icon: UserCheck },
+  { label: 'New Booking', href: ROUTES.DASHBOARD_ADMIN_BOOKINGS, icon: CalendarPlus },
+  { label: 'Add Parent', href: ROUTES.DASHBOARD_ADMIN_PARENTS, icon: UserPlus },
+  { label: 'Add Child', href: ROUTES.DASHBOARD_ADMIN_CHILDREN, icon: Baby },
+  { label: 'Add Trainer', href: `${ROUTES.DASHBOARD_ADMIN_TRAINERS}?create=1`, icon: UserCheck },
   { label: 'Absence requests', href: '/dashboard/admin/absence-requests', icon: CalendarOff },
 ];
 
@@ -31,9 +32,9 @@ const MORE_ACTIONS: {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
 }[] = [
-  { label: 'View reports', href: '/dashboard/admin/reports', icon: FileText },
-  { label: 'Trainer applications', href: '/dashboard/admin/trainer-applications', icon: ClipboardList },
-  { label: 'Settings', href: '/dashboard/admin/settings', icon: Settings },
+  { label: 'View reports', href: ROUTES.DASHBOARD_ADMIN_REPORTS, icon: FileText },
+  { label: 'Trainer applications', href: ROUTES.DASHBOARD_ADMIN_TRAINER_APPLICATIONS, icon: ClipboardList },
+  { label: 'Settings', href: ROUTES.DASHBOARD_ADMIN_SETTINGS, icon: Settings },
 ];
 
 export function AdminQuickActionsBar() {
@@ -90,7 +91,7 @@ export function AdminQuickActionsBar() {
               id="quick-actions-more-menu"
               role="menu"
               aria-labelledby="quick-actions-more-trigger"
-              className="absolute left-0 top-full z-50 mt-1 min-w-[200px] rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800"
+              className="absolute left-0 top-full z-dropdown mt-1 min-w-[200px] rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800"
             >
               {MORE_ACTIONS.map(({ label, href, icon: Icon }) => (
                 <Link

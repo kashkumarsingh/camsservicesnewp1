@@ -18,7 +18,6 @@ import {
   CalendarDays,
   List,
   Clock,
-  RefreshCw,
   Activity,
 } from 'lucide-react';
 import {
@@ -44,6 +43,18 @@ import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import type { AdminBookingDTO } from '@/core/application/admin/dto/AdminBookingDTO';
+import { getApiErrorMessage } from '@/utils/errorUtils';
+import {
+  ASSIGN_TRAINER_ERROR_FALLBACK,
+  UNASSIGN_TRAINER_ERROR_FALLBACK,
+  ADMIN_SCHEDULE_WEEK_DAY_CELL_CLASSES,
+  ADMIN_SCHEDULE_MONTH_DAY_CELL_CLASSES,
+} from '@/utils/appConstants';
+import {
+  ADMIN_SCHEDULE_LEGEND,
+  getAdminScheduleTitle,
+} from '@/utils/adminScheduleConstants';
+import { FilterPanel, FilterTriggerButton } from '@/components/dashboard/universal';
 
 /** View mode for schedule tab. */
 export type ScheduleViewMode = 'by_trainer' | 'by_day' | 'list';
@@ -151,7 +162,11 @@ export function getSessionDisplayStatus(
   return status === 'scheduled' ? 'completed' : 'issues';
 }
 
-/** Cell styles + icon config per display status (color-coded, easy to scan). */
+/**
+ * Cell styles + icon config per display status (Google Calendar–style, colour-coded for quick scan).
+ * Semantics aligned with calendarLabelConstants / themeColors: green = completed/live, amber = attention/pending,
+ * red/rose = critical (no-show), slate = neutral/cancelled. For any future inline styles here, use themeColors.
+ */
 export const SESSION_DISPLAY_STYLES: Record<
   SessionDisplayStatus,
   { label: string; cellClass: string; badgeClass: string; iconClass: string; Icon: React.ComponentType<{ className?: string }> }
@@ -324,13 +339,21 @@ export interface ViewSessionOptions {
   focusOnActivity?: boolean;
 }
 
+/** Optional trainer filter: when set, title shows "Trainer Schedule for [name]" and grid can show only that trainer. */
+export interface AdminScheduleTrainerFilter {
+  id: string;
+  name: string;
+}
+
 interface AdminScheduleWeekGridProps {
   onRefetchStats?: () => void | Promise<unknown>;
   /** When provided, "View booking" opens the session detail side panel instead of navigating. */
   onViewSession?: (sessionId: string, bookingId: string, options?: ViewSessionOptions) => void;
+  /** When set, section title becomes "Trainer Schedule for [name]"; use when admin filters by trainer (e.g. from URL). */
+  trainerFilter?: AdminScheduleTrainerFilter | null;
 }
 
-export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminScheduleWeekGridProps) {
+export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFilter = null }: AdminScheduleWeekGridProps) {
   const router = useRouter();
   const today = new Date();
   const [period, setPeriod] = useState<SchedulePeriod>('1_week');
@@ -354,6 +377,10 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
   } | null>(null);
   const sessionCardPopoverContentRef = useRef<HTMLDivElement>(null);
 
+  /** Schedule filter (view + period) — same anchored popover as trainer table (FilterPanel). */
+  const [scheduleFilterOpen, setScheduleFilterOpen] = useState(false);
+  const scheduleFilterTriggerRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     if (!sessionCardPopover) return;
     const handleClick = (e: MouseEvent) => {
@@ -366,7 +393,11 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
     return () => document.removeEventListener('mousedown', handleClick);
   }, [sessionCardPopover]);
 
-  const { dateFrom, dateTo, displayDates } = getRangeFromPeriodAnchor(period, anchor);
+  const { dateFrom, dateTo, displayDates, rangeLabel } = getRangeFromPeriodAnchor(period, anchor);
+  const scheduleTitle = getAdminScheduleTitle({
+    rangeLabel,
+    trainerName: trainerFilter?.name ?? null,
+  });
 
   const { bookings, loading, error, fetchBookings } = useAdminBookings({
     status: 'confirmed',
@@ -393,8 +424,24 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
 
   const liveRefreshContext = useLiveRefreshContext();
 
+  const [assigningSessionId, setAssigningSessionId] = useState<string | null>(null);
+  const [assignError, setAssignError] = useState<string | null>(null);
+  const [availableTrainersBySessionId, setAvailableTrainersBySessionId] = useState<
+    Record<string, { id: string; name: string }[]>
+  >({});
+  const [availableTrainersRefreshKey, setAvailableTrainersRefreshKey] = useState(0);
+
+  /** Auto-dismiss assign error after a few seconds so it does not stay until refresh. */
+  useEffect(() => {
+    if (!assignError) return;
+    const t = setTimeout(() => setAssignError(null), 4500);
+    return () => clearTimeout(t);
+  }, [assignError]);
+
+  /** Single refetch for live-refresh and header Refresh: bookings + schedule data + available trainers for Assign dropdown. */
   const scheduleRefetch = useCallback(() => {
     setScheduleDataRefreshKey((k) => k + 1);
+    setAvailableTrainersRefreshKey((k) => k + 1);
     fetchBookings(
       { status: 'confirmed', session_date_from: dateFrom, session_date_to: dateTo, limit: 1000 },
       true
@@ -461,31 +508,6 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
       false
     );
   }, [dateFrom, dateTo, fetchBookings]);
-
-  /** Refetch when tab becomes visible so bookings + availability update without manual refresh */
-  useEffect(() => {
-    const onVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        fetchBookings(
-          { status: 'confirmed', session_date_from: dateFrom, session_date_to: dateTo, limit: 1000 },
-          false
-        );
-        setScheduleDataRefreshKey((k) => k + 1);
-      }
-    };
-    document.addEventListener('visibilitychange', onVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
-  }, [dateFrom, dateTo, fetchBookings]);
-
-  const [assigningSessionId, setAssigningSessionId] = useState<string | null>(null);
-  const [assignError, setAssignError] = useState<string | null>(null);
-
-  /** Per-session list of trainers that pass conflict + availability + qualifications (for Assign dropdown) */
-  const [availableTrainersBySessionId, setAvailableTrainersBySessionId] = useState<
-    Record<string, { id: string; name: string }[]>
-  >({});
-  /** Increment to refetch available trainers for unassigned sessions (e.g. after trainer calendar updated). */
-  const [availableTrainersRefreshKey, setAvailableTrainersRefreshKey] = useState(0);
 
   const allSessions = useMemo(
     () => flattenSessionsFromBookings(bookings),
@@ -563,9 +585,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
         liveRefreshContext?.invalidate('bookings');
         liveRefreshContext?.invalidate('trainer_schedules');
       } catch (err) {
-        setAssignError(
-          err instanceof Error ? err.message : 'Failed to assign trainer'
-        );
+        setAssignError(getApiErrorMessage(err, ASSIGN_TRAINER_ERROR_FALLBACK));
       } finally {
         setAssigningSessionId(null);
       }
@@ -596,9 +616,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
         liveRefreshContext?.invalidate('bookings');
         liveRefreshContext?.invalidate('trainer_schedules');
       } catch (err) {
-        setAssignError(
-          err instanceof Error ? err.message : 'Failed to unassign trainer'
-        );
+        setAssignError(getApiErrorMessage(err, UNASSIGN_TRAINER_ERROR_FALLBACK));
       } finally {
         setAssigningSessionId(null);
       }
@@ -663,20 +681,6 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
     }
     return map;
   }, [trainerRows, weekDates, allSessions]);
-
-  const syncAvailableTrainers = useCallback(() => {
-    setAvailableTrainersRefreshKey((k) => k + 1);
-    setScheduleDataRefreshKey((k) => k + 1);
-  }, []);
-
-  /** Manual refresh: refetch bookings + availability so released sessions (e.g. after trainer marked unavailable) move to Unassigned */
-  const refreshSchedule = useCallback(() => {
-    fetchBookings(
-      { status: 'confirmed', session_date_from: dateFrom, session_date_to: dateTo, limit: 1000 },
-      true
-    );
-    setScheduleDataRefreshKey((k) => k + 1);
-  }, [dateFrom, dateTo, fetchBookings]);
 
   const sessionsByDay = useMemo(() => {
     const map = new Map<string, ScheduleGridSession[]>();
@@ -809,110 +813,114 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
 
   return (
     <section
-      className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
+      className="min-w-0 rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
       aria-labelledby="schedule-week-title"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-3 dark:border-slate-700">
-        <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-3 border-b border-slate-200 px-3 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4 dark:border-slate-700">
+        <div className="flex flex-col gap-1 min-w-0">
           <h2
             id="schedule-week-title"
             className="text-lg font-semibold text-slate-900 dark:text-slate-100"
           >
-            Schedule
+            {scheduleTitle}
           </h2>
           {viewMode === 'by_trainer' && (
-            <p className="text-xs text-slate-500 dark:text-slate-400" role="status">
-              <span className="inline-block w-3 h-3 rounded-sm bg-emerald-400/80 align-middle mr-0.5" aria-hidden /> Available
+            <p className="hidden text-xs text-slate-500 sm:block dark:text-slate-400" role="status">
+              <span className="inline-block w-3 h-3 rounded-sm bg-emerald-400/80 align-middle mr-0.5" aria-hidden /> {ADMIN_SCHEDULE_LEGEND.available}
               {' · '}
-              <span className="inline-block w-3 h-3 rounded-sm bg-rose-400/80 align-middle mr-0.5" aria-hidden /> Unavailable
+              <span className="inline-block w-3 h-3 rounded-sm bg-rose-400/80 align-middle mr-0.5" aria-hidden /> {ADMIN_SCHEDULE_LEGEND.unavailable}
               {' · '}
-              <span className="inline-block w-3 h-3 rounded-sm bg-rose-300 align-middle mr-0.5" aria-hidden /> Absence
+              <span className="inline-block w-3 h-3 rounded-sm bg-rose-300 align-middle mr-0.5" aria-hidden /> {ADMIN_SCHEDULE_LEGEND.absence}
               {' · '}
-              <span className="inline-block w-3 h-3 rounded-sm bg-amber-400/80 align-middle mr-0.5" aria-hidden /> Pending absence
+              <span className="inline-block w-3 h-3 rounded-sm bg-amber-400/80 align-middle mr-0.5" aria-hidden /> {ADMIN_SCHEDULE_LEGEND.pendingAbsence}
               {' · '}
-              <span className="inline-block w-3 h-3 rounded-sm bg-slate-300 dark:bg-slate-600 align-middle mr-0.5" aria-hidden /> Not set (synced from trainer dashboard)
+              <span className="inline-block w-3 h-3 rounded-sm bg-slate-300 dark:bg-slate-600 align-middle mr-0.5" aria-hidden /> {ADMIN_SCHEDULE_LEGEND.notSet}
               {' · '}
-              <span className="text-indigo-600 dark:text-indigo-400">Drag session to Unassigned or another trainer to reassign</span>
+              <span className="text-indigo-600 dark:text-indigo-400">{ADMIN_SCHEDULE_LEGEND.dragHint}</span>
             </p>
           )}
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="sr-only">View:</span>
-          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 dark:border-slate-700 dark:bg-slate-800" role="group" aria-label="Schedule view">
-            <button
-              type="button"
-              onClick={() => setViewMode('by_trainer')}
-              className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-sm font-medium ${
-                viewMode === 'by_trainer'
-                  ? 'bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-slate-100'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
-              }`}
-              title="By Trainer"
-            >
-              <LayoutGrid className="h-4 w-4" aria-hidden />
-              By Trainer
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('by_day')}
-              className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-sm font-medium ${
-                viewMode === 'by_day'
-                  ? 'bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-slate-100'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
-              }`}
-              title="By Day"
-            >
-              <CalendarDays className="h-4 w-4" aria-hidden />
-              By Day
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('list')}
-              className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-sm font-medium ${
-                viewMode === 'list'
-                  ? 'bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-slate-100'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
-              }`}
-              title="List"
-            >
-              <List className="h-4 w-4" aria-hidden />
-              List
-            </button>
-          </div>
-          <div className="h-6 w-px bg-slate-200 dark:bg-slate-600" aria-hidden />
-          <CalendarRangeToolbar
-            period={period}
-            setPeriod={setPeriod}
-            anchor={anchor}
-            setAnchor={setAnchor}
-            periodSelectId="schedule-period"
-            periodSelectLabel="Schedule period"
-            showWeekShortcuts={true}
-          >
-          <button
-            type="button"
-            onClick={refreshSchedule}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-            aria-label="Refresh schedule (e.g. after a trainer updated availability)"
-            title="Refresh schedule so released sessions appear in Unassigned"
-          >
-            <RefreshCw className="h-4 w-4" aria-hidden />
-            Refresh
-          </button>
-          {unassignedSessionIds && (
-            <button
-              type="button"
-              onClick={syncAvailableTrainers}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-              aria-label="Sync available trainers for unassigned sessions"
-            >
-              <RefreshCw className="h-4 w-4" aria-hidden />
-              Sync availability
-            </button>
-          )}
-          </CalendarRangeToolbar>
+        {/* Filter trigger — same as trainer table: opens FilterPanel anchored below button. */}
+        <div className="flex items-center gap-2 min-w-0">
+          <FilterTriggerButton
+            ref={scheduleFilterTriggerRef}
+            hasActiveFilters={false}
+            activeFilterCount={0}
+            onClick={() => setScheduleFilterOpen(true)}
+          />
         </div>
       </div>
+
+      <FilterPanel
+        isOpen={scheduleFilterOpen}
+        onClose={() => setScheduleFilterOpen(false)}
+        onApply={() => setScheduleFilterOpen(false)}
+        onResetAll={() => {}}
+        hasActiveFilters={false}
+        activeFilterCount={0}
+        title="Schedule filters"
+        triggerRef={scheduleFilterTriggerRef}
+      >
+        <div className="space-y-4">
+          <div>
+            <p className="text-2xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">View</p>
+            <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 dark:border-slate-700 dark:bg-slate-800" role="group" aria-label="Schedule view">
+              <button
+                type="button"
+                onClick={() => setViewMode('by_trainer')}
+                className={`flex flex-1 min-h-[40px] touch-manipulation items-center justify-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium ${
+                  viewMode === 'by_trainer'
+                    ? 'bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-slate-100'
+                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
+                }`}
+                title="By Trainer"
+              >
+                <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden />
+                By Trainer
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('by_day')}
+                className={`flex flex-1 min-h-[40px] touch-manipulation items-center justify-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium ${
+                  viewMode === 'by_day'
+                    ? 'bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-slate-100'
+                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
+                }`}
+                title="By Day"
+              >
+                <CalendarDays className="h-4 w-4 shrink-0" aria-hidden />
+                By Day
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('list')}
+                className={`flex flex-1 min-h-[40px] touch-manipulation items-center justify-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium ${
+                  viewMode === 'list'
+                    ? 'bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-slate-100'
+                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
+                }`}
+                title="List"
+              >
+                <List className="h-4 w-4 shrink-0" aria-hidden />
+                List
+              </button>
+            </div>
+          </div>
+          <div>
+            <p className="text-2xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Period</p>
+            <CalendarRangeToolbar
+              period={period}
+              setPeriod={setPeriod}
+              anchor={anchor}
+              setAnchor={setAnchor}
+              periodSelectId="schedule-period-popover"
+              periodSelectLabel="Schedule period"
+              showWeekShortcuts={true}
+              compact
+            />
+          </div>
+        </div>
+      </FilterPanel>
 
       {assignError && (
         <div className="border-b border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200">
@@ -920,7 +928,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
         </div>
       )}
 
-      <div className="overflow-x-auto p-4">
+      <div className="relative z-base min-w-0 overflow-x-auto p-3 sm:p-4" style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
         {loading ? (
           <div className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/50 overflow-hidden animate-pulse" aria-busy="true" aria-label="Loading schedule">
             <div className="flex border-b border-slate-200 dark:border-slate-700">
@@ -950,11 +958,11 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
               const dayTrainerRows = trainerRows.filter((r) => r.id !== ADD_TRAINER_ROW_ID);
               const ROW_HEIGHT = 56;
               return (
-                <section aria-labelledby={`day-${dateStr}`} className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/50 overflow-hidden">
+                <section aria-labelledby={`day-${dateStr}`} className="min-w-0 rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/50 overflow-hidden">
                   <h3 id={`day-${dateStr}`} className="border-b border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-800 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-200">
                     {formatDateLabel(dateStr)}
                   </h3>
-                  <div className="overflow-x-auto">
+                  <div className="min-w-0 overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
                     <div
                       className="grid min-w-[800px] border-t border-slate-200 dark:border-slate-700"
                       style={{
@@ -963,7 +971,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
                       }}
                     >
                       {/* Top row: 24-hour timeline */}
-                      <div className="sticky top-0 z-10 border-b border-r border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/80" style={{ gridColumn: 1, gridRow: 1 }} />
+                      <div className="sticky top-0 z-sticky border-b border-r border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/80" style={{ gridColumn: 1, gridRow: 1 }} />
                       {Array.from({ length: 24 }, (_, hour) => (
                         <div
                           key={hour}
@@ -979,7 +987,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
                         return (
                           <React.Fragment key={row.id || 'unassigned'}>
                             <div
-                              className="sticky left-0 z-10 border-b border-r border-slate-200 bg-white px-2 py-2 text-sm font-medium text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                              className="sticky left-0 z-sticky border-b border-r border-slate-200 bg-white px-2 py-2 text-sm font-medium text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                               style={{ gridColumn: 1, gridRow: rowIndex + 2 }}
                             >
                               {row.id ? (
@@ -1078,7 +1086,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
             })()
         ) : viewMode === 'by_day' ? (
             /* Multi-day By Day: time horizontal (columns = hours), days as rows; scroll horizontally through time */
-            <div className="w-full max-w-full overflow-x-auto overflow-y-visible rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/50">
+            <div className="w-full max-w-full overflow-x-auto overflow-y-visible rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/50" style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
               <table
                 className="border-collapse text-left text-sm"
                 style={{
@@ -1088,7 +1096,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
               >
                 <thead>
                   <tr>
-                    <th className="sticky left-0 z-10 w-24 border border-slate-200 bg-slate-50 px-2 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                    <th className="sticky left-0 z-sticky w-24 border border-slate-200 bg-slate-50 px-2 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
                       Day
                     </th>
                     {Array.from({ length: 24 }, (_, hour) => (
@@ -1106,7 +1114,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
                     const daySessions = sessionsByDay.get(dateStr) ?? [];
                     return (
                       <tr key={dateStr} className="align-top">
-                        <td className="sticky left-0 z-10 border border-slate-200 bg-white px-2 py-2 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+                        <td className="sticky left-0 z-sticky border border-slate-200 bg-white px-2 py-2 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
                           <span title={formatDateLabel(dateStr)}>
                             {period === '1_month'
                               ? new Date(dateStr + 'T12:00:00').getDate()
@@ -1291,7 +1299,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
             )}
           </div>
         ) : (
-          <div className="w-full max-w-full overflow-x-auto overflow-y-visible">
+          <div className="w-full max-w-full min-w-0 overflow-x-auto overflow-y-visible" style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
             <table
               className="border-collapse text-left"
               style={{
@@ -1301,21 +1309,25 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
             >
               <thead>
                 <tr>
-                  <th className="sticky left-0 z-10 w-36 border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                  <th className="sticky left-0 z-sticky w-36 border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
                     Trainer
                   </th>
                   {weekDates.map((dateStr) => (
                     <th
                       key={dateStr}
                       className={`border border-slate-200 bg-slate-50 px-1 py-2 text-center text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 ${
-                        period === '1_month' ? 'min-w-0 w-12 max-w-[4rem]' : 'min-w-[140px]'
+                        period === '1_month' ? ADMIN_SCHEDULE_MONTH_DAY_CELL_CLASSES : ADMIN_SCHEDULE_WEEK_DAY_CELL_CLASSES
                       }`}
+                      title={formatDateLabel(dateStr)}
                     >
-                      <span className="block truncate" title={formatDayLabel(dateStr)}>
-                        {period === '1_month'
-                          ? new Date(dateStr + 'T12:00:00').getDate()
-                          : formatDayLabel(dateStr)}
+                      <span className="block tabular-nums">
+                        {new Date(dateStr + 'T12:00:00').getDate()}
                       </span>
+                      {period !== '1_month' && (
+                        <span className="block text-[10px] font-normal text-slate-500 dark:text-slate-400 mt-0.5">
+                          {formatDayLabel(dateStr).split(' ')[0]}
+                        </span>
+                      )}
                     </th>
                   ))}
                 </tr>
@@ -1323,7 +1335,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
               <tbody>
                 {trainerRows.map((row) => (
                   <tr key={row.id || 'unassigned'} className="align-top">
-                    <td className="sticky left-0 z-10 border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                    <td className="sticky left-0 z-sticky border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                     {row.id === ADD_TRAINER_ROW_ID ? (
                       <button
                         type="button"
@@ -1340,9 +1352,12 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
                           <button
                             type="button"
                             onClick={() => router.push(`/dashboard/admin/trainers?trainer=${row.id}`)}
-                            className="mt-1 block text-[11px] font-medium text-indigo-600 hover:underline dark:text-indigo-300"
+                            className="mt-1 flex items-center gap-1 text-[10px] font-medium text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
+                            aria-label={`View schedule for ${row.name}`}
+                            title="View schedule"
                           >
-                            View schedule
+                            <CalendarDays className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                            Schedule
                           </button>
                         )}
                       </>
@@ -1415,38 +1430,30 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
                         data-row-id={cellRowId}
                         data-date={cellDateStr}
                         className={`relative border border-slate-200 p-1 dark:border-slate-700 ${
-                          period === '1_month' ? 'min-w-0 w-12 max-w-[4rem]' : 'min-w-[140px]'
+                          period === '1_month' ? ADMIN_SCHEDULE_MONTH_DAY_CELL_CLASSES : ADMIN_SCHEDULE_WEEK_DAY_CELL_CLASSES
                         } ${cellBgClass} ${isDropTarget ? 'ring-2 ring-indigo-400 ring-inset dark:ring-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30' : ''}`}
                         onDragOver={handleCellDragOver}
                         onDrop={handleCellDrop}
                       >
                         {dayStatus === 'approved_absence' && (
-                          <p className="mb-1 text-[10px] font-medium text-rose-700 dark:text-rose-300" title="Trainer on approved absence">
-                            Absence
-                          </p>
+                          <span className="text-[10px] font-medium text-rose-700 dark:text-rose-300" title="Trainer on approved absence">Absence</span>
                         )}
                         {dayStatus === 'pending_absence' && (
-                          <p className="mb-1 text-[10px] font-medium text-amber-700 dark:text-amber-300" title="Trainer has pending absence request">
-                            Pending absence
-                          </p>
+                          <span className="text-[10px] font-medium text-amber-700 dark:text-amber-300" title="Pending absence request">Pending</span>
                         )}
                         {dayStatus === 'available' && (
-                          <p className="mb-1 text-[10px] font-medium text-emerald-700 dark:text-emerald-400" title="Trainer available (from their dashboard)">
-                            Available{availabilitySlots.length > 0 ? `: ${availabilitySlots.map((s) => `${(s.startTime || '').slice(0, 5)}–${(s.endTime || '').slice(0, 5)}`).join(', ')}` : ''}
+                          <p className="mb-1 text-[10px] font-medium text-emerald-700 dark:text-emerald-400" title={availabilitySlots.length > 0 ? `Available: ${availabilitySlots.map((s) => `${(s.startTime || '').slice(0, 5)}–${(s.endTime || '').slice(0, 5)}`).join(', ')}` : 'Trainer available'}>
+                            Available
                           </p>
                         )}
                         {dayStatus === 'unavailable' && (
-                          <p className="mb-1 text-[10px] font-medium text-rose-700 dark:text-rose-400" title="Trainer unavailable (from their dashboard)">
-                            Unavailable
-                          </p>
+                          <span className="text-[10px] font-medium text-rose-600 dark:text-rose-400" title="Trainer unavailable">—</span>
                         )}
                         {dayStatus === 'none' && cellSessions.length === 0 && row.id && row.id !== ADD_TRAINER_ROW_ID && (
-                          <p className="text-[10px] text-slate-400 dark:text-slate-500 italic" title="Trainer has not set availability for this day">
-                            Not set
-                          </p>
+                          <span className="text-slate-300 dark:text-slate-600 text-[10px]" title="Trainer has not set availability for this day" aria-hidden>—</span>
                         )}
-                        {row.id === '' && cellSessions.length === 0 && (
-                          <p className="text-[10px] text-slate-400 dark:text-slate-500 italic">No unassigned sessions</p>
+                        {row.id === '' && cellSessions.length === 0 && dateStr === weekDates[0] && (
+                          <p className="text-[10px] text-slate-400 dark:text-slate-500" title="No sessions assigned to a trainer yet">No unassigned sessions</p>
                         )}
                         {(() => {
                           const visibleSessions = cellSessions.slice(0, MAX_SESSIONS_PER_CELL);
@@ -1634,7 +1641,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
               ref={sessionCardPopoverContentRef}
               role="menu"
               aria-label="Session actions"
-              className="fixed z-dropdown min-w-[11rem] rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-900"
+              className="fixed z-popover min-w-[11rem] rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-900"
               style={{
                 top: sessionCardPopover.anchorRect.top + sessionCardPopover.anchorRect.height + 4,
                 left: sessionCardPopover.anchorRect.left,
@@ -1691,14 +1698,14 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession }: AdminSc
       {overflowState &&
         createPortal(
           <div
-            className="fixed inset-0 z-overlay flex items-center justify-center bg-black/50 p-4"
+            className="fixed inset-0 z-modal flex items-center justify-center bg-black/50 p-4"
             role="dialog"
             aria-modal="true"
             aria-labelledby="overflow-sessions-title"
             onClick={() => setOverflowState(null)}
           >
             <div
-              className="max-h-[80vh] w-full max-w-md overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+              className="relative z-raised max-h-[80vh] w-full max-w-md overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="border-b border-slate-200 px-4 py-3 dark:border-slate-700">

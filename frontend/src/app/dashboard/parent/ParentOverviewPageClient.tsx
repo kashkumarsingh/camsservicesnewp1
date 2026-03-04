@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useMemo, useState, useCallback, useRef, useEffect } from "react";
+import React, { useMemo, useState, useCallback, useRef, useEffect, useLayoutEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import moment from "moment";
 import { useAuth } from "@/interfaces/web/hooks/auth/useAuth";
 import { useMyBookings } from "@/interfaces/web/hooks/booking/useMyBookings";
 import { useDashboardStats } from "@/interfaces/web/hooks/dashboard/useDashboardStats";
-import { getChildChecklistFlags, childNeedsChecklistToComplete, childAwaitingChecklistReview } from "@/core/application/auth/types";
+import { getChildChecklistFlags, canChildBuyHours, childNeedsChecklistToComplete, childAwaitingChecklistReview } from "@/core/application/auth/types";
 import type { BookingDTO } from "@/core/application/booking/dto/BookingDTO";
 import BuyHoursModal from "@/components/dashboard/modals/BuyHoursModal";
 import Button from "@/components/ui/Button/Button";
@@ -20,6 +21,7 @@ import { useActivities } from "@/interfaces/web/hooks/activities/useActivities";
 import { apiClient } from "@/infrastructure/http/ApiClient";
 import { API_ENDPOINTS } from "@/infrastructure/http/apiEndpoints";
 import { toastManager, type Toast } from "@/utils/toast";
+import { CHECKLIST_SUBMIT_SUCCESS_MESSAGE } from "@/utils/appConstants";
 import { EMPTY_STATE } from "@/utils/emptyStateConstants";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
@@ -178,6 +180,23 @@ export default function ParentOverviewPageClient() {
   const [showMoreDropdown, setShowMoreDropdown] = useState(false);
   const [showHoursBreakdown, setShowHoursBreakdown] = useState(true);
   const moreDropdownRef = useRef<HTMLDivElement | null>(null);
+  const [moreDropdownRect, setMoreDropdownRect] = useState<{ top: number; right: number } | null>(null);
+
+  useLayoutEffect(() => {
+    if (!showMoreDropdown || !moreDropdownRef.current) {
+      setMoreDropdownRect(null);
+      return;
+    }
+    const update = () => {
+      const el = moreDropdownRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      setMoreDropdownRect({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [showMoreDropdown]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -596,7 +615,7 @@ export default function ParentOverviewPageClient() {
 
   const handleBuyHours = useCallback((childId: number) => {
     const child = children.find((c) => c.id === childId);
-    if (child) {
+    if (child && !canChildBuyHours(child)) {
       const { hasChecklist, checklistCompleted } = getChildChecklistFlags(child);
       if (!hasChecklist) {
         toastManager.warning("Please complete the checklist first before buying hours.");
@@ -606,6 +625,8 @@ export default function ParentOverviewPageClient() {
         toastManager.info("Your checklist has been submitted and is awaiting review. You will be able to buy hours once it has been approved.");
         return;
       }
+      toastManager.warning("This child is not yet approved. You will be able to buy hours once we have approved the checklist.");
+      return;
     }
     setBuyHoursChildId(childId);
     setShowBuyHoursModal(true);
@@ -761,7 +782,7 @@ export default function ParentOverviewPageClient() {
         setChecklistChildId(undefined);
         refresh();
         refetchBookings();
-        toastManager.success("Checklist submitted. We will review and get back to you.");
+        toastManager.success(CHECKLIST_SUBMIT_SUCCESS_MESSAGE);
       } catch (err: unknown) {
         const error = err as { response?: { data?: { message?: string } }; message?: string };
         const message =
@@ -838,16 +859,16 @@ export default function ParentOverviewPageClient() {
     return "Good evening";
   };
 
-  const cardBase = "rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 shadow-sm";
-  const cardPadding = "p-5 sm:p-6";
+  const cardBase = "rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 shadow-sm transition-shadow duration-200 hover:shadow-md";
+  const cardPadding = "p-3 md:p-4 lg:p-5 xl:p-6";
 
   return (
-    <section className="space-y-5 pb-24 pl-2 sm:pl-3" aria-label="Parent dashboard overview">
+    <section className="space-y-4 pb-24 md:space-y-5 overflow-x-hidden px-0" aria-label="Parent dashboard overview">
       {/* Hero: greeting + primary actions (links where navigation, buttons for modals) */}
-      <header className="rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:px-5 sm:py-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+      <header className="rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-sm dark:border-slate-700 dark:bg-slate-900 md:px-5 md:py-5">
+        <div className="flex flex-wrap items-start justify-between gap-3 md:gap-4">
           <div className="min-w-0">
-            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 sm:text-3xl">
+            <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-2xl xl:text-3xl">
               {getGreeting()}, {parentFirstName}
             </h1>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-400" title="Sessions, hours and children in one place">
@@ -863,6 +884,7 @@ export default function ParentOverviewPageClient() {
               <CalendarPlus className="h-4 w-4 shrink-0" aria-hidden />
               Schedule
             </Link>
+            {approvedChildren.length > 0 && (
             <Button
               variant="primary"
               size="sm"
@@ -874,6 +896,7 @@ export default function ParentOverviewPageClient() {
               <Package className="h-4 w-4 shrink-0" aria-hidden />
               Buy hours
             </Button>
+            )}
             <div className="relative" ref={moreDropdownRef}>
               <Button
                 variant="outline"
@@ -888,32 +911,38 @@ export default function ParentOverviewPageClient() {
                 More
                 <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${showMoreDropdown ? "rotate-180" : ""}`} aria-hidden />
               </Button>
-              {showMoreDropdown && (
-                <div
-                  className="absolute right-0 top-full z-20 mt-1 min-w-[200px] rounded-xl border border-slate-200 bg-white py-1.5 shadow-lg dark:border-slate-700 dark:bg-slate-900"
-                  role="menu"
-                >
-                  <button
-                    type="button"
-                    className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                    role="menuitem"
-                    onClick={() => { setShowAddChildModal(true); setShowMoreDropdown(false); }}
-                    title="Register a new child to book sessions"
+              {showMoreDropdown && typeof document !== "undefined" && moreDropdownRect && createPortal(
+                <>
+                  <div className="fixed inset-0 z-dropdown" aria-hidden onClick={() => setShowMoreDropdown(false)} />
+                  <div
+                    className="fixed z-dropdown min-w-[200px] rounded-xl border border-slate-200 bg-white py-1.5 shadow-lg dark:border-slate-700 dark:bg-slate-900"
+                    style={{ top: moreDropdownRect.top, right: moreDropdownRect.right }}
+                    role="menu"
+                    aria-label="More actions"
                   >
-                    <UserPlus className="h-4 w-4 shrink-0 text-slate-500" aria-hidden />
-                    Add child
-                  </button>
-                  <button
-                    type="button"
-                    className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                    role="menuitem"
-                    onClick={() => { setShowSafeguardingModal(true); setShowMoreDropdown(false); }}
-                    title="Report a safeguarding concern"
-                  >
-                    <ShieldAlert className="h-4 w-4 shrink-0 text-slate-500" aria-hidden />
-                    Report a concern
-                  </button>
-                </div>
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                      role="menuitem"
+                      onClick={() => { setShowAddChildModal(true); setShowMoreDropdown(false); }}
+                      title="Register a new child to book sessions"
+                    >
+                      <UserPlus className="h-4 w-4 shrink-0 text-slate-500" aria-hidden />
+                      Add child
+                    </button>
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                      role="menuitem"
+                      onClick={() => { setShowSafeguardingModal(true); setShowMoreDropdown(false); }}
+                      title="Report a safeguarding concern"
+                    >
+                      <ShieldAlert className="h-4 w-4 shrink-0 text-slate-500" aria-hidden />
+                      Report a concern
+                    </button>
+                  </div>
+                </>,
+                document.body
               )}
             </div>
           </div>
@@ -925,13 +954,13 @@ export default function ParentOverviewPageClient() {
         className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 overflow-hidden"
         aria-label="At a glance"
       >
-        <div className="grid grid-cols-2 gap-0 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-0 md:grid-cols-3 lg:grid-cols-4">
           {/* Primary: next session (emphasised so it’s the obvious “what’s next”) */}
           {nextSession ? (
             <button
               type="button"
               onClick={() => handleUpcomingSessionClick({ scheduleId: nextSession.scheduleId, childName: nextSession.childName, childId: nextSession.childId })}
-              className="flex flex-col gap-1 rounded-none border-b border-r border-slate-200 bg-indigo-50/80 px-4 py-3.5 text-left transition-colors hover:bg-indigo-100/80 dark:border-slate-700 dark:bg-indigo-950/30 dark:hover:bg-indigo-950/50 lg:border-b-0 lg:border-r"
+              className="flex flex-col gap-1 rounded-none border-b border-r border-slate-200 bg-indigo-50/80 px-3 py-3 text-left transition-colors hover:bg-indigo-100/80 dark:border-slate-700 dark:bg-indigo-950/30 dark:hover:bg-indigo-950/50 md:px-4 md:py-3.5 lg:border-b-0 lg:border-r"
               title="View session details and activity"
             >
               <span className="flex items-center gap-1.5 text-xs font-medium text-indigo-700 dark:text-indigo-300">
@@ -953,7 +982,7 @@ export default function ParentOverviewPageClient() {
           ) : (
             <Link
               href="/dashboard/parent"
-              className="flex flex-col gap-1 rounded-none border-b border-r border-slate-200 bg-slate-50 px-4 py-3.5 text-left transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-800 lg:border-b-0"
+              className="flex flex-col gap-1 rounded-none border-b border-r border-slate-200 bg-slate-50 px-3 py-3 text-left transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-800 md:px-4 md:py-3.5 lg:border-b-0"
               title="Open calendar to book or view sessions"
             >
               <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -971,7 +1000,7 @@ export default function ParentOverviewPageClient() {
           {/* Sessions this week */}
           <Link
             href="/dashboard/parent"
-            className="flex flex-col gap-1 rounded-none border-b border-r border-slate-200 bg-white px-4 py-3.5 text-left transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800/50 lg:border-b-0"
+            className="flex flex-col gap-1 rounded-none border-b border-r border-slate-200 bg-white px-3 py-3 text-left transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800/50 md:px-4 md:py-3.5 lg:border-b-0"
             title="View your full schedule"
           >
             <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -987,10 +1016,11 @@ export default function ParentOverviewPageClient() {
 
           {/* Hours left – value first; CTA is “Buy hours” when 0, else “View schedule” */}
           {hoursSummaryStats.totalRemaining <= 0 ? (
+            approvedChildren.length > 0 ? (
             <button
               type="button"
               onClick={() => { setShowBuyHoursModal(true); setBuyHoursChildId(undefined); }}
-              className="flex flex-col gap-1 rounded-none border-b border-r border-slate-200 bg-amber-50 px-4 py-3.5 text-left transition-colors hover:bg-amber-100 dark:border-slate-700 dark:bg-amber-950/30 dark:hover:bg-amber-950/50 lg:border-b-0"
+              className="flex flex-col gap-1 rounded-none border-b border-r border-slate-200 bg-amber-50 px-3 py-3 text-left transition-colors hover:bg-amber-100 dark:border-slate-700 dark:bg-amber-950/30 dark:hover:bg-amber-950/50 md:px-4 md:py-3.5 lg:border-b-0"
               title="Buy a package to get hours for booking"
             >
               <span className="flex items-center gap-1.5 text-xs font-medium text-amber-800 dark:text-amber-200">
@@ -1003,10 +1033,23 @@ export default function ParentOverviewPageClient() {
                 <ChevronRight className="h-3.5 w-3.5" aria-hidden />
               </span>
             </button>
+            ) : (
+            <div
+              className="flex flex-col gap-1 rounded-none border-b border-r border-slate-200 bg-slate-50 px-3 py-3 lg:border-b-0 dark:border-slate-700 dark:bg-slate-800/50 md:px-4 md:py-3.5"
+              title="Add a child to buy hours"
+            >
+              <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                <Package className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                Hours left
+              </span>
+              <span className="text-base font-semibold text-slate-900 dark:text-slate-100 tabular-nums">0h</span>
+              <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">Add a child first</span>
+            </div>
+            )
           ) : (
             <Link
               href="/dashboard/parent"
-              className="flex flex-col gap-1 rounded-none border-b border-r border-slate-200 bg-white px-4 py-3.5 text-left transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800/50 lg:border-b-0"
+              className="flex flex-col gap-1 rounded-none border-b border-r border-slate-200 bg-white px-3 py-3 text-left transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800/50 md:px-4 md:py-3.5 lg:border-b-0"
               title="View schedule and book sessions"
             >
               <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -1022,7 +1065,7 @@ export default function ParentOverviewPageClient() {
           )}
 
           {/* Your children – link to manage, + Add opens modal */}
-          <div className="flex flex-col gap-1 rounded-none border-b border-r-0 border-slate-200 bg-white px-4 py-3.5 dark:border-slate-700 dark:bg-slate-900 lg:border-b-0 lg:border-r">
+          <div className="flex flex-col gap-1 rounded-none border-b border-r-0 border-slate-200 bg-white px-3 py-3 dark:border-slate-700 dark:bg-slate-900 md:px-4 md:py-3.5 lg:border-b-0 lg:border-r">
             <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
               <User className="h-3.5 w-3.5 shrink-0" aria-hidden />
               Your children
@@ -1053,7 +1096,7 @@ export default function ParentOverviewPageClient() {
       </section>
 
       {/* Three columns: Hours | Action required | Latest activity */}
-      <div className="grid grid-cols-1 gap-4 mt-4 lg:grid-cols-3 lg:gap-6">
+      <div className="mt-4 grid grid-cols-1 gap-3 md:gap-4 lg:grid-cols-3 lg:gap-6">
         {/* Hours – summary + collapsible breakdown + link to schedule */}
         <div className={`${cardBase} ${cardPadding}`}>
           <div className="flex items-center justify-between gap-2">
@@ -1554,6 +1597,11 @@ export default function ParentOverviewPageClient() {
         onAddChild={() => {
           setShowBookingModal(false);
           setShowAddChildModal(true);
+        }}
+        childrenNeedingChecklist={childrenNeedingChecklistForSidebar}
+        onCompleteChecklist={(childId) => {
+          setShowBookingModal(false);
+          handleCompleteChecklist(childId);
         }}
       />
 

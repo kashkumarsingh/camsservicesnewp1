@@ -10,6 +10,7 @@ import {
   formatWeekRangeWithMonth,
 } from '@/utils/calendarRangeUtils';
 import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
+import type { TriggerRect } from './useCalendarRangePopover';
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -38,6 +39,8 @@ export interface CalendarRangePopoverContentProps {
   setHoveredWeekMonday: (m: string | null) => void;
   hoveredMonthKey: string | null;
   setHoveredMonthKey: (k: string | null) => void;
+  /** When set, popover is positioned fixed (for portaling to body); avoids clipping inside overflow panels. */
+  anchorRect?: TriggerRect | null;
 }
 
 export function CalendarRangePopoverContent({
@@ -55,10 +58,19 @@ export function CalendarRangePopoverContent({
   setHoveredWeekMonday,
   hoveredMonthKey,
   setHoveredMonthKey,
+  anchorRect,
 }: CalendarRangePopoverContentProps) {
+  const isPortaled = anchorRect != null;
+  const dayWeekWrapperClass = isPortaled
+    ? 'fixed z-popover mt-1 w-72 rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-700 dark:bg-slate-800'
+    : 'absolute left-1/2 top-full z-popover mt-1 w-72 -translate-x-1/2 rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-700 dark:bg-slate-800';
+  const dayWeekWrapperStyle = isPortaled && anchorRect
+    ? { top: anchorRect.top + anchorRect.height + 4, left: anchorRect.left + anchorRect.width / 2, transform: 'translateX(-50%)' as const }
+    : undefined;
+
   if (period === '1_day') {
     return (
-      <div className="absolute left-1/2 top-full z-50 mt-1 w-72 -translate-x-1/2 rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+      <div className={dayWeekWrapperClass} style={dayWeekWrapperStyle}>
         <div className="mb-2 flex items-center justify-between">
           <button
             type="button"
@@ -138,9 +150,14 @@ export function CalendarRangePopoverContent({
     );
   }
 
+  const monthWrapperClass = isPortaled
+    ? 'fixed z-popover mt-1 w-64 rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-700 dark:bg-slate-800'
+    : 'absolute left-1/2 top-full z-popover mt-1 w-64 -translate-x-1/2 rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-700 dark:bg-slate-800';
+  const monthWrapperStyle = dayWeekWrapperStyle;
+
   if (period === '1_week') {
     return (
-      <div className="absolute left-1/2 top-full z-50 mt-1 w-72 -translate-x-1/2 rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+      <div className={dayWeekWrapperClass} style={dayWeekWrapperStyle}>
         <div className="mb-2 flex items-center justify-between">
           <button
             type="button"
@@ -226,7 +243,7 @@ export function CalendarRangePopoverContent({
 
   // 1_month: year header + 3×4 month grid
   return (
-    <div className="absolute left-1/2 top-full z-50 mt-1 w-64 -translate-x-1/2 rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+    <div className={monthWrapperClass} style={monthWrapperStyle}>
       <div className="mb-2 flex items-center justify-between">
         <button
           type="button"

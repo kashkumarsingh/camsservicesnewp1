@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import {
   getMonday,
@@ -29,6 +30,8 @@ export interface CalendarRangeToolbarProps {
   goToCurrentLabel?: string;
   /** Optional: className for the toolbar wrapper (e.g. gap and flex). */
   className?: string;
+  /** When true, use stacked layout for narrow panels: row 1 = Day|Week|Month, row 2 = Prev + range + Next, row 3 = Last week | This week. Keeps range and arrows on one line. */
+  compact?: boolean;
   /** Optional: render extra buttons after the range controls (e.g. Refresh). */
   children?: React.ReactNode;
 }
@@ -50,13 +53,14 @@ export function CalendarRangeToolbar({
   showWeekShortcuts = true,
   goToCurrentLabel,
   className = '',
+  compact = false,
   children,
 }: CalendarRangeToolbarProps) {
   const popover = useCalendarRangePopover();
   const { rangeLabel } = getRangeFromPeriodAnchor(period, anchor);
 
   const handlePeriodChange = (newPeriod: CalendarPeriod) => {
-    popover.setCalendarPopoverOpen(false);
+    popover.closeCalendarPopover();
     setPeriod(newPeriod);
     const d = new Date(anchor + 'T12:00:00');
     if (newPeriod === '1_week' && d.getDay() !== 1) setAnchor(getMonday(d));
@@ -113,8 +117,48 @@ export function CalendarRangeToolbar({
   const tabActiveClass =
     'border-primary-blue text-primary-blue dark:border-primary-blue dark:text-primary-blue bg-white dark:bg-slate-900 -mb-px';
 
+  const navRowClass = compact ? 'flex items-center gap-2 min-w-0' : '';
+  const triggerClassWeek = compact ? `${triggerButtonClass} min-w-0 flex-1` : `${triggerButtonClass} min-w-[180px]`;
+
+  const popoverContentProps = {
+    period,
+    anchor,
+    onSelect: setAnchor,
+    onClose: popover.closeCalendarPopover,
+    calendarViewMonthKey: popover.calendarViewMonthKey,
+    setCalendarViewMonthKey: popover.setCalendarViewMonthKey,
+    calendarViewYear: popover.calendarViewYear,
+    setCalendarViewYear: popover.setCalendarViewYear,
+    hoveredDay: popover.hoveredDay,
+    setHoveredDay: popover.setHoveredDay,
+    hoveredWeekMonday: popover.hoveredWeekMonday,
+    setHoveredWeekMonday: popover.setHoveredWeekMonday,
+    hoveredMonthKey: popover.hoveredMonthKey,
+    setHoveredMonthKey: popover.setHoveredMonthKey,
+  };
+
   return (
-    <div className={`flex flex-wrap items-center gap-2 ${className}`}>
+    <div
+      className={
+        compact
+          ? `flex flex-col gap-2 w-full min-w-0 ${className}`
+          : `flex flex-wrap items-center gap-2 ${className}`
+      }
+    >
+      {popover.calendarPopoverOpen &&
+        popover.triggerRect &&
+        typeof document !== 'undefined' &&
+        document.body &&
+        createPortal(
+          <div data-calendar-range-popover>
+            <CalendarRangePopoverContent
+              {...popoverContentProps}
+              anchorRect={popover.triggerRect}
+            />
+          </div>,
+          document.body
+        )}
+
       {/* Month | Week | Day tabs */}
       <div
         role="tablist"
@@ -144,138 +188,201 @@ export function CalendarRangeToolbar({
 
       {/* Month: Prev | [label ▼] | Next */}
       {period === '1_month' && (
-        <>
-          <button type="button" onClick={goPrev} className={navButtonClass} aria-label="Previous month">
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <div className="relative" ref={popover.calendarPopoverRef}>
-            <button
-              type="button"
-              onClick={() => popover.openCalendarPopover(anchor, period)}
-              className={triggerButtonClass}
-              aria-label="Choose month"
-              aria-expanded={popover.calendarPopoverOpen}
-            >
-              <span className="truncate">{rangeLabel}</span>
-              <ChevronDown className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
+        compact ? (
+          <div className={navRowClass}>
+            <button type="button" onClick={goPrev} className={`${navButtonClass} shrink-0`} aria-label="Previous month">
+              <ChevronLeft className="h-5 w-5" />
             </button>
-            {popover.calendarPopoverOpen && (
-              <CalendarRangePopoverContent
-                period={period}
-                anchor={anchor}
-                onSelect={setAnchor}
-                onClose={() => popover.setCalendarPopoverOpen(false)}
-                calendarViewMonthKey={popover.calendarViewMonthKey}
-                setCalendarViewMonthKey={popover.setCalendarViewMonthKey}
-                calendarViewYear={popover.calendarViewYear}
-                setCalendarViewYear={popover.setCalendarViewYear}
-                hoveredDay={popover.hoveredDay}
-                setHoveredDay={popover.setHoveredDay}
-                hoveredWeekMonday={popover.hoveredWeekMonday}
-                setHoveredWeekMonday={popover.setHoveredWeekMonday}
-                hoveredMonthKey={popover.hoveredMonthKey}
-                setHoveredMonthKey={popover.setHoveredMonthKey}
-              />
-            )}
+            <div className="relative flex-1 min-w-0" ref={popover.calendarPopoverRef}>
+              <button
+                type="button"
+                onClick={(e) =>
+                  popover.openCalendarPopover(
+                    anchor,
+                    period,
+                    (e.currentTarget as HTMLElement).getBoundingClientRect()
+                  )
+                }
+                className={`${triggerButtonClass} w-full min-w-0`}
+                aria-label="Choose month"
+                aria-expanded={popover.calendarPopoverOpen}
+              >
+                <span className="truncate">{rangeLabel}</span>
+                <ChevronDown className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
+              </button>
+            </div>
+            <button type="button" onClick={goNext} className={`${navButtonClass} shrink-0`} aria-label="Next month">
+              <ChevronRight className="h-5 w-5" />
+            </button>
           </div>
-          <button type="button" onClick={goNext} className={navButtonClass} aria-label="Next month">
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </>
+        ) : (
+          <>
+            <button type="button" onClick={goPrev} className={navButtonClass} aria-label="Previous month">
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <div className="relative" ref={popover.calendarPopoverRef}>
+              <button
+                type="button"
+                onClick={(e) =>
+                  popover.openCalendarPopover(
+                    anchor,
+                    period,
+                    (e.currentTarget as HTMLElement).getBoundingClientRect()
+                  )
+                }
+                className={triggerButtonClass}
+                aria-label="Choose month"
+                aria-expanded={popover.calendarPopoverOpen}
+              >
+                <span className="truncate">{rangeLabel}</span>
+                <ChevronDown className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
+              </button>
+            </div>
+            <button type="button" onClick={goNext} className={navButtonClass} aria-label="Next month">
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </>
+        )
       )}
 
       {/* Week: Prev | [label ▼] | Next | Last week | This week */}
       {period === '1_week' && (
-        <>
-          <button type="button" onClick={goPrev} className={navButtonClass} aria-label="Previous week">
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <div className="relative" ref={popover.calendarPopoverRef}>
-            <button
-              type="button"
-              onClick={() => popover.openCalendarPopover(anchor, period)}
-              className={`${triggerButtonClass} min-w-[180px]`}
-              aria-label="Choose week"
-              aria-expanded={popover.calendarPopoverOpen}
-            >
-              <span className="truncate">{rangeLabel}</span>
-              <ChevronDown className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
-            </button>
-            {popover.calendarPopoverOpen && (
-              <CalendarRangePopoverContent
-                period={period}
-                anchor={anchor}
-                onSelect={setAnchor}
-                onClose={() => popover.setCalendarPopoverOpen(false)}
-                calendarViewMonthKey={popover.calendarViewMonthKey}
-                setCalendarViewMonthKey={popover.setCalendarViewMonthKey}
-                calendarViewYear={popover.calendarViewYear}
-                setCalendarViewYear={popover.setCalendarViewYear}
-                hoveredDay={popover.hoveredDay}
-                setHoveredDay={popover.setHoveredDay}
-                hoveredWeekMonday={popover.hoveredWeekMonday}
-                setHoveredWeekMonday={popover.setHoveredWeekMonday}
-                hoveredMonthKey={popover.hoveredMonthKey}
-                setHoveredMonthKey={popover.setHoveredMonthKey}
-              />
+        compact ? (
+          <>
+            <div className={navRowClass}>
+              <button type="button" onClick={goPrev} className={`${navButtonClass} shrink-0`} aria-label="Previous week">
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <div className="relative flex-1 min-w-0" ref={popover.calendarPopoverRef}>
+                <button
+                  type="button"
+                  onClick={(e) =>
+                    popover.openCalendarPopover(
+                      anchor,
+                      period,
+                      (e.currentTarget as HTMLElement).getBoundingClientRect()
+                    )
+                  }
+                  className={`${triggerClassWeek}`}
+                  aria-label="Choose week"
+                  aria-expanded={popover.calendarPopoverOpen}
+                >
+                  <span className="truncate">{rangeLabel}</span>
+                  <ChevronDown className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
+                </button>
+              </div>
+              <button type="button" onClick={goNext} className={`${navButtonClass} shrink-0`} aria-label="Next week">
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+            {showWeekShortcuts && (
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={goLastWeek} className={shortcutButtonClass}>
+                  Last week
+                </button>
+                <button type="button" onClick={goToCurrent} className={thisWeekButtonClass}>
+                  This week
+                </button>
+              </div>
             )}
-          </div>
-          <button type="button" onClick={goNext} className={navButtonClass} aria-label="Next week">
-            <ChevronRight className="h-5 w-5" />
-          </button>
-          {showWeekShortcuts && (
-            <>
-              <button type="button" onClick={goLastWeek} className={shortcutButtonClass}>
-                Last week
+          </>
+        ) : (
+          <>
+            <button type="button" onClick={goPrev} className={navButtonClass} aria-label="Previous week">
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <div className="relative" ref={popover.calendarPopoverRef}>
+              <button
+                type="button"
+                onClick={(e) =>
+                  popover.openCalendarPopover(
+                    anchor,
+                    period,
+                    (e.currentTarget as HTMLElement).getBoundingClientRect()
+                  )
+                }
+                className={`${triggerButtonClass} min-w-[180px]`}
+                aria-label="Choose week"
+                aria-expanded={popover.calendarPopoverOpen}
+              >
+                <span className="truncate">{rangeLabel}</span>
+                <ChevronDown className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
               </button>
-              <button type="button" onClick={goToCurrent} className={thisWeekButtonClass}>
-                This week
-              </button>
-            </>
-          )}
-        </>
+            </div>
+            <button type="button" onClick={goNext} className={navButtonClass} aria-label="Next week">
+              <ChevronRight className="h-5 w-5" />
+            </button>
+            {showWeekShortcuts && (
+              <>
+                <button type="button" onClick={goLastWeek} className={shortcutButtonClass}>
+                  Last week
+                </button>
+                <button type="button" onClick={goToCurrent} className={thisWeekButtonClass}>
+                  This week
+                </button>
+              </>
+            )}
+          </>
+        )
       )}
 
       {/* Day: Prev | [label ▼] | Next */}
       {period === '1_day' && (
-        <>
-          <button type="button" onClick={goPrev} className={navButtonClass} aria-label="Previous day">
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <div className="relative" ref={popover.calendarPopoverRef}>
-            <button
-              type="button"
-              onClick={() => popover.openCalendarPopover(anchor, period)}
-              className={triggerButtonClass}
-              aria-label="Choose day"
-              aria-expanded={popover.calendarPopoverOpen}
-            >
-              <span className="truncate">{rangeLabel}</span>
-              <ChevronDown className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
+        compact ? (
+          <div className={navRowClass}>
+            <button type="button" onClick={goPrev} className={`${navButtonClass} shrink-0`} aria-label="Previous day">
+              <ChevronLeft className="h-5 w-5" />
             </button>
-            {popover.calendarPopoverOpen && (
-              <CalendarRangePopoverContent
-                period={period}
-                anchor={anchor}
-                onSelect={setAnchor}
-                onClose={() => popover.setCalendarPopoverOpen(false)}
-                calendarViewMonthKey={popover.calendarViewMonthKey}
-                setCalendarViewMonthKey={popover.setCalendarViewMonthKey}
-                calendarViewYear={popover.calendarViewYear}
-                setCalendarViewYear={popover.setCalendarViewYear}
-                hoveredDay={popover.hoveredDay}
-                setHoveredDay={popover.setHoveredDay}
-                hoveredWeekMonday={popover.hoveredWeekMonday}
-                setHoveredWeekMonday={popover.setHoveredWeekMonday}
-                hoveredMonthKey={popover.hoveredMonthKey}
-                setHoveredMonthKey={popover.setHoveredMonthKey}
-              />
-            )}
+            <div className="relative flex-1 min-w-0" ref={popover.calendarPopoverRef}>
+              <button
+                type="button"
+                onClick={(e) =>
+                  popover.openCalendarPopover(
+                    anchor,
+                    period,
+                    (e.currentTarget as HTMLElement).getBoundingClientRect()
+                  )
+                }
+                className={`${triggerButtonClass} w-full min-w-0`}
+                aria-label="Choose day"
+                aria-expanded={popover.calendarPopoverOpen}
+              >
+                <span className="truncate">{rangeLabel}</span>
+                <ChevronDown className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
+              </button>
+            </div>
+            <button type="button" onClick={goNext} className={`${navButtonClass} shrink-0`} aria-label="Next day">
+              <ChevronRight className="h-5 w-5" />
+            </button>
           </div>
-          <button type="button" onClick={goNext} className={navButtonClass} aria-label="Next day">
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </>
+        ) : (
+          <>
+            <button type="button" onClick={goPrev} className={navButtonClass} aria-label="Previous day">
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <div className="relative" ref={popover.calendarPopoverRef}>
+              <button
+                type="button"
+                onClick={(e) =>
+                  popover.openCalendarPopover(
+                    anchor,
+                    period,
+                    (e.currentTarget as HTMLElement).getBoundingClientRect()
+                  )
+                }
+                className={triggerButtonClass}
+                aria-label="Choose day"
+                aria-expanded={popover.calendarPopoverOpen}
+              >
+                <span className="truncate">{rangeLabel}</span>
+                <ChevronDown className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
+              </button>
+            </div>
+            <button type="button" onClick={goNext} className={navButtonClass} aria-label="Next day">
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </>
+        )
       )}
 
       {/* Today / This month when not week */}

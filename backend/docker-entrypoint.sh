@@ -8,6 +8,14 @@ if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:..." ]; then
     exit 1
 fi
 
+# Ensure Laravel storage and bootstrap/cache are writable before any process runs.
+# Critical when using a host volume mount (e.g. ./backend:/var/www/html): the mount
+# overrides image permissions, so PHP-FPM (www-data) would otherwise get "Permission denied"
+# on storage/logs/laravel.log and cause 500s, Stripe/broadcasting failures.
+mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+
 # Reverb-only mode (Railway WebSocket service): listen on PORT, use ping for keepalive
 if [ "$RUN_MODE" = "reverb" ]; then
     export REVERB_PORT="${PORT:-8080}"
@@ -165,8 +173,6 @@ echo "Web mode → starting bootstrap in background, then Nginx in foreground (d
     php artisan config:cache
     php artisan route:cache || true
     php artisan view:cache || true
-    chown -R www-data:www-data storage bootstrap/cache
-    chmod -R 775 storage bootstrap/cache
     if [ "${RUN_SCHEDULER_IN_CONTAINER:-true}" = "true" ]; then
         (while true; do php artisan schedule:run --verbose --no-interaction >> /var/log/scheduler.log 2>&1; sleep 60; done) &
     fi

@@ -159,14 +159,17 @@ class StripePaymentService implements IPaymentService
                 'has_customer_email' => !empty($customerEmail),
             ]);
 
+            $lineItemName = $metadata['line_item_name'] ?? ($metadata['booking_reference'] ?? 'Booking Payment');
+            $lineItemDescription = $metadata['line_item_description'] ?? ('Booking payment for ' . ($metadata['booking_reference'] ?? 'booking'));
+
             $sessionParams = [
                 'payment_method_types' => ['card'],
                 'line_items' => [[
                     'price_data' => [
                         'currency' => strtolower($currency),
                         'product_data' => [
-                            'name' => $metadata['booking_reference'] ?? 'Booking Payment',
-                            'description' => 'Booking payment for ' . ($metadata['booking_reference'] ?? 'booking'),
+                            'name' => $lineItemName,
+                            'description' => $lineItemDescription,
                         ],
                         'unit_amount' => $amountInCents,
                     ],
@@ -380,11 +383,48 @@ class StripePaymentService implements IPaymentService
                 'session_id' => $sessionId,
                 'error' => $e->getMessage(),
             ]);
-            
+
             return [
                 'success' => false,
                 'error' => 'Failed to retrieve payment intent: ' . $e->getMessage(),
             ];
+        }
+    }
+
+    /**
+     * Get checkout session metadata by payment intent ID (e.g. top_up_hours for applying hours on payment success).
+     *
+     * @param string $paymentIntentId Stripe payment intent ID
+     * @return array<string, string> Metadata key-value pairs; empty if session not found or no metadata
+     */
+    public function getCheckoutSessionMetadataByPaymentIntent(string $paymentIntentId): array
+    {
+        if (!$this->stripe) {
+            return [];
+        }
+        try {
+            $sessions = $this->stripe->checkout->sessions->all([
+                'payment_intent' => $paymentIntentId,
+                'limit' => 1,
+            ]);
+            if (count($sessions->data) === 0) {
+                return [];
+            }
+            $session = $sessions->data[0];
+            $metadata = $session->metadata;
+            if (is_object($metadata) && method_exists($metadata, 'toArray')) {
+                return $metadata->toArray();
+            }
+            if (is_array($metadata)) {
+                return $metadata;
+            }
+            return [];
+        } catch (\Exception $e) {
+            Log::warning('Failed to get checkout session metadata by payment intent', [
+                'payment_intent_id' => $paymentIntentId,
+                'error' => $e->getMessage(),
+            ]);
+            return [];
         }
     }
 

@@ -132,6 +132,7 @@ Route::prefix('v1')->group(function () {
             Route::get('admin/bookings/sessions/{sessionId}/activity-logs', [\App\Http\Controllers\Api\AdminBookingsController::class, 'sessionActivityLogs']);
             Route::post('admin/bookings/bulk-cancel', [\App\Http\Controllers\Api\AdminBookingsController::class, 'bulkCancel']);
             Route::post('admin/bookings/bulk-confirm', [\App\Http\Controllers\Api\AdminBookingsController::class, 'bulkConfirm']);
+            Route::post('admin/bookings/{id}/top-up', [\App\Http\Controllers\Api\AdminBookingsController::class, 'topUp']);
 
             // Admin trainers (full CRUD + activate/deactivate + export + media uploads)
             Route::get('admin/trainers', [\App\Http\Controllers\Api\AdminTrainerController::class, 'index']);

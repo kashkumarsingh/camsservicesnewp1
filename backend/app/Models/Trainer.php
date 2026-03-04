@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Trainer extends Model
 {
     use HasFactory;
+    use Searchable;
 
     /**
      * Activity exclusion categories (mirror from TrainerApplication)
@@ -173,6 +175,37 @@ class Trainer extends Model
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
     ];
+
+    /**
+     * Get the indexable data array for Meilisearch/Scout.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        $specialties = $this->specialties ?? [];
+        $specialtiesStr = is_array($specialties)
+            ? implode(' ', array_map(fn ($s) => is_string($s) ? $s : ($s['specialty'] ?? ''), $specialties))
+            : '';
+
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'role' => $this->role ?? '',
+            'bio' => $this->bio ?? '',
+            'full_description' => $this->full_description ?? '',
+            'specialties' => $specialtiesStr,
+        ];
+    }
+
+    /**
+     * Only index active trainers.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return (bool) $this->is_active;
+    }
 
     /**
      * Get the user that owns the trainer profile.

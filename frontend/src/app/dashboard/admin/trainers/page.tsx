@@ -8,11 +8,16 @@ export const metadata: Metadata = {
 };
 
 interface AdminTrainersPageProps {
-  searchParams: Promise<{ trainer?: string }>;
+  searchParams: Promise<{ trainer?: string; create?: string }>;
 }
 
 export default async function AdminTrainersPage({ searchParams }: AdminTrainersPageProps) {
-  const { trainer: trainerId } = await searchParams;
-  return <AdminTrainersPageClient initialTrainerId={trainerId ?? undefined} />;
+  const { trainer: trainerId, create: createParam } = await searchParams;
+  return (
+    <AdminTrainersPageClient
+      initialTrainerId={trainerId ?? undefined}
+      initialShowCreateForm={createParam === '1'}
+    />
+  );
 }
 

@@ -25,6 +25,7 @@ import type {
 } from '@/core/application/admin/dto/AdminBookingDTO';
 import type { RemoteBookingSession } from '@/core/application/admin/dto/AdminBookingDTO';
 import { getGoogleMapsSearchUrl, getGoogleMapsUrlForCoordinates } from '@/utils/locationUtils';
+import Button from '@/components/ui/Button';
 
 type TimelineEventType =
   | 'start'
@@ -401,7 +402,7 @@ export function SessionDetailSidePanel({
         onClick={handleBackdropClick}
       />
       <aside
-        className="fixed right-0 top-0 z-overlay flex h-full w-full flex-col bg-white shadow-xl dark:bg-slate-900 sm:w-[480px] md:max-w-[40%]"
+        className="fixed right-0 top-0 z-sidepanel flex h-full w-full flex-col bg-white shadow-xl dark:bg-slate-900 sm:w-[480px] md:max-w-[40%]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="session-detail-title"
@@ -840,6 +841,15 @@ export function SessionDetailSidePanel({
                 )}
               </div>
             )}
+          </div>
+
+          {/* Sticky footer: consistent with SideCanvas (actions at bottom) */}
+          <div className="shrink-0 border-t border-gray-200 bg-gray-50 px-4 sm:px-5 py-3 dark:border-gray-800 dark:bg-gray-900/50">
+            <div className="flex items-center justify-end">
+              <Button type="button" variant="bordered" size="sm" onClick={handleClose}>
+                Close
+              </Button>
+            </div>
           </div>
         </div>
       </aside>

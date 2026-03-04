@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Users, ChevronDown } from 'lucide-react';
 import { getChildColor } from '@/utils/childColorUtils';
 
@@ -46,6 +47,23 @@ export function ChildrenFilter({
 }: ChildrenFilterProps) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [panelRect, setPanelRect] = useState<{ top: number; right: number } | null>(null);
+
+  useLayoutEffect(() => {
+    if (!open || !dropdownRef.current) {
+      setPanelRect(null);
+      return;
+    }
+    const update = () => {
+      const el = dropdownRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      setPanelRect({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, [open]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -124,113 +142,119 @@ export function ChildrenFilter({
         />
       </button>
 
-      {open && (
-        <div
-          role="listbox"
-          className="absolute right-0 top-full mt-1 min-w-[180px] rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg py-1 z-50"
-        >
-          <button
-            type="button"
-            onClick={selectAll}
-            className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+      {open && typeof document !== 'undefined' && panelRect && createPortal(
+        <>
+          <div className="fixed inset-0 z-dropdown" aria-hidden onClick={() => setOpen(false)} />
+          <div
+            role="listbox"
+            className="fixed z-dropdown min-w-[180px] rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg py-1"
+            style={{ top: panelRect.top, right: panelRect.right }}
+            aria-label={`Filter schedule by child. Currently: ${label}`}
           >
-            <span
-              className={`flex h-4 w-4 items-center justify-center rounded border ${
-                allSelected
-                  ? 'bg-indigo-600 border-indigo-600'
-                  : 'border-gray-300 dark:border-gray-600'
-              }`}
-            >
-              {allSelected && (
-                <svg className="h-2.5 w-2.5 text-white" fill="currentColor" viewBox="0 0 12 12">
-                  <path d="M10 3L4.5 8.5 2 6" stroke="currentColor" strokeWidth="2" fill="none" />
-                </svg>
-              )}
-            </span>
-            <span className="font-medium">All Children ({childList.length})</span>
-          </button>
-          {newChildIds.length > 0 && (
             <button
               type="button"
-              onClick={selectNew}
+              onClick={selectAll}
               className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
             >
               <span
                 className={`flex h-4 w-4 items-center justify-center rounded border ${
-                  isNewFilter ? 'bg-blue-600 border-blue-600' : 'border-gray-300 dark:border-gray-600'
+                  allSelected
+                    ? 'bg-indigo-600 border-indigo-600'
+                    : 'border-gray-300 dark:border-gray-600'
                 }`}
               >
-                {isNewFilter && (
+                {allSelected && (
                   <svg className="h-2.5 w-2.5 text-white" fill="currentColor" viewBox="0 0 12 12">
                     <path d="M10 3L4.5 8.5 2 6" stroke="currentColor" strokeWidth="2" fill="none" />
                   </svg>
                 )}
               </span>
-              <span className="font-medium">New children ({newChildIds.length})</span>
-              <span aria-hidden className="text-blue-600 dark:text-blue-400">🆕</span>
+              <span className="font-medium">All Children ({childList.length})</span>
             </button>
-          )}
-          {expiredChildIds.length > 0 && (
-            <button
-              type="button"
-              onClick={selectExpired}
-              className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
-            >
-              <span
-                className={`flex h-4 w-4 items-center justify-center rounded border ${
-                  isExpiredFilter ? 'bg-red-600 border-red-600' : 'border-gray-300 dark:border-gray-600'
-                }`}
-              >
-                {isExpiredFilter && (
-                  <svg className="h-2.5 w-2.5 text-white" fill="currentColor" viewBox="0 0 12 12">
-                    <path d="M10 3L4.5 8.5 2 6" stroke="currentColor" strokeWidth="2" fill="none" />
-                  </svg>
-                )}
-              </span>
-              <span className="font-medium">Expired ({expiredChildIds.length})</span>
-              <span aria-hidden className="text-red-600 dark:text-red-400">🔴</span>
-            </button>
-          )}
-          <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
-          {childList.map((child) => {
-            const checked =
-              allSelected || selectedIds.includes(child.id);
-            const color = getChildColor(child.id);
-            return (
+            {newChildIds.length > 0 && (
               <button
-                key={child.id}
                 type="button"
-                onClick={() => toggleChild(child.id)}
+                onClick={selectNew}
                 className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 <span
                   className={`flex h-4 w-4 items-center justify-center rounded border ${
-                    checked
-                      ? 'bg-indigo-600 border-indigo-600'
-                      : 'border-gray-300 dark:border-gray-600'
+                    isNewFilter ? 'bg-blue-600 border-blue-600' : 'border-gray-300 dark:border-gray-600'
                   }`}
                 >
-                  {checked && (
+                  {isNewFilter && (
                     <svg className="h-2.5 w-2.5 text-white" fill="currentColor" viewBox="0 0 12 12">
                       <path d="M10 3L4.5 8.5 2 6" stroke="currentColor" strokeWidth="2" fill="none" />
                     </svg>
                   )}
                 </span>
-                <span
-                  className="w-3 h-3 rounded-full shrink-0"
-                  style={{ backgroundColor: color }}
-                  aria-hidden
-                />
-                <span className="truncate flex-1 min-w-0">{child.name}</span>
-                {child.remainingHours !== undefined && child.remainingHours !== null && (
-                  <span className="shrink-0 text-xs text-gray-500 dark:text-gray-400 tabular-nums">
-                    {child.remainingHours.toFixed(1)}h left
-                  </span>
-                )}
+                <span className="font-medium">New children ({newChildIds.length})</span>
+                <span aria-hidden className="text-blue-600 dark:text-blue-400">🆕</span>
               </button>
-            );
-          })}
-        </div>
+            )}
+            {expiredChildIds.length > 0 && (
+              <button
+                type="button"
+                onClick={selectExpired}
+                className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                <span
+                  className={`flex h-4 w-4 items-center justify-center rounded border ${
+                    isExpiredFilter ? 'bg-red-600 border-red-600' : 'border-gray-300 dark:border-gray-600'
+                  }`}
+                >
+                  {isExpiredFilter && (
+                    <svg className="h-2.5 w-2.5 text-white" fill="currentColor" viewBox="0 0 12 12">
+                      <path d="M10 3L4.5 8.5 2 6" stroke="currentColor" strokeWidth="2" fill="none" />
+                    </svg>
+                  )}
+                </span>
+                <span className="font-medium">Expired ({expiredChildIds.length})</span>
+                <span aria-hidden className="text-red-600 dark:text-red-400">🔴</span>
+              </button>
+            )}
+            <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
+            {childList.map((child) => {
+              const checked =
+                allSelected || selectedIds.includes(child.id);
+              const color = getChildColor(child.id);
+              return (
+                <button
+                  key={child.id}
+                  type="button"
+                  onClick={() => toggleChild(child.id)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  <span
+                    className={`flex h-4 w-4 items-center justify-center rounded border ${
+                      checked
+                        ? 'bg-indigo-600 border-indigo-600'
+                        : 'border-gray-300 dark:border-gray-600'
+                    }`}
+                  >
+                    {checked && (
+                      <svg className="h-2.5 w-2.5 text-white" fill="currentColor" viewBox="0 0 12 12">
+                        <path d="M10 3L4.5 8.5 2 6" stroke="currentColor" strokeWidth="2" fill="none" />
+                      </svg>
+                    )}
+                  </span>
+                  <span
+                    className="w-3 h-3 rounded-full shrink-0"
+                    style={{ backgroundColor: color }}
+                    aria-hidden
+                  />
+                  <span className="truncate flex-1 min-w-0">{child.name}</span>
+                  {child.remainingHours !== undefined && child.remainingHours !== null && (
+                    <span className="shrink-0 text-xs text-gray-500 dark:text-gray-400 tabular-nums">
+                      {child.remainingHours.toFixed(1)}h left
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </>,
+        document.body
       )}
     </div>
   );

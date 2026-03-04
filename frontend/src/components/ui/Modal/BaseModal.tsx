@@ -291,9 +291,9 @@ export default function BaseModal({
   const modalId = ariaLabelledBy || (title ? 'base-modal-title' : undefined);
 
   const modal = (
-    <div 
-      className={`fixed inset-0 z-overlay flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 ${
-        isMobile ? 'p-0' : ''
+    <div
+      className={`fixed inset-0 z-modal flex min-h-screen bg-black/40 backdrop-blur-sm animate-in fade-in duration-200 ${
+        isMobile ? 'items-end justify-center p-0' : 'items-center justify-center p-2 sm:p-4'
       }`}
       onClick={(e) => {
         // Close modal when clicking backdrop (unless prevented)
@@ -314,10 +314,10 @@ export default function BaseModal({
     >
       <div 
         ref={modalRef}
-        className={`bg-white dark:bg-gray-900 shadow-2xl w-full flex flex-col transform transition-all animate-in zoom-in-95 duration-200 ${
+        className={`relative z-10 bg-white dark:bg-slate-900 shadow-2xl w-full flex flex-col transform transition-all animate-in duration-200 ${
           isMobile 
-            ? 'rounded-none h-screen max-h-screen' 
-            : `rounded-lg sm:rounded-xl ${sizeClasses[size]} max-h-[95vh] sm:max-h-[90vh] min-h-[50vh] sm:min-h-0`
+            ? 'max-h-[90vh] rounded-t-2xl animate-in slide-in-from-bottom duration-200'
+            : `rounded-2xl ${sizeClasses[size]} max-h-[95vh] sm:max-h-[90vh] min-h-[50vh] sm:min-h-0 mx-4 zoom-in-95`
         } ${contentClassName}`}
         style={{
           ...(modalPosition.top !== undefined && { top: `${modalPosition.top}px` }),
@@ -330,13 +330,19 @@ export default function BaseModal({
           e.stopPropagation();
         }}
       >
+        {/* Mobile: drag handle (visual only) */}
+        {isMobile && (
+          <div className="flex shrink-0 justify-center pt-3 pb-1">
+            <div className="h-1 w-12 shrink-0 rounded-full bg-slate-300 dark:bg-slate-600" aria-hidden />
+          </div>
+        )}
         {/* Header - Always sticky at top */}
         {showHeader && (
-          <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 sticky top-0 bg-white dark:bg-gray-900 z-10 rounded-t-lg sm:rounded-t-xl">
+          <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-slate-700 flex-shrink-0 sticky top-0 bg-white dark:bg-slate-900 z-raised rounded-t-2xl md:p-6">
             {header || (
               <>
                 {title && (
-                  <h2 id={modalId} className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  <h2 id={modalId} className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                     {title}
                   </h2>
                 )}
@@ -344,10 +350,10 @@ export default function BaseModal({
                   <button
                     ref={firstFocusableRef}
                     onClick={onClose}
-                    className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ml-auto"
+                    className="p-2 rounded-full text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ml-auto"
                     aria-label="Close modal"
                   >
-                    <X size={20} className="text-gray-600 dark:text-gray-400" />
+                    <X size={20} className="text-slate-500 dark:text-slate-400" />
                   </button>
                 )}
               </>
@@ -356,13 +362,13 @@ export default function BaseModal({
         )}
 
         {/* Content - Scrollable area (flex-1 ensures it takes available space) */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5 overscroll-contain min-h-0">
+        <div className="flex-1 overflow-y-auto overscroll-contain min-h-0 p-4 md:p-6">
           {children}
         </div>
 
-        {/* Footer - Always sticky at bottom (flex-shrink-0 prevents shrinking, sticky ensures visibility) */}
+        {/* Footer - Right-aligned actions, border-t (Google Calendar–style) */}
         {footer && (
-          <div className="border-t border-gray-200 dark:border-gray-700 p-4 sm:p-5 bg-white dark:bg-gray-900 flex-shrink-0 sticky bottom-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_8px_rgba(0,0,0,0.3)] rounded-b-lg sm:rounded-b-xl">
+          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 p-6 bg-white dark:bg-slate-900 flex-shrink-0 sticky bottom-0 z-raised rounded-b-2xl">
             {footer}
           </div>
         )}

@@ -13,6 +13,7 @@ import { PackageSlug } from '@/core/domain/packages/valueObjects/PackageSlug';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { extractList } from '@/infrastructure/http/responseHelpers';
+import { SEARCH_QUERY_PARAM } from '@/utils/appConstants';
 import { CACHE_TAGS, REVALIDATION_TIMES } from '@/utils/revalidationConstants';
 import {
   PackageActivity,
@@ -406,7 +407,7 @@ export class ApiPackageRepository implements IPackageRepository {
   async search(query: string): Promise<Package[]> {
     try {
       const response = await apiClient.get<RemotePackageResponse[] | RemotePackageListResponse>(
-        `${API_ENDPOINTS.PACKAGES}?search=${encodeURIComponent(query)}`
+        `${API_ENDPOINTS.PACKAGES}?${SEARCH_QUERY_PARAM}=${encodeURIComponent(query)}`
       );
       const packages = extractList(response);
       return packages.map(pkg => this.toDomain(pkg));

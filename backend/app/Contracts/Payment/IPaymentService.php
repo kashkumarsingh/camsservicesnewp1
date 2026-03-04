@@ -77,6 +77,14 @@ interface IPaymentService
     public function getPaymentIntentFromSession(string $sessionId): array;
 
     /**
+     * Get checkout session metadata by payment intent ID (e.g. for top-up: top_up_hours).
+     *
+     * @param string $paymentIntentId Stripe payment intent ID
+     * @return array<string, string> Metadata key-value pairs (e.g. ['top_up_hours' => '5'])
+     */
+    public function getCheckoutSessionMetadataByPaymentIntent(string $paymentIntentId): array;
+
+    /**
      * Refund a payment.
      *
      * @param string $transactionId Transaction ID

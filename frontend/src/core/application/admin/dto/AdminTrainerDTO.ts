@@ -150,8 +150,12 @@ export interface AdminTrainersFilters {
 
 // ========== Mapper Functions (Remote → Frontend) ==========
 
+/**
+ * Maps backend trainer payload to AdminTrainerDTO.
+ * Accepts full list/detail response or minimal create response (id, userId, name, slug, email, isActive).
+ */
 export function mapRemoteTrainerToAdminTrainerDTO(
-  remote: RemoteTrainerResponse
+  remote: Partial<RemoteTrainerResponse> & Pick<RemoteTrainerResponse, 'id' | 'name' | 'slug'>
 ): AdminTrainerDTO {
   const normalizedCertifications: TrainerCertification[] = (remote.certifications ?? []).map(
     (cert, index) => {
@@ -177,7 +181,7 @@ export function mapRemoteTrainerToAdminTrainerDTO(
 
   return {
     id: remote.id,
-    userId: remote.userId,
+    userId: remote.userId ?? null,
     name: remote.name,
     slug: remote.slug,
     email: remote.email,
@@ -185,9 +189,9 @@ export function mapRemoteTrainerToAdminTrainerDTO(
     bio: remote.bio,
     fullDescription: remote.fullDescription,
     image: remote.image,
-    rating: remote.rating,
-    totalReviews: remote.totalReviews,
-    specialties: remote.specialties,
+    rating: typeof remote.rating === 'number' ? remote.rating : 0,
+    totalReviews: typeof remote.totalReviews === 'number' ? remote.totalReviews : 0,
+    specialties: Array.isArray(remote.specialties) ? remote.specialties : [],
     excludedActivityIds: remote.excludedActivityIds,
     exclusionReason: remote.exclusionReason,
     certifications: normalizedCertifications,
@@ -195,15 +199,15 @@ export function mapRemoteTrainerToAdminTrainerDTO(
     availabilityNotes: remote.availabilityNotes,
     homePostcode: remote.homePostcode,
     travelRadiusKm: remote.travelRadiusKm,
-    serviceAreaPostcodes: remote.serviceAreaPostcodes,
-    preferredAgeGroups: remote.preferredAgeGroups,
+    serviceAreaPostcodes: Array.isArray(remote.serviceAreaPostcodes) ? remote.serviceAreaPostcodes : [],
+    preferredAgeGroups: Array.isArray(remote.preferredAgeGroups) ? remote.preferredAgeGroups : [],
     availabilityPreferences: remote.availabilityPreferences,
-    isActive: remote.isActive,
-    isFeatured: remote.isFeatured,
-    views: remote.views,
-    activities: remote.activities,
+    isActive: remote.isActive ?? true,
+    isFeatured: remote.isFeatured ?? false,
+    views: typeof remote.views === 'number' ? remote.views : 0,
+    activities: Array.isArray(remote.activities) ? remote.activities : [],
     userApprovalStatus: remote.userApprovalStatus,
-    createdAt: remote.createdAt,
-    updatedAt: remote.updatedAt,
+    createdAt: remote.createdAt ?? new Date().toISOString(),
+    updatedAt: remote.updatedAt ?? new Date().toISOString(),
   };
 }

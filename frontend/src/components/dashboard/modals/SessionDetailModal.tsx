@@ -5,6 +5,7 @@ import { Calendar, Clock, User, Edit2, Trash2, Loader2, Activity as ActivityIcon
 import moment from 'moment';
 import { BaseModal } from '@/components/ui/Modal';
 import { SideCanvas } from '@/components/ui/SideCanvas';
+import Button from '@/components/ui/Button';
 import { detectActivitySelection, parseCustomActivityFromNotes } from '@/utils/activitySelectionUtils';
 import { toastManager } from '@/utils/toast';
 import { apiClient } from '@/infrastructure/http/ApiClient';
@@ -38,6 +39,8 @@ interface SessionDetailModalProps {
     isOngoing?: boolean;
     isUpcoming?: boolean;
     itineraryNotes?: string;
+    /** Schedule duration in hours from API; when set, used for "X hours booked" instead of start/end diff */
+    durationHours?: number;
   } | null;
   onEdit: (session: NonNullable<SessionDetailModalProps['session']>) => void;
   onCancel: (sessionId: string) => Promise<void>;
@@ -55,6 +58,7 @@ interface SessionDetailModalProps {
     endTime: string;
     childName: string;
     childId: number;
+    durationHours?: number;
   }>;
   /** Render as a slide-in side panel instead of a modal. Default: 'modal'. */
   variant?: 'modal' | 'sidepanel';
@@ -284,51 +288,58 @@ export default function SessionDetailModal({
       );
     }
 
+    // Prefer API duration when available so "1h" activity shows as 1 hour booked, not 0.8h from start/end diff
+    const hoursForLabel =
+      session.durationHours != null && Number.isFinite(session.durationHours)
+        ? session.durationHours
+        : durationHours;
     const label =
-      durationHours === 1 ? '1 hour' : `${Math.round(durationHours * 10) / 10} hours`;
+      hoursForLabel === 1 ? '1 hour' : `${Math.round(hoursForLabel * 10) / 10} hours`;
 
     return { timeDisplay: display, hoursLabel: label };
   })();
 
   const sessionFooter = (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 w-full">
-      <button
+    <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 w-full">
+      <Button
         type="button"
+        variant="bordered"
+        size="sm"
         onClick={onClose}
         disabled={isCancelling}
-        className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="sm:order-first"
       >
         Close
-      </button>
-      <div className="flex flex-wrap items-center justify-end gap-3">
-        <button
+      </Button>
+      <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+        <Button
           type="button"
+          variant="primary"
+          size="sm"
           onClick={handleEdit}
           disabled={isCancelling || !canEdit}
-          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600 transition-all shadow-sm hover:shadow"
+          icon={<Edit2 size={16} aria-hidden />}
         >
-          <Edit2 size={16} />
           Edit
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="destructive-outline"
+          size="sm"
           onClick={handleCancel}
           disabled={isCancelling || !canCancel}
           title={!canCancel && cancelReason ? cancelReason : undefined}
-          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 transition-all shadow-sm hover:shadow"
+          icon={
+            isCancelling ? (
+              <Loader2 size={16} className="animate-spin" aria-hidden />
+            ) : (
+              <Trash2 size={16} aria-hidden />
+            )
+          }
+          ariaBusy={isCancelling}
         >
-          {isCancelling ? (
-            <>
-              <Loader2 size={16} className="animate-spin" />
-              Cancelling...
-            </>
-          ) : (
-            <>
-              <Trash2 size={16} />
-              Cancel Session
-            </>
-          )}
-        </button>
+          {isCancelling ? 'Cancelling…' : 'Cancel Session'}
+        </Button>
       </div>
     </div>
   );

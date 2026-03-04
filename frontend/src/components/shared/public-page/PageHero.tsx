@@ -3,8 +3,9 @@
 import React from 'react';
 
 /**
- * Common hero for public pages (About, Home, etc.).
- * Reusable: pass title, subtitle, optional video and children (e.g. CTAs).
+ * Common hero for public pages (About, Contact, etc.).
+ * No z-index is used so the section stays under the fixed site header (z-header).
+ * Content stacks above video/overlays by DOM order only.
  */
 export interface PageHeroProps {
   title: string;
@@ -22,7 +23,7 @@ export default function PageHero({ title, subtitle, videoSrc, children, classNam
     >
       {videoSrc && (
         <video
-          className="absolute inset-0 w-full h-full object-cover z-0"
+          className="absolute inset-0 w-full h-full object-cover"
           src={videoSrc}
           loop
           autoPlay
@@ -30,16 +31,16 @@ export default function PageHero({ title, subtitle, videoSrc, children, classNam
           playsInline
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/30 to-light-blue-cyan/20 z-10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/30 to-light-blue-cyan/20" />
       <div
-        className="absolute inset-0 z-10 opacity-10"
+        className="absolute inset-0 opacity-10"
         style={{
           backgroundImage: "url('/svgs/star.svg')",
           backgroundRepeat: 'repeat',
           backgroundSize: '40px 40px',
         }}
       />
-      <div className="relative z-20 text-center max-w-4xl mx-auto">
+      <div className="relative text-center max-w-4xl mx-auto">
         <h1 className="text-5xl md:text-7xl font-heading font-extrabold mb-6 leading-tight tracking-tight heading-text-shadow">
           {title}
         </h1>

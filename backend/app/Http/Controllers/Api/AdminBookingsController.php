@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Booking\TopUpBookingAction;
 use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
@@ -22,6 +23,11 @@ use Illuminate\Support\Facades\Log;
 class AdminBookingsController extends Controller
 {
     use BaseApiController;
+
+    public function __construct(
+        private readonly TopUpBookingAction $topUpBookingAction
+    ) {
+    }
 
     /**
      * List all bookings for the admin dashboard.
@@ -610,22 +616,15 @@ class AdminBookingsController extends Controller
             try {
                 $list = $autoAssign->listAvailableForSession($schedule);
             } catch (\Throwable $e) {
-                Log::warning('Available trainers check failed; falling back to qualified list', [
+                Log::warning('Available trainers check failed', [
                     'session_id' => $sessionId,
                     'message' => $e->getMessage(),
                 ]);
                 $list = [];
             }
 
-            // When no one passes strict availability/conflict, show qualified trainers so admin can still assign
-            if (empty($list)) {
-                try {
-                    $list = $autoAssign->listQualifiedForSession($schedule);
-                } catch (\Throwable $e) {
-                    Log::warning('Qualified trainers check failed', ['session_id' => $sessionId, 'message' => $e->getMessage()]);
-                }
-            }
-
+            // Only show trainers who pass availability + conflict + qualifications. Do not fall back to qualified-only
+            // so that trainers without set availability do not appear in the assign dropdown.
             $trainers = array_map(fn ($t) => [
                 'id' => (string) $t['id'],
                 'name' => $t['name'],
@@ -955,6 +954,52 @@ class AdminBookingsController extends Controller
             ]);
 
             return $this->serverErrorResponse('Failed to update booking notes.');
+        }
+    }
+
+    /**
+     * Start a top-up for a booking (admin on behalf of parent).
+     * Creates a payment intent; parent completes payment via returned checkout URL.
+     *
+     * POST /api/v1/admin/bookings/{id}/top-up
+     */
+    public function topUp(Request $request, string $id): JsonResponse
+    {
+        $validated = $request->validate([
+            'hours' => ['required', 'numeric', 'min:1', 'max:100'],
+            'currency' => ['nullable', 'string', 'size:3'],
+        ]);
+
+        $bookingId = (int) $id;
+        $hours = (float) $validated['hours'];
+        $currency = $validated['currency'] ?? 'GBP';
+
+        try {
+            $result = $this->topUpBookingAction->execute($bookingId, $hours, $currency, true);
+
+            return $this->successResponse(
+                $result,
+                'Top-up payment link created. Share the checkout URL with the parent to complete payment.',
+                [],
+                201
+            );
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return $this->notFoundResponse('Booking not found.');
+        } catch (\RuntimeException $e) {
+            return $this->errorResponse(
+                $e->getMessage() ?: 'Unable to top up this booking.',
+                \App\Http\Controllers\Api\ErrorCodes::BOOKING_ERROR,
+                [],
+                400
+            );
+        } catch (\Exception $e) {
+            Log::error('Error starting admin booking top-up', [
+                'id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return $this->serverErrorResponse('Failed to start top-up.');
         }
     }
 }

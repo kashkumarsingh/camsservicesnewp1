@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import moment from 'moment';
-import { AlertTriangle, CheckCircle, Calendar, ChevronRight, ChevronDown, Plus, UserPlus, Clock, Ban, Filter, LayoutGrid, List, BarChart3, MoreVertical, CalendarDays, X } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Calendar, ChevronRight, ChevronDown, Plus, UserPlus, Clock, Ban, Filter, LayoutGrid, List, BarChart3, MoreVertical, CalendarDays, X, ShieldAlert } from 'lucide-react';
 import { BaseModal } from '@/components/ui/Modal';
 import { SideCanvas } from '@/components/ui/SideCanvas';
 import { getChildColor } from '@/utils/childColorUtils';
+import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 import type { Child } from '@/core/application/auth/types';
 import type { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
 
@@ -81,6 +83,8 @@ interface ParentCleanRightSidebarProps {
   onTopUpChild?: (childId: number) => void;
   /** Optional: open the Add Child modal (for empty state when parent has no children). */
   onAddChild?: () => void;
+  /** Optional: open the Report a concern (safeguarding) modal. */
+  onReportConcern?: () => void;
   /** When true, show skeleton placeholders in the hours section instead of "0h" to avoid flicker. */
   hoursLoading?: boolean;
   /** When "standalone", renders as main content (no sidebar border/sticky/bg). Use on Overview when this is the only column. */
@@ -125,11 +129,11 @@ function normaliseScheduleDate(date: string | undefined): string {
 
 /** Session type badge colour by package name (optional). */
 function getSessionTypeBadgeClass(packageName: string | null | undefined): string {
-  if (!packageName) return 'bg-gray-100 text-gray-700';
+  if (!packageName) return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200';
   const lower = packageName.toLowerCase();
-  if (lower.includes('premium')) return 'bg-violet-100 text-violet-700';
-  if (lower.includes('starter') || lower.includes('trial')) return 'bg-emerald-100 text-emerald-700';
-  return 'bg-blue-100 text-blue-700';
+  if (lower.includes('premium')) return 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-200';
+  if (lower.includes('starter') || lower.includes('trial')) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200';
+  return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200';
 }
 
 interface NextUpSectionProps {
@@ -147,32 +151,32 @@ const ALERT_STYLES: Record<
   { bg: string; border: string; icon: string; title: string; message: string }
 > = {
   critical: {
-    bg: 'bg-red-50 dark:bg-red-900/20',
-    border: 'border-l-4 border-red-500',
+    bg: 'bg-rose-50 dark:bg-rose-900/20',
+    border: 'border-l-4 border-rose-500',
     icon: '🔴',
-    title: 'text-red-800 dark:text-red-200 font-bold',
-    message: 'text-red-700 dark:text-red-300',
+    title: 'font-semibold text-rose-800 dark:text-rose-200',
+    message: 'text-rose-700 dark:text-rose-300',
   },
   warning: {
-    bg: 'bg-yellow-50 dark:bg-yellow-900/20',
-    border: 'border-l-4 border-yellow-500',
+    bg: 'bg-amber-50 dark:bg-amber-900/20',
+    border: 'border-l-4 border-amber-500',
     icon: '⚠️',
-    title: 'text-yellow-800 dark:text-yellow-200 font-bold',
-    message: 'text-yellow-700 dark:text-yellow-300',
+    title: 'font-semibold text-amber-800 dark:text-amber-200',
+    message: 'text-amber-700 dark:text-amber-300',
   },
   info: {
     bg: 'bg-blue-50 dark:bg-blue-900/20',
     border: 'border-l-4 border-blue-500',
     icon: 'ℹ️',
-    title: 'text-blue-800 dark:text-blue-200 font-bold',
+    title: 'font-semibold text-blue-800 dark:text-blue-200',
     message: 'text-blue-700 dark:text-blue-300',
   },
   success: {
-    bg: 'bg-green-50 dark:bg-green-900/20',
-    border: 'border-l-4 border-green-500',
+    bg: 'bg-emerald-50 dark:bg-emerald-900/20',
+    border: 'border-l-4 border-emerald-500',
     icon: '✓',
-    title: 'text-green-800 dark:text-green-200 font-bold',
-    message: 'text-green-700 dark:text-green-300',
+    title: 'font-semibold text-emerald-800 dark:text-emerald-200',
+    message: 'text-emerald-700 dark:text-emerald-300',
   },
 };
 
@@ -188,7 +192,7 @@ function AlertCard({ alert, onDismiss, actionLabel, onAction }: AlertCardProps) 
   const style = ALERT_STYLES[alert.severity];
   return (
     <div
-      className={`rounded-lg p-3 ${style.bg} ${style.border} border-r border-t border-b border-gray-200/50 dark:border-gray-700/50`}
+      className={`rounded-xl border border-slate-200 p-4 ${style.bg} ${style.border} dark:border-slate-700/50`}
       role="alert"
     >
       <div className="flex items-start justify-between gap-2">
@@ -197,12 +201,12 @@ function AlertCard({ alert, onDismiss, actionLabel, onAction }: AlertCardProps) 
             <span className="text-base leading-none" aria-hidden>{style.icon}</span>
             <span className={`text-sm ${style.title}`}>{alert.title}</span>
           </div>
-          <p className={`text-xs mt-1 ${style.message}`}>{alert.description}</p>
+          <p className={`mt-1 text-sm ${style.message}`}>{alert.description}</p>
           {actionLabel && onAction && (
             <button
               type="button"
               onClick={onAction}
-              className="text-xs font-medium text-blue-600 dark:text-blue-400 mt-1.5 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded"
+              className="mt-1.5 cursor-pointer rounded text-sm font-medium text-primary-blue hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               {actionLabel} →
             </button>
@@ -212,10 +216,10 @@ function AlertCard({ alert, onDismiss, actionLabel, onAction }: AlertCardProps) 
           <button
             type="button"
             onClick={onDismiss}
-            className="shrink-0 p-1 rounded text-gray-500 hover:text-gray-700 hover:bg-gray-200/80 dark:hover:bg-gray-600"
+            className="shrink-0 rounded-full p-2 text-slate-500 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-600"
             aria-label="Dismiss alert"
           >
-            <X className="w-4 h-4" aria-hidden />
+            <X className="h-4 w-4" aria-hidden />
           </button>
         )}
       </div>
@@ -223,53 +227,134 @@ function AlertCard({ alert, onDismiss, actionLabel, onAction }: AlertCardProps) 
   );
 }
 
+const MENU_DROPDOWN_OFFSET_PX = 4;
+
 function NextUpSection({ sessions, getCountdownLabel, onViewDetails, onCancel, onReschedule, compact = false }: NextUpSectionProps) {
   const [openMenuScheduleId, setOpenMenuScheduleId] = useState<string | null>(null);
   const [cancelConfirmScheduleId, setCancelConfirmScheduleId] = useState<string | null>(null);
+  const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
+
+  const openSession = openMenuScheduleId != null ? sessions.find((s) => s.scheduleId === openMenuScheduleId) : null;
+
+  useEffect(() => {
+    if (openMenuScheduleId == null) {
+      setDropdownPosition(null);
+      return;
+    }
+    const el = menuTriggerRef.current;
+    if (!el) {
+      setDropdownPosition({ top: 16, right: 16 });
+      return;
+    }
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + MENU_DROPDOWN_OFFSET_PX,
+        right: typeof window !== 'undefined' ? window.innerWidth - rect.right : 0,
+      });
+    };
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('scroll', update, true);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update, true);
+    };
+  }, [openMenuScheduleId]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && openMenuScheduleId != null) setOpenMenuScheduleId(null);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [openMenuScheduleId]);
+
+  const renderPortaledMenu = () => {
+    if (openMenuScheduleId == null || openSession == null || typeof document === 'undefined') return null;
+    if (dropdownPosition == null) return null;
+    const overlayAndMenu = (
+      <>
+        <div className="fixed inset-0 z-dropdown" aria-hidden onClick={() => setOpenMenuScheduleId(null)} />
+        <div
+          className="fixed z-dropdown w-40 rounded-xl border border-slate-200 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-900"
+          role="menu"
+          aria-label="Session actions"
+          style={{ top: dropdownPosition.top, right: dropdownPosition.right }}
+        >
+          <button
+            type="button"
+            role="menuitem"
+            className="w-full px-3 py-2 text-left text-sm font-medium text-slate-700 transition-colors duration-100 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800"
+            onClick={() => {
+              onReschedule?.(openSession);
+              setOpenMenuScheduleId(null);
+            }}
+          >
+            Reschedule
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="w-full px-3 py-2 text-left text-sm font-medium text-rose-700 transition-colors duration-100 hover:bg-rose-50 dark:text-rose-200 dark:hover:bg-rose-900/30"
+            onClick={() => {
+              setCancelConfirmScheduleId(openSession.scheduleId);
+              setOpenMenuScheduleId(null);
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      </>
+    );
+    return createPortal(overlayAndMenu, document.body);
+  };
 
   if (compact) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-2.5">
-        <h3 className="text-xs font-semibold text-gray-500 tracking-wide mb-2 flex items-center gap-2">
-          <Calendar className="w-3.5 h-3.5 text-gray-500" aria-hidden />
-          NEXT UP
-        </h3>
-        <ul className="space-y-1.5" role="list" aria-label="Upcoming sessions">
-          {sessions.map((session) => {
-            const dateLabel = moment(session.date).format('ddd D');
-            const timeLabel = session.startTime ? moment(session.startTime, ['HH:mm', 'HH:mm:ss']).format('h:mma') : '';
-            const countdown = getCountdownLabel(session.date, session.startTime, session.endTime);
-            const isMenuOpen = openMenuScheduleId === session.scheduleId;
-            const isCancelConfirm = cancelConfirmScheduleId === session.scheduleId;
-            return (
-              <li key={session.scheduleId} className="relative">
-                <div className="rounded-lg border border-gray-100 bg-gray-50/50 hover:border-blue-200 hover:bg-blue-50/30 overflow-hidden">
-                  <div className="flex items-center gap-2 px-2.5 py-1.5">
-                    <span className="text-xs font-bold text-gray-900 truncate flex-1 min-w-0">{session.childName}</span>
-                    <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700" aria-label={`Time until: ${countdown}`}>{countdown}</span>
-                    <button type="button" onClick={() => onViewDetails?.({ scheduleId: session.scheduleId, childName: session.childName, childId: session.childId })} className="shrink-0 py-1 px-2 rounded text-[10px] font-semibold bg-blue-600 text-white hover:bg-blue-700">View</button>
-                    {(onCancel || onReschedule) && (
-                      <div className="relative shrink-0">
-                        <button type="button" onClick={() => setOpenMenuScheduleId(isMenuOpen ? null : session.scheduleId)} className="p-1 rounded text-gray-500 hover:bg-gray-200" aria-label="Session actions" aria-expanded={isMenuOpen}><MoreVertical className="w-3.5 h-3.5" aria-hidden /></button>
-                        {isMenuOpen && (
-                          <>
-                            <div className="fixed inset-0 z-10" aria-hidden onClick={() => setOpenMenuScheduleId(null)} />
-                            <div className="absolute right-0 top-full z-20 mt-1 w-36 rounded-lg border border-gray-200 bg-white shadow-lg py-1">
-                              <button type="button" className="w-full text-left px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50" onClick={() => { onReschedule?.(session); setOpenMenuScheduleId(null); }}>Reschedule</button>
-                              <button type="button" className="w-full text-left px-2.5 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50" onClick={() => { setCancelConfirmScheduleId(session.scheduleId); setOpenMenuScheduleId(null); }}>Cancel</button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </div>
+      <>
+        <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
+          <h3 className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <Calendar className="h-3.5 w-3.5" aria-hidden />
+            NEXT UP
+          </h3>
+          <ul className="space-y-1.5" role="list" aria-label="Upcoming sessions">
+            {sessions.map((session) => {
+              const dateLabel = moment(session.date).format('ddd D');
+              const timeLabel = session.startTime ? moment(session.startTime, ['HH:mm', 'HH:mm:ss']).format('h:mma') : '';
+              const countdown = getCountdownLabel(session.date, session.startTime, session.endTime);
+              const isMenuOpen = openMenuScheduleId === session.scheduleId;
+              const isCancelConfirm = cancelConfirmScheduleId === session.scheduleId;
+              return (
+                <li key={session.scheduleId} className="relative">
+                  <div className="overflow-hidden rounded-lg border border-slate-100 bg-slate-50/50 transition-colors duration-100 hover:border-slate-200 hover:bg-blue-50/30 dark:border-slate-800 dark:bg-slate-800/30">
+                    <div className="flex items-center gap-2 px-2.5 py-1.5">
+                      <span className="min-w-0 flex-1 truncate text-xs font-semibold text-slate-900 dark:text-slate-100">{session.childName}</span>
+                      <span className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200" aria-label={`Time until: ${countdown}`}>{countdown}</span>
+                      <button type="button" onClick={() => onViewDetails?.({ scheduleId: session.scheduleId, childName: session.childName, childId: session.childId })} className="shrink-0 cursor-pointer rounded-full bg-primary-blue px-3 py-1 text-xs font-medium text-white transition-colors duration-150 hover:opacity-90">View</button>
+                      {(onCancel || onReschedule) && (
+                        <div className="relative shrink-0">
+                          <button
+                            type="button"
+                            ref={(el) => { if (isMenuOpen) menuTriggerRef.current = el; }}
+                            onClick={(e) => { menuTriggerRef.current = e.currentTarget; setOpenMenuScheduleId(isMenuOpen ? null : session.scheduleId); }}
+                            className="p-1 rounded text-gray-500 hover:bg-gray-200 cursor-pointer"
+                            aria-label="Session actions"
+                            aria-expanded={isMenuOpen}
+                          >
+                            <MoreVertical className="w-3.5 h-3.5" aria-hidden />
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   <div className="px-2.5 pb-1.5 text-[10px] text-gray-500 truncate">{dateLabel}{timeLabel ? ` · ${timeLabel}` : ''}{session.trainerName ? ` · ${session.trainerName}` : ''}</div>
                   {isCancelConfirm && (
-                    <div className="mx-2.5 mb-1.5 p-2 rounded bg-red-50 border border-red-200">
-                      <p className="text-[10px] text-red-800 mb-1.5">Cancel?</p>
+                    <div className="mx-2.5 mb-1.5 rounded-lg border border-rose-200 bg-rose-50 p-2 dark:border-rose-800 dark:bg-rose-950/30">
+                      <p className="mb-1.5 text-xs font-medium text-slate-900 dark:text-slate-100">Cancel?</p>
                       <div className="flex gap-1.5">
-                        <button type="button" onClick={() => { onCancel?.(session); setCancelConfirmScheduleId(null); }} className="px-2 py-1 text-[10px] font-semibold bg-red-600 text-white rounded">Yes</button>
-                        <button type="button" onClick={() => setCancelConfirmScheduleId(null)} className="px-2 py-1 text-[10px] font-medium text-gray-700 bg-gray-200 rounded">No</button>
+                        <button type="button" onClick={() => { onCancel?.(session); setCancelConfirmScheduleId(null); }} className="cursor-pointer rounded-full bg-rose-600 px-2 py-1 text-xs font-medium text-white hover:bg-rose-700">Yes</button>
+                        <button type="button" onClick={() => setCancelConfirmScheduleId(null)} className="cursor-pointer rounded-full border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50">No</button>
                       </div>
                     </div>
                   )}
@@ -279,13 +364,16 @@ function NextUpSection({ sessions, getCountdownLabel, onViewDetails, onCancel, o
           })}
         </ul>
       </div>
+      {renderPortaledMenu()}
+    </>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-3 md:p-4">
-      <h3 className="text-xs font-semibold text-gray-500 tracking-wide mb-3 flex items-center gap-2">
-        <Calendar className="w-4 h-4 text-gray-500" aria-hidden />
+    <>
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
+      <h3 className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <Calendar className="h-4 w-4" aria-hidden />
         NEXT UP
       </h3>
       <ul className="space-y-2" role="list" aria-label="Upcoming sessions">
@@ -299,25 +387,25 @@ function NextUpSection({ sessions, getCountdownLabel, onViewDetails, onCancel, o
           const isCancelConfirm = cancelConfirmScheduleId === session.scheduleId;
           return (
             <li key={session.scheduleId} className="relative">
-              <div className="rounded-lg border border-gray-100 bg-gray-50/50 hover:border-blue-200 hover:bg-blue-50/30 transition-colors overflow-hidden">
+              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white transition-all duration-150 hover:shadow-md dark:border-slate-700 dark:bg-slate-800/30">
                 {/* Top row: countdown badge top-right */}
-                <div className="flex items-start justify-between gap-2 pt-2.5 px-3 pb-1">
-                  <span className="text-sm font-bold text-gray-900 truncate">{session.childName}</span>
+                <div className="flex items-start justify-between gap-2 px-3 pt-2.5 pb-1">
+                  <span className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{session.childName}</span>
                   <span
-                    className="shrink-0 px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700"
+                    className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200"
                     aria-label={`Time until session: ${countdown}`}
                   >
                     {countdown}
                   </span>
                 </div>
-                <div className="px-3 pb-2 space-y-1 text-xs text-gray-600">
+                <div className="space-y-1 px-3 pb-2 text-xs text-slate-600 dark:text-slate-400">
                   <div className="flex items-center gap-1.5">
-                    <CalendarDays className="w-3.5 h-3.5 text-gray-500 shrink-0" aria-hidden />
+                    <CalendarDays className="h-3.5 w-3.5 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden />
                     {dateLabel}
                   </div>
                   {timeLabel && (
                     <div className="flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-gray-500 shrink-0" aria-hidden />
+                      <Clock className="h-3.5 w-3.5 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden />
                       {timeLabel}
                     </div>
                   )}
@@ -343,56 +431,29 @@ function NextUpSection({ sessions, getCountdownLabel, onViewDetails, onCancel, o
                   <button
                     type="button"
                     onClick={() => onViewDetails?.({ scheduleId: session.scheduleId, childName: session.childName, childId: session.childId })}
-                    className="flex-1 min-w-0 min-h-[44px] inline-flex items-center justify-center gap-1.5 rounded-lg py-2 px-3 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                    className="inline-flex min-h-[44px] min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-primary-blue px-4 py-2 text-sm font-medium text-white transition-all duration-150 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
                     View details
-                    <ChevronRight className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                    <ChevronRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
                   </button>
                   {(onCancel || onReschedule) && (
                     <div className="relative shrink-0">
                       <button
                         type="button"
-                        onClick={() => setOpenMenuScheduleId(isMenuOpen ? null : session.scheduleId)}
-                        className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-200 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onClick={(e) => { menuTriggerRef.current = e.currentTarget; setOpenMenuScheduleId(isMenuOpen ? null : session.scheduleId); }}
+                        className="rounded-full p-2 text-slate-500 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:hover:bg-slate-800 dark:hover:text-slate-200"
                         aria-label="Session actions"
                         aria-expanded={isMenuOpen}
                       >
                         <MoreVertical className="w-4 h-4" aria-hidden />
                       </button>
-                      {isMenuOpen && (
-                        <>
-                          <div className="fixed inset-0 z-10" aria-hidden onClick={() => setOpenMenuScheduleId(null)} />
-                          <div className="absolute right-0 top-full z-20 mt-1 w-40 rounded-lg border border-gray-200 bg-white shadow-lg py-1">
-                            <button
-                              type="button"
-                              className="w-full text-left px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
-                              onClick={() => {
-                                onReschedule?.(session);
-                                setOpenMenuScheduleId(null);
-                              }}
-                            >
-                              Reschedule
-                            </button>
-                            <button
-                              type="button"
-                              className="w-full text-left px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-50"
-                              onClick={() => {
-                                setCancelConfirmScheduleId(session.scheduleId);
-                                setOpenMenuScheduleId(null);
-                              }}
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </>
-                      )}
                     </div>
                   )}
                 </div>
                 {/* Inline cancel confirm */}
                 {isCancelConfirm && (
-                  <div className="mx-3 mb-2.5 p-2 rounded-lg bg-red-50 border border-red-200">
-                    <p className="text-xs text-red-800 mb-2">Cancel this session?</p>
+                  <div className="mx-3 mb-2.5 rounded-lg border border-rose-200 bg-rose-50 p-3 dark:border-rose-800 dark:bg-rose-950/30">
+                    <p className="mb-2 text-sm font-medium text-slate-900 dark:text-slate-100">Cancel this session?</p>
                     <div className="flex gap-2">
                       <button
                         type="button"
@@ -400,14 +461,14 @@ function NextUpSection({ sessions, getCountdownLabel, onViewDetails, onCancel, o
                           onCancel?.(session);
                           setCancelConfirmScheduleId(null);
                         }}
-                        className="px-2 py-1 text-xs font-semibold bg-red-600 text-white rounded hover:bg-red-700"
+                        className="cursor-pointer rounded-full bg-rose-600 px-3 py-1.5 text-xs font-medium text-white transition-colors duration-150 hover:bg-rose-700"
                       >
                         Yes, cancel
                       </button>
                       <button
                         type="button"
                         onClick={() => setCancelConfirmScheduleId(null)}
-                        className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
+                        className="cursor-pointer rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50"
                       >
                         No
                       </button>
@@ -420,6 +481,8 @@ function NextUpSection({ sessions, getCountdownLabel, onViewDetails, onCancel, o
         })}
       </ul>
     </div>
+    {renderPortaledMenu()}
+    </>
   );
 }
 
@@ -444,6 +507,7 @@ export default function ParentCleanRightSidebar({
   onBookSession,
   onTopUpChild,
   onAddChild,
+  onReportConcern,
   hoursLoading = false,
   variant = 'sidebar',
   showNextUp = true,
@@ -572,6 +636,38 @@ export default function ParentCleanRightSidebar({
   const [perChildView, setPerChildView] = useState<PerChildView>('cards');
   /** Hours-per-child breakdown shown in a side panel so parents can see the full view. */
   const [showBreakdownPanel, setShowBreakdownPanel] = useState(false);
+  /** Filter popover open state (By child section: sort + low hours only). */
+  const [breakdownFilterOpen, setBreakdownFilterOpen] = useState(false);
+  const breakdownFilterTriggerRef = useRef<HTMLButtonElement>(null);
+  const [breakdownFilterPanelRect, setBreakdownFilterPanelRect] = useState<{ top: number; right: number } | null>(null);
+
+  useLayoutEffect(() => {
+    if (!breakdownFilterOpen || !breakdownFilterTriggerRef.current) {
+      setBreakdownFilterPanelRect(null);
+      return;
+    }
+    const update = () => {
+      const el = breakdownFilterTriggerRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      setBreakdownFilterPanelRect({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, [breakdownFilterOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (breakdownFilterTriggerRef.current && !breakdownFilterTriggerRef.current.contains(e.target as Node)) {
+        const panel = document.getElementById('hours-breakdown-filter-panel');
+        if (panel && panel.contains(e.target as Node)) return;
+        setBreakdownFilterOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   /** Close breakdown panel then run action (e.g. open Buy Hours). */
   const closeBreakdownThen = (fn: () => void) => () => {
     setShowBreakdownPanel(false);
@@ -761,16 +857,126 @@ export default function ParentCleanRightSidebar({
   const isStandalone = variant === 'standalone';
   const wrapperClass = isStandalone
     ? 'w-full space-y-6 sm:space-y-8 p-0'
-    : 'w-full bg-transparent lg:bg-white lg:border-l lg:border-gray-200 p-4 md:p-4 lg:px-5 lg:py-4 lg:min-w-0 space-y-4 lg:space-y-4 lg:sticky lg:top-14 lg:self-start lg:max-h-[calc(100vh-4.5rem)] lg:overflow-y-auto';
+    : 'w-full bg-transparent lg:bg-white lg:border-l lg:border-gray-200 p-4 md:p-4 lg:px-5 lg:py-4 lg:min-w-0 space-y-4 lg:space-y-4 lg:sticky lg:top-14 lg:z-sidebar lg:self-start lg:max-h-[calc(100vh-4.5rem)] lg:overflow-y-auto';
 
   const Wrapper = isStandalone ? 'div' : 'aside';
 
+  /** Actions dropdown at top of right sidebar (Add child, Report a concern). */
+  const [createDropdownOpen, setCreateDropdownOpen] = useState(false);
+  const createTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const [createDropdownPosition, setCreateDropdownPosition] = useState<{ top: number; left: number } | null>(null);
+  const showCreateButton = Boolean(onAddChild || onReportConcern);
+
+  useEffect(() => {
+    if (!createDropdownOpen || !showCreateButton) {
+      setCreateDropdownPosition(null);
+      return;
+    }
+    const el = createTriggerRef.current;
+    if (!el) {
+      setCreateDropdownPosition({ top: 48, left: 16 });
+      return;
+    }
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      setCreateDropdownPosition({
+        top: rect.bottom + MENU_DROPDOWN_OFFSET_PX,
+        left: rect.left,
+      });
+    };
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('scroll', update, true);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update, true);
+    };
+  }, [createDropdownOpen, showCreateButton]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && createDropdownOpen) setCreateDropdownOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [createDropdownOpen]);
+
+  /** Child shown in the welcome banner (1a), if any – excluded from the NEW CHILD list (1b) to avoid duplicate. */
+  const newRecent = useMemo(
+    () => newChildren.filter((c) => isNewWithinDays(c.childId, 3) && !dismissedWelcomeChildIds.has(c.childId)),
+    [newChildren, dismissedWelcomeChildIds],
+  );
+  const welcomeBannerChildId = newRecent.length > 0 ? newRecent[0].childId : null;
+  const newChildrenForList = useMemo(
+    () => (welcomeBannerChildId != null ? newChildren.filter((c) => c.childId !== welcomeBannerChildId) : newChildren),
+    [newChildren, welcomeBannerChildId],
+  );
+
   return (
-    <Wrapper className={wrapperClass}>
+    <>
+      {/* Actions dropdown – individual, outside sidebar container */}
+      {showCreateButton && (
+        <div className="mb-4">
+          <button
+            ref={createTriggerRef}
+            type="button"
+            onClick={() => setCreateDropdownOpen((o) => !o)}
+            className="flex items-center gap-2 w-full min-h-[44px] px-4 py-2 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/80 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-150 cursor-pointer"
+            aria-expanded={createDropdownOpen}
+            aria-haspopup="true"
+            aria-label={`${EMPTY_STATE.PARENT_SIDEBAR.CREATE_BUTTON_LABEL} – add child or report a concern`}
+          >
+            <Plus className="w-5 h-5 shrink-0 text-slate-600 dark:text-slate-300" aria-hidden />
+            <span className="flex-1 text-left text-sm font-medium">{EMPTY_STATE.PARENT_SIDEBAR.CREATE_BUTTON_LABEL}</span>
+            <ChevronDown className={`w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400 transition-transform ${createDropdownOpen ? 'rotate-180' : ''}`} aria-hidden />
+          </button>
+          {createDropdownOpen && createDropdownPosition != null && typeof document !== 'undefined' && createPortal(
+            <>
+              <div className="fixed inset-0 z-dropdown" aria-hidden onClick={() => setCreateDropdownOpen(false)} />
+              <div
+                className="fixed z-dropdown min-w-[200px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg py-1"
+                role="menu"
+                aria-label="Create options"
+                style={{ top: createDropdownPosition.top, left: createDropdownPosition.left }}
+              >
+                {onAddChild && (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="w-full text-left px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"
+                    onClick={() => {
+                      onAddChild();
+                      setCreateDropdownOpen(false);
+                    }}
+                  >
+                    <UserPlus className="w-4 h-4 shrink-0 text-primary-blue" aria-hidden />
+                    {EMPTY_STATE.PARENT_SIDEBAR.ADD_CHILD_LABEL}
+                  </button>
+                )}
+                {onReportConcern && (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="w-full text-left px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"
+                    onClick={() => {
+                      onReportConcern();
+                      setCreateDropdownOpen(false);
+                    }}
+                  >
+                    <ShieldAlert className="w-4 h-4 shrink-0 text-primary-blue" aria-hidden />
+                    {EMPTY_STATE.PARENT_SIDEBAR.REPORT_CONCERN_LABEL}
+                  </button>
+                )}
+              </div>
+            </>,
+            document.body
+          )}
+        </div>
+      )}
+
+      <Wrapper className={wrapperClass}>
       {/* 1a. Welcome banner for new children (added in last 3 days, 0 hours) – dismissible */}
-      {(() => {
-        const newRecent = newChildren.filter((c) => isNewWithinDays(c.childId, 3) && !dismissedWelcomeChildIds.has(c.childId));
-        if (newRecent.length === 0) return null;
+      {newRecent.length > 0 && (() => {
         const first = newRecent[0];
         return (
           <div
@@ -789,14 +995,14 @@ export default function ParentCleanRightSidebar({
                   <button
                     type="button"
                     onClick={() => onBuyHoursForChild(first.childId)}
-                    className="px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700"
+                    className="cursor-pointer rounded-full bg-primary-blue px-4 py-2 text-sm font-medium text-white transition-all duration-150 hover:opacity-90"
                   >
                     Buy Hours for {first.childName} →
                   </button>
                   <button
                     type="button"
                     onClick={onOpenGenericBuyHours}
-                    className="px-3 py-1.5 rounded-lg text-sm font-medium border-2 border-blue-600 text-blue-700 dark:text-blue-200 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                    className="cursor-pointer rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
                   >
                     View packages
                   </button>
@@ -805,7 +1011,7 @@ export default function ParentCleanRightSidebar({
               <button
                 type="button"
                 onClick={() => setDismissedWelcomeChildIds((prev) => new Set(prev).add(first.childId))}
-                className="shrink-0 p-1 rounded text-blue-700 hover:bg-blue-200/50 dark:hover:bg-blue-700/50"
+                className="shrink-0 p-1 rounded text-blue-700 hover:bg-blue-200/50 dark:hover:bg-blue-700/50 cursor-pointer"
                 aria-label="Dismiss welcome banner"
               >
                 <X className="w-5 h-5" aria-hidden />
@@ -815,8 +1021,8 @@ export default function ParentCleanRightSidebar({
         );
       })()}
 
-      {/* 1b. NEW CHILD – never had hours (first purchase); blue section */}
-      {newChildren.length > 0 && (
+      {/* 1b. NEW CHILD – never had hours (first purchase); blue section. Excludes child shown in welcome banner (1a). */}
+      {newChildrenForList.length > 0 && (
         <div
           className="rounded-xl border-2 border-blue-500 bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] dark:from-blue-900/30 dark:to-blue-800/20 p-3"
           role="region"
@@ -825,7 +1031,7 @@ export default function ParentCleanRightSidebar({
           <h2 id="sidebar-new-child-heading" className="font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2 mb-2">
             <span aria-hidden>🆕</span> NEW CHILD – GET STARTED!
           </h2>
-          {newChildren.map((c) => (
+          {newChildrenForList.map((c) => (
             <div key={c.childId} className="mb-3 last:mb-0">
               <p className="text-sm font-medium text-blue-800 dark:text-blue-200 flex items-center gap-1.5">
                 <span aria-hidden>👶</span> {c.childName}
@@ -842,14 +1048,14 @@ export default function ParentCleanRightSidebar({
                 <button
                   type="button"
                   onClick={() => onBuyHoursForChild(c.childId)}
-                  className="px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700"
+                  className="cursor-pointer rounded-full bg-primary-blue px-4 py-2 text-sm font-medium text-white transition-all duration-150 hover:opacity-90"
                 >
                   Buy Hours for {c.childName} →
                 </button>
                 <button
                   type="button"
                   onClick={onOpenGenericBuyHours}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium border border-blue-600 text-blue-700 dark:text-blue-200 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                  className="cursor-pointer rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
                   View packages
                 </button>
@@ -884,7 +1090,7 @@ export default function ParentCleanRightSidebar({
               <button
                 type="button"
                 onClick={() => (onTopUpChild ? onTopUpChild(c.childId) : onBuyHoursForChild(c.childId))}
-                className="mt-2 px-3 py-1.5 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700"
+                className="mt-2 px-3 py-1.5 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700 cursor-pointer"
               >
                 Top up for {c.childName} →
               </button>
@@ -907,7 +1113,7 @@ export default function ParentCleanRightSidebar({
             <button
               type="button"
               onClick={() => (useTopUp ? onTopUpChild!(firstWithPackageNoHours!.childId) : onOpenGenericBuyHours())}
-              className="px-3 py-1.5 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700"
+              className="px-3 py-1.5 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700 cursor-pointer"
             >
               {useTopUp ? 'Top up' : 'Buy hours'}
             </button>
@@ -929,7 +1135,7 @@ export default function ParentCleanRightSidebar({
                   <button
                     type="button"
                     onClick={() => onCompleteChecklist(item.childId!)}
-                    className="w-full text-left min-h-[44px] py-2.5 px-3 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 flex items-center"
+                    className="flex min-h-[44px] w-full cursor-pointer items-center rounded-lg px-3 py-2.5 text-left text-sm font-medium text-primary-blue transition-colors duration-150 hover:bg-primary-blue/10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
                     {item.label} →
                   </button>
@@ -938,14 +1144,14 @@ export default function ParentCleanRightSidebar({
                   unpaidBookingReference ? (
                     <Link
                       href={`/bookings/${unpaidBookingReference}/payment`}
-                      className="block min-h-[44px] py-2.5 px-3 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 flex items-center"
+                      className="flex min-h-[44px] items-center rounded-lg px-3 py-2.5 text-sm font-medium text-primary-blue transition-colors duration-150 hover:bg-primary-blue/10"
                     >
                       {item.label} →
                     </Link>
                   ) : (
                     <Link
                       href="/dashboard/parent/bookings"
-                      className="block min-h-[44px] py-2.5 px-3 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 flex items-center"
+                      className="flex min-h-[44px] items-center rounded-lg px-3 py-2.5 text-sm font-medium text-primary-blue transition-colors duration-150 hover:bg-primary-blue/10"
                     >
                       {item.label} →
                     </Link>
@@ -955,7 +1161,7 @@ export default function ParentCleanRightSidebar({
                   <button
                     type="button"
                     onClick={() => onBuyHoursForChild(item.childId!)}
-                    className="w-full text-left min-h-[44px] py-2.5 px-3 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 flex items-center"
+                    className="flex min-h-[44px] w-full cursor-pointer items-center rounded-lg px-3 py-2.5 text-left text-sm font-medium text-primary-blue transition-colors duration-150 hover:bg-primary-blue/10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
                     {item.label} → Buy hours
                   </button>
@@ -1017,168 +1223,179 @@ export default function ParentCleanRightSidebar({
         const hasPendingNoAction = (childrenPendingApproval?.length ?? 0) > 0 && (childrenNeedingChecklist?.length ?? 0) === 0;
         const showAllClear = !hasAwaitingReview && !hasPendingNoAction;
         return showAllClear ? (
-          <div className="bg-white rounded-xl border border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-900/10 px-3 py-2.5">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0" aria-hidden />
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                All clear – no sessions today, hours available.
-              </p>
-            </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-2xs font-medium text-slate-600 dark:text-slate-400">
+              <CheckCircle className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" aria-hidden />
+              {EMPTY_STATE.PARENT_SIDEBAR.ALL_CLEAR}
+            </span>
           </div>
         ) : null;
       })()}
 
-      {/* 5. Hours card – clearly separate box: 8.0h, left to book sessions, etc. */}
-      <div id="dashboard-hours-section" className={`bg-white rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-4 lg:p-5 ${hasAlerts ? 'mt-6' : ''}`}>
+      {/* 5. Hours card – compact, calendar-style: number + thin bar + minimal list */}
+      <div id="dashboard-hours-section" className={`rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 shadow-sm p-4 transition-shadow duration-200 hover:shadow-md ${hasAlerts ? 'mt-6' : ''}`}>
         {hoursLoading ? (
           <div className="py-2" aria-busy="true" aria-label="Loading hours">
-            <div className="h-12 w-24 rounded bg-gray-200 dark:bg-gray-600 animate-pulse" />
-            <div className="mt-3 h-4 w-48 rounded bg-gray-100 dark:bg-gray-700 animate-pulse" />
-            <div className="mt-4 h-2 w-full rounded bg-gray-100 dark:bg-gray-700 animate-pulse" />
-            <div className="mt-6 space-y-3">
+            <div className="h-10 w-20 rounded bg-slate-200 dark:bg-slate-600 animate-pulse" />
+            <div className="mt-3 h-3 w-full rounded bg-slate-100 dark:bg-slate-700 animate-pulse" />
+            <div className="mt-4 space-y-2">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center justify-between gap-2 py-2">
-                  <div className="h-4 w-28 rounded bg-gray-100 dark:bg-gray-700 animate-pulse" />
-                  <div className="h-4 w-16 rounded bg-gray-100 dark:bg-gray-700 animate-pulse" />
-                </div>
+                <div key={i} className="h-4 w-full rounded bg-slate-100 dark:bg-slate-700 animate-pulse" />
               ))}
             </div>
           </div>
         ) : (
         <>
-        <div className="mb-0">
-          <div className="flex items-baseline gap-2">
+        <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+          <span
+            className={`text-3xl font-semibold tabular-nums tracking-tight ${
+              hoursUrgency === 'critical'
+                ? 'text-red-600 dark:text-red-400'
+                : hoursUrgency === 'warning'
+                  ? 'text-amber-600 dark:text-amber-400'
+                  : 'text-slate-900 dark:text-slate-100'
+            }`}
+            aria-label={`${totalRemainingHours.toFixed(1)} hours remaining`}
+          >
+            {totalRemainingHours.toFixed(1)}
+          </span>
+          <span className="text-lg font-medium text-slate-500 dark:text-slate-400">h</span>
+          <span className="text-2xs text-slate-500 dark:text-slate-400 ml-1">{EMPTY_STATE.PARENT_SIDEBAR.HOURS_AVAILABLE}</span>
+          {(hoursUrgency === 'warning' || hoursUrgency === 'critical') && (
             <span
-              className={`text-4xl sm:text-5xl xl:text-6xl font-extrabold tabular-nums transition-colors duration-300 ${
-                hoursUrgency === 'critical'
-                  ? 'text-red-600 dark:text-red-400'
-                  : hoursUrgency === 'warning'
-                    ? 'text-yellow-600 dark:text-yellow-400'
-                    : 'text-gray-900 dark:text-gray-100'
+              className={`w-1.5 h-1.5 rounded-full animate-pulse ml-1 ${
+                hoursUrgency === 'critical' ? 'bg-red-500 dark:bg-red-400' : 'bg-amber-500 dark:bg-amber-400'
               }`}
-              aria-label={`${totalRemainingHours.toFixed(1)} hours remaining`}
-            >
-              {totalRemainingHours.toFixed(1)}
-            </span>
-            <span className="text-xl sm:text-2xl font-bold text-gray-500 dark:text-gray-400">h</span>
-            {(hoursUrgency === 'warning' || hoursUrgency === 'critical') && (
-              <span
-                className={`w-2 h-2 rounded-full animate-pulse ${
-                  hoursUrgency === 'critical' ? 'bg-red-600 dark:bg-red-400' : 'bg-yellow-600 dark:bg-yellow-400'
-                }`}
-                aria-hidden
-              />
-            )}
-          </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">left to book sessions</p>
-          {totalPackageHours > 0 && (
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-              {totalBookedHours.toFixed(1)}h used of {totalPackageHours.toFixed(1)}h total
-            </p>
+              aria-hidden
+            />
           )}
         </div>
 
         {totalPackageHours > 0 && (
-          <div className="mt-4" role="progressbar" aria-valuenow={remainingPercent} aria-valuemin={0} aria-valuemax={100} aria-label="Package hours remaining">
-            <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+          <div className="mt-3" role="progressbar" aria-valuenow={remainingPercent} aria-valuemin={0} aria-valuemax={100} aria-label="Package hours remaining">
+            <div className="h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all duration-500 ease-out ${
+                className={`h-full rounded-full transition-all duration-300 ease-out ${
                   remainingPercent > 75
-                    ? 'bg-green-500 dark:bg-green-600'
+                    ? 'bg-emerald-500 dark:bg-emerald-600'
                     : remainingPercent > 25
-                      ? 'bg-blue-500 dark:bg-blue-600'
+                      ? 'bg-primary-blue'
                       : remainingPercent > 10
-                        ? 'bg-yellow-500 dark:bg-yellow-600'
+                        ? 'bg-amber-500 dark:bg-amber-600'
                         : 'bg-red-500 dark:bg-red-600'
                 }`}
                 style={{ width: `${remainingPercent}%` }}
               />
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
-              {remainingPercent}% remaining
-            </p>
           </div>
         )}
 
-        {/* By child – same card, below the big number */}
         {childHoursWithMeta.length > 0 && (
-            <>
-              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">By child</p>
-              <ul className="space-y-1.5" role="list" aria-label="Hours per child">
-                {childHoursWithMeta.map((c) => {
-                  const needsBuyHours = c.totalHours === 0;
-                  const needsTopUp = c.totalHours > 0 && c.remainingHours <= 0;
-                  const status = needsBuyHours ? '🆕' : needsTopUp ? '🔴' : '✓';
-                  const actionHint = needsBuyHours ? ' – Buy hours' : needsTopUp ? ' – Top up' : '';
-                  const label = needsBuyHours
-                    ? `${c.childName}: 0.0h left (new)${actionHint}`
-                    : needsTopUp
-                      ? `${c.childName}: 0.0h / ${c.totalHours.toFixed(1)}h${actionHint}`
-                      : `${c.childName}: ${c.remainingHours.toFixed(1)}h / ${c.totalHours.toFixed(1)}h`;
-                  return (
-                    <li
-                      key={c.childId}
-                      className={`text-sm flex items-center gap-2 ${
-                        needsBuyHours
-                          ? 'text-blue-700 dark:text-blue-300'
-                          : needsTopUp
-                            ? 'text-red-700 dark:text-red-300'
-                            : 'text-gray-700 dark:text-gray-300'
-                      }`}
-                    >
-                      <span aria-hidden>👶</span>
-                      <span>{label}</span>
-                      <span className="shrink-0" aria-hidden>{status}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-              {(newChildren.length > 0 || depletedChildren.length > 0) && (
-                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600 space-y-2">
-                  {depletedChildren.length > 0 && (
-                    <p className="text-xs text-gray-700 dark:text-gray-300">
-                      <span className="font-semibold text-red-700 dark:text-red-300">Need to top up:</span>{' '}
-                      {depletedChildren.map((c) => c.childName).join(', ')}
-                    </p>
-                  )}
-                  {newChildren.length > 0 && (
-                    <p className="text-xs text-gray-700 dark:text-gray-300">
-                      <span className="font-semibold text-blue-700 dark:text-blue-300">Need to buy hours:</span>{' '}
-                      {newChildren.map((c) => c.childName).join(', ')}
-                    </p>
-                  )}
-                </div>
-              )}
-              {totalRemainingHours > 0 && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  Total: {totalRemainingHours.toFixed(1)}h active of {totalPackageHours.toFixed(1)}h purchased
-                </p>
-              )}
-            </>
-          )}
+            <ul className="mt-3 space-y-1 border-t border-slate-100 dark:border-slate-800 pt-3" role="list" aria-label="Hours per child">
+              {childHoursWithMeta.map((c) => {
+                const needsBuyHours = c.totalHours === 0;
+                const needsTopUp = c.totalHours > 0 && c.remainingHours <= 0;
+                const label = needsBuyHours
+                  ? `${c.childName} · 0h`
+                  : `${c.childName} · ${c.remainingHours.toFixed(1)}h`;
+                return (
+                  <li
+                    key={c.childId}
+                    className={`text-2xs flex items-center gap-2 ${
+                      needsBuyHours
+                        ? 'text-blue-600 dark:text-blue-400'
+                        : needsTopUp
+                          ? 'text-red-600 dark:text-red-400'
+                          : 'text-slate-600 dark:text-slate-400'
+                    }`}
+                  >
+                    {needsBuyHours || needsTopUp ? null : (
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" aria-hidden />
+                    )}
+                    <span>{label}</span>
+                  </li>
+                );
+              })}
+            </ul>
+        )}
 
-        {/* Per-child breakdown – open in side panel so parents can see the full view */}
-        <div className={childHoursWithMeta.length > 0 ? 'mt-4' : ''}>
-          <button
-            type="button"
-            onClick={() => setShowBreakdownPanel(true)}
-            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 border border-gray-200 dark:border-gray-600"
-            aria-haspopup="dialog"
-            aria-expanded={false}
-          >
-            View breakdown <ChevronDown className="w-4 h-4" aria-hidden />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setShowBreakdownPanel(true)}
+          className="mt-3 text-2xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:underline transition-colors cursor-pointer"
+          aria-haspopup="dialog"
+          aria-expanded={false}
+        >
+          {EMPTY_STATE.PARENT_SIDEBAR.VIEW_BREAKDOWN}
+        </button>
 
         <SideCanvas
           isOpen={showBreakdownPanel}
           onClose={() => setShowBreakdownPanel(false)}
-          title="Hours per child"
-          description="Per-child hours, low-hours warnings and quick actions"
+          title={EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.TITLE}
+          description={EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.DESCRIPTION}
           widthClassName="sm:w-[420px] md:w-[480px]"
-          closeLabel="Close breakdown panel"
+          closeLabel={EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.CLOSE_LABEL}
         >
           <div className="space-y-6 pb-2">
+            {childHours.length === 0 ? (
+              (() => {
+                const needsChecklist = (childrenNeedingChecklist?.length ?? 0) > 0;
+                const awaitingReview = (childrenAwaitingChecklistReview?.length ?? 0) > 0;
+                const pendingNoAction = (childrenPendingApproval?.length ?? 0) > 0 && (childrenNeedingChecklist?.length ?? 0) === 0;
+                if (needsChecklist && childrenNeedingChecklist && onCompleteChecklist) {
+                  const first = childrenNeedingChecklist[0];
+                  return (
+                    <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center" role="status">
+                      <AlertTriangle className="w-10 h-10 text-amber-600 dark:text-amber-400 mx-auto mb-3" aria-hidden />
+                      <p className="font-semibold text-amber-800 dark:text-amber-200">Complete {first.name}&apos;s checklist</p>
+                      <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                        Hours will appear here once the checklist is complete and approved.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={closeBreakdownThen(() => onCompleteChecklist(first.id))}
+                        className="mt-4 min-h-[44px] px-6 py-2.5 rounded-lg font-medium text-sm bg-amber-600 text-white hover:bg-amber-700 cursor-pointer"
+                      >
+                        Complete checklist
+                      </button>
+                    </div>
+                  );
+                }
+                if (awaitingReview || pendingNoAction) {
+                  const names = (childrenAwaitingChecklistReview ?? childrenPendingApproval ?? []);
+                  const label = names.length === 1 ? `${names[0].name}'s` : 'your children\'s';
+                  return (
+                    <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-6 text-center" role="status">
+                      <Clock className="w-10 h-10 text-blue-600 dark:text-blue-400 mx-auto mb-3" aria-hidden />
+                      <p className="font-semibold text-blue-800 dark:text-blue-200">We&apos;re reviewing {label} details</p>
+                      <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                        You&apos;ll see hours here once we&apos;ve approved. No need to do anything – we&apos;ll email you when it&apos;s done.
+                      </p>
+                    </div>
+                  );
+                }
+                return (
+                  <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-6 text-center" role="status">
+                    <UserPlus className="w-10 h-10 text-blue-600 dark:text-blue-400 mx-auto mb-3" aria-hidden />
+                    <p className="font-semibold text-blue-800 dark:text-blue-200">Add a child to get started</p>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                      Add a child, then purchase a package to book sessions and see hours here.
+                    </p>
+                    {onAddChild && (
+                      <button
+                        type="button"
+                        onClick={closeBreakdownThen(onAddChild)}
+                        className="mt-4 min-h-[44px] cursor-pointer rounded-full bg-primary-blue px-6 py-2.5 text-sm font-medium text-white transition-all duration-150 hover:opacity-90"
+                      >
+                        Add child
+                      </button>
+                    )}
+                  </div>
+                );
+              })()
+            ) : (
+              <>
         {/* Low Hours Warning – inside breakdown only when not already shown at top (0h banner) */}
         {childHoursWithMeta.length > 0 && (depletedChildren.length > 0 || newChildren.length > 0 || criticalChildren.length > 0 || urgentChildren.length > 0 || warningChildren.length > 0) && (
           <div
@@ -1211,7 +1428,7 @@ export default function ParentCleanRightSidebar({
                           key={c.childId}
                           type="button"
                           onClick={closeBreakdownThen(() => onBuyHoursForChild(c.childId))}
-                          className="px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700"
+                          className="cursor-pointer rounded-full bg-primary-blue px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:opacity-90"
                         >
                           Buy Hours for {c.childName}
                         </button>
@@ -1234,7 +1451,7 @@ export default function ParentCleanRightSidebar({
                           key={c.childId}
                           type="button"
                           onClick={closeBreakdownThen(() => (onTopUpChild ? onTopUpChild(c.childId) : onBuyHoursForChild(c.childId)))}
-                          className="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700"
+                          className="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 cursor-pointer"
                         >
                           Top up for {c.childName}
                         </button>
@@ -1268,7 +1485,7 @@ export default function ParentCleanRightSidebar({
                       ? (criticalChildren[0].totalHours > 0 && onTopUpChild ? onTopUpChild(criticalChildren[0].childId) : onBuyHoursForChild(criticalChildren[0].childId))
                       : onOpenGenericBuyHours()
                   )}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700"
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 cursor-pointer"
                 >
                   {criticalChildren.length === 1 && criticalChildren[0].totalHours > 0 && onTopUpChild ? 'Top up' : 'Buy hours'}
                 </button>
@@ -1298,7 +1515,7 @@ export default function ParentCleanRightSidebar({
                       ? (urgentChildren[0].totalHours > 0 && onTopUpChild ? onTopUpChild(urgentChildren[0].childId) : onBuyHoursForChild(urgentChildren[0].childId))
                       : onOpenGenericBuyHours()
                   )}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700"
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 cursor-pointer"
                 >
                   {urgentChildren.length === 1 && urgentChildren[0].totalHours > 0 && onTopUpChild ? 'Top up' : 'Buy more hours'}
                 </button>
@@ -1328,7 +1545,7 @@ export default function ParentCleanRightSidebar({
                       ? (warningChildren[0].totalHours > 0 && onTopUpChild ? onTopUpChild(warningChildren[0].childId) : onBuyHoursForChild(warningChildren[0].childId))
                       : onOpenGenericBuyHours()
                   )}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium bg-amber-600 text-white hover:bg-amber-700"
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium bg-amber-600 text-white hover:bg-amber-700 cursor-pointer"
                 >
                   {warningChildren.length === 1 && warningChildren[0].totalHours > 0 && onTopUpChild ? 'Top up' : 'View packages'}
                 </button>
@@ -1337,63 +1554,138 @@ export default function ParentCleanRightSidebar({
           </div>
         )}
 
-        {/* Per child – clearly separated from total hours above */}
-        <div className="mt-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide shrink-0">Per child</h3>
-              <div className="flex items-center gap-0.5" role="group" aria-label="View mode">
-                <button
-                  type="button"
-                  onClick={() => setPerChildView('cards')}
-                  className={`min-h-[36px] min-w-[36px] p-1.5 rounded-md flex items-center justify-center ${perChildView === 'cards' ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-gray-600' : 'text-gray-500 hover:bg-white/50 dark:hover:bg-gray-700/50'}`}
-                  title="Cards"
-                  aria-pressed={perChildView === 'cards'}
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPerChildView('compact')}
-                  className={`min-h-[36px] min-w-[36px] p-1.5 rounded-md flex items-center justify-center ${perChildView === 'compact' ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-gray-600' : 'text-gray-500 hover:bg-white/50 dark:hover:bg-gray-700/50'}`}
-                  title="Compact list"
-                  aria-pressed={perChildView === 'compact'}
-                >
-                  <List className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPerChildView('comparison')}
-                  className={`min-h-[36px] min-w-[36px] p-1.5 rounded-md flex items-center justify-center ${perChildView === 'comparison' ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-gray-600' : 'text-gray-500 hover:bg-white/50 dark:hover:bg-gray-700/50'}`}
-                  title="Comparison"
-                  aria-pressed={perChildView === 'comparison'}
-                >
-                  <BarChart3 className="w-4 h-4" />
-                </button>
+        {/* By child – Google Calendar–style section with filter popover */}
+        <div className="mt-6">
+          <div className="flex flex-col gap-3">
+            {/* Header: section title + filter popover trigger + view mode */}
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                {EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.SECTION_HEADING}
+              </h3>
+              <div className="flex items-center gap-1.5">
+                <div className="relative">
+                  <button
+                    ref={breakdownFilterTriggerRef}
+                    type="button"
+                    onClick={() => setBreakdownFilterOpen((o) => !o)}
+                    className={`flex min-h-[36px] items-center gap-2 rounded-lg border px-3 py-2 text-2xs font-medium transition-colors ${
+                      perChildSort !== 'hours_remaining' || perChildFilterLowOnly
+                        ? 'border-primary-blue bg-primary-blue/10 text-primary-blue dark:bg-primary-blue/20 dark:text-primary-blue'
+                        : 'border-slate-200 bg-white text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                    }`}
+                    aria-expanded={breakdownFilterOpen}
+                    aria-haspopup="dialog"
+                    aria-label={`${EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.SORT_LABEL}: ${perChildSort === 'name' ? EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.SORT_NAME : perChildSort === 'hours_remaining' ? EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.SORT_HOURS_LEFT : EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.SORT_USAGE_PCT}${perChildFilterLowOnly ? `, ${EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.FILTER_LOW_ONLY}` : ''}`}
+                  >
+                    <Filter className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                    <span className="truncate">
+                      {perChildSort === 'name'
+                        ? EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.SORT_NAME
+                        : perChildSort === 'hours_remaining'
+                          ? EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.SORT_HOURS_LEFT
+                          : EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.SORT_USAGE_PCT}
+                      {perChildFilterLowOnly ? ' · Low only' : ''}
+                    </span>
+                    <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform ${breakdownFilterOpen ? 'rotate-180' : ''}`} aria-hidden />
+                  </button>
+                </div>
+                <div className="h-6 w-px bg-slate-200 dark:bg-slate-600" aria-hidden />
+                <div className="flex items-center gap-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 p-0.5" role="group" aria-label="View mode">
+                  <button
+                    type="button"
+                    onClick={() => setPerChildView('cards')}
+                    className={`min-h-[32px] min-w-[32px] rounded-md p-1.5 flex items-center justify-center transition-colors ${perChildView === 'cards' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-slate-100' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                    title={EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.VIEW_CARDS}
+                    aria-pressed={perChildView === 'cards'}
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPerChildView('compact')}
+                    className={`min-h-[32px] min-w-[32px] rounded-md p-1.5 flex items-center justify-center transition-colors ${perChildView === 'compact' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-slate-100' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                    title={EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.VIEW_LIST}
+                    aria-pressed={perChildView === 'compact'}
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPerChildView('comparison')}
+                    className={`min-h-[32px] min-w-[32px] rounded-md p-1.5 flex items-center justify-center transition-colors ${perChildView === 'comparison' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-slate-100' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                    title={EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.VIEW_COMPARISON}
+                    aria-pressed={perChildView === 'comparison'}
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2 mt-2">
-              <select
-                value={perChildSort}
-                onChange={(e) => setPerChildSort(e.target.value as PerChildSort)}
-                className="text-xs border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-2.5 py-1.5 min-w-0"
-                aria-label="Sort by"
-              >
-                <option value="name">Name</option>
-                <option value="hours_remaining">Hours remaining</option>
-                <option value="usage_pct">Usage %</option>
-              </select>
-              <label className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 cursor-pointer shrink-0">
-                <input
-                  type="checkbox"
-                  checked={perChildFilterLowOnly}
-                  onChange={(e) => setPerChildFilterLowOnly(e.target.checked)}
-                  className="rounded border-gray-300 dark:border-gray-600"
-                />
-                <Filter className="w-3.5 h-3.5 shrink-0" />
-                Low hours only
-              </label>
-            </div>
+
+            {/* Filter popover – portaled, anchored to trigger */}
+            {breakdownFilterOpen && typeof document !== 'undefined' && breakdownFilterPanelRect && createPortal(
+              <>
+                <div className="fixed inset-0 z-dropdown" aria-hidden onClick={() => setBreakdownFilterOpen(false)} />
+                <div
+                  id="hours-breakdown-filter-panel"
+                  role="dialog"
+                  aria-label="Sort and filter hours by child"
+                  className="fixed z-dropdown min-w-[200px] max-w-[calc(100vw-1rem)] rounded-xl border border-slate-200 bg-white py-2 shadow-lg dark:border-slate-700 dark:bg-slate-800"
+                  style={{ top: breakdownFilterPanelRect.top, right: breakdownFilterPanelRect.right }}
+                >
+                  <p className="px-3 py-1.5 text-2xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    {EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.SORT_LABEL}
+                  </p>
+                  <div className="py-1">
+                    {(['name', 'hours_remaining', 'usage_pct'] as const).map((value) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => {
+                          setPerChildSort(value);
+                        }}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm min-h-[44px] sm:min-h-0 sm:py-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 ${
+                          perChildSort === value ? 'font-medium text-primary-blue dark:text-primary-blue' : 'text-slate-700 dark:text-slate-300'
+                        }`}
+                      >
+                        {value === 'name'
+                          ? EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.SORT_NAME
+                          : value === 'hours_remaining'
+                            ? EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.SORT_HOURS_LEFT
+                            : EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.SORT_USAGE_PCT}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="border-t border-slate-100 dark:border-slate-700 my-2" />
+                  <label className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer min-h-[44px] sm:min-h-0 sm:py-2 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                    <input
+                      type="checkbox"
+                      checked={perChildFilterLowOnly}
+                      onChange={(e) => setPerChildFilterLowOnly(e.target.checked)}
+                      className="h-4 w-4 rounded border-slate-300 text-primary-blue focus:ring-primary-blue dark:border-slate-600 dark:bg-slate-700"
+                    />
+                    <span>{EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.FILTER_LOW_ONLY}</span>
+                  </label>
+                  {(perChildSort !== 'hours_remaining' || perChildFilterLowOnly) && (
+                    <div className="border-t border-slate-100 dark:border-slate-700 pt-2 px-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPerChildSort('hours_remaining');
+                          setPerChildFilterLowOnly(false);
+                          setBreakdownFilterOpen(false);
+                        }}
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-2xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                      >
+                        {EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.CLEAR_FILTERS}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>,
+              document.body
+            )}
+
           </div>
           <div className="p-4 pt-3 space-y-3">
           {childHours.length === 0 ? (
@@ -1405,7 +1697,7 @@ export default function ParentCleanRightSidebar({
                 <button
                   type="button"
                   onClick={closeBreakdownThen(onAddChild)}
-                  className="w-full py-2.5 rounded-lg font-medium text-sm bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
+                  className="w-full py-2.5 rounded-lg font-medium text-sm bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 cursor-pointer"
                 >
                   Add child
                 </button>
@@ -1414,10 +1706,14 @@ export default function ParentCleanRightSidebar({
           ) : (
             <>
               {perChildFilterLowOnly && displayedChildHours.length === 0 && (
-                <div className="rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 p-4 text-center">
-                  <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400 mx-auto mb-2" aria-hidden />
-                  <p className="text-sm font-medium text-green-800 dark:text-green-200">No children with low hours</p>
-                  <p className="text-xs text-green-700 dark:text-green-300 mt-1">All children have more than 25% of their package remaining.</p>
+                <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4 text-center">
+                  <CheckCircle className="w-8 h-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-2" aria-hidden />
+                  <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">
+                    {EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.NO_LOW_HOURS_TITLE}
+                  </p>
+                  <p className="text-2xs text-emerald-700 dark:text-emerald-300 mt-1">
+                    {EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.NO_LOW_HOURS_MESSAGE}
+                  </p>
                 </div>
               )}
               {!(perChildFilterLowOnly && displayedChildHours.length === 0) && perChildView === 'comparison' && (
@@ -1468,7 +1764,7 @@ export default function ParentCleanRightSidebar({
                           {c.totalHours > 0 && (
                             <div className="mt-1 h-1 w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
                               <div
-                                className={`h-full rounded-full ${c.remainingPct > 25 ? 'bg-blue-500' : c.remainingPct > 10 ? 'bg-amber-500' : 'bg-red-500'}`}
+                                className={`h-full rounded-full transition-all duration-200 ${c.remainingPct > 25 ? 'bg-primary-blue' : c.remainingPct > 10 ? 'bg-amber-500' : 'bg-rose-500'}`}
                                 style={{ width: `${c.remainingPct}%` }}
                               />
                             </div>
@@ -1482,16 +1778,16 @@ export default function ParentCleanRightSidebar({
                               onClick={closeBreakdownThen(() => onBuyHoursForChild(c.childId))}
                               className="min-h-[36px] px-2 py-1.5 text-[11px] font-medium text-blue-600 dark:text-blue-400"
                             >
-                              Buy hours
+                              {EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.BUY_HOURS_LABEL}
                             </button>
                           )}
                           {onBookSession && c.remainingHours > 0 && (
                             <button
                               type="button"
                               onClick={closeBreakdownThen(() => onBookSession(c.childId))}
-                              className="min-h-[36px] px-2 py-1.5 text-[11px] font-medium text-blue-600 dark:text-blue-400"
+                              className="min-h-[36px] px-2 py-1.5 text-2xs font-medium text-primary-blue dark:text-primary-blue"
                             >
-                              Book
+                              {EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.BOOK_SESSION_LABEL}
                             </button>
                           )}
                           {c.totalHours > 0 && c.remainingHours <= 0 && (
@@ -1510,42 +1806,38 @@ export default function ParentCleanRightSidebar({
                 </div>
               )}
               {!(perChildFilterLowOnly && displayedChildHours.length === 0) && perChildView === 'cards' && (
-                <div className="grid grid-cols-1 gap-3" role="list">
+                <div className="grid grid-cols-1 gap-3 mt-4" role="list">
               {displayedChildHours.map((c) => {
                 const childColor = getChildColor(c.childId);
-                const cardBorderBg =
-                  c.urgency === 'critical'
-                    ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                    : c.urgency === 'low'
-                      ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
-                      : 'bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700';
                 const hoursColor =
                   c.urgency === 'critical'
                     ? 'text-red-600 dark:text-red-400'
                     : c.urgency === 'low'
                       ? 'text-amber-600 dark:text-amber-400'
-                      : 'text-gray-900 dark:text-gray-100';
+                      : 'text-slate-900 dark:text-slate-100';
                 return (
                   <div
                     key={c.childId}
-                    className={`rounded-xl border p-4 sm:p-5 ${cardBorderBg}`}
+                    className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 overflow-hidden flex"
                     role="article"
-                    aria-label={`Hours for ${c.childName}: ${c.remainingHours.toFixed(1)} remaining`}
+                    aria-label={`Hours for ${c.childName}: ${c.remainingHours.toFixed(1)} ${EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.REMAINING}`}
                   >
-                    {/* Header: avatar + name/package, warning badge */}
+                    <div className="w-1 shrink-0 rounded-l-lg min-h-[1px]" style={{ backgroundColor: childColor }} aria-hidden />
+                    <div className="flex-1 min-w-0 p-4">
+                    {/* Header: avatar + name/package, warning badge – event-style */}
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <div className="flex items-center gap-3 min-w-0 flex-1">
                         <div
-                          className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0"
-                          style={{ background: `linear-gradient(135deg, ${childColor}, ${childColor}99)` }}
+                          className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold text-white shrink-0"
+                          style={{ backgroundColor: childColor }}
                           aria-hidden
                         >
                           {c.childName.charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-bold text-gray-900 dark:text-gray-100 truncate">{c.childName}</p>
+                          <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">{c.childName}</p>
                           {c.packageName && (
-                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{c.packageName}</p>
+                            <p className="text-2xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{c.packageName}</p>
                           )}
                         </div>
                       </div>
@@ -1560,39 +1852,41 @@ export default function ParentCleanRightSidebar({
                         </span>
                       )}
                     </div>
-                    {/* Middle: hours remaining + mini progress bar */}
+                    {/* Middle: hours remaining + mini progress bar – Google Calendar–style */}
                     <div className="mb-4">
                       <div className="flex items-baseline gap-2 flex-wrap">
                         <span className={`text-xl font-bold tabular-nums ${hoursColor}`}>
                           {c.remainingHours.toFixed(1)}h
                         </span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {c.totalHours > 0 ? `left of ${c.totalHours.toFixed(1)}h` : 'remaining'}
+                        <span className="text-sm text-slate-500 dark:text-slate-400">
+                          {c.totalHours > 0
+                            ? `${EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.LEFT_OF} ${c.totalHours.toFixed(1)}h`
+                            : EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.REMAINING}
                         </span>
                       </div>
                       {c.totalHours > 0 && (
-                        <div className="mt-2 h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden" role="progressbar" aria-valuenow={c.remainingPct} aria-valuemin={0} aria-valuemax={100}>
+                        <div className="mt-2 h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden" role="progressbar" aria-valuenow={c.remainingPct} aria-valuemin={0} aria-valuemax={100}>
                           <div
                             className={`h-full rounded-full transition-all duration-300 ${
-                              c.remainingPct > 25 ? 'bg-blue-500 dark:bg-blue-600' : c.remainingPct > 10 ? 'bg-amber-500 dark:bg-amber-600' : 'bg-red-500 dark:bg-red-600'
+                              c.remainingPct > 25 ? 'bg-primary-blue' : c.remainingPct > 10 ? 'bg-amber-500 dark:bg-amber-600' : 'bg-rose-500 dark:bg-rose-600'
                             }`}
                             style={{ width: `${c.remainingPct}%` }}
                           />
                         </div>
                       )}
                     </div>
-                    {/* Footer: upcoming + expiry, then full-width action button */}
+                    {/* Footer: upcoming + expiry, then single primary action */}
                     <div className="space-y-3">
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-2xs text-slate-500 dark:text-slate-400">
                         {c.upcomingCount > 0 && (
                           <span className="flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5 shrink-0" />
-                            {c.upcomingCount} upcoming
+                            <Calendar className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                            {c.upcomingCount} {EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.UPCOMING}
                           </span>
                         )}
                         {c.expiringWithin30Days && c.expiresAt && (
                           <span className="text-amber-600 dark:text-amber-400">
-                            Expires {c.expiresAt.format('D MMM')}
+                            {EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.EXPIRES} {c.expiresAt.format('D MMM')}
                           </span>
                         )}
                       </div>
@@ -1602,9 +1896,9 @@ export default function ParentCleanRightSidebar({
                           <button
                             type="button"
                             onClick={closeBreakdownThen(() => onBuyHoursForChild(c.childId))}
-                            className="min-h-[44px] flex-1 px-4 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700"
+                            className="min-h-[44px] flex-1 px-4 py-2.5 rounded-full text-sm font-medium bg-primary-blue text-white hover:opacity-90 transition-all duration-150 cursor-pointer"
                           >
-                            Buy hours
+                            {EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.BUY_HOURS_LABEL}
                           </button>
                         )}
                         {/* Depleted package: Top up */}
@@ -1612,9 +1906,9 @@ export default function ParentCleanRightSidebar({
                           <button
                             type="button"
                             onClick={closeBreakdownThen(() => onTopUpChild(c.childId))}
-                            className="min-h-[44px] flex-1 px-4 py-2.5 rounded-lg text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                            className="min-h-[44px] flex-1 px-4 py-2.5 rounded-full text-sm font-medium text-primary-blue dark:text-primary-blue hover:bg-primary-blue/10 dark:hover:bg-primary-blue/20 transition-colors duration-150 cursor-pointer"
                           >
-                            Top up
+                            {EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.TOP_UP}
                           </button>
                         )}
                         {/* Has hours: Book session primary */}
@@ -1622,15 +1916,16 @@ export default function ParentCleanRightSidebar({
                           <button
                             type="button"
                             onClick={closeBreakdownThen(() => onBookSession(c.childId))}
-                            className="min-h-[44px] flex-1 px-4 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700"
+                            className="min-h-[44px] flex-1 px-4 py-2.5 rounded-full text-sm font-medium bg-primary-blue text-white hover:opacity-90 transition-all duration-150 cursor-pointer"
                           >
-                            Book session
+                            {EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.BOOK_SESSION_LABEL}
                           </button>
                         )}
                         {!onBookSession && c.remainingHours > 0 && (
-                          <span className="text-sm text-gray-500 dark:text-gray-400">{c.remainingHours.toFixed(1)}h left</span>
+                          <span className="text-sm text-slate-500 dark:text-slate-400">{c.remainingHours.toFixed(1)}h left</span>
                         )}
                       </div>
+                    </div>
                     </div>
                   </div>
                 );
@@ -1648,7 +1943,7 @@ export default function ParentCleanRightSidebar({
             <button
               type="button"
               onClick={closeBreakdownThen(handleBuyMoreHoursClick)}
-              className="w-full min-h-[44px] py-3 rounded-lg font-semibold text-sm bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
+                  className="flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-primary-blue py-3 text-sm font-medium text-white transition-all duration-150 hover:opacity-90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               <Plus className="w-5 h-5" aria-hidden />
               Buy more hours
@@ -1705,17 +2000,19 @@ export default function ParentCleanRightSidebar({
                 </div>
               </div>
             ) : (
-              <div className="rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 px-4 py-3">
+              <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3">
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0" aria-hidden />
-                  <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                    All set – all children have active packages.
+                  <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden />
+                  <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">
+                    {EMPTY_STATE.PARENT_SIDEBAR.BREAKDOWN.ALL_SET_MESSAGE}
                   </p>
                 </div>
               </div>
             )}
           </div>
-        )}
+            )}
+              </>
+            )}
           </div>
         </SideCanvas>
         </>
@@ -1727,23 +2024,61 @@ export default function ParentCleanRightSidebar({
         const hasAwaitingReview = (childrenAwaitingChecklistReview?.length ?? 0) > 0;
         const hasPendingNoAction = (childrenPendingApproval?.length ?? 0) > 0 && (childrenNeedingChecklist?.length ?? 0) === 0;
         const showReviewingCard = !hasAlerts && (hasAwaitingReview || hasPendingNoAction);
-        if (!showReviewingCard) return null;
-        const names = (childrenAwaitingChecklistReview ?? childrenPendingApproval ?? []);
+        if (showReviewingCard) {
+          const names = (childrenAwaitingChecklistReview ?? childrenPendingApproval ?? []);
+          return (
+            <div className="bg-white rounded-xl border border-blue-200 dark:border-blue-800 p-6">
+              <h3 className="text-xs font-semibold text-blue-700 dark:text-blue-300 tracking-wide mb-2 flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-blue-500" />
+                {hasAwaitingReview ? 'CHECKLIST SUBMITTED' : 'UNDER REVIEW'}
+              </h3>
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                We&apos;re reviewing {names.length === 1 ? `${names[0].name}'s` : 'your children\'s'} details. You&apos;ll be able to book sessions once we&apos;ve approved.
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                No need to do anything – we&apos;ll email you when it&apos;s done.
+              </p>
+            </div>
+          );
+        }
+        return null;
+      })()}
+      {/* Approved – book session (when child is approved and no longer under review) */}
+      {(() => {
+        const hasAwaitingReview = (childrenAwaitingChecklistReview?.length ?? 0) > 0;
+        const hasPendingNoAction = (childrenPendingApproval?.length ?? 0) > 0 && (childrenNeedingChecklist?.length ?? 0) === 0;
+        const showApprovedCard = !hasAlerts && approvedChildren.length > 0 && !hasAwaitingReview && !hasPendingNoAction;
+        if (!showApprovedCard) return null;
+        const canBook = totalRemainingHours > 0 && onBookSession && approvedChildren.length > 0;
         return (
-          <div className="bg-white rounded-xl border border-blue-200 p-6">
-            <h3 className="text-xs font-semibold text-blue-700 tracking-wide mb-2 flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-blue-500" />
-              {hasAwaitingReview ? 'CHECKLIST SUBMITTED' : 'UNDER REVIEW'}
-            </h3>
-            <p className="text-sm text-gray-700 mb-2">
-              We&apos;re reviewing {names.length === 1 ? `${names[0].name}'s` : 'your children\'s'} details. You&apos;ll be able to book sessions once we&apos;ve approved.
-            </p>
-            <p className="text-xs text-gray-500">
-              No need to do anything – we&apos;ll email you when it&apos;s done.
-            </p>
+          <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 shadow-sm p-4 transition-shadow duration-200 hover:shadow-md">
+            {canBook ? (
+              <>
+                <p className="text-2xs text-slate-500 dark:text-slate-400 mb-3">{EMPTY_STATE.PARENT_SIDEBAR.BOOK_SESSION_READY}</p>
+                <button
+                  type="button"
+                  onClick={() => onBookSession(approvedChildren[0].id)}
+                  className="w-full min-h-[40px] px-4 py-2 rounded-full font-medium text-sm bg-primary-blue text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150 cursor-pointer"
+                >
+                  {EMPTY_STATE.PARENT_SIDEBAR.BOOK_SESSION}
+                </button>
+              </>
+            ) : (
+              onOpenGenericBuyHours &&
+              approvedChildren.length === 0 && (
+                <button
+                  type="button"
+                  onClick={onOpenGenericBuyHours}
+                  className="w-full min-h-[40px] px-4 py-2 rounded-full font-medium text-sm bg-primary-blue text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150 cursor-pointer"
+                >
+                  {EMPTY_STATE.PARENT_SIDEBAR.BUY_HOURS}
+                </button>
+              )
+            )}
           </div>
         );
       })()}
-    </Wrapper>
+      </Wrapper>
+    </>
   );
 }

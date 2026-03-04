@@ -65,6 +65,9 @@ export interface TrainerSchedule {
   endTime?: string;
   end_time?: string;
   status: string;
+  /** From API (camelCase). Prefer when reading. */
+  trainerAssignmentStatus?: string | null;
+  /** @deprecated Use trainerAssignmentStatus. Kept for backward compat if API ever sends snake_case. */
   trainer_assignment_status?: string | null;
   /** Session/venue address (where to go). Prefer over parent address when present. */
   location?: string | null;

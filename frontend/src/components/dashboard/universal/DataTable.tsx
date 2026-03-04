@@ -15,10 +15,15 @@ import { EMPTY_STATE } from '@/utils/emptyStateConstants';
 
 export type SortDirection = 'asc' | 'desc' | null;
 
+export interface RowContext {
+  isEditing: boolean;
+}
+
 export interface Column<TData> {
   id: string;
   header: string;
-  accessor: (row: TData) => React.ReactNode;
+  /** When inline editing is used, accessor receives row and context with isEditing so the cell can render an input. */
+  accessor: (row: TData, context?: RowContext) => React.ReactNode;
   width?: string;
   sortable?: boolean;
   align?: 'left' | 'centre' | 'right';
@@ -53,7 +58,11 @@ export interface DataTableProps<TData> {
   /** Called with (key, direction). direction is null when column is unsorted. For paginated tables, parent should refetch with sort params. */
   onSortChange?: (columnId: string | null, direction: 'asc' | 'desc' | null) => void;
   renderFilters?: () => React.ReactNode;
-  renderRowActions?: (row: TData) => React.ReactNode;
+  renderRowActions?: (row: TData, context?: RowContext) => React.ReactNode;
+  /** Used with editingRowId to support inline editing: identity of the row being edited. */
+  getRowId?: (row: TData) => string | number;
+  /** When set, the row with this id is in edit mode; accessor and renderRowActions receive isEditing: true. */
+  editingRowId?: string | number | null;
   /** When true, render as stacked cards on viewports &lt; md, table on md+. */
   responsive?: boolean;
   /** Server-side pagination: when set, data is the current page only, no slicing. Footer uses totalCount and onPageChange. */
@@ -100,6 +109,8 @@ export function DataTable<TData>({
   onSortChange,
   renderFilters,
   renderRowActions,
+  getRowId,
+  editingRowId,
   responsive = false,
   totalCount: totalCountProp,
   currentPage: currentPageProp,
@@ -135,7 +146,7 @@ export function DataTable<TData>({
   };
 
   return (
-    <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 text-xs shadow-sm dark:border-slate-700 dark:bg-slate-900">
+    <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-3 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-900 transition-shadow duration-200 md:p-4">
       {(title || description || onAddClick) && (
         <header className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
           <div>
@@ -200,20 +211,24 @@ export function DataTable<TData>({
           ) : (
             pageItems.map((row, index) => {
               const key = `card-${start + index}`;
+              const isEditing = Boolean(
+                getRowId && editingRowId != null && getRowId(row) === editingRowId
+              );
+              const rowContext: RowContext = { isEditing };
               return (
                 <div
                   key={key}
-                  role={onRowClick ? 'button' : undefined}
-                  tabIndex={onRowClick ? 0 : undefined}
-                  onClick={() => onRowClick?.(row)}
+                  role={onRowClick && !isEditing ? 'button' : undefined}
+                  tabIndex={onRowClick && !isEditing ? 0 : undefined}
+                  onClick={() => !isEditing && onRowClick?.(row)}
                   onKeyDown={(e) => {
-                    if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                    if (!isEditing && onRowClick && (e.key === 'Enter' || e.key === ' ')) {
                       e.preventDefault();
                       onRowClick(row);
                     }
                   }}
                   className={`rounded-lg border border-slate-200 bg-slate-50/50 p-3 dark:border-slate-700 dark:bg-slate-800/50 ${
-                    onRowClick ? 'cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800' : ''
+                    onRowClick && !isEditing ? 'cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800' : ''
                   }`}
                 >
                   <dl className="grid grid-cols-1 gap-2">
@@ -223,7 +238,7 @@ export function DataTable<TData>({
                           {col.header}
                         </dt>
                         <dd className="min-w-0 text-slate-900 dark:text-slate-100">
-                          {col.accessor(row)}
+                          {col.accessor(row, rowContext)}
                         </dd>
                       </div>
                     ))}
@@ -233,7 +248,7 @@ export function DataTable<TData>({
                       className="mt-3 flex flex-wrap items-center justify-end gap-2 border-t border-slate-200 pt-3 dark:border-slate-700"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {renderRowActions(row)}
+                      {renderRowActions(row, rowContext)}
                     </div>
                   )}
                 </div>
@@ -243,13 +258,13 @@ export function DataTable<TData>({
         </div>
       )}
 
-      {/* Table: hidden on small when responsive, always visible otherwise */}
+      {/* Table: hidden on small when responsive, always visible otherwise; on mobile allow horizontal scroll within viewport */}
       {!hasError && (
       <div className={responsive ? 'hidden md:block' : ''}>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto -mx-3 px-3 md:mx-0 md:px-0">
           <table className="min-w-full border-separate border-spacing-0 text-xs">
           <thead>
-            <tr className="text-2xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            <tr className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
               {columns.map((column) => {
                 const isSortable = Boolean(column.sortable && sortable);
                 const isSorted = sortKey === column.id && sortDirection;
@@ -257,7 +272,7 @@ export function DataTable<TData>({
                   <th
                     key={column.id}
                     scope="col"
-                    className={`border-b border-slate-200 bg-slate-50 px-3 py-2 font-semibold dark:border-slate-700 dark:bg-slate-900/60 ${alignClass(column.align)} ${isSortable ? 'select-none' : ''}`}
+                    className={`border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/60 ${alignClass(column.align)} ${isSortable ? 'select-none' : ''}`}
                     style={column.width ? { width: column.width } : undefined}
                   >
                     {isSortable ? (
@@ -292,7 +307,7 @@ export function DataTable<TData>({
                 );
               })}
               {renderRowActions && (
-                <th className="border-b border-slate-200 bg-slate-50 px-3 py-2 text-right text-2xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-400">
+                <th className="border-b border-slate-200 bg-slate-50 px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400">
                   Actions
                 </th>
               )}
@@ -331,31 +346,37 @@ export function DataTable<TData>({
             ) : (
               pageItems.map((row, index) => {
                 const key = `row-${start + index}`;
-                const clickable = Boolean(onRowClick);
+                const isEditing = Boolean(
+                  getRowId && editingRowId != null && getRowId(row) === editingRowId
+                );
+                const rowContext: RowContext = { isEditing };
+                const clickable = Boolean(onRowClick && !isEditing);
                 return (
                   <tr
                     key={key}
-                    className={`border-b border-slate-100 last:border-b-0 dark:border-slate-800 ${
+                    className={`border-b border-slate-100 last:border-b-0 dark:border-slate-800 transition-colors duration-100 ${
+                      isEditing ? 'bg-slate-50 dark:bg-slate-800/60' : ''
+                    } ${
                       clickable
-                        ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900'
+                        ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50'
                         : ''
                     }`}
-                    onClick={() => onRowClick?.(row)}
+                    onClick={() => clickable && onRowClick?.(row)}
                   >
                     {columns.map((column) => (
                       <td
                         key={column.id}
-                        className={`px-3 py-2 text-slate-700 dark:text-slate-100 ${alignClass(column.align)}`}
+                        className={`px-4 py-3 text-slate-700 dark:text-slate-100 ${alignClass(column.align)}`}
                       >
-                        {column.accessor(row)}
+                        {column.accessor(row, rowContext)}
                       </td>
                     ))}
                     {renderRowActions && (
                       <td
-                        className="px-3 py-2 text-right align-middle"
+                        className="px-4 py-3 text-right align-middle"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {renderRowActions(row)}
+                        {renderRowActions(row, rowContext)}
                       </td>
                     )}
                   </tr>

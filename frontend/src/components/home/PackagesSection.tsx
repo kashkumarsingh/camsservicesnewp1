@@ -35,7 +35,7 @@ export function PackagesSection({ config, packages, allPackages, isLoading, erro
     <Section className="py-16 bg-gradient-to-br from-sky-50 via-white to-purple-50 relative overflow-hidden">
       {config.backgroundVideoUrl && (
         <>
-          <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 z-base">
             <video
               className="w-full h-full object-cover"
               src={config.backgroundVideoUrl}
@@ -46,10 +46,10 @@ export function PackagesSection({ config, packages, allPackages, isLoading, erro
               aria-hidden
             />
           </div>
-          <div className="absolute inset-0 z-[5] bg-white/92 pointer-events-none" aria-hidden />
+          <div className="absolute inset-0 z-raised bg-white/92 pointer-events-none" aria-hidden />
         </>
       )}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-raised">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-navy-blue mb-3">{config.title}</h2>
           {config.subtitle && <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">{config.subtitle}</p>}

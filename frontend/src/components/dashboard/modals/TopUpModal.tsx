@@ -157,7 +157,7 @@ export default function TopUpModal({
           </div>
         </div>
 
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+        <div className="p-4 bg-green-50 border border-green-200 rounded-lg space-y-1">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-green-800">
               {isValid ? (
@@ -172,6 +172,11 @@ export default function TopUpModal({
               {isValid ? formatCurrency(totalPrice) : "—"}
             </span>
           </div>
+          {isValid && totalPrice > 0 && (
+            <p className="text-2xs text-green-700">
+              You will pay {formatCurrency(totalPrice)} on the next screen. Your new hours will appear after payment completes.
+            </p>
+          )}
         </div>
       </div>
     </BaseModal>

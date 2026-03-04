@@ -66,6 +66,9 @@ export const AdminServicesPageClient: React.FC = () => {
     published: false,
   });
   const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [inlineDraft, setInlineDraft] = useState<{ title: string; category: string; published: boolean } | null>(null);
+  const [inlineSaving, setInlineSaving] = useState(false);
 
   const publishedFilterValue =
     publishedFilter === 'all' ? undefined : publishedFilter === 'published';
@@ -226,35 +229,122 @@ export const AdminServicesPageClient: React.FC = () => {
     }
   };
 
+  const handleStartInlineEdit = useCallback((service: AdminServiceDTO) => {
+    setEditingId(service.id);
+    setInlineDraft({
+      title: service.title ?? '',
+      category: service.category ?? '',
+      published: service.published ?? false,
+    });
+  }, []);
+
+  const handleCancelInlineEdit = useCallback(() => {
+    setEditingId(null);
+    setInlineDraft(null);
+  }, []);
+
+  const handleSaveInlineEdit = useCallback(async () => {
+    if (!editingId || !inlineDraft) return;
+    setInlineSaving(true);
+    try {
+      await updateService(editingId, {
+        title: inlineDraft.title.trim(),
+        category: inlineDraft.category.trim() || undefined,
+        published: inlineDraft.published,
+      });
+      toastManager.success('Service updated');
+      setEditingId(null);
+      setInlineDraft(null);
+      void refetch();
+    } catch (err: unknown) {
+      toastManager.error(err instanceof Error ? err.message : 'Failed to save service');
+    } finally {
+      setInlineSaving(false);
+    }
+  }, [editingId, inlineDraft, updateService, refetch]);
+
+  const inputClass =
+    'h-8 w-full min-w-0 rounded border border-slate-200 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50';
+
   const columns: Column<AdminServiceDTO>[] = useMemo(
     () => [
       {
         id: 'title',
         header: 'Title',
         sortable: true,
-        accessor: (row) => (
-          <span className="font-medium text-slate-900 dark:text-slate-50">{row.title}</span>
-        ),
+        accessor: (row, context) => {
+          if (context?.isEditing && inlineDraft) {
+            return (
+              <input
+                type="text"
+                required
+                aria-label="Title"
+                value={inlineDraft.title}
+                onChange={(e) =>
+                  setInlineDraft((prev) => (prev ? { ...prev, title: e.target.value } : null))
+                }
+                className={inputClass}
+              />
+            );
+          }
+          return (
+            <span className="font-medium text-slate-900 dark:text-slate-50">{row.title}</span>
+          );
+        },
       },
       {
         id: 'category',
         header: 'Category',
         sortable: true,
-        accessor: (row) => row.category || '—',
+        accessor: (row, context) => {
+          if (context?.isEditing && inlineDraft) {
+            return (
+              <input
+                type="text"
+                aria-label="Category"
+                value={inlineDraft.category}
+                onChange={(e) =>
+                  setInlineDraft((prev) => (prev ? { ...prev, category: e.target.value } : null))
+                }
+                className={inputClass}
+              />
+            );
+          }
+          return row.category || '—';
+        },
       },
       {
         id: 'status',
         header: 'Status',
         sortable: false,
-        accessor: (row) => (
-          <span
-            className={`inline-flex rounded-full px-2 py-0.5 ${getPublishedBadgeClasses(
-              row.published
-            )}`}
-          >
-            {row.published ? 'Published' : 'Draft'}
-          </span>
-        ),
+        accessor: (row, context) => {
+          if (context?.isEditing && inlineDraft) {
+            return (
+              <select
+                aria-label="Status"
+                value={inlineDraft.published ? 'published' : 'draft'}
+                onChange={(e) =>
+                  setInlineDraft((prev) =>
+                    prev ? { ...prev, published: e.target.value === 'published' } : null
+                  )
+                }
+                className={inputClass}
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+            );
+          }
+          return (
+            <span
+              className={`inline-flex rounded-full px-2 py-0.5 ${getPublishedBadgeClasses(
+                row.published
+              )}`}
+            >
+              {row.published ? 'Published' : 'Draft'}
+            </span>
+          );
+        },
       },
       {
         id: 'views',
@@ -270,7 +360,7 @@ export const AdminServicesPageClient: React.FC = () => {
         accessor: (row) => formatDateTime(row.updatedAt),
       },
     ],
-    []
+    [inlineDraft, inputClass]
   );
 
   return (
@@ -374,9 +464,11 @@ export const AdminServicesPageClient: React.FC = () => {
           sortKey={sortKey}
           sortDirection={sortDirection}
           onSortChange={handleSortChange}
-          renderRowActions={(row) => (
+          getRowId={(row) => row.id}
+          editingRowId={editingId}
+          renderRowActions={(row, context) => (
             <RowActions>
-              <EditAction onClick={() => handleEditClick(row)} tooltip="Edit" />
+              <EditAction onClick={() => handleStartInlineEdit(row)} tooltip="Edit" />
               <DeleteAction onClick={() => handleDelete(row.id)} tooltip="Delete" />
             </RowActions>
           )}

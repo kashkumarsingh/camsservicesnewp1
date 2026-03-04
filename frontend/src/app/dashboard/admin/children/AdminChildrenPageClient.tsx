@@ -36,7 +36,7 @@ import type { AdminChildChecklistDTO } from "@/core/application/admin/dto/AdminC
 import { Download, CheckCircle, Users, ClipboardCheck, Loader2 } from "lucide-react";
 import { toastManager } from "@/utils/toast";
 import { EMPTY_STATE } from "@/utils/emptyStateConstants";
-import { DEFAULT_TABLE_SORT } from "@/utils/dashboardConstants";
+import { APPROVAL_STATUS, DEFAULT_TABLE_SORT } from "@/utils/dashboardConstants";
 
 type ChildFormData = Partial<CreateChildDTO> & Partial<UpdateChildDTO>;
 
@@ -173,11 +173,15 @@ export const AdminChildrenPageClient: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [selectedParentId, setSelectedParentId] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [inlineDraft, setInlineDraft] = useState<{ name: string; age: number; gender: string } | null>(null);
+  const [inlineSaving, setInlineSaving] = useState(false);
   // Review checklist modal: show checklist content before marking complete & approve
   const [reviewChecklistChildId, setReviewChecklistChildId] = useState<string | null>(null);
   const [reviewChecklistChild, setReviewChecklistChild] = useState<AdminChildRow | null>(null);
   const [reviewChecklistLoading, setReviewChecklistLoading] = useState(false);
   const [reviewChecklistSubmitting, setReviewChecklistSubmitting] = useState(false);
+  const [detailActionLoading, setDetailActionLoading] = useState<'approve' | 'reject' | null>(null);
 
   // Data hooks
   const {
@@ -307,9 +311,33 @@ export const AdminChildrenPageClient: React.FC = () => {
     setSortDirection(dir ?? "asc");
   };
 
+  const inputClass =
+    "h-8 w-full min-w-0 rounded border border-slate-200 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50";
+
   const childColumns: Column<AdminChildRow>[] = useMemo(
     () => [
-      { id: "name", header: "Child Name", sortable: true, accessor: (row) => row.name },
+      {
+        id: "name",
+        header: "Child Name",
+        sortable: true,
+        accessor: (row, context) => {
+          if (context?.isEditing && inlineDraft) {
+            return (
+              <input
+                type="text"
+                required
+                aria-label="Child name"
+                value={inlineDraft.name}
+                onChange={(e) =>
+                  setInlineDraft((prev) => (prev ? { ...prev, name: e.target.value } : null))
+                }
+                className={inputClass}
+              />
+            );
+          }
+          return row.name;
+        },
+      },
       {
         id: "checklistStatus",
         header: "Checklist Status",
@@ -347,8 +375,57 @@ export const AdminChildrenPageClient: React.FC = () => {
       },
       { id: "parentName", header: "Parent", sortable: true, accessor: (row) => row.parentName || "—" },
       { id: "parentEmail", header: "Parent Email", sortable: false, accessor: (row) => row.parentEmail || "—" },
-      { id: "age", header: "Age", sortable: true, align: "right", accessor: (row) => row.age },
-      { id: "gender", header: "Gender", sortable: false, accessor: (row) => row.gender || "—" },
+      {
+        id: "age",
+        header: "Age",
+        sortable: true,
+        align: "right",
+        accessor: (row, context) => {
+          if (context?.isEditing && inlineDraft) {
+            return (
+              <input
+                type="number"
+                min={0}
+                max={18}
+                aria-label="Age"
+                value={inlineDraft.age}
+                onChange={(e) =>
+                  setInlineDraft((prev) =>
+                    prev ? { ...prev, age: parseInt(String(e.target.value), 10) || 0 } : null
+                  )
+                }
+                className={inputClass}
+              />
+            );
+          }
+          return row.age;
+        },
+      },
+      {
+        id: "gender",
+        header: "Gender",
+        sortable: false,
+        accessor: (row, context) => {
+          if (context?.isEditing && inlineDraft) {
+            return (
+              <select
+                aria-label="Gender"
+                value={inlineDraft.gender}
+                onChange={(e) =>
+                  setInlineDraft((prev) => (prev ? { ...prev, gender: e.target.value } : null))
+                }
+                className={inputClass}
+              >
+                <option value="prefer_not_to_say">Prefer not to say</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            );
+          }
+          return row.gender || "—";
+        },
+      },
       {
         id: "remainingHours",
         header: "Remaining hours",
@@ -368,7 +445,7 @@ export const AdminChildrenPageClient: React.FC = () => {
           ),
       },
     ],
-    []
+    [inlineDraft, inputClass]
   );
 
   // Initialise filters from query string (e.g. ?parentId=123, ?hours=0 from dashboard "X children with 0 hours")
@@ -610,6 +687,46 @@ export const AdminChildrenPageClient: React.FC = () => {
   };
 
   /**
+   * Approve from Child Details panel; refetch child so panel updates.
+   */
+  const handleApproveFromDetail = useCallback(async () => {
+    if (!selectedChild) return;
+    setDetailActionLoading('approve');
+    try {
+      await approveChild(selectedChild.id);
+      toastManager.success("Child approved.");
+      const updated = await getChild(selectedChild.id);
+      setSelectedChild(updated);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to approve child";
+      toastManager.error(message);
+    } finally {
+      setDetailActionLoading(null);
+    }
+  }, [selectedChild, approveChild, getChild]);
+
+  /**
+   * Reject from Child Details panel; prompt for reason then refetch child so panel updates.
+   */
+  const handleRejectFromDetail = useCallback(async () => {
+    if (!selectedChild) return;
+    const reason = prompt("Enter rejection reason (optional):");
+    if (reason === null) return;
+    setDetailActionLoading('reject');
+    try {
+      await rejectChild(selectedChild.id, { rejection_reason: reason || undefined });
+      toastManager.success("Child rejected.");
+      const updated = await getChild(selectedChild.id);
+      setSelectedChild(updated);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to reject child";
+      toastManager.error(message);
+    } finally {
+      setDetailActionLoading(null);
+    }
+  }, [selectedChild, rejectChild, getChild]);
+
+  /**
    * Handle link parent
    */
   const handleLinkParent = async (e: React.FormEvent) => {
@@ -663,6 +780,40 @@ export const AdminChildrenPageClient: React.FC = () => {
     });
     setIsEditing(true);
   };
+
+  const handleStartInlineEdit = useCallback((child: AdminChildRow) => {
+    setEditingId(child.id);
+    setInlineDraft({
+      name: child.name ?? "",
+      age: child.age ?? 0,
+      gender: child.gender ?? "prefer_not_to_say",
+    });
+  }, []);
+
+  const handleCancelInlineEdit = useCallback(() => {
+    setEditingId(null);
+    setInlineDraft(null);
+  }, []);
+
+  const handleSaveInlineEdit = useCallback(async () => {
+    if (!editingId || !inlineDraft) return;
+    setInlineSaving(true);
+    try {
+      await updateChild(editingId, {
+        name: inlineDraft.name.trim(),
+        age: Number(inlineDraft.age) || 0,
+        gender: inlineDraft.gender as "male" | "female" | "other" | "prefer_not_to_say",
+      });
+      toastManager.success("Child updated");
+      setEditingId(null);
+      setInlineDraft(null);
+      void refetchChildren(true);
+    } catch (err: unknown) {
+      toastManager.error(err instanceof Error ? err.message : "Failed to save child");
+    } finally {
+      setInlineSaving(false);
+    }
+  }, [editingId, inlineDraft, updateChild, refetchChildren]);
 
   /**
    * Open link parent form
@@ -840,6 +991,7 @@ export const AdminChildrenPageClient: React.FC = () => {
         columns={childColumns}
         data={sortedChildren}
         isLoading={loading}
+        responsive
         error={error}
         onRetry={() => void refetchChildren(true)}
         emptyTitle={EMPTY_STATE.NO_CHILDREN_FOUND.title}
@@ -852,7 +1004,15 @@ export const AdminChildrenPageClient: React.FC = () => {
         sortKey={sortKey}
         sortDirection={sortDirection}
         onSortChange={handleSortChange}
-        renderRowActions={(child) => (
+        getRowId={(row) => row.id}
+        editingRowId={editingId}
+        renderRowActions={(child, context) =>
+          context?.isEditing ? (
+            <RowActions>
+              <Button type="button" size="sm" variant="primary" disabled={inlineSaving || !inlineDraft?.name?.trim()} onClick={() => void handleSaveInlineEdit()} aria-label="Save">{inlineSaving ? "Saving…" : "Save"}</Button>
+              <Button type="button" size="sm" variant="bordered" disabled={inlineSaving} onClick={handleCancelInlineEdit} aria-label="Cancel">Cancel</Button>
+            </RowActions>
+          ) : (
           <RowActions>
             {child.approvalStatus === "pending" && child.hasChecklist && !child.checklistCompleted && (
               <Button
@@ -905,7 +1065,7 @@ export const AdminChildrenPageClient: React.FC = () => {
               </Button>
             )}
             <ViewAction onClick={() => handleViewDetails(child)} aria-label="View details" title="View details" />
-            <EditAction onClick={() => handleEdit(child)} aria-label="Edit" />
+            <EditAction onClick={() => handleStartInlineEdit(child)} aria-label="Edit" />
             <Button
               type="button"
               size="sm"
@@ -940,9 +1100,9 @@ export const AdminChildrenPageClient: React.FC = () => {
             )}
             <DeleteAction onClick={() => handleDelete(child)} aria-label="Delete" />
           </RowActions>
-        )}
+          )
+        }
         onRowClick={(child) => handleViewDetails(child)}
-        responsive
       />
 
       {/* Create/Edit SideCanvas */}
@@ -1339,6 +1499,84 @@ export const AdminChildrenPageClient: React.FC = () => {
                   </>
                 )}
               </dl>
+            </div>
+
+            {/* Admin actions: Approve / Reject from detail panel */}
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
+              <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200">Actions</h3>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {(selectedChild.approvalStatus === APPROVAL_STATUS.PENDING ||
+                  selectedChild.approvalStatus === APPROVAL_STATUS.REJECTED) && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="primary"
+                    onClick={handleApproveFromDetail}
+                    disabled={
+                      detailActionLoading !== null || !selectedChild.checklistCompleted
+                    }
+                    className="min-w-0 border-emerald-300 bg-emerald-600 text-white hover:bg-emerald-700 dark:border-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-800"
+                    aria-label={selectedChild.approvalStatus === APPROVAL_STATUS.REJECTED ? "Re-approve" : "Approve"}
+                  >
+                    {detailActionLoading === 'approve' ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Approving…
+                      </>
+                    ) : selectedChild.approvalStatus === APPROVAL_STATUS.REJECTED ? (
+                      "Re-approve"
+                    ) : (
+                      "Approve"
+                    )}
+                  </Button>
+                )}
+                {(selectedChild.approvalStatus === APPROVAL_STATUS.PENDING ||
+                  selectedChild.approvalStatus === APPROVAL_STATUS.APPROVED) && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="bordered"
+                    onClick={handleRejectFromDetail}
+                    disabled={detailActionLoading !== null}
+                    className="min-w-0 border-rose-300 bg-white text-rose-700 hover:bg-rose-50 dark:border-rose-700 dark:bg-slate-900 dark:text-rose-300 dark:hover:bg-rose-950/40"
+                    aria-label="Reject"
+                  >
+                    {detailActionLoading === 'reject' ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Rejecting…
+                      </>
+                    ) : (
+                      "Reject"
+                    )}
+                  </Button>
+                )}
+                {selectedChild.approvalStatus === APPROVAL_STATUS.PENDING &&
+                  selectedChild.hasChecklist &&
+                  !selectedChild.checklistCompleted && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="bordered"
+                      onClick={() => {
+                        setReviewChecklistChildId(selectedChild.id);
+                        setIsViewingDetails(false);
+                      }}
+                      className="min-w-0 border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
+                      aria-label="Complete checklist"
+                      title="Review checklist then mark complete and approve"
+                    >
+                      <ClipboardCheck className="h-3.5 w-3.5" />
+                      Complete checklist
+                    </Button>
+                  )}
+              </div>
+              {selectedChild.approvalStatus === APPROVAL_STATUS.PENDING &&
+                !selectedChild.checklistCompleted && (
+                  <p className="mt-2 text-2xs text-slate-600 dark:text-slate-400">
+                    Complete the checklist (or use &quot;Complete checklist&quot;) before approving.
+                  </p>
+                )}
             </div>
 
             {selectedChild.bookings && selectedChild.bookings.length > 0 && (

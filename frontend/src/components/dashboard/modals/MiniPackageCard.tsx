@@ -45,7 +45,7 @@ export default function MiniPackageCard({
       <div className="p-4">
         {/* Popular Badge */}
         {pkg.popular && (
-          <div className="absolute top-2 right-2 z-10">
+          <div className="absolute top-2 right-2 z-sidebar">
             <div className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-navy-blue text-[9px] font-semibold px-1.5 py-0.5 rounded-md flex items-center gap-1">
               <Sparkles size={8} />
               <span>Popular</span>

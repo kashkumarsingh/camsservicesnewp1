@@ -52,16 +52,27 @@ function formatTime(t: string): string {
 }
 
 export function AdminDashboardRightSidebar({
-  ongoingSessions,
-  upcomingSessions,
-  unassignedCount,
-  pendingPaymentsCount,
-  zeroHoursCount,
-  stats,
+  ongoingSessions = [],
+  upcomingSessions = [],
+  unassignedCount = 0,
+  pendingPaymentsCount = 0,
+  zeroHoursCount = 0,
+  stats = {
+    activeTrainers: 0,
+    activeParents: 0,
+    sessionsThisWeek: 0,
+    revenueThisMonth: null,
+  },
   onViewSession,
 }: AdminDashboardRightSidebarProps) {
   const router = useRouter();
-  const needsAttentionCount = unassignedCount + pendingPaymentsCount + zeroHoursCount;
+  const needsAttentionCount = (unassignedCount ?? 0) + (pendingPaymentsCount ?? 0) + (zeroHoursCount ?? 0);
+  const safeStats = stats ?? {
+    activeTrainers: 0,
+    activeParents: 0,
+    sessionsThisWeek: 0,
+    revenueThisMonth: null,
+  };
 
   const handleViewSession = (sessionId: string, bookingId: string, options?: { focusOnActivity?: boolean }) => {
     if (onViewSession) {
@@ -72,18 +83,17 @@ export function AdminDashboardRightSidebar({
   };
 
   const cardBase =
-    'rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900';
+    'rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-900';
   const linkButtonClass =
-    'inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900';
+    'inline-flex items-center gap-1.5 rounded px-3 py-2 text-sm font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900';
 
   return (
     <aside
       className="w-full shrink-0 space-y-4 lg:w-72 xl:w-80"
       aria-label="Today's activity, needs attention, and quick stats"
     >
-      {/* Card 1: Today's activity */}
       <div className={cardBase}>
-        <h2 className="mb-3 text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+        <h2 className="mb-3 text-base font-semibold text-slate-900 dark:text-slate-100">
           Today&apos;s activity
         </h2>
 
@@ -110,7 +120,7 @@ export function AdminDashboardRightSidebar({
                     <button
                       type="button"
                       onClick={() => handleViewSession(s.id, s.bookingId)}
-                      className={`${linkButtonClass} text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-950/50`}
+                      className={`${linkButtonClass} text-gcal-primary hover:bg-gcal-primary-light dark:text-gcal-primary dark:hover:bg-gcal-primary/20`}
                     >
                       Open booking
                       <ChevronRight className="h-3.5 w-3.5" aria-hidden />
@@ -244,7 +254,7 @@ export function AdminDashboardRightSidebar({
                   <span className="font-medium text-amber-700 dark:text-amber-300">Contact parents</span>
                   <ChevronRight className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
                 </Link>
-                <p className="mt-1 px-1 text-[11px] text-slate-500 dark:text-slate-400">
+                <p className="mt-1 px-1 text-2xs text-slate-500 dark:text-slate-400">
                   Suggest topping up hours so sessions can continue.
                 </p>
               </li>
@@ -256,9 +266,9 @@ export function AdminDashboardRightSidebar({
       {/* Card 3: Quick stats – each row actionable */}
       <div className={cardBase}>
         <h2 className="mb-3 text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-          Quick stats
+          Quick links
         </h2>
-        <ul className="space-y-0.5 text-xs" role="list">
+        <ul className="space-y-1 text-xs" role="list">
           <li>
             <Link
               href="/dashboard/admin/trainers"
@@ -266,7 +276,7 @@ export function AdminDashboardRightSidebar({
             >
               <span className="flex items-center gap-2">
                 <UserCircle className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden />
-                {stats.activeTrainers} trainer{stats.activeTrainers !== 1 ? 's' : ''} active
+                {safeStats.activeTrainers} trainer{safeStats.activeTrainers !== 1 ? 's' : ''} active
               </span>
               <ChevronRight className="h-3.5 w-3.5 text-slate-400" aria-hidden />
             </Link>
@@ -278,7 +288,7 @@ export function AdminDashboardRightSidebar({
             >
               <span className="flex items-center gap-2">
                 <Home className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden />
-                {stats.activeParents} famil{stats.activeParents !== 1 ? 'ies' : 'y'} active
+                {safeStats.activeParents} famil{safeStats.activeParents !== 1 ? 'ies' : 'y'} active
               </span>
               <ChevronRight className="h-3.5 w-3.5 text-slate-400" aria-hidden />
             </Link>
@@ -290,7 +300,7 @@ export function AdminDashboardRightSidebar({
             >
               <span className="flex items-center gap-2">
                 <CalendarDays className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden />
-                {stats.sessionsThisWeek} session{stats.sessionsThisWeek !== 1 ? 's' : ''} this week
+                {safeStats.sessionsThisWeek} session{safeStats.sessionsThisWeek !== 1 ? 's' : ''} this week
               </span>
               <ChevronRight className="h-3.5 w-3.5 text-slate-400" aria-hidden />
             </Link>
@@ -302,8 +312,8 @@ export function AdminDashboardRightSidebar({
             >
               <span className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden />
-                {stats.revenueThisMonth != null
-                  ? `£${stats.revenueThisMonth.toLocaleString('en-GB', { minimumFractionDigits: 2 })} revenue this month`
+                {safeStats.revenueThisMonth != null
+                  ? `£${safeStats.revenueThisMonth.toLocaleString('en-GB', { minimumFractionDigits: 2 })} revenue this month`
                   : '— revenue'}
               </span>
               <ChevronRight className="h-3.5 w-3.5 text-slate-400" aria-hidden />
@@ -312,7 +322,7 @@ export function AdminDashboardRightSidebar({
         </ul>
         <Link
           href="/dashboard/admin/reports"
-          className="mt-3 flex items-center gap-1 text-xs font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+          className="mt-3 flex items-center gap-1 text-xs font-medium text-primary-blue hover:underline dark:text-primary-blue"
         >
           View full reports
           <ChevronRight className="h-3.5 w-3.5" aria-hidden />

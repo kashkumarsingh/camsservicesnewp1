@@ -54,6 +54,16 @@ export const AdminActivitiesPageClient: React.FC = () => {
     isActive: true,
   });
   const [submitting, setSubmitting] = useState(false);
+  /** Inline edit: which row is being edited (id). */
+  const [editingId, setEditingId] = useState<string | null>(null);
+  /** Inline edit: draft values for the row (only fields shown in the table). */
+  const [inlineDraft, setInlineDraft] = useState<{
+    name: string;
+    category: string;
+    duration: number;
+    isActive: boolean;
+  } | null>(null);
+  const [inlineSaving, setInlineSaving] = useState(false);
 
   const isActiveFilterValue =
     statusFilter === "all" ? undefined : statusFilter === "active";
@@ -194,6 +204,46 @@ export const AdminActivitiesPageClient: React.FC = () => {
     setSelectedActivity(null);
   };
 
+  const handleStartInlineEdit = useCallback((activity: AdminActivityDTO) => {
+    setEditingId(activity.id);
+    setInlineDraft({
+      name: activity.name,
+      category: activity.category ?? "",
+      duration: activity.duration ?? 1,
+      isActive: activity.isActive,
+    });
+  }, []);
+
+  const handleCancelInlineEdit = useCallback(() => {
+    setEditingId(null);
+    setInlineDraft(null);
+  }, []);
+
+  const handleSaveInlineEdit = useCallback(async () => {
+    if (!editingId || !inlineDraft) return;
+    setInlineSaving(true);
+    try {
+      const duration = Number.parseFloat(String(inlineDraft.duration)) || 1;
+      await updateActivity(editingId, {
+        name: inlineDraft.name.trim(),
+        category: inlineDraft.category.trim() || undefined,
+        duration,
+        isActive: inlineDraft.isActive,
+      });
+      toastManager.success("Activity updated");
+      setEditingId(null);
+      setInlineDraft(null);
+      void refetch();
+    } catch (err: unknown) {
+      toastManager.error(err instanceof Error ? err.message : "Failed to save activity");
+    } finally {
+      setInlineSaving(false);
+    }
+  }, [editingId, inlineDraft, updateActivity, refetch]);
+
+  const inputClass =
+    "h-8 w-full min-w-0 rounded border border-slate-200 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50";
+
   return (
     <section className="space-y-4">
       <header className="space-y-1">
@@ -313,38 +363,159 @@ export const AdminActivitiesPageClient: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                filtered.map((activity) => (
-                  <tr
-                    key={activity.id}
-                    className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60"
-                    onClick={() => setSelectedActivity(activity)}
-                  >
-                    <td className="px-3 py-2 text-xs text-slate-700 dark:text-slate-200">{activity.name}</td>
-                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">{activity.category || "—"}</td>
-                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">{formatDuration(activity.duration)}</td>
-                    <td className="whitespace-nowrap px-3 py-2 text-xs">
-                      <span
-                        className={
-                          activity.isActive
-                            ? "inline-flex rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
-                            : "inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                        }
-                      >
-                        {activity.isActive ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 text-right text-xs" onClick={(e) => e.stopPropagation()}>
-                      <RowActions>
-                        <EditAction onClick={() => handleEditClick(activity)} aria-label="Edit activity" />
-                        <DeleteAction onClick={() => handleDelete(activity.id)} aria-label="Delete activity" />
-                      </RowActions>
-                    </td>
-                  </tr>
-                ))
+                filtered.map((activity) => {
+                  const isInlineEditing = editingId === activity.id && inlineDraft !== null;
+                  return (
+                    <tr
+                      key={activity.id}
+                      className={
+                        isInlineEditing
+                          ? "bg-slate-50 dark:bg-slate-800/60"
+                          : "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                      }
+                      onClick={
+                        isInlineEditing
+                          ? undefined
+                          : () => setSelectedActivity(activity)
+                      }
+                    >
+                      {isInlineEditing ? (
+                        <>
+                          <td className="px-3 py-1.5" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="text"
+                              required
+                              aria-label="Name"
+                              value={inlineDraft.name}
+                              onChange={(e) =>
+                                setInlineDraft((prev) => prev ? { ...prev, name: e.target.value } : null)
+                              }
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") void handleSaveInlineEdit();
+                                if (e.key === "Escape") handleCancelInlineEdit();
+                              }}
+                              className={inputClass}
+                            />
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-1.5" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="text"
+                              aria-label="Category"
+                              list={CATEGORY_DATALIST_ID}
+                              value={inlineDraft.category}
+                              onChange={(e) =>
+                                setInlineDraft((prev) => prev ? { ...prev, category: e.target.value } : null)
+                              }
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") void handleSaveInlineEdit();
+                                if (e.key === "Escape") handleCancelInlineEdit();
+                              }}
+                              className={inputClass}
+                            />
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-1.5" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="number"
+                              min={0.25}
+                              max={8}
+                              step={0.25}
+                              required
+                              aria-label="Duration (hours)"
+                              value={inlineDraft.duration}
+                              onChange={(e) =>
+                                setInlineDraft((prev) =>
+                                  prev
+                                    ? { ...prev, duration: Number.parseFloat(e.target.value) || 1 }
+                                    : null
+                                )
+                              }
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") void handleSaveInlineEdit();
+                                if (e.key === "Escape") handleCancelInlineEdit();
+                              }}
+                              className={inputClass}
+                            />
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-1.5" onClick={(e) => e.stopPropagation()}>
+                            <select
+                              aria-label="Status"
+                              value={inlineDraft.isActive ? "active" : "inactive"}
+                              onChange={(e) =>
+                                setInlineDraft((prev) =>
+                                  prev ? { ...prev, isActive: e.target.value === "active" } : null
+                                )
+                              }
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") void handleSaveInlineEdit();
+                                if (e.key === "Escape") handleCancelInlineEdit();
+                              }}
+                              className={inputClass}
+                            >
+                              <option value="active">Active</option>
+                              <option value="inactive">Inactive</option>
+                            </select>
+                          </td>
+                          <td className="px-3 py-1.5 text-right text-xs" onClick={(e) => e.stopPropagation()}>
+                            <RowActions>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="primary"
+                                disabled={inlineSaving || !inlineDraft.name.trim()}
+                                onClick={() => void handleSaveInlineEdit()}
+                                aria-label="Save"
+                              >
+                                {inlineSaving ? "Saving…" : "Save"}
+                              </Button>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="bordered"
+                                disabled={inlineSaving}
+                                onClick={handleCancelInlineEdit}
+                                aria-label="Cancel"
+                              >
+                                Cancel
+                              </Button>
+                            </RowActions>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td className="px-3 py-2 text-xs text-slate-700 dark:text-slate-200">{activity.name}</td>
+                          <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">{activity.category || "—"}</td>
+                          <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">{formatDuration(activity.duration)}</td>
+                          <td className="whitespace-nowrap px-3 py-2 text-xs">
+                            <span
+                              className={
+                                activity.isActive
+                                  ? "inline-flex rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+                                  : "inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                              }
+                            >
+                              {activity.isActive ? "Active" : "Inactive"}
+                            </span>
+                          </td>
+                          <td className="px-3 py-2 text-right text-xs" onClick={(e) => e.stopPropagation()}>
+                            <RowActions>
+                              <EditAction onClick={() => handleStartInlineEdit(activity)} aria-label="Edit activity" />
+                              <DeleteAction onClick={() => handleDelete(activity.id)} aria-label="Delete activity" />
+                            </RowActions>
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
+        <datalist id={CATEGORY_DATALIST_ID}>
+          {categories.map((cat) => (
+            <option key={cat} value={cat} />
+          ))}
+        </datalist>
       </div>
 
       {/* View details SideCanvas */}

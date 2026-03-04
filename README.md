@@ -63,20 +63,44 @@ php artisan serve
 **Or use Docker:**
 
 ```bash
+# IMPORTANT: Always run docker compose from the monorepo root (where docker-compose.yml lives).
+# If you see "Could not open input file: artisan" or ls /var/www/html shows only "storage",
+# the backend volume mount is wrong — run from project root and recreate:
+#   cd /path/to/camsservicesnewp1
+#   docker compose down && docker compose up -d
+
 # Start all services
 docker compose up -d
 
-# Run migrations
-docker compose exec backend php artisan migrate
+# Run migrations (use full path to artisan; container CWD can differ when using exec)
+docker compose exec backend php /var/www/html/artisan migrate
 
 # Seed database
-docker compose exec backend php artisan db:seed
+docker compose exec backend php /var/www/html/artisan db:seed
 
 # Access services
 # Frontend: http://localhost:4300 (mapped from container port 3000)
 # Backend API: http://localhost:9080/api/v1
 # Admin dashboard: http://localhost:4300/dashboard/admin (Next.js; log in with an admin account)
 ```
+
+**Storage / log permission errors (500s, Stripe/broadcasting failing):** The backend entrypoint fixes `storage` and `bootstrap/cache` permissions on startup so PHP-FPM (www-data) can write. If you still see "Permission denied" on `storage/logs/laravel.log`, on the host run: `chmod -R 775 backend/storage backend/bootstrap/cache` (or `chown -R 82:82 backend/storage backend/bootstrap/cache` to match the container’s www-data UID).
+
+### Test login credentials (local / development only)
+
+The repo does **not** seed default users. These are the only test accounts referenced in the codebase:
+
+| Role   | Email                         | Password   | Dashboard          |
+|--------|-------------------------------|------------|--------------------|
+| **Admin**  | `admin@camsservices.co.uk`   | `password` | `/dashboard/admin`  |
+| **Trainer**| `gemma.stone001@example.com`  | `password` | `/dashboard/trainer`|
+| **Parent** | *(none by default)*           | —          | `/dashboard/parent` |
+
+- **Admin:** Created when you run `php artisan test:approval-workflow` (see `backend/app/Console/Commands/TestApprovalWorkflow.php`). Or create in Tinker: `User::create(['name'=>'Admin','email'=>'admin@camsservices.co.uk','password'=>bcrypt('password'),'role'=>'admin','email_verified_at'=>now()]);`
+- **Trainer:** User must exist first (e.g. via “Become a trainer” + admin approval). Then set password: from repo root run `docker compose exec backend php /var/www/html/set_trainer_password.php` (sets `gemma.stone001@example.com` to `password`).
+- **Parent:** Register on the frontend or create via Admin → Users. To set a known password: `php artisan user:reset-password parent@example.com password`.
+
+**Reset any user’s password:** `php artisan user:reset-password {email} {password}` (from `backend/`).
 
 ### Real-time updates (Reverb / WebSocket)
 
@@ -105,6 +129,8 @@ For live notification bell and dashboard updates without refreshing the page:
 4. Restart the Next.js dev server after changing env vars. With backend API, Reverb, and frontend all running, the dashboard will receive real-time updates.
 
 **Docker:** If you use `docker compose`, the `reverb` service runs Reverb for you; ensure `backend/.env` has the same Reverb vars and the frontend uses `NEXT_PUBLIC_REVERB_WS_HOST=localhost` (port 8080 is published).
+
+**Broadcasting auth 403 (POST /api/v1/broadcasting/auth):** If the frontend gets 403 when subscribing to private channels, (1) ensure you’re logged in and the Bearer token is sent (see `LiveRefreshContext` auth headers), (2) clear backend caches so channel rules in `routes/channels.php` are loaded: from project root run `./scripts/clear-cache-backend-docker.sh`, or manually: `docker compose exec backend php /var/www/html/artisan config:clear && docker compose exec backend php /var/www/html/artisan route:clear && docker compose exec backend php /var/www/html/artisan optimize:clear`. Then restart the backend if needed: `docker compose restart backend`.
 
 ### Stripe webhooks (local and deployed)
 

@@ -185,7 +185,7 @@ export default function QualificationsManager({ profile, onUpdate, onError }: Qu
                   className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-center gap-4 flex-1">
-                    <FileText className="h-8 w-8 text-primary-blue" />
+                    <FileText className="h-8 w-8 text-gcal-primary" />
                     <div>
                       <h5 className="font-medium text-gray-900">{cert.name}</h5>
                       <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
@@ -200,7 +200,7 @@ export default function QualificationsManager({ profile, onUpdate, onError }: Qu
                           href={cert.file_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-sm text-primary-blue hover:underline mt-1 inline-block"
+                          className="text-sm text-gcal-primary hover:underline mt-1 inline-block"
                         >
                           View Document →
                         </a>

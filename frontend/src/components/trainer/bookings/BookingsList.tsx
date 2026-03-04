@@ -81,7 +81,7 @@ export default function BookingsList({ bookings, onBookingClick }: BookingsListP
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 md:space-y-4">
       {bookings.map((booking) => {
         const sessionInfo = needsSessions(booking);
         const nextSession = getNextSession(booking);
@@ -90,16 +90,16 @@ export default function BookingsList({ bookings, onBookingClick }: BookingsListP
         return (
           <div
             key={booking.id}
-            className="bg-white rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-all overflow-hidden"
+            className="w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
           >
             <div
               onClick={() => onBookingClick?.(booking.id)}
-              className={`block p-6 ${onBookingClick ? 'cursor-pointer' : ''}`}
+              className={`block p-4 md:p-6 ${onBookingClick ? 'cursor-pointer' : ''}`}
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2 flex-wrap">
-                    <h3 className="text-lg font-bold text-gray-900">
+              <div className="flex items-start justify-between gap-3 md:mb-4">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2 md:gap-3 md:mb-2">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 md:text-lg">
                       {childNames}
                     </h3>
                     {sessionInfo.needs && (
@@ -113,14 +113,14 @@ export default function BookingsList({ bookings, onBookingClick }: BookingsListP
                     )}
                   </div>
 
-                  <div className="flex items-center gap-6 text-sm text-gray-600 mb-3 flex-wrap">
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600 dark:text-slate-400 md:gap-6 md:mb-3">
                     <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-primary-blue" />
+                      <Calendar className="h-4 w-4 text-gcal-primary" />
                       <span>{booking.schedules?.length || 0} session{(booking.schedules?.length || 0) !== 1 ? 's' : ''}</span>
                     </div>
                     {nextSession && (
                       <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-primary-blue" />
+                        <Clock className="h-4 w-4 text-gcal-primary" />
                         <span>
                           Next: {new Date(nextSession.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} at {nextSession.start_time}
                         </span>
@@ -128,7 +128,7 @@ export default function BookingsList({ bookings, onBookingClick }: BookingsListP
                     )}
                     {nextSession?.activities && nextSession.activities.length > 0 && (
                       <div className="flex items-center gap-2">
-                        <Package className="h-4 w-4 text-primary-blue" />
+                        <Package className="h-4 w-4 text-gcal-primary" />
                         <span>{nextSession.activities.map(a => a.name).join(', ')}</span>
                       </div>
                     )}
@@ -155,16 +155,16 @@ export default function BookingsList({ bookings, onBookingClick }: BookingsListP
                   )}
                 </div>
 
-                <ArrowRight className="h-5 w-5 text-gray-400 flex-shrink-0 ml-4" />
+                <ArrowRight className="h-5 w-5 shrink-0 ml-2 text-slate-400 dark:text-slate-500 md:ml-4" />
               </div>
             </div>
 
             {/* Book Sessions Button - Prominent */}
             {sessionInfo.needs && (
-              <div className="px-6 pb-4 border-t border-gray-200 pt-4">
+              <div className="border-t border-slate-200 px-4 pb-4 pt-4 md:px-6">
                 <Button 
                   onClick={() => onBookingClick?.(booking.id)}
-                  className="w-full bg-gradient-to-r from-primary-blue to-light-blue-cyan hover:from-primary-blue/90 hover:to-light-blue-cyan/90 text-white font-semibold flex items-center justify-center gap-2"
+                  className="w-full min-h-[44px] rounded-full bg-gcal-primary hover:bg-gcal-primary-hover text-white font-medium flex items-center justify-center gap-2 px-6 py-2.5 text-sm transition-all duration-150 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 md:min-h-0"
                   size="lg"
                 >
                   <Plus className="h-5 w-5" />

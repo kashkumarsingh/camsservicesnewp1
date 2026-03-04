@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { User, LogOut, LogIn } from 'lucide-react';
@@ -15,18 +15,40 @@ interface AuthButtonsProps {
   variant?: 'default' | 'dark';
 }
 
+/** Placeholder shown until after mount so server and client first paint match (avoids hydration mismatch). */
+function AuthButtonsPlaceholder({
+  isDarkHeader,
+}: {
+  isDarkHeader: boolean;
+}) {
+  return (
+    <span className={`text-sm ${isDarkHeader ? 'text-white/70' : 'text-navy-blue/60'}`} aria-hidden>
+      Loading…
+    </span>
+  );
+}
+
 const AuthButtons: React.FC<AuthButtonsProps> = ({ isMobile = false, variant = 'default' }) => {
   const pathname = usePathname();
   const { user, loading: authLoading, logout, isAuthenticated } = useAuth();
   const router = useRouter();
   const isRegisterPage = pathname === ROUTES.REGISTER;
+  const isDarkHeader = variant === 'dark' && !isMobile;
+
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
     router.push('/');
   };
 
-  const isDarkHeader = variant === 'dark' && !isMobile;
+  // Defer auth-dependent UI until after mount so server and client first paint match (avoids hydration mismatch after logout or refresh).
+  if (!hasMounted) {
+    return <AuthButtonsPlaceholder isDarkHeader={isDarkHeader} />;
+  }
 
   // Mobile: full-width blocks – design system theme colours (no slate)
   const mobileBaseClasses = 'block w-full text-center text-base font-medium py-3 px-4 rounded-form-button transition-colors flex items-center justify-center gap-2';
@@ -51,9 +73,7 @@ const AuthButtons: React.FC<AuthButtonsProps> = ({ isMobile = false, variant = '
   const darkHeaderLogoutClasses = 'inline-flex items-center justify-center gap-1.5 rounded-header-button border-2 border-white/50 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/10 hover:border-white/70 transition-colors whitespace-nowrap';
 
   if (authLoading) {
-    return (
-      <span className={`text-sm ${isDarkHeader ? 'text-white/70' : 'text-navy-blue/60'}`}>Loading…</span>
-    );
+    return <AuthButtonsPlaceholder isDarkHeader={isDarkHeader} />;
   }
 
   if (isAuthenticated && user) {

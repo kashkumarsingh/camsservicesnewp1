@@ -52,6 +52,9 @@ export const AdminParentsPageClient: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [inlineDraft, setInlineDraft] = useState<{ name: string; email: string; approvalStatus: string } | null>(null);
+  const [inlineSaving, setInlineSaving] = useState(false);
   const [formData, setFormData] = useState<ParentFormData>({
     name: "",
     email: "",
@@ -161,6 +164,42 @@ export const AdminParentsPageClient: React.FC = () => {
     setSelectedParent(parent);
     setIsEditing(true);
   };
+
+  const handleStartInlineEdit = useCallback((parent: AdminUserRow) => {
+    setEditingId(parent.id);
+    setInlineDraft({
+      name: parent.name ?? "",
+      email: parent.email ?? "",
+      approvalStatus: parent.approvalStatus ?? "pending",
+    });
+  }, []);
+
+  const handleCancelInlineEdit = useCallback(() => {
+    setEditingId(null);
+    setInlineDraft(null);
+  }, []);
+
+  const handleSaveInlineEdit = useCallback(async () => {
+    if (editingId == null || !inlineDraft) return;
+    setInlineSaving(true);
+    try {
+      await updateUser(editingId, {
+        name: inlineDraft.name.trim(),
+        email: inlineDraft.email.trim(),
+        approvalStatus: inlineDraft.approvalStatus as "pending" | "approved" | "rejected",
+      });
+      toastManager.success("Parent updated");
+      setEditingId(null);
+      setInlineDraft(null);
+    } catch (err: unknown) {
+      toastManager.error(err instanceof Error ? err.message : "Failed to save parent");
+    } finally {
+      setInlineSaving(false);
+    }
+  }, [editingId, inlineDraft, updateUser]);
+
+  const inputClass =
+    "h-8 w-full min-w-0 rounded border border-slate-200 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50";
 
   const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -358,63 +397,147 @@ export const AdminParentsPageClient: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                parentUsers.map((parent) => (
-                  <tr
-                    key={parent.id}
-                    className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60"
-                    onClick={() => setSelectedParent(parent)}
-                  >
-                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
-                      {parent.name}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
-                      {parent.email}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
-                      {parent.childrenCount ?? 0}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-xs">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-2xs font-medium ${getApprovalBadgeClasses(
-                          parent.approvalStatus,
-                        )}`}
-                      >
-                        {parent.approvalStatus}
-                      </span>
-                    </td>
-                    <td
-                      className="whitespace-nowrap px-3 py-2 text-right text-xs"
-                      onClick={(event) => event.stopPropagation()}
+                parentUsers.map((parent) => {
+                  const isInlineEditing = editingId === parent.id && inlineDraft !== null;
+                  return (
+                    <tr
+                      key={parent.id}
+                      className={
+                        isInlineEditing
+                          ? "bg-slate-50 dark:bg-slate-800/60"
+                          : "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                      }
+                      onClick={isInlineEditing ? undefined : () => setSelectedParent(parent)}
                     >
-                      <RowActions>
-                        {parent.approvalStatus === "pending" && (
-                          <>
-                            <ApproveAction onClick={() => handleApprove(parent.id)} aria-label="Approve" />
-                            <RejectAction onClick={() => handleReject(parent.id)} aria-label="Reject" />
-                          </>
-                        )}
-                        <EditAction onClick={() => handleEditClick(parent)} aria-label="Edit" />
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="bordered"
-                          onClick={() =>
-                            router.push(
-                              `/dashboard/admin/children?parentId=${encodeURIComponent(parent.id)}`,
-                            )
-                          }
-                          aria-label="View children"
-                          title="View children"
-                          icon={<Users className="h-3.5 w-3.5" aria-hidden />}
-                          className="min-w-0 px-2 py-1 text-2xs"
-                        >
-                          Children
-                        </Button>
-                        <DeleteAction onClick={() => handleDelete(parent.id)} aria-label="Delete" />
-                      </RowActions>
-                    </td>
-                  </tr>
-                ))
+                      {isInlineEditing ? (
+                        <>
+                          <td className="whitespace-nowrap px-3 py-1.5" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="text"
+                              required
+                              aria-label="Name"
+                              value={inlineDraft.name}
+                              onChange={(e) =>
+                                setInlineDraft((prev) => (prev ? { ...prev, name: e.target.value } : null))
+                              }
+                              className={inputClass}
+                            />
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-1.5" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="email"
+                              required
+                              aria-label="Email"
+                              value={inlineDraft.email}
+                              onChange={(e) =>
+                                setInlineDraft((prev) => (prev ? { ...prev, email: e.target.value } : null))
+                              }
+                              className={inputClass}
+                            />
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
+                            {parent.childrenCount ?? 0}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-1.5" onClick={(e) => e.stopPropagation()}>
+                            <select
+                              aria-label="Approval status"
+                              value={inlineDraft.approvalStatus}
+                              onChange={(e) =>
+                                setInlineDraft((prev) =>
+                                  prev ? { ...prev, approvalStatus: e.target.value } : null
+                                )
+                              }
+                              className={inputClass}
+                            >
+                              <option value="pending">pending</option>
+                              <option value="approved">approved</option>
+                              <option value="rejected">rejected</option>
+                            </select>
+                          </td>
+                          <td
+                            className="whitespace-nowrap px-3 py-1.5 text-right text-xs"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <RowActions>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="primary"
+                                disabled={inlineSaving || !inlineDraft.name.trim() || !inlineDraft.email.trim()}
+                                onClick={() => void handleSaveInlineEdit()}
+                                aria-label="Save"
+                              >
+                                {inlineSaving ? "Saving…" : "Save"}
+                              </Button>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="bordered"
+                                disabled={inlineSaving}
+                                onClick={handleCancelInlineEdit}
+                                aria-label="Cancel"
+                              >
+                                Cancel
+                              </Button>
+                            </RowActions>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
+                            {parent.name}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
+                            {parent.email}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">
+                            {parent.childrenCount ?? 0}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-2 text-xs">
+                            <span
+                              className={`inline-flex rounded-full px-2 py-0.5 text-2xs font-medium ${getApprovalBadgeClasses(
+                                parent.approvalStatus,
+                              )}`}
+                            >
+                              {parent.approvalStatus}
+                            </span>
+                          </td>
+                          <td
+                            className="whitespace-nowrap px-3 py-2 text-right text-xs"
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            <RowActions>
+                              {parent.approvalStatus === "pending" && (
+                                <>
+                                  <ApproveAction onClick={() => handleApprove(parent.id)} aria-label="Approve" />
+                                  <RejectAction onClick={() => handleReject(parent.id)} aria-label="Reject" />
+                                </>
+                              )}
+                              <EditAction onClick={() => handleStartInlineEdit(parent)} aria-label="Edit" />
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="bordered"
+                                onClick={() =>
+                                  router.push(
+                                    `/dashboard/admin/children?parentId=${encodeURIComponent(parent.id)}`,
+                                  )
+                                }
+                                aria-label="View children"
+                                title="View children"
+                                icon={<Users className="h-3.5 w-3.5" aria-hidden />}
+                                className="min-w-0 px-2 py-1 text-2xs"
+                              >
+                                Children
+                              </Button>
+                              <DeleteAction onClick={() => handleDelete(parent.id)} aria-label="Delete" />
+                            </RowActions>
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

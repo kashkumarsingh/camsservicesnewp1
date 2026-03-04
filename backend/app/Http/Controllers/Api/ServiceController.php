@@ -8,6 +8,7 @@ use App\Actions\Services\GetServiceAction;
 use App\Actions\Services\ListServicesAction;
 use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
+use App\Models\Service;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
@@ -32,10 +33,24 @@ class ServiceController extends Controller
 
     /**
      * GET /api/v1/services
+     * Query param `q`: optional search term (uses Meilisearch/Scout when set).
      */
     public function index(Request $request): JsonResponse
     {
+        $queryParam = $request->input('q');
+        if (is_string($queryParam) && trim($queryParam) !== '' && config('scout.driver') === 'meilisearch') {
+            $services = Service::search($queryParam)
+                ->query(fn ($q) => $q->published()->orderBy($request->input('sort', 'title'), $request->input('direction', 'asc')))
+                ->take(100)
+                ->get();
+
+            return $this->collectionResponse($services->map(fn ($service) => $this->formatService($service)));
+        }
+
         $filters = $this->validateFilters($request);
+        if ($request->filled('q') && config('scout.driver') !== 'meilisearch') {
+            $filters['search'] = trim($request->input('q'));
+        }
 
         $services = $this->listServicesAction->execute($filters);
 

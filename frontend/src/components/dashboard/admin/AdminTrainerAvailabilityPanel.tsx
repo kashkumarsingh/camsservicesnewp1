@@ -7,9 +7,11 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAdminTrainerAvailabilityDates } from '@/interfaces/web/hooks/admin/useAdminTrainerAvailabilityDates';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
+import { WEEKDAY_LABELS_MON_FRI } from '@/utils/appConstants';
 import type { AdminTrainerDTO } from '@/core/application/admin/dto/AdminTrainerDTO';
 
-const WEEKDAY_HEADERS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+/** Mon–Sun for calendar grid; appConstants has Mon–Fri for admin week. */
+const WEEKDAY_HEADERS = [...WEEKDAY_LABELS_MON_FRI, 'Sat', 'Sun'];
 
 interface AdminTrainerAvailabilityPanelProps {
   trainer: AdminTrainerDTO;
@@ -81,7 +83,7 @@ export function AdminTrainerAvailabilityPanel({
         onClick={onClose}
         aria-label="Close"
       />
-      <div className="w-full max-w-md flex flex-col bg-white dark:bg-slate-900 shadow-xl border-l border-slate-200 dark:border-slate-800">
+      <div className="z-sidepanel w-full max-w-md flex flex-col bg-white dark:bg-slate-900 shadow-xl border-l border-slate-200 dark:border-slate-800">
         <header className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-4 py-3">
           <div>
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">

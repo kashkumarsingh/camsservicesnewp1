@@ -181,7 +181,7 @@ export default function ActivityLogList({
               )}
             </div>
             {onLogClick && (
-              <span className={`font-medium text-primary-blue hover:text-light-blue-cyan transition-colors ${isCompact ? 'text-xs' : 'text-sm'}`}>
+              <span className={`font-medium text-gcal-primary hover:underline transition-colors duration-150 ${isCompact ? 'text-xs' : 'text-sm'}`}>
                 View Details →
               </span>
             )}

@@ -63,6 +63,9 @@ export const AdminPackagesPageClient: React.FC = () => {
     isActive: false,
   });
   const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [inlineDraft, setInlineDraft] = useState<{ name: string; price: number; hours: number; ageGroup: string; isActive: boolean } | null>(null);
+  const [inlineSaving, setInlineSaving] = useState(false);
 
   const activeFilterValue = activeFilter === "all" ? undefined : activeFilter === "active";
 
@@ -231,25 +234,78 @@ export const AdminPackagesPageClient: React.FC = () => {
     }
   };
 
+  const handleStartInlineEdit = useCallback((pkg: AdminPackageDTO) => {
+    setEditingId(pkg.id);
+    setInlineDraft({ name: pkg.name ?? "", price: pkg.price ?? 0, hours: pkg.hours ?? 1, ageGroup: pkg.ageGroup ?? "", isActive: pkg.isActive ?? false });
+  }, []);
+
+  const handleCancelInlineEdit = useCallback(() => {
+    setEditingId(null);
+    setInlineDraft(null);
+  }, []);
+
+  const handleSaveInlineEdit = useCallback(async () => {
+    if (!editingId || !inlineDraft) return;
+    setInlineSaving(true);
+    try {
+      await updatePackage(editingId, {
+        name: inlineDraft.name.trim(),
+        price: Number(inlineDraft.price) || 0,
+        hours: Number(inlineDraft.hours) || 1,
+        ageGroup: inlineDraft.ageGroup.trim() || undefined,
+        isActive: inlineDraft.isActive,
+      });
+      toastManager.success("Package updated");
+      setEditingId(null);
+      setInlineDraft(null);
+      void refetch();
+    } catch (err: unknown) {
+      toastManager.error(err instanceof Error ? err.message : "Failed to save package");
+    } finally {
+      setInlineSaving(false);
+    }
+  }, [editingId, inlineDraft, updatePackage, refetch]);
+
+  const inputClass =
+    "h-8 w-full min-w-0 rounded border border-slate-200 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50";
+
   const columns: Column<AdminPackageDTO>[] = useMemo(
     () => [
-      { id: 'name', header: 'Name', sortable: true, accessor: (row) => row.name },
-      { id: 'price', header: 'Price', sortable: true, align: 'right', accessor: (row) => `£${row.price}` },
-      { id: 'hours', header: 'Hours', sortable: true, align: 'right', accessor: (row) => `${row.hours}h` },
-      { id: 'ageGroup', header: 'Age Group', sortable: true, accessor: (row) => row.ageGroup || '—' },
+      {
+        id: 'name',
+        header: 'Name',
+        sortable: true,
+        accessor: (row, context) => {
+          if (context?.isEditing && inlineDraft) {
+            return (
+              <input type="text" required aria-label="Name" value={inlineDraft.name} onChange={(e) => setInlineDraft((p) => (p ? { ...p, name: e.target.value } : null))} className={inputClass} />
+            );
+          }
+          return row.name;
+        },
+      },
+      { id: 'price', header: 'Price', sortable: true, align: 'right', accessor: (row, context) => (context?.isEditing && inlineDraft ? <input type="number" min={0} step={0.01} aria-label="Price" value={inlineDraft.price} onChange={(e) => setInlineDraft((p) => (p ? { ...p, price: Number(e.target.value) || 0 } : null))} className={inputClass} /> : `£${row.price}`) },
+      { id: 'hours', header: 'Hours', sortable: true, align: 'right', accessor: (row, context) => (context?.isEditing && inlineDraft ? <input type="number" min={1} aria-label="Hours" value={inlineDraft.hours} onChange={(e) => setInlineDraft((p) => (p ? { ...p, hours: Number(e.target.value) || 1 } : null))} className={inputClass} /> : `${row.hours}h`) },
+      { id: 'ageGroup', header: 'Age Group', sortable: true, accessor: (row, context) => (context?.isEditing && inlineDraft ? <input type="text" aria-label="Age group" value={inlineDraft.ageGroup} onChange={(e) => setInlineDraft((p) => (p ? { ...p, ageGroup: e.target.value } : null))} className={inputClass} /> : (row.ageGroup || '—')) },
       {
         id: 'status',
         header: 'Status',
         sortable: false,
-        accessor: (row) => (
-          <span className={`inline-flex rounded-full px-2 py-0.5 ${getActiveBadgeClasses(row.isActive)}`}>
-            {row.isActive ? 'Active' : 'Inactive'}
-          </span>
-        ),
+        accessor: (row, context) =>
+          context?.isEditing && inlineDraft ? (
+            <select aria-label="Status" value={inlineDraft.isActive ? 'active' : 'inactive'} onChange={(e) => setInlineDraft((p) => (p ? { ...p, isActive: e.target.value === 'active' } : null))} className={inputClass}>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          ) : (
+            <span className={`inline-flex rounded-full px-2 py-0.5 ${getActiveBadgeClasses(row.isActive)}`}>
+              {row.isActive ? 'Active' : 'Inactive'}
+            </span>
+          ),
       },
       { id: 'views', header: 'Views', sortable: true, align: 'right', accessor: (row) => row.views },
     ],
-    []
+    [inlineDraft, inputClass]
   );
 
   return (
@@ -366,6 +422,7 @@ export const AdminPackagesPageClient: React.FC = () => {
           columns={columns}
           data={sorted}
           isLoading={loading}
+          responsive
           error={error}
           onRetry={() => refetch()}
           emptyTitle={EMPTY_STATE.NO_PACKAGES_FOUND.title}
@@ -378,14 +435,22 @@ export const AdminPackagesPageClient: React.FC = () => {
           sortKey={sortKey}
           sortDirection={sortDirection}
           onSortChange={handleSortChange}
-          renderRowActions={(row) => (
-          <RowActions>
-            <EditAction onClick={() => handleEditClick(row)} aria-label="Edit package" />
-            <DeleteAction onClick={() => handleDelete(row.id)} aria-label="Delete package" />
-          </RowActions>
-        )}
+          getRowId={(row) => row.id}
+          editingRowId={editingId}
+          renderRowActions={(row, context) =>
+            context?.isEditing ? (
+              <RowActions>
+                <Button type="button" size="sm" variant="primary" disabled={inlineSaving || !inlineDraft?.name?.trim()} onClick={() => void handleSaveInlineEdit()} aria-label="Save">{inlineSaving ? 'Saving…' : 'Save'}</Button>
+                <Button type="button" size="sm" variant="bordered" disabled={inlineSaving} onClick={handleCancelInlineEdit} aria-label="Cancel">Cancel</Button>
+              </RowActions>
+            ) : (
+              <RowActions>
+                <EditAction onClick={() => handleStartInlineEdit(row)} aria-label="Edit package" />
+                <DeleteAction onClick={() => handleDelete(row.id)} aria-label="Delete package" />
+              </RowActions>
+            )
+          }
         onRowClick={(row) => setSelectedPackage(row)}
-        responsive
       />
       </div>
 

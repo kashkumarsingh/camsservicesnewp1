@@ -44,23 +44,29 @@ class TopUpBookingAction
      *  hours?: float,
      *  error?: string
      * }
+     * @param bool $asAdmin When true, skip ownership check (admin initiating top-up on behalf of parent).
      */
-    public function execute(int $bookingId, float $hours, string $currency = 'GBP'): array
+    public function execute(int $bookingId, float $hours, string $currency = 'GBP', bool $asAdmin = false): array
     {
-        return DB::transaction(function () use ($bookingId, $hours, $currency) {
+        return DB::transaction(function () use ($bookingId, $hours, $currency, $asAdmin) {
             $user = Auth::user();
 
-            if (!$user) {
+            if (!$user && !$asAdmin) {
                 throw new RuntimeException('You must be logged in to top up a booking.');
             }
 
             /** @var Booking $booking */
             $booking = Booking::with(['package', 'user'])->findOrFail($bookingId);
 
-            // Security: parents can only top up their own bookings.
-            if ((int) $booking->user_id !== (int) $user->id) {
-                // Do not reveal that the booking exists – behave as "not found".
-                throw new \Illuminate\Database\Eloquent\ModelNotFoundException();
+            // Security: parents can only top up their own bookings; admin can top up any eligible booking.
+            if (!$asAdmin) {
+                if (!$user) {
+                    throw new RuntimeException('You must be logged in to top up a booking.');
+                }
+                if ((int) $booking->user_id !== (int) $user->id) {
+                    // Do not reveal that the booking exists – behave as "not found".
+                    throw new \Illuminate\Database\Eloquent\ModelNotFoundException();
+                }
             }
 
             // Business rules: only confirmed, fully paid, non-expired bookings can be topped up.
@@ -101,7 +107,8 @@ class TopUpBookingAction
                 throw new RuntimeException('Calculated top-up amount is invalid. Please try a different value or contact support.');
             }
 
-            // Log before mutating for traceability.
+            // Log for traceability. Do NOT update booking here – hours and price are applied
+            // only when payment succeeds (in ProcessPaymentAction::confirmPayment via top-up metadata).
             Log::info('TopUpBookingAction: Starting top-up', [
                 'booking_id' => $booking->id,
                 'user_id' => $user->id,
@@ -111,20 +118,23 @@ class TopUpBookingAction
                 'currency' => $currency,
             ]);
 
-            // Update booking hours and price. We deliberately do NOT modify
-            // booked_hours or used_hours here; those change when sessions are booked/completed.
-            $booking->total_hours = $booking->total_hours + $hours;
-            $booking->remaining_hours = $booking->remaining_hours + $hours;
-            $booking->total_price = $booking->total_price + $topUpAmount;
-            $booking->save();
+            $packageName = $package?->name ?? 'Package';
+            $lineItemName = sprintf('Add %s hours – %s', (string) $hours, $packageName);
+            $lineItemDescription = sprintf('Top-up: %s hours added to your existing package at the same rate.', (string) $hours);
 
-            // Delegate payment intent creation – this will validate that the
-            // amount does not exceed the new outstanding balance.
+            // Delegate payment creation. For top-up we pass isTopUp=true so outstanding-amount
+            // check is skipped, and extraMetadata so payment confirmation can apply hours when paid.
             $paymentResult = $this->processPaymentAction->createPaymentIntent(
                 (int) $booking->id,
                 $topUpAmount,
                 $currency,
-                'stripe'
+                'stripe',
+                true, // isTopUp
+                [
+                    'top_up_hours' => (string) $hours,
+                    'line_item_name' => $lineItemName,
+                    'line_item_description' => $lineItemDescription,
+                ]
             );
 
             if (!$paymentResult['success']) {

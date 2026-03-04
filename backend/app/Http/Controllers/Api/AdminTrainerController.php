@@ -265,25 +265,30 @@ class AdminTrainerController extends Controller
             DB::beginTransaction();
 
             // Create user account (User model uses 'name', not first_name/last_name)
-            $user = User::create([
+            $userPayload = [
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
                 'role' => 'trainer',
                 'approval_status' => 'approved', // Admin-created trainers are auto-approved
                 'approved_at' => now(),
-                'approved_by' => auth()->id(),
-            ]);
+            ];
+            $approvedBy = auth()->id();
+            if ($approvedBy !== null) {
+                $userPayload['approved_by'] = $approvedBy;
+            }
+            $user = User::create($userPayload);
 
-            // Create trainer profile
+            // Create trainer profile; slug must be unique (append user id to avoid duplicate-name collision).
+            // String columns (role, bio, full_description, image) are NOT NULL in DB; use empty string when not provided.
             $trainer = Trainer::create([
                 'user_id' => $user->id,
                 'name' => $validated['name'],
-                'slug' => Str::slug($validated['name']),
-                'role' => $validated['role'] ?? null,
-                'bio' => $validated['bio'] ?? null,
-                'full_description' => $validated['full_description'] ?? null,
-                'image' => $validated['image'] ?? null,
+                'slug' => Str::slug($validated['name']) . '-' . $user->id,
+                'role' => $validated['role'] ?? '',
+                'bio' => $validated['bio'] ?? '',
+                'full_description' => $validated['full_description'] ?? '',
+                'image' => $validated['image'] ?? '',
                 'specialties' => $validated['specialties'] ?? [],
                 'certifications' => $validated['certifications'] ?? [],
                 'experience_years' => $validated['experience_years'] ?? null,
@@ -326,7 +331,10 @@ class AdminTrainerController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return $this->serverErrorResponse('Failed to create trainer.');
+            $message = config('app.debug')
+                ? 'Failed to create trainer: ' . $e->getMessage()
+                : 'Failed to create trainer.';
+            return $this->serverErrorResponse($message);
         }
     }
 

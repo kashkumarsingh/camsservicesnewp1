@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Laravel\Scout\Searchable;
 
 /**
  * FAQ Model
@@ -16,6 +17,7 @@ use Illuminate\Support\Str;
 class FAQ extends Model
 {
     use HasFactory;
+    use Searchable;
 
     /**
      * The table associated with the model.
@@ -39,6 +41,30 @@ class FAQ extends Model
         'views' => 'integer',
         'order' => 'integer',
     ];
+
+    /**
+     * Get the indexable data array for Meilisearch/Scout.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'slug' => $this->slug,
+            'content' => $this->content ?? '',
+            'category' => $this->category ?? '',
+        ];
+    }
+
+    /**
+     * Only index published FAQs.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return (bool) $this->published;
+    }
 
     /**
      * Boot the model and auto-generate slug from title.

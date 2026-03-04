@@ -5,6 +5,7 @@ import moment, { Moment } from 'moment';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCalendarGrid } from './useCalendarGrid';
 import { isDateBookable, getDateBookingStatus } from '@/utils/bookingCutoffRules';
+import { CALENDAR_GRID_DAY_CELL_CLASSES } from '@/utils/appConstants';
 
 export interface BookingCalendarProps {
   /** Size of the calendar: 'small' for mini calendar, 'large' for main calendar */
@@ -447,14 +448,14 @@ export default function BookingCalendar({
         ))}
       </div>
 
-      {/* Calendar Grid - Default Day Cells */}
+      {/* Calendar Grid - Default Day Cells (Google Calendar–style square cells) */}
       <div className="grid grid-cols-7 border-l border-t border-gray-200 dark:border-gray-700">
         {dayData.map((day, index) => (
           <button
             key={index}
             onClick={() => onDateSelect?.(day.date.format('YYYY-MM-DD'))}
             className={`
-              min-h-[60px] sm:min-h-[70px] md:min-h-[100px] border-r border-b border-gray-200 dark:border-gray-700 p-1 sm:p-1.5
+              ${CALENDAR_GRID_DAY_CELL_CLASSES} border-r border-b border-gray-200 dark:border-gray-700 p-1 sm:p-1.5
               ${!day.isCurrentMonth ? 'bg-gray-50 dark:bg-gray-800/50' : ''}
               ${day.isToday ? 'bg-blue-50 dark:bg-blue-900/30 border-l-2 border-l-blue-400 dark:border-l-blue-500' : ''}
               ${day.isSelected ? 'bg-blue-100 dark:bg-blue-900/50 border-l-2 border-l-blue-500 dark:border-l-blue-400' : ''}

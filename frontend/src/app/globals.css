@@ -39,7 +39,36 @@
   /* Box shadow – single source of truth for cards (shadow-card, shadow-card-hover) */
   --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
   --shadow-card-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.08);
+  /* Z-index scale. Header highest of body; overlays above header when open. */
+  --z-index-base: 0;
+  --z-index-raised: 10;
+  --z-index-content: 20;
+  --z-index-dropdown: 100;
+  --z-index-sidebar: 150;
+  --z-index-sticky: 200;
+  --z-index-header: 1000;
+  --z-index-overlay: 1100;
+  --z-index-sidePanel: 1200;
+  --z-index-modal: 1300;
+  --z-index-popover: 1300;
+  --z-index-toast: 1400;
+  --z-index-critical: 1500;
 }
+
+/* Named z-index utilities (Tailwind v4: @theme --z-index-* may not generate z-header etc.; @utility ensures they apply) */
+@utility z-base { z-index: var(--z-index-base); }
+@utility z-raised { z-index: var(--z-index-raised); }
+@utility z-content { z-index: var(--z-index-content); }
+@utility z-dropdown { z-index: var(--z-index-dropdown); }
+@utility z-sidebar { z-index: var(--z-index-sidebar); }
+@utility z-sticky { z-index: var(--z-index-sticky); }
+@utility z-header { z-index: var(--z-index-header); }
+@utility z-overlay { z-index: var(--z-index-overlay); }
+@utility z-sidePanel { z-index: var(--z-index-sidePanel); }
+@utility z-modal { z-index: var(--z-index-modal); }
+@utility z-popover { z-index: var(--z-index-popover); }
+@utility z-toast { z-index: var(--z-index-toast); }
+@utility z-critical { z-index: var(--z-index-critical); }
 
 /* Force light when user selects light (manual switch). */
 html.light body {

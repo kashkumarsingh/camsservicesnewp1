@@ -64,21 +64,21 @@ export default function TrainerTopNavigation({
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#2C5F8D] shadow-md">
-      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <header className="sticky top-0 z-header h-16 w-full border-b border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
           {/* Left: Logo and Back Arrow */}
           <div className="flex items-center gap-4">
             {onBackClick && (
               <button
                 onClick={onBackClick}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                className="rounded-full p-2 text-slate-600 transition-colors duration-150 hover:bg-slate-100 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:text-slate-400 dark:hover:bg-slate-800"
                 aria-label="Go back"
               >
-                <ArrowLeft size={20} className="text-white" />
+                <ArrowLeft size={20} />
               </button>
             )}
-            <Link href="/" className="flex-shrink-0 flex items-center">
+            <Link href="/" className="flex flex-shrink-0 items-center">
               <div className="relative w-[140px] h-[45px] sm:w-[165px] sm:h-[53px]">
                 <Image
                   src="/logos/cams-services-logo.webp"
@@ -93,18 +93,18 @@ export default function TrainerTopNavigation({
           </div>
 
           {/* Center: Navigation Menu (Desktop) */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
+          <nav className="hidden items-center gap-1 lg:flex xl:gap-2">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`
-                  px-3 xl:px-4 py-2 text-sm xl:text-base font-medium rounded-lg transition-colors
+                  rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 xl:px-4 xl:text-base
                   ${link.href === '/dashboard/trainer'
-                    ? 'bg-white/20 text-white'
-                    : 'text-white/90 hover:text-white hover:bg-white/10'
-                  }
-                `}
+                    ? 'bg-gcal-primary-light text-gcal-primary'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
+                }
+              `}
               >
                 {link.label}
               </Link>
@@ -113,52 +113,45 @@ export default function TrainerTopNavigation({
 
           {/* Right: Action Buttons */}
           <div className="flex items-center gap-2">
-            {/* Bag Items (placeholder - can be implemented later) */}
             <button
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors relative"
+              className="relative rounded-full p-2 text-slate-600 transition-colors duration-150 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
               aria-label="Bag items"
             >
-              <ShoppingBag size={20} className="text-white" />
-              {/* Badge can be added here if needed */}
+              <ShoppingBag size={20} />
             </button>
 
-            {/* Notifications */}
             <button
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors relative"
+              className="relative rounded-full p-2 text-slate-600 transition-colors duration-150 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
               aria-label="Notifications"
             >
-              <Bell size={20} className="text-white" />
-              {/* Badge can be added here if needed */}
+              <Bell size={20} />
             </button>
 
-            {/* Settings */}
             <button
               onClick={onSettingsClick}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              className="rounded-full p-2 text-slate-600 transition-colors duration-150 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
               aria-label="Settings"
             >
-              <Settings size={20} className="text-white" />
+              <Settings size={20} />
             </button>
 
-            {/* Logout */}
             <button
               onClick={handleLogout}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              className="rounded-full p-2 text-slate-600 transition-colors duration-150 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
               aria-label="Logout"
             >
-              <LogOut size={20} className="text-white" />
+              <LogOut size={20} />
             </button>
 
-            {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
+              className="rounded-full p-2 text-slate-600 transition-colors duration-150 hover:bg-slate-100 lg:hidden dark:text-slate-400 dark:hover:bg-slate-800"
               aria-label="Toggle menu"
             >
               {isMenuOpen ? (
-                <X size={20} className="text-white" />
+                <X size={20} />
               ) : (
-                <Menu size={20} className="text-white" />
+                <Menu size={20} />
               )}
             </button>
           </div>
@@ -168,19 +161,19 @@ export default function TrainerTopNavigation({
         {isMenuOpen && (
           <div
             ref={menuRef}
-            className="lg:hidden absolute top-16 left-0 right-0 bg-[#2C5F8D] border-t border-white/10 shadow-lg"
+            className="absolute left-0 right-0 top-16 z-dropdown border-t border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900 lg:hidden"
           >
-            <nav className="px-4 py-4 space-y-2">
+            <nav className="space-y-2 px-4 py-4">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMenuOpen(false)}
                   className={`
-                    block px-4 py-3 text-base font-medium rounded-lg transition-colors
+                    block rounded-lg px-4 py-3 text-base font-medium transition-colors duration-150
                     ${link.href === '/dashboard/trainer'
-                      ? 'bg-white/20 text-white'
-                      : 'text-white/90 hover:text-white hover:bg-white/10'
+                      ? 'bg-gcal-primary-light text-gcal-primary'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
                     }
                   `}
                 >

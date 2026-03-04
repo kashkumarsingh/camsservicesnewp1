@@ -96,7 +96,7 @@ export function FilterPanel({
       aria-modal="true"
       aria-label={title}
       className={cn(
-        'fixed z-40 flex flex-col bg-white shadow-card ring-1 ring-slate-200 rounded-card dark:ring-slate-700 dark:bg-slate-900',
+        'fixed z-popover flex flex-col bg-white rounded-xl border border-slate-200 shadow-xl dark:border-slate-700 dark:bg-slate-900',
         'w-[320px] max-h-[85vh] overflow-hidden',
         'transition-opacity duration-150',
         isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
@@ -114,7 +114,7 @@ export function FilterPanel({
             {title}
           </span>
           {activeFilterCount > 0 && (
-            <span className="rounded-full bg-primary-blue px-2 py-0.5 text-2xs font-medium text-white">
+            <span className="rounded-full bg-gcal-primary px-2 py-0.5 text-2xs font-medium text-white">
               {activeFilterCount}
             </span>
           )}
@@ -154,7 +154,7 @@ export function FilterPanel({
         <button
           type="button"
           onClick={handleApply}
-          className="h-9 flex-1 rounded-md bg-primary-blue text-sm font-medium text-white transition-colors hover:bg-primary-blue/90"
+          className="h-9 flex-1 rounded-lg bg-gcal-primary text-sm font-medium text-white transition-all duration-150 hover:bg-gcal-primary-hover hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Apply now
         </button>
@@ -167,7 +167,7 @@ export function FilterPanel({
       {/* Click-outside overlay: transparent, blocks interaction when open */}
       <div
         className={cn(
-          'fixed inset-0 z-30 transition-opacity duration-150',
+          'fixed inset-0 z-overlay transition-opacity duration-150',
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         )}
         style={{ background: 'transparent' }}
@@ -202,16 +202,16 @@ export const FilterTriggerButton = React.forwardRef<HTMLButtonElement, FilterTri
         type="button"
         onClick={onClick}
         className={cn(
-          'flex h-9 items-center gap-2 whitespace-nowrap rounded-md border px-3 text-sm transition-colors',
+          'flex h-9 items-center gap-2 whitespace-nowrap rounded-lg border px-3 text-sm transition-colors duration-150',
           hasActiveFilters
-            ? 'border-primary-blue bg-blue-50 text-primary-blue hover:bg-blue-100 dark:border-primary-blue dark:bg-primary-blue/10 dark:hover:bg-primary-blue/20'
+            ? 'border-gcal-primary bg-gcal-primary-light text-gcal-primary hover:bg-gcal-primary-light/80 dark:border-gcal-primary dark:bg-gcal-primary/10 dark:hover:bg-gcal-primary/20'
             : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800'
         )}
       >
         <SlidersHorizontal size={14} />
         <span className="hidden sm:inline">Filter</span>
         {activeFilterCount > 0 && (
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary-blue text-2xs font-medium text-white">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-gcal-primary text-2xs font-medium text-white">
             {activeFilterCount}
           </span>
         )}

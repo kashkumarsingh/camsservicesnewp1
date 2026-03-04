@@ -62,7 +62,19 @@ export const BOOKING_VALIDATION_MESSAGES = {
   // Child-related validation messages
   NO_ACTIVE_PACKAGE: 'This child does not have an active package. Please purchase a package first.',
   CHILD_UNAVAILABLE: 'This child is not available for booking. Please ensure they have an approved profile.',
-  
+  /** No approved children — booking modal prompt (prefix before checklist or add-child CTA). */
+  NO_APPROVED_CHILDREN_TO_BOOK: 'You do not yet have any approved children to book for.',
+  /** Suffix after "Complete [name]'s checklist" or "Add child" — create profile before booking. */
+  CREATE_CHILD_PROFILE_BEFORE_BOOKING: ' to create a child profile before booking a session.',
+  /** Add child CTA label in booking modal when no approved children. */
+  ADD_CHILD_LABEL: 'Add child',
+  /** Go to dashboard to add a child (when onAddChild not provided). */
+  GO_TO_DASHBOARD_TO_ADD_CHILD: 'Go to dashboard to add a child',
+  /** "Or add another child" when we already show Complete checklist (so both options visible). */
+  OR_ADD_ANOTHER_CHILD: 'Or add another child',
+  /** Checklist label when child name is not available (avoid "undefined's checklist"). */
+  YOUR_CHILD_CHECKLIST: "your child's checklist",
+
   // Hours-related validation messages
   INSUFFICIENT_HOURS: 'You do not have enough hours remaining to book this session.',
   NO_HOURS_REMAINING: 'You have no hours remaining. Please purchase more hours to continue booking.',
@@ -215,8 +227,18 @@ export const formatDurationDisplay = (hours: number): string => {
 
 /** Activity durations are whole hours only (business rule). Use for activity list and chips. */
 export const formatActivityDurationDisplay = (hours: number): string => {
-  const whole = Math.max(1, Math.round(hours));
+  const whole = toWholeActivityHours(hours);
   return `${whole}h`;
+};
+
+/**
+ * Normalise activity duration to whole hours (business rule).
+ * Use when calculating session duration or sending duration_hours so display (1h) matches booked duration.
+ * @param hours - Raw duration (e.g. from API, may be decimal like 0.8)
+ * @returns Whole hours (min 1)
+ */
+export const toWholeActivityHours = (hours: number): number => {
+  return Math.max(1, Math.round(hours));
 };
 
 /**

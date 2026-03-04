@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import moment, { type Moment } from 'moment';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
@@ -17,6 +18,7 @@ import CompletePaymentModal from '@/components/dashboard/modals/CompletePaymentM
 import TopUpModal from '@/components/dashboard/modals/TopUpModal';
 import ParentSettingsModal from '@/components/dashboard/modals/ParentSettingsModal';
 import AddChildModal from '@/components/dashboard/modals/AddChildModal';
+import NoApprovedChildrenPanel from '@/components/dashboard/modals/NoApprovedChildrenPanel';
 import SafeguardingConcernModal, { type SafeguardingConcernFormData } from '@/components/dashboard/modals/SafeguardingConcernModal';
 import SessionNotesModal from '@/components/dashboard/modals/SessionNotesModal';
 import ToastContainer from '@/components/ui/Toast/ToastContainer';
@@ -35,17 +37,18 @@ import { useDashboardStats } from '@/interfaces/web/hooks/dashboard/useDashboard
 import { useParentSessionNotes } from '@/interfaces/web/hooks/dashboard/useParentSessionNotes';
 import { useSubmitSafeguardingConcern } from '@/interfaces/web/hooks/dashboard/useSubmitSafeguardingConcern';
 import { getDateBookingStatus } from '@/utils/bookingCutoffRules';
-import { getChildChecklistFlags, childNeedsChecklistCta, childNeedsChecklistToComplete, childAwaitingChecklistReview } from '@/core/application/auth/types';
+import { getChildChecklistFlags, canChildBuyHours, childNeedsChecklistCta, childNeedsChecklistToComplete, childAwaitingChecklistReview } from '@/core/application/auth/types';
 import { USER_ROLE, APPROVAL_STATUS, BOOKING_STATUS, PAYMENT_STATUS } from '@/utils/dashboardConstants';
+import { CHECKLIST_SUBMIT_SUCCESS_MESSAGE } from '@/utils/appConstants';
 import { ROUTES } from '@/utils/routes';
-import { getMessageForDateReason } from '@/utils/bookingValidationMessages';
+import { getMessageForDateReason, toWholeActivityHours } from '@/utils/bookingValidationMessages';
+import { getApiErrorMessage } from '@/utils/errorUtils';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
 import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
 import { ChildrenFilter } from '@/components/dashboard/ChildrenFilter';
 import { getMonday, getMonthKey } from '@/utils/calendarRangeUtils';
 import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
 import { CalendarRangeToolbar } from '@/components/ui/CalendarRange';
-import { BookingCalendar } from '@/components/ui/Calendar';
 import ParentCleanRightSidebar from '@/components/dashboard/parent/ParentCleanRightSidebar';
 
 export default function ParentDashboardPageClient() {
@@ -243,6 +246,7 @@ export default function ParentDashboardPageClient() {
 
   // New booking modal state
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showNoApprovedChildrenPanel, setShowNoApprovedChildrenPanel] = useState(false);
   const [showBuyHoursModal, setShowBuyHoursModal] = useState(false);
   const [buyHoursChildId, setBuyHoursChildId] = useState<number | undefined>();
   const [buyHoursInitialPackageSlug, setBuyHoursInitialPackageSlug] = useState<string | null>(null);
@@ -291,6 +295,7 @@ export default function ParentDashboardPageClient() {
     isUpcoming?: boolean;
     itineraryNotes?: string; // Itinerary notes for custom activity detection
     location?: string;
+    durationHours?: number;
   } | null>(null);
 
   // Settings modal state
@@ -359,34 +364,19 @@ export default function ParentDashboardPageClient() {
     });
   }, []);
 
-  // Handle date selection from mini calendar - triggers day view (Google Calendar-style)
-  const handleMiniCalendarDateSelect = useCallback((date: string) => {
-    setSelectedCalendarDate(date);
-    // Also update the month to match the selected date
-    setCurrentCalendarMonth(moment(date).format('YYYY-MM'));
-    setSwitchToDayView(true);
-    // Reset the flag after a short delay so subsequent internal calendar navigation doesn't trigger day view
-    setTimeout(() => setSwitchToDayView(false), 100);
-  }, []);
-
-  // Handle click on unbookable date in mini calendar (today, tomorrow after 6 PM) - show toast (context-aware message)
-  const handleUnavailableDateClick = useCallback((_dateStr: string, reason?: string) => {
-    toastManager.error(getMessageForDateReason(reason, { now: moment() }));
-  }, []);
-
-  // Handle date change from day view navigation (arrows) - syncs mini calendar without opening modal
+  // Handle date change from day view navigation (arrows) - syncs main calendar state
   const handleDayViewDateChange = useCallback((date: string) => {
     setSelectedCalendarDate(date);
     // Also update the month to match the selected date
     setCurrentCalendarMonth(moment(date).format('YYYY-MM'));
   }, []);
 
-  // Handle month change (synced between mini calendar and main calendar)
+  // Handle month change (main calendar)
   const handleCalendarMonthChange = useCallback((month: string) => {
     setCurrentCalendarMonth(month);
   }, []);
 
-  // Handle week range change (for syncing mini calendar week highlighting)
+  // Handle week range change (for main calendar week highlighting)
   const handleWeekRangeChange = useCallback((weekRange: Set<string>) => {
     setWeekRangeDates(weekRange);
   }, []);
@@ -417,19 +407,24 @@ export default function ParentDashboardPageClient() {
     }
   }, [searchParams]);
 
-  // Check for deep-link modals (query params)
+  // Check for deep-link modals (query params). When no approved children, open message panel instead of booking form.
   useEffect(() => {
     const openBooking = searchParams?.get('open') === 'booking';
     const childIdParam = searchParams?.get('childId');
     const bookingDate = searchParams?.get('bookDate');
     const bookingChildId = searchParams?.get('bookChildId');
     const editSessionId = searchParams?.get('editSessionId');
+    const dataReady = !loading && !bookingsLoading;
 
-    if (openBooking) {
-      setShowBookingModal(true);
-      if (childIdParam) {
-        const id = parseInt(childIdParam, 10);
-        if (!Number.isNaN(id)) setBookingModalChildId(id);
+    if (openBooking && dataReady) {
+      if (approvedChildren.length === 0) {
+        setShowNoApprovedChildrenPanel(true);
+      } else {
+        setShowBookingModal(true);
+        if (childIdParam) {
+          const id = parseInt(childIdParam, 10);
+          if (!Number.isNaN(id)) setBookingModalChildId(id);
+        }
       }
       const url = new URL(window.location.href);
       url.searchParams.delete('open');
@@ -437,13 +432,16 @@ export default function ParentDashboardPageClient() {
       window.history.replaceState({}, '', url.pathname + (url.search || ''));
     }
 
-    if (bookingDate) {
-      setBookingModalDate(bookingDate);
-      if (bookingChildId) {
-        setBookingModalChildId(parseInt(bookingChildId, 10));
+    if (bookingDate && dataReady) {
+      if (approvedChildren.length === 0) {
+        setShowNoApprovedChildrenPanel(true);
+      } else {
+        setBookingModalDate(bookingDate);
+        if (bookingChildId) {
+          setBookingModalChildId(parseInt(bookingChildId, 10));
+        }
+        setShowBookingModal(true);
       }
-      setShowBookingModal(true);
-      // Clean URL
       const url = new URL(window.location.href);
       url.searchParams.delete('bookDate');
       url.searchParams.delete('bookChildId');
@@ -510,6 +508,7 @@ export default function ParentDashboardPageClient() {
               requiresAdminApproval: schedule.requiresAdminApproval,
               itineraryNotes: schedule.itineraryNotes ?? schedule.notes,
               location: schedule.location ?? undefined,
+              durationHours: (schedule as { durationHours?: number }).durationHours,
             });
             setShowSessionModal(true);
             const url = new URL(window.location.href);
@@ -521,7 +520,7 @@ export default function ParentDashboardPageClient() {
         }
       }
     }
-  }, [searchParams, bookings, approvedChildren]);
+  }, [searchParams, bookings, approvedChildren, loading, bookingsLoading]);
 
   // Auto-refresh handler (triggered automatically on visibility/focus)
   // Only shows subtle indicator if NOT initial load (to avoid showing indicator on first load)
@@ -634,7 +633,8 @@ export default function ParentDashboardPageClient() {
       const selectedIds = bookingData.selectedActivityIds || [];
       const dbDuration = selectedIds.reduce((sum, activityId) => {
         const activity = allActivities.find(a => String(a.id) === String(activityId));
-        return sum + (activity?.duration || 1);
+        const wholeHours = activity ? toWholeActivityHours(activity.duration) : 1;
+        return sum + wholeHours;
       }, 0);
 
       // Additional duration from custom activities
@@ -645,11 +645,11 @@ export default function ParentDashboardPageClient() {
 
       totalDuration = Math.max(MIN_DURATION_HOURS, dbDuration + customDuration);
 
-      // Also populate activity duration_hours in activities array for backend for DB activities
+      // Populate activity duration_hours for backend (whole hours so stored duration matches 1h display)
       selectedIds.forEach((activityId, idx) => {
         const activity = allActivities.find(a => String(a.id) === String(activityId));
         if (activity && activities[idx]) {
-          activities[idx].duration_hours = activity.duration;
+          activities[idx].duration_hours = toWholeActivityHours(activity.duration);
         }
       });
     } else if (bookingData.duration) {
@@ -722,24 +722,9 @@ export default function ParentDashboardPageClient() {
       setBookingModalChildId(undefined);
       setEditingSession(null);
     } catch (error: unknown) {
-      const err = error as {
-        message?: string;
-        response?: { data?: { message?: string; errors?: Record<string, string[]> } };
-      };
-      const data = err?.response?.data;
-      console.error('Failed to save booking:', {
-        message: err?.message,
-        response: data ? { data } : undefined,
-      });
-      // Prefer backend message; fall back to first validation error (e.g. duration)
-      const firstValidationError = data?.errors
-        ? (Object.values(data.errors).flat().find(Boolean) as string | undefined)
-        : undefined;
-      const errorMessage =
-        data?.message ||
-        firstValidationError ||
-        err?.message ||
-        'Failed to save session. Please try again.';
+      const errorMessage = getApiErrorMessage(error, 'Failed to save session. Please try again.');
+      const err = error as { response?: { data?: unknown } };
+      console.error('Failed to save booking:', errorMessage, err?.response?.data ?? error);
       toastManager.error(errorMessage, {
         label: 'Retry',
         onClick: () => handleBookingSave(bookingData),
@@ -838,19 +823,20 @@ export default function ParentDashboardPageClient() {
       toastManager.error(getMessageForDateReason(status.reason, { now }));
       return;
     }
-
-    // Date is bookable — open modal
-    // The modal will validate that the selected time is 24+ hours away
+    if (approvedChildren.length === 0) {
+      setShowNoApprovedChildrenPanel(true);
+      return;
+    }
     setBookingModalDate(date);
-    setBookingModalChildId(undefined); // Clear pre-selected child
-    setEditingSession(null); // Clear editing session
+    setBookingModalChildId(undefined);
+    setEditingSession(null);
     if (time) {
-      setBookingModalTime(time); // Pre-select time for day view
+      setBookingModalTime(time);
     } else {
-      setBookingModalTime(undefined); // Clear time if clicking from month view
+      setBookingModalTime(undefined);
     }
     setShowBookingModal(true);
-  }, []);
+  }, [approvedChildren.length]);
 
   // Handle calendar session click (open session detail modal)
   const handleCalendarSessionClick = useCallback((session: {
@@ -870,6 +856,7 @@ export default function ParentDashboardPageClient() {
     isOngoing?: boolean;
     isUpcoming?: boolean;
     itineraryNotes?: string;
+    durationHours?: number;
   }) => {
     setSelectedSession(session);
     setShowSessionModal(true);
@@ -919,6 +906,25 @@ export default function ParentDashboardPageClient() {
 
   // Keyboard shortcuts: N (new booking), H (hours), ←/→ (month), Esc (close modals). Don't trigger in inputs.
   const [showKeyboardShortcutsHint, setShowKeyboardShortcutsHint] = useState(false);
+  const keyboardShortcutsTriggerRef = useRef<HTMLButtonElement>(null);
+  const [keyboardShortcutsPanelRect, setKeyboardShortcutsPanelRect] = useState<{ top: number; right: number } | null>(null);
+
+  useLayoutEffect(() => {
+    if (!showKeyboardShortcutsHint || !keyboardShortcutsTriggerRef.current) {
+      setKeyboardShortcutsPanelRect(null);
+      return;
+    }
+    const update = () => {
+      const el = keyboardShortcutsTriggerRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      setKeyboardShortcutsPanelRect({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, [showKeyboardShortcutsHint]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -1013,6 +1019,7 @@ export default function ParentDashboardPageClient() {
             requiresAdminApproval: schedule.requiresAdminApproval,
             itineraryNotes: schedule.itineraryNotes ?? schedule.notes,
             location: schedule.location ?? undefined,
+            durationHours: (schedule as { durationHours?: number }).durationHours,
           };
         }
       }
@@ -1070,7 +1077,7 @@ export default function ParentDashboardPageClient() {
 
   const handleBuyHours = useCallback((childId: number) => {
     const child = children.find(c => c.id === childId);
-    if (child) {
+    if (child && !canChildBuyHours(child)) {
       const { hasChecklist, checklistCompleted } = getChildChecklistFlags(child);
       if (!hasChecklist) {
         toastManager.warning('Please complete the checklist first before buying hours.');
@@ -1080,6 +1087,8 @@ export default function ParentDashboardPageClient() {
         toastManager.info('Your checklist has been submitted and is awaiting review. You will be able to buy hours once it has been approved.');
         return;
       }
+      toastManager.warning('This child is not yet approved. You will be able to buy hours once we have approved the checklist.');
+      return;
     }
     setBuyHoursChildId(childId);
     setShowBuyHoursModal(true);
@@ -1228,7 +1237,7 @@ export default function ParentDashboardPageClient() {
         formData
       );
 
-      toastManager.success('Checklist submitted successfully!');
+      toastManager.success(CHECKLIST_SUBMIT_SUCCESS_MESSAGE);
 
       // Refresh children data
       await refresh();
@@ -1530,26 +1539,6 @@ export default function ParentDashboardPageClient() {
     return items.slice(0, 5);
   }, [bookings]);
 
-  // Mini calendar: dates with upcoming vs past sessions (for overview three-column left column)
-  const { datesWithSessions: miniDatesUpcoming, datesWithPastSessions: miniDatesPast } = useMemo(() => {
-    const upcoming = new Set<string>();
-    const past = new Set<string>();
-    const today = moment().format('YYYY-MM-DD');
-    const confirmedPaid = bookings.filter(
-      (b) => b.status === BOOKING_STATUS.CONFIRMED && b.paymentStatus === PAYMENT_STATUS.PAID,
-    );
-    confirmedPaid.forEach((booking) => {
-      (booking.schedules ?? []).forEach((schedule) => {
-        if (schedule.status === BOOKING_STATUS.CANCELLED) return;
-        const dateStr =
-          typeof schedule.date === 'string' ? schedule.date : moment(schedule.date).format('YYYY-MM-DD');
-        if (dateStr >= today) upcoming.add(dateStr);
-        else past.add(dateStr);
-      });
-    });
-    return { datesWithSessions: upcoming, datesWithPastSessions: past };
-  }, [bookings]);
-
   // Sessions this week (for empty-state banner: "No sessions this week — book one?")
   const sessionsThisWeekCount = useMemo(() => {
     const start = moment().startOf('week');
@@ -1657,21 +1646,21 @@ export default function ParentDashboardPageClient() {
     // If loading has timed out, show error instead of infinite skeleton
     if (loadingTimeout) {
       return (
-        <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-white to-gray-100 dark:from-gray-900 dark:to-gray-800 px-4">
-          <div className="max-w-md text-center">
-            <XCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
-            <h1 className="mb-4 text-2xl font-bold text-gray-900 dark:text-gray-100">Loading Timeout</h1>
-            <p className="mb-6 text-gray-600 dark:text-gray-300">
+        <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
+          <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm transition-shadow duration-200 dark:border-slate-700 dark:bg-slate-900">
+            <XCircle className="mx-auto mb-4 h-12 w-12 text-rose-500" aria-hidden />
+            <h1 className="mb-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">Loading Timeout</h1>
+            <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
               The dashboard is taking too long to load. This might be due to a slow API response or network issue.
             </p>
-            <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+            <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
               Debug: loading={loading}, bookingsLoading={bookingsLoading}, bookingsError={bookingsError || 'none'}
             </p>
-            <div className="flex gap-4 justify-center">
-              <Button onClick={() => window.location.reload()} variant="primary">
+            <div className="flex flex-wrap justify-center gap-3">
+              <Button onClick={() => window.location.reload()} className="rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
                 Reload Page
               </Button>
-              <Button onClick={() => router.push(ROUTES.LOGIN)} variant="secondary">
+              <Button onClick={() => router.push(ROUTES.LOGIN)} variant="outline" className="rounded-full border border-slate-300 bg-white px-6 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all duration-150">
                 Go to Login
               </Button>
             </div>
@@ -1693,15 +1682,15 @@ export default function ParentDashboardPageClient() {
   // Unapproved parents: show only pending/rejected screen (no full dashboard) until admin approves
   if (user.role === USER_ROLE.PARENT && user.approvalStatus !== APPROVAL_STATUS.APPROVED) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <div className="flex min-h-[60vh] items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
           {user.approvalStatus === APPROVAL_STATUS.PENDING ? (
             <>
               <AlertCircle className="mx-auto mb-4 h-16 w-16 text-amber-500" aria-hidden />
               <h1 className="mb-2 text-2xl font-semibold text-slate-900 dark:text-slate-50">
                 Account Pending Approval
               </h1>
-              <p className="mb-6 text-slate-600 dark:text-slate-400">
+              <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
                 Your registration is pending admin approval. You&apos;ll be notified once approved.
               </p>
             </>
@@ -1711,16 +1700,16 @@ export default function ParentDashboardPageClient() {
               <h1 className="mb-2 text-2xl font-semibold text-slate-900 dark:text-slate-50">
                 Account Not Approved
               </h1>
-              <p className="mb-6 text-slate-600 dark:text-slate-400">
+              <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
                 {user.rejectionReason || 'Your registration was not approved. Please contact us for more information.'}
               </p>
             </>
           )}
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Button onClick={() => router.push(ROUTES.HOME)} className="w-full sm:w-auto">
+            <Button onClick={() => router.push(ROUTES.HOME)} className="w-full rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover hover:shadow-md sm:w-auto focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
               Go to Homepage
             </Button>
-            <Button variant="bordered" onClick={() => logout()} className="w-full sm:w-auto">
+            <Button variant="outline" onClick={() => logout()} className="w-full rounded-full border border-slate-300 bg-white px-6 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-400 sm:w-auto transition-all duration-150">
               Sign out
             </Button>
           </div>
@@ -1798,10 +1787,10 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
   return (
     <section className={`space-y-10 ${paddingClasses}`}>
       {/* Page header – hidden on mobile (< md); shown on tablet/desktop */}
-      <header className="border-b border-slate-200 dark:border-slate-800 pb-6 hidden md:block">
+      <header className="hidden border-b border-slate-200 pb-6 md:block dark:border-slate-800">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 min-w-0">
-            <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 dark:text-slate-100 truncate">
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+            <h1 className="truncate text-2xl font-semibold text-slate-900 dark:text-slate-100">
               {getGreeting()}, {parentName.split(' ')[0]}
             </h1>
             {isRefreshing && (
@@ -1812,26 +1801,31 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
             )}
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <Button onClick={() => setShowAddChildModal(true)} variant="outline" size="sm" icon={<UserPlus size={14} className="sm:h-4 sm:w-4" />} className="text-xs sm:text-sm">Add child</Button>
-            {allChildrenHaveActivePackages ? (
-              <div className="group relative">
-                <Button onClick={() => { setShowBuyHoursModal(true); setBuyHoursChildId(undefined); }} variant="secondary" size="sm" icon={<Package size={14} className="sm:h-4 sm:w-4" />} className="cursor-not-allowed text-xs opacity-60 sm:text-sm" disabled title="All children have active packages.">Buy Hours</Button>
-              </div>
-            ) : (
-              <Button onClick={() => { setShowBuyHoursModal(true); setBuyHoursChildId(undefined); }} variant="primary" size="sm" icon={<Package size={14} className="sm:h-4 sm:w-4" />} className="text-xs sm:text-sm">Buy Hours</Button>
+            <Button onClick={() => setShowAddChildModal(true)} variant="outline" size="sm" icon={<UserPlus size={14} className="sm:h-4 sm:w-4" />} className="rounded-full border border-slate-300 bg-white px-6 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all duration-150">
+              Add child
+            </Button>
+            {approvedChildren.length === 0 && (
+              <Button onClick={() => { setShowBuyHoursModal(true); setBuyHoursChildId(undefined); }} variant="primary" size="sm" icon={<Package size={14} className="sm:h-4 sm:w-4" />} className="rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
+                Buy Hours
+              </Button>
             )}
-            <span className="hidden sm:inline-block w-px h-6 bg-slate-200 dark:bg-slate-700" aria-hidden />
-            <button type="button" onClick={() => setShowSafeguardingModal(true)} className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 rounded-lg inline-flex items-center gap-1.5 py-1.5 px-2 -m-1.5">
-              <ShieldAlert size={14} className="sm:h-4 sm:w-4 shrink-0" /><span className="hidden sm:inline">Report a concern</span><span className="sm:hidden">Concern</span>
+            <span className="hidden h-6 w-px bg-slate-200 sm:inline-block dark:bg-slate-700" aria-hidden />
+            <button type="button" onClick={() => setShowSafeguardingModal(true)} className="-m-1.5 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-gcal-primary transition-colors duration-150 hover:bg-gcal-primary-light focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+              <ShieldAlert size={14} className="shrink-0 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Report a concern</span><span className="sm:hidden">Concern</span>
             </button>
             <div className="relative">
-              <button type="button" onClick={() => setShowKeyboardShortcutsHint((v) => !v)} className="p-1.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Keyboard shortcuts" aria-expanded={showKeyboardShortcutsHint}>
+              <button ref={keyboardShortcutsTriggerRef} type="button" onClick={() => setShowKeyboardShortcutsHint((v) => !v)} className="p-1.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Keyboard shortcuts" aria-expanded={showKeyboardShortcutsHint}>
                 <Keyboard size={18} className="sm:h-5 sm:w-5" aria-hidden />
               </button>
-              {showKeyboardShortcutsHint && (
+              {showKeyboardShortcutsHint && typeof document !== 'undefined' && keyboardShortcutsPanelRect && createPortal(
                 <>
-                  <div className="fixed inset-0 z-40" aria-hidden onClick={() => setShowKeyboardShortcutsHint(false)} />
-                  <div className="absolute right-0 top-full z-50 mt-1.5 w-64 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl py-2 px-3" role="dialog" aria-label="Keyboard shortcuts">
+                  <div className="fixed inset-0 z-dropdown" aria-hidden onClick={() => setShowKeyboardShortcutsHint(false)} />
+                  <div
+                    className="fixed z-dropdown w-64 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl py-2 px-3"
+                    style={{ top: keyboardShortcutsPanelRect.top, right: keyboardShortcutsPanelRect.right }}
+                    role="dialog"
+                    aria-label="Keyboard shortcuts"
+                  >
                     <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-2">Keyboard shortcuts</p>
                     <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-1">
                       <li><kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono">N</kbd> New booking</li>
@@ -1840,70 +1834,28 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                       <li><kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono">Esc</kbd> Close modals</li>
                     </ul>
                   </div>
-                </>
+                </>,
+                document.body
               )}
             </div>
           </div>
         </div>
       </header>
 
-      {/* Overview: three-column layout (left: mini calendar, upcoming, my children; center: scheduled sessions; right: hours, per child, pending) */}
+      {/* Overview: two-column layout (calendar + right sidebar: hours, per child, alerts) */}
       {isOverview ? (
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,280px)_1fr_minmax(0,360px)] gap-4 lg:gap-6 mb-8">
-          {/* Left column: mini calendar card + Upcoming Sessions card (separate cards) */}
-          <div className="order-2 lg:order-1 space-y-4">
-            <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 lg:p-4 lg:sticky lg:top-24 lg:self-start">
-              <BookingCalendar
-                size="small"
-                selectedDate={selectedCalendarDate}
-                currentMonth={moment(currentCalendarMonth, 'YYYY-MM')}
-                onMonthChange={(month: Moment) => setCurrentCalendarMonth(month.format('YYYY-MM'))}
-                onDateSelect={handleMiniCalendarDateSelect}
-                onUnavailableDateClick={handleUnavailableDateClick}
-                datesWithSessions={miniDatesUpcoming}
-                datesWithPastSessions={miniDatesPast}
-                showTodayButton={false}
-              />
-            </div>
-            <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 lg:p-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">
-                <Calendar className="w-3.5 h-3.5" aria-hidden />
-                Upcoming Sessions
-              </h3>
-              {upcomingSessionsForSidebar.length > 0 ? (
-                <ul className="space-y-2" role="list" aria-label="Upcoming sessions">
-                  {upcomingSessionsForSidebar.slice(0, 5).map((s) => (
-                    <li key={s.scheduleId}>
-                      <button
-                        type="button"
-                        onClick={() => handleUpcomingSessionClick({ scheduleId: s.scheduleId, childName: s.childName, childId: s.childId })}
-                        className="w-full text-left rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm"
-                      >
-                        <span className="font-medium text-slate-900 dark:text-slate-100 block truncate">{s.childName}</span>
-                        <span className="text-xs text-slate-500 dark:text-slate-400">
-                          {moment(s.date).format('ddd D')}
-                          {s.startTime ? ` · ${moment(s.startTime, ['HH:mm', 'HH:mm:ss']).format('h:mma')}` : ''}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-xs text-slate-500 dark:text-slate-400">No upcoming sessions.</p>
-              )}
-            </div>
-          </div>
-          {/* Center: Scheduled Sessions calendar (same white panel style as sidebars) */}
-          <div className="min-w-0 order-1 lg:order-2">
-            <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 lg:p-4 space-y-4">
+        <div className="mb-6 grid grid-cols-1 gap-3 md:gap-4 lg:grid-cols-[1fr_minmax(0,360px)] lg:gap-6 lg:mb-8">
+          {/* Main: Scheduled Sessions calendar */}
+          <div className="min-w-0 order-1">
+            <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 md:p-4 lg:p-4">
               <div className="space-y-3">
                 <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
                   <div>
-                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-400" aria-hidden />
+                    <h2 className="flex items-center gap-2 text-base font-medium text-slate-900 dark:text-slate-100 md:text-lg">
+                      <Calendar className="h-5 w-5 text-slate-600 dark:text-slate-400" aria-hidden />
                       Scheduled Sessions
                     </h2>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Click any date to book a new session.</p>
+                    <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">Click any date to book a new session.</p>
                   </div>
                   <div className="flex items-center">
                     <ChildrenFilter
@@ -1975,7 +1927,7 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
             </div>
           </div>
           {/* Right column: Hours Available, Per Child, Pending Actions */}
-          <div className="order-3 lg:sticky lg:top-24 self-start">
+          <div className="order-2 lg:sticky lg:top-24 lg:z-sidebar self-start">
             <ParentCleanRightSidebar
               approvedChildren={approvedChildren}
               bookings={bookings}
@@ -1997,6 +1949,7 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
               onBookSession={handleBookSession}
               onTopUpChild={handleOpenTopUp}
               onAddChild={() => setShowAddChildModal(true)}
+              onReportConcern={() => setShowSafeguardingModal(true)}
               hoursLoading={statsLoading}
               variant="sidebar"
               showNextUp={false}
@@ -2013,18 +1966,18 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
           {approvedChildren.length > 0 &&
             totalRemainingHoursForBanner > 0 &&
             sessionsThisWeekCount === 0 && (
-              <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <div className="mb-4 rounded-xl border border-l-4 border-blue-500 bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-blue-500 dark:bg-blue-950/20">
+                <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
                   No sessions this week — book one?
                 </p>
-                <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                   You have {totalRemainingHoursForBanner.toFixed(1)}h left. Tap below to schedule a session.
                 </p>
                 <Button
                   onClick={() => handleBookSession(approvedChildren[0].id)}
                   variant="primary"
                   size="sm"
-                  className="mt-3"
+                  className="mt-3 rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150"
                   icon={<CalendarPlus size={14} />}
                 >
                   Book session
@@ -2037,9 +1990,9 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
             <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100 px-2 pb-2 pt-0">
               {getGreeting()}, {parentName.split(' ')[0]}
             </h1>
-            <div className="parent-schedule-root flex flex-col bg-white dark:bg-slate-900 max-w-md mx-auto rounded-card shadow-card border border-gray-200 dark:border-slate-700 overflow-hidden">
-              <header className="px-4 py-3 border-b border-gray-200 dark:border-slate-700">
-                <p className="text-gray-600 dark:text-slate-400 text-xs">
+            <div className="parent-schedule-root mx-auto flex max-w-md flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow duration-200 dark:border-slate-700 dark:bg-slate-900">
+              <header className="border-b border-slate-200 px-4 py-3 dark:border-slate-700">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400">
                   Tap a date to book or view sessions
                 </p>
               </header>
@@ -2097,30 +2050,30 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                 <div className="grid grid-cols-3">
                   <Link
                     href="/dashboard/parent"
-                    className={`flex items-center justify-center py-3 text-xs font-semibold uppercase tracking-wide min-h-[44px] border-b-2 transition-colors ${
+                    className={`flex min-h-[44px] items-center justify-center border-b-2 py-3 text-xs font-medium uppercase tracking-wide transition-colors duration-150 ${
                       activeMobileTab === 'upcoming'
-                        ? 'border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400'
-                        : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                        ? 'border-gcal-primary text-gcal-primary'
+                        : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
                     }`}
                   >
                     Upcoming
                   </Link>
                   <Link
                     href="/dashboard/parent?tab=hours"
-                    className={`flex items-center justify-center py-3 text-xs font-semibold uppercase tracking-wide min-h-[44px] border-b-2 transition-colors ${
+                    className={`flex min-h-[44px] items-center justify-center border-b-2 py-3 text-xs font-medium uppercase tracking-wide transition-colors duration-150 ${
                       activeMobileTab === 'hours'
-                        ? 'border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400'
-                        : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                        ? 'border-gcal-primary text-gcal-primary'
+                        : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
                     }`}
                   >
                     Hours
                   </Link>
                   <Link
                     href="/dashboard/parent?tab=alerts"
-                    className={`flex items-center justify-center py-3 text-xs font-semibold uppercase tracking-wide min-h-[44px] border-b-2 transition-colors ${
+                    className={`flex min-h-[44px] items-center justify-center border-b-2 py-3 text-xs font-medium uppercase tracking-wide transition-colors duration-150 ${
                       activeMobileTab === 'alerts'
-                        ? 'border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400'
-                        : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                        ? 'border-gcal-primary text-gcal-primary'
+                        : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
                     }`}
                   >
                     Alerts
@@ -2140,13 +2093,13 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                               const dateLabel = moment(s.date).format('ddd, MMM D');
                               const timeLabel = s.startTime ? moment(s.startTime, ['HH:mm', 'HH:mm:ss']).format('h:mm A') : '';
                               return (
-                                <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 p-4">
+                                <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow duration-200 dark:border-slate-700 dark:bg-slate-800/30">
                                   <p className="font-semibold text-slate-900 dark:text-slate-100">{s.childName}</p>
-                                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{dateLabel} · {timeLabel}</p>
+                                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{dateLabel} · {timeLabel}</p>
                                   {s.trainerName && <p className="text-sm text-slate-500 dark:text-slate-400">with {s.trainerName}</p>}
-                                  <div className="flex gap-2 mt-3">
-                                    <Button variant="primary" size="sm" onClick={() => handleUpcomingSessionClick({ scheduleId: s.scheduleId, childName: s.childName, childId: s.childId })}>View details</Button>
-                                    <Button variant="outline" size="sm" onClick={() => handleBookSession(s.childId)}>Reschedule</Button>
+                                  <div className="mt-3 flex gap-2">
+                                    <Button variant="primary" size="sm" className="rounded-full bg-gcal-primary px-4 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" onClick={() => handleUpcomingSessionClick({ scheduleId: s.scheduleId, childName: s.childName, childId: s.childId })}>View details</Button>
+                                    <Button variant="outline" size="sm" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" onClick={() => handleBookSession(s.childId)}>Reschedule</Button>
                                   </div>
                                 </div>
                               );
@@ -2160,7 +2113,7 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                                 const timeLabel = s.startTime ? moment(s.startTime, ['HH:mm', 'HH:mm:ss']).format('h:mma') : '';
                                 return (
                                   <li key={s.scheduleId}>
-                                    <button type="button" onClick={() => handleUpcomingSessionClick({ scheduleId: s.scheduleId, childName: s.childName, childId: s.childId })} className="w-full text-left rounded-lg border border-slate-200 dark:border-slate-700 p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                    <button type="button" onClick={() => handleUpcomingSessionClick({ scheduleId: s.scheduleId, childName: s.childName, childId: s.childId })} className="w-full rounded-xl border border-slate-200 p-3 text-left transition-colors duration-100 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800/50">
                                       <span className="font-medium text-slate-900 dark:text-slate-100">{dateLabel} · {timeLabel}</span>
                                       <span className="block text-sm text-slate-500 dark:text-slate-400">{s.childName}{s.trainerName ? ` · ${s.trainerName}` : ''}</span>
                                     </button>
@@ -2181,8 +2134,8 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                         <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">{totalRemainingHoursForBanner.toFixed(1)}h</p>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">left to book sessions</p>
                       </div>
-                      <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                        <div className="h-full rounded-full bg-blue-500" style={{ width: `${Math.min(100, (totalRemainingHoursForBanner / Math.max(totalRemainingHoursForBanner + (stats?.totalHoursBooked ?? 0), 1)) * 100)}%` }} />
+                      <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                        <div className="h-full rounded-full bg-gcal-primary transition-all duration-200" style={{ width: `${Math.min(100, (totalRemainingHoursForBanner / Math.max(totalRemainingHoursForBanner + (stats?.totalHoursBooked ?? 0), 1)) * 100)}%` }} />
                       </div>
                       <p className="text-xs text-slate-500 dark:text-slate-400">{(stats?.totalHoursBooked ?? 0).toFixed(1)}h used · {(totalRemainingHoursForBanner + (stats?.totalHoursBooked ?? 0)).toFixed(1)}h total</p>
                       <div className="space-y-2">
@@ -2194,7 +2147,7 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                           const needsBuyHours = !hasActivePackage;
                           const actionLabel = needsBuyHours ? ' (Buy hours)' : needsTopUp ? ' (Top up)' : null;
                           return (
-                            <div key={c.id} className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div key={c.id} className="flex flex-col gap-2 rounded-xl border border-slate-200 p-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
                               <div className="min-w-0">
                                 <p className="font-medium text-slate-900 dark:text-slate-100">{c.name}</p>
                                 <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -2203,13 +2156,13 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                               </div>
                               <div className="flex flex-wrap gap-2">
                                 {!hasActivePackage ? (
-                                  <Button variant="primary" size="sm" onClick={() => handleBuyHours(c.id)}>Buy hours</Button>
+                                  <Button variant="primary" size="sm" className="rounded-full bg-gcal-primary px-4 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover" onClick={() => handleBuyHours(c.id)}>Buy hours</Button>
                                 ) : rem <= 0 ? (
-                                  <Button variant="primary" size="sm" onClick={() => handleOpenTopUp(c.id)}>Top up</Button>
+                                  <Button variant="primary" size="sm" className="rounded-full bg-gcal-primary px-4 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover" onClick={() => handleOpenTopUp(c.id)}>Top up</Button>
                                 ) : (
                                   <>
-                                    <Button variant="outline" size="sm" onClick={() => handleBookSession(c.id)}>Book</Button>
-                                    <Button variant="outline" size="sm" onClick={() => handleOpenTopUp(c.id)}>Top up</Button>
+                                    <Button variant="outline" size="sm" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" onClick={() => handleBookSession(c.id)}>Book</Button>
+                                    <Button variant="outline" size="sm" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" onClick={() => handleOpenTopUp(c.id)}>Top up</Button>
                                   </>
                                 )}
                               </div>
@@ -2222,27 +2175,27 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                   {activeMobileTab === 'alerts' && (
                     <div className="space-y-2">
                       {(childrenNeedingChecklistForSidebar?.length ?? 0) > 0 && (
-                        <div className="rounded-lg border-l-4 border-amber-500 bg-amber-50 dark:bg-amber-900/20 p-3">
-                          <p className="font-semibold text-amber-800 dark:text-amber-200">Checklist needed</p>
-                          <p className="text-sm text-amber-700 dark:text-amber-300">Complete checklist for: {childrenNeedingChecklistForSidebar?.map(c => c.name).join(', ')}</p>
-                          <Button variant="outline" size="sm" className="mt-2" onClick={() => childrenNeedingChecklistForSidebar?.[0] && handleCompleteChecklist(childrenNeedingChecklistForSidebar[0].id)}>Complete</Button>
+                        <div className="rounded-xl border border-l-4 border-amber-500 bg-white p-4 shadow-sm dark:bg-amber-950/20">
+                          <p className="font-semibold text-slate-900 dark:text-slate-100">Checklist needed</p>
+                          <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">Complete checklist for: {childrenNeedingChecklistForSidebar?.map(c => c.name).join(', ')}</p>
+                          <Button variant="outline" size="sm" className="mt-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" onClick={() => childrenNeedingChecklistForSidebar?.[0] && handleCompleteChecklist(childrenNeedingChecklistForSidebar[0].id)}>Complete</Button>
                         </div>
                       )}
                       {hasDraftOrUnpaidActivePackage && (
-                        <div className="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-900/20 p-3">
-                          <p className="font-semibold text-red-800 dark:text-red-200">Payment required</p>
-                          <p className="text-sm text-red-700 dark:text-red-300">Complete payment for your booking to confirm sessions.</p>
-                          <Button variant="primary" size="sm" className="mt-2" onClick={() => { if (firstUnpaidBooking) { setSelectedPaymentBooking(firstUnpaidBooking); setShowPaymentModal(true); } }}>Pay now</Button>
+                        <div className="rounded-xl border border-l-4 border-rose-500 bg-white p-4 shadow-sm dark:bg-rose-950/20">
+                          <p className="font-semibold text-slate-900 dark:text-slate-100">Payment required</p>
+                          <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">Complete payment for your booking to confirm sessions.</p>
+                          <Button variant="primary" size="sm" className="mt-2 rounded-full bg-gcal-primary px-4 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover" onClick={() => { if (firstUnpaidBooking) { setSelectedPaymentBooking(firstUnpaidBooking); setShowPaymentModal(true); } }}>Pay now</Button>
                         </div>
                       )}
-                      {approvedChildren.some(c => !childIdsWithActivePackage?.has(c.id)) && (
-                        <div className="rounded-lg border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20 p-3">
-                          <p className="font-semibold text-blue-800 dark:text-blue-200">Buy hours</p>
-                          <p className="text-sm text-blue-700 dark:text-blue-300">Some children don't have an active package.</p>
-                          <Button variant="primary" size="sm" className="mt-2" onClick={() => setShowBuyHoursModal(true)}>Buy hours</Button>
+                      {approvedChildren.length === 0 && (
+                        <div className="rounded-xl border border-l-4 border-blue-500 bg-white p-4 shadow-sm dark:bg-blue-950/20">
+                          <p className="font-semibold text-slate-900 dark:text-slate-100">Buy hours</p>
+                          <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">Add a child and complete their checklist; once approved, you can buy hours here.</p>
+                          <Button variant="primary" size="sm" className="mt-2 rounded-full bg-gcal-primary px-4 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover" onClick={() => setShowBuyHoursModal(true)}>Buy hours</Button>
                         </div>
                       )}
-                      {((childrenNeedingChecklistForSidebar?.length ?? 0) === 0 && !hasDraftOrUnpaidActivePackage && !approvedChildren.some(c => !childIdsWithActivePackage?.has(c.id))) && (
+                      {((childrenNeedingChecklistForSidebar?.length ?? 0) === 0 && !hasDraftOrUnpaidActivePackage && approvedChildren.length > 0) && (
                         <p className="text-sm text-slate-500 dark:text-slate-400">No alerts right now.</p>
                       )}
                     </div>
@@ -2251,45 +2204,63 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
               </div>
             </div>
 
-            {/* FAB speed-dial: Book session, Add child, Report concern, Buy Hours, Top up */}
-            <div className="lg:hidden fixed bottom-20 right-4 z-20 flex flex-col items-end gap-2">
-              {fabOpen && (
-                <>
-                  <div className="fixed inset-0 z-20 bg-black/20" aria-hidden onClick={() => setFabOpen(false)} />
-                  <div className="relative z-30 flex flex-col gap-2 pb-2">
-                    <button type="button" onClick={() => { setFabOpen(false); handleBookSession(approvedChildren[0]?.id ?? 0); }} className="flex items-center gap-3 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg pl-4 pr-5 py-3 text-left text-sm font-medium text-slate-900 dark:text-slate-100 min-h-[44px] whitespace-nowrap">
-                      <CalendarPlus className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
-                      Book session
-                    </button>
-                    <button type="button" onClick={() => { setFabOpen(false); setShowAddChildModal(true); }} className="flex items-center gap-3 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg pl-4 pr-5 py-3 text-left text-sm font-medium text-slate-900 dark:text-slate-100 min-h-[44px] whitespace-nowrap">
-                      <UserPlus className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
-                      Add child
-                    </button>
-                    <button type="button" onClick={() => { setFabOpen(false); setShowSafeguardingModal(true); }} className="flex items-center gap-3 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg pl-4 pr-5 py-3 text-left text-sm font-medium text-slate-900 dark:text-slate-100 min-h-[44px] whitespace-nowrap">
-                      <ShieldAlert className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
-                      Report a concern
-                    </button>
-                    <button type="button" onClick={() => { setFabOpen(false); setShowBuyHoursModal(true); setBuyHoursChildId(undefined); }} className="flex items-center gap-3 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg pl-4 pr-5 py-3 text-left text-sm font-medium text-slate-900 dark:text-slate-100 min-h-[44px] whitespace-nowrap">
-                      <Package className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
-                      Buy Hours
-                    </button>
-                    <button type="button" onClick={() => { setFabOpen(false); const firstWithPackage = approvedChildren.find(c => childIdsWithActivePackage?.has(c.id)); if (firstWithPackage) handleOpenTopUp(firstWithPackage.id); else { toastManager.info('No active package to top up. Buy hours first.'); setShowBuyHoursModal(true); } }} className="flex items-center gap-3 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg pl-4 pr-5 py-3 text-left text-sm font-medium text-slate-900 dark:text-slate-100 min-h-[44px] whitespace-nowrap">
-                      <CreditCard className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
-                      Top up
-                    </button>
-                  </div>
-                </>
-              )}
-              <button
-                type="button"
-                onClick={() => setFabOpen((o) => !o)}
-                className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 active:scale-95 transition-transform min-w-[44px] min-h-[44px]"
-                aria-label={fabOpen ? 'Close menu' : 'Quick actions'}
-                aria-expanded={fabOpen}
-              >
-                <Plus className={`h-6 w-6 transition-transform ${fabOpen ? 'rotate-45' : ''}`} />
-              </button>
-            </div>
+            {/* FAB speed-dial: portaled to body so z-dropdown stacks above shell header (z-sticky) */}
+            {typeof document !== 'undefined' && createPortal(
+              <div className="lg:hidden fixed bottom-20 right-4 z-dropdown flex flex-col items-end gap-2">
+                {fabOpen && (
+                  <>
+                    <div className="fixed inset-0 z-dropdown bg-black/40 backdrop-blur-sm" aria-hidden onClick={() => setFabOpen(false)} />
+                    <div className="relative z-dropdown flex flex-col gap-2 pb-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFabOpen(false);
+                          if (approvedChildren.length === 0) {
+                            setShowNoApprovedChildrenPanel(true);
+                          } else {
+                            handleBookSession(approvedChildren[0]?.id ?? 0);
+                          }
+                        }}
+                        className="flex min-h-[44px] items-center gap-3 whitespace-nowrap rounded-full border border-slate-200 bg-white pl-4 pr-5 py-3 text-left text-sm font-medium text-slate-900 shadow-xl transition-all duration-150 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700/50"
+                      >
+                        <CalendarPlus className="h-5 w-5 shrink-0 text-primary-blue" aria-hidden />
+                        Book session
+                      </button>
+                      <button type="button" onClick={() => { setFabOpen(false); setShowAddChildModal(true); }} className="flex min-h-[44px] items-center gap-3 whitespace-nowrap rounded-full border border-slate-200 bg-white pl-4 pr-5 py-3 text-left text-sm font-medium text-slate-900 shadow-xl transition-all duration-150 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700/50">
+                        <UserPlus className="h-5 w-5 shrink-0 text-primary-blue" aria-hidden />
+                        Add child
+                      </button>
+                      <button type="button" onClick={() => { setFabOpen(false); setShowSafeguardingModal(true); }} className="flex min-h-[44px] items-center gap-3 whitespace-nowrap rounded-full border border-slate-200 bg-white pl-4 pr-5 py-3 text-left text-sm font-medium text-slate-900 shadow-xl transition-all duration-150 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700/50">
+                        <ShieldAlert className="h-5 w-5 shrink-0 text-primary-blue" aria-hidden />
+                        Report a concern
+                      </button>
+                      {approvedChildren.length === 0 && (
+                      <button type="button" onClick={() => { setFabOpen(false); setShowBuyHoursModal(true); setBuyHoursChildId(undefined); }} className="flex min-h-[44px] items-center gap-3 whitespace-nowrap rounded-full border border-slate-200 bg-white pl-4 pr-5 py-3 text-left text-sm font-medium text-slate-900 shadow-xl transition-all duration-150 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700/50">
+                        <Package className="h-5 w-5 shrink-0 text-primary-blue" aria-hidden />
+                        Buy Hours
+                      </button>
+                      )}
+                      {approvedChildren.length > 0 && (
+                      <button type="button" onClick={() => { setFabOpen(false); const firstWithPackage = approvedChildren.find(c => childIdsWithActivePackage?.has(c.id)); if (firstWithPackage) handleOpenTopUp(firstWithPackage.id); else { toastManager.info('No active package to top up. Buy hours first.'); setShowBuyHoursModal(true); } }} className="flex min-h-[44px] items-center gap-3 whitespace-nowrap rounded-full border border-slate-200 bg-white pl-4 pr-5 py-3 text-left text-sm font-medium text-slate-900 shadow-xl transition-all duration-150 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700/50">
+                        <CreditCard className="h-5 w-5 shrink-0 text-primary-blue" aria-hidden />
+                        Top up
+                      </button>
+                      )}
+                    </div>
+                  </>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setFabOpen((o) => !o)}
+                  className="flex h-14 w-14 min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-primary-blue text-white shadow-lg transition-all duration-150 hover:opacity-90 hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 dark:bg-primary-blue dark:text-white"
+                  aria-label={fabOpen ? 'Close menu' : 'Quick actions'}
+                  aria-expanded={fabOpen}
+                >
+                  <Plus className={`h-6 w-6 transition-transform ${fabOpen ? 'rotate-45' : ''}`} aria-hidden />
+                </button>
+              </div>,
+              document.body
+            )}
           </div>
 
           {/* Desktop / tablet calendar */}
@@ -2408,6 +2379,23 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
         />
       )}
 
+      {/* No approved children: message-only panel (open instead of booking form when parent has no approved children) */}
+      <NoApprovedChildrenPanel
+        isOpen={showNoApprovedChildrenPanel}
+        onClose={() => setShowNoApprovedChildrenPanel(false)}
+        childrenNeedingChecklist={childrenNeedingChecklistForSidebar}
+        childrenAwaitingChecklistReview={childrenAwaitingChecklistReviewForSidebar}
+        childrenPendingApproval={childrenPendingApprovalForSidebar}
+        onCompleteChecklist={(childId) => {
+          setShowNoApprovedChildrenPanel(false);
+          handleCompleteChecklist(childId);
+        }}
+        onAddChild={() => {
+          setShowNoApprovedChildrenPanel(false);
+          setShowAddChildModal(true);
+        }}
+      />
+
       {/* Booking: right-side panel (reuses sidebar space; no modal overlay) */}
       <ParentBookingModal
         isOpen={showBookingModal}
@@ -2443,6 +2431,13 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
         onAddChild={() => {
           setShowBookingModal(false);
           setShowAddChildModal(true);
+        }}
+        childrenNeedingChecklist={childrenNeedingChecklistForSidebar}
+        childrenAwaitingChecklistReview={childrenAwaitingChecklistReviewForSidebar}
+        childrenPendingApproval={childrenPendingApprovalForSidebar}
+        onCompleteChecklist={(childId) => {
+          setShowBookingModal(false);
+          handleCompleteChecklist(childId);
         }}
       />
 
@@ -2551,6 +2546,7 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                       trainerPreferenceLabel: undefined,
                       requiresAdminApproval: schedule.requiresAdminApproval,
                       itineraryNotes: schedule.itineraryNotes ?? schedule.notes,
+                      durationHours: (schedule as { durationHours?: number }).durationHours,
                     });
                   });
                 });

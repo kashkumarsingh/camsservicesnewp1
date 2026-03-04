@@ -17,6 +17,9 @@ module.exports = {
       },
       borderRadius: {
         card: '30px',
+        /** Dashboard: cards, panels, modals – single source for admin/parent/trainer. */
+        'dashboard': '0.75rem',     // 12px – cards, tables, panels
+        'dashboard-lg': '1rem',    // 16px – large cards, modals
         /** Single source of truth: auth/form and header. Change here to apply everywhere. */
         'form-card': '1.5rem',      // 24px – main login/register card
         'form-input': '0.5rem',     // 8px – input fields
@@ -25,13 +28,33 @@ module.exports = {
         'header-button': '9999px',   // pill – Become a Trainer, Login, Register
         'visit-card': '20px',
       },
-      /** Z-index scale: mobileNav (30, below header), sticky (40), dropdown (50), overlay (1000), toast (9999). Modals/panels must portal to body. */
+      boxShadow: {
+        'card': '0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06)',
+        'card-hover': '0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07)',
+        'panel': '0 10px 15px -3px rgb(0 0 0 / 0.06), 0 4px 6px -4px rgb(0 0 0 / 0.06)',
+      },
+      transitionDuration: {
+        'dashboard': '200ms',
+      },
+      /** Z-index scale (single source of truth). Never use raw z-index numbers in className.
+       * You only need to raise z-index for things that must sit above their siblings. Header at 1000 is enough for it to sit above all body content — nothing beneath needs a z-index just to be "below" the header (lower or unset already stacks below).
+       * base → sticky (0–200): optional; use only when body elements need order among themselves (e.g. dropdown above content, sticky above base).
+       * header: 1000. Highest of any body section; everything else stacks beneath it without needing a value.
+       * overlay, sidePanel, modal, etc. (1100+): for overlays that must sit above the header when open. Use createPortal(..., document.body) for those. */
       zIndex: {
-        mobileNav: '30',
-        sticky: '40',
-        dropdown: '50',
-        overlay: '1000',
-        toast: '9999',
+        base: '0',
+        raised: '10',
+        content: '20',
+        dropdown: '100',
+        sidebar: '150',
+        sticky: '200',
+        header: '1000',
+        overlay: '1100',
+        sidePanel: '1200',
+        modal: '1300',
+        popover: '1300',
+        toast: '1400',
+        critical: '1500',
       },
       colors: {
         primary: '#00AEEF',
@@ -51,6 +74,20 @@ module.exports = {
         'cta-accent-start': '#F59E0B',
         'cta-accent-end': '#10B981',
         'footer-dark': '#102A4C',
+        // Google Calendar–inspired design system (see frontend/src/styles/colors.ts)
+        gcal: {
+          primary: '#1a73e8',
+          'primary-hover': '#1557b0',
+          'primary-light': '#e8f0fe',
+          destructive: '#d93025',
+          'destructive-hover': '#b31412',
+        },
+        // Alias for design spec: Google blue/red (no raw hex in className)
+        google: {
+          blue: '#1a73e8',
+          'blue-light': '#e8f0fe',
+          red: '#d93025',
+        },
       },
     },
   },
