@@ -156,6 +156,7 @@ export const EMPTY_STATE = {
     ALL_CLEAR: 'All clear',
     HOURS_AVAILABLE: 'available',
     HOURS_REMAINING: 'remaining',
+    HOURS_BOOKED: 'booked',
     HOURS_USED: 'used',
     VIEW_BREAKDOWN: 'View breakdown',
     BOOK_SESSION: 'Book session',

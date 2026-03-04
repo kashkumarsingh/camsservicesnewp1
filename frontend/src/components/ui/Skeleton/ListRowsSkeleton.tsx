@@ -15,7 +15,7 @@ interface ListRowsSkeletonProps {
 
 export default function ListRowsSkeleton({ count = 4, className = '' }: ListRowsSkeletonProps) {
   return (
-    <div className={`space-y-2 animate-pulse ${className}`.trim()} aria-busy="true" aria-label="Loading list">
+    <div className={`space-y-2 ${className}`.trim()} aria-busy="true" aria-label="Loading list">
       {Array.from({ length: count }, (_, i) => (
         <div
           key={`list-row-skeleton-${i}`}

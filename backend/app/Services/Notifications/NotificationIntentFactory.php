@@ -388,20 +388,28 @@ class NotificationIntentFactory
 
     public static function sessionNeedsTrainerToAdmin(BookingSchedule $schedule): NotificationIntent
     {
-        $schedule->loadMissing('booking.participants.child');
+        $schedule->loadMissing(['booking.children', 'booking.participants.child']);
         $booking = $schedule->booking;
         $ref = $booking?->reference ?? '';
-        $childrenSummary = $booking && $booking->relationLoaded('participants')
-            ? $booking->participants
-                ->filter(fn ($p) => $p->child_id !== null)
-                ->map(fn ($p) => $p->child ? $p->child->name : $p->full_name)
-                ->filter()
-                ->join(', ')
-            : '';
+        // Prefer booking->children (single source) for child names; fallback to participants
+        $childrenSummary = '';
+        if ($booking) {
+            if ($booking->relationLoaded('children') && $booking->children->isNotEmpty()) {
+                $childrenSummary = $booking->children->pluck('name')->filter()->join(', ');
+            }
+            if ($childrenSummary === '' && $booking->relationLoaded('participants')) {
+                $childrenSummary = $booking->participants
+                    ->filter(fn ($p) => $p->child_id !== null)
+                    ->map(fn ($p) => $p->child ? $p->child->name : $p->full_name)
+                    ->filter()
+                    ->join(', ');
+            }
+        }
         $message = $childrenSummary !== ''
             ? 'A session for ' . $childrenSummary . ' needs a trainer assigned.'
             : 'A session for booking Ref ' . $ref . ' needs a trainer assigned.';
         $emails = self::adminEmails();
+        $link = '/dashboard/admin/bookings?needs_trainer=1&schedule_id=' . $schedule->id;
         return new NotificationIntent(
             intentType: IntentType::SESSION_NEEDS_TRAINER,
             entityType: 'schedule',
@@ -410,7 +418,7 @@ class NotificationIntentFactory
             payload: [
                 'title' => 'Session needs trainer',
                 'message' => $message,
-                'link' => '/dashboard/admin/bookings?needs_trainer=1',
+                'link' => $link,
             ],
             entityKey: 'schedule:' . $schedule->id,
         );

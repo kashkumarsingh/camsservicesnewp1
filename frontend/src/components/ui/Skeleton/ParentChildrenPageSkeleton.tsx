@@ -30,7 +30,7 @@ function ChildCardSkeleton() {
 export default function ParentChildrenPageSkeleton() {
   const count = SKELETON_COUNTS.DASHBOARD_CHILDREN;
   return (
-    <section className="space-y-4 px-2 sm:px-4 animate-pulse" aria-busy="true" aria-label="Loading children">
+    <section className="space-y-4 px-2 sm:px-4" aria-busy="true" aria-label="Loading children">
       <header className="space-y-2">
         {/* Breadcrumbs */}
         <div className="flex items-center gap-2 text-sm">

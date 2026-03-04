@@ -10,7 +10,7 @@ import React from 'react';
 
 export default function DashboardLeftSidebarSkeleton() {
   return (
-    <div className="space-y-3 animate-pulse">
+    <div className="space-y-3">
       {/* Actions Button */}
       <div className="h-12 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full" />
 

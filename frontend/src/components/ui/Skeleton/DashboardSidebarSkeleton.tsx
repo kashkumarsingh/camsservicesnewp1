@@ -12,7 +12,7 @@ import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
 
 export default function DashboardSidebarSkeleton() {
   return (
-    <div className="space-y-3 sm:space-y-4 animate-pulse">
+    <div className="space-y-3 sm:space-y-4">
       {/* Hours Available Card - matches right sidebar card styling */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="px-3 sm:px-4 py-2 sm:py-2.5 border-b border-gray-200 dark:border-gray-700">

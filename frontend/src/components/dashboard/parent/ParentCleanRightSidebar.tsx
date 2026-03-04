@@ -1267,6 +1267,11 @@ export default function ParentCleanRightSidebar({
           </span>
           <span className="text-lg font-medium text-slate-500 dark:text-slate-400">h</span>
           <span className="text-2xs text-slate-500 dark:text-slate-400 ml-1">{EMPTY_STATE.PARENT_SIDEBAR.HOURS_AVAILABLE}</span>
+          {totalPackageHours > 0 && totalBookedHours > 0 && (
+            <span className="text-2xs text-slate-500 dark:text-slate-400 ml-1.5" aria-label={`${totalBookedHours.toFixed(1)} hours booked`}>
+              · {totalBookedHours.toFixed(1)}h {EMPTY_STATE.PARENT_SIDEBAR.HOURS_BOOKED}
+            </span>
+          )}
           {(hoursUrgency === 'warning' || hoursUrgency === 'critical') && (
             <span
               className={`w-1.5 h-1.5 rounded-full animate-pulse ml-1 ${
@@ -2039,15 +2044,15 @@ export default function ParentCleanRightSidebar({
         if (showReviewingCard) {
           const names = (childrenAwaitingChecklistReview ?? childrenPendingApproval ?? []);
           return (
-            <div className="bg-white rounded-xl border border-blue-200 dark:border-blue-800 p-6">
+            <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-900/50 p-6">
               <h3 className="text-xs font-semibold text-blue-700 dark:text-blue-300 tracking-wide mb-2 flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-blue-500" />
+                <CheckCircle className="w-4 h-4 text-blue-500 dark:text-blue-400" />
                 {hasAwaitingReview ? 'CHECKLIST SUBMITTED' : 'UNDER REVIEW'}
               </h3>
-              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+              <p className="text-sm text-gray-700 dark:text-slate-300 mb-2">
                 We&apos;re reviewing {names.length === 1 ? `${names[0].name}'s` : 'your children\'s'} details. You&apos;ll be able to book sessions once we&apos;ve approved.
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-gray-500 dark:text-slate-400">
                 No need to do anything – we&apos;ll email you when it&apos;s done.
               </p>
             </div>

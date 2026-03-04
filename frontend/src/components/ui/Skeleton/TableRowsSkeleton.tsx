@@ -18,7 +18,7 @@ export default function TableRowsSkeleton({ rowCount = 5, colCount = 8 }: TableR
       {Array.from({ length: rowCount }, (_, rowIndex) => (
         <tr
           key={`table-row-skeleton-${rowIndex}`}
-          className="border-b border-slate-200 dark:border-slate-700 animate-pulse"
+          className="border-b border-slate-200 dark:border-slate-700"
           aria-busy="true"
         >
           {Array.from({ length: colCount }, (_, colIndex) => (

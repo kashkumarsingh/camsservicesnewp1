@@ -13,7 +13,7 @@ export default function CalendarSkeleton() {
   const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 animate-pulse overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 overflow-hidden">
       {/* Calendar Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded" />

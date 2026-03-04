@@ -816,7 +816,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
       className="min-w-0 rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
       aria-labelledby="schedule-week-title"
     >
-      <div className="flex flex-col gap-3 border-b border-slate-200 px-3 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4 dark:border-slate-700">
+      <div className="flex flex-col gap-2 border-b border-slate-200 px-3 py-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4 dark:border-slate-700">
         <div className="flex flex-col gap-1 min-w-0">
           <h2
             id="schedule-week-title"
@@ -868,7 +868,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
               <button
                 type="button"
                 onClick={() => setViewMode('by_trainer')}
-                className={`flex flex-1 min-h-[40px] touch-manipulation items-center justify-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium ${
+                className={`flex flex-1 min-h-[44px] touch-manipulation items-center justify-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium ${
                   viewMode === 'by_trainer'
                     ? 'bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-slate-100'
                     : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
@@ -881,7 +881,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
               <button
                 type="button"
                 onClick={() => setViewMode('by_day')}
-                className={`flex flex-1 min-h-[40px] touch-manipulation items-center justify-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium ${
+                className={`flex flex-1 min-h-[44px] touch-manipulation items-center justify-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium ${
                   viewMode === 'by_day'
                     ? 'bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-slate-100'
                     : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
@@ -894,7 +894,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
               <button
                 type="button"
                 onClick={() => setViewMode('list')}
-                className={`flex flex-1 min-h-[40px] touch-manipulation items-center justify-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium ${
+                className={`flex flex-1 min-h-[44px] touch-manipulation items-center justify-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium ${
                   viewMode === 'list'
                     ? 'bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-slate-100'
                     : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
@@ -928,7 +928,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
         </div>
       )}
 
-      <div className="relative z-base min-w-0 overflow-x-auto p-3 sm:p-4" style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
+      <div className="relative z-base min-w-0 overflow-x-auto p-2 sm:p-3" style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
         {loading ? (
           <div className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/50 overflow-hidden animate-pulse" aria-busy="true" aria-label="Loading schedule">
             <div className="flex border-b border-slate-200 dark:border-slate-700">
@@ -1215,11 +1215,11 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
               </table>
             </div>
           ) : viewMode === 'list' ? (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
             <table className="w-full min-w-[600px] border-collapse text-left text-sm">
               <thead>
                 <tr>
-                  <th className="border border-slate-200 bg-slate-50 px-2 py-1.5 text-left text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">Date</th>
+                  <th className="sticky left-0 z-sticky min-w-0 w-24 border border-slate-200 bg-slate-50 px-2 py-1.5 text-left text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">Date</th>
                   <th className="border border-slate-200 bg-slate-50 px-2 py-1.5 text-left text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">Time</th>
                   <th className="border border-slate-200 bg-slate-50 px-2 py-1.5 text-left text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">Trainer</th>
                   <th className="border border-slate-200 bg-slate-50 px-2 py-1.5 text-left text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">Child / Ref</th>
@@ -1230,7 +1230,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
               <tbody>
                 {sortedSessionsForList.map((session) => (
                   <tr key={session.sessionId} className="border-b border-slate-200 dark:border-slate-700">
-                    <td className="px-2 py-1.5 text-slate-700 dark:text-slate-300">{formatDayLabel(session.date)}</td>
+                    <td className="sticky left-0 z-sticky min-w-0 w-24 bg-white px-2 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300">{formatDayLabel(session.date)}</td>
                     <td className="px-2 py-1.5 text-slate-700 dark:text-slate-300">{formatTime(session.startTime)} – {formatTime(session.endTime)}</td>
                     <td className="px-2 py-1.5 text-slate-700 dark:text-slate-300">{session.trainerName ?? '—'}</td>
                     <td className="px-2 py-1.5 text-slate-600 dark:text-slate-400">{session.childrenSummary} · Ref {session.reference}</td>
@@ -1309,13 +1309,13 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
             >
               <thead>
                 <tr>
-                  <th className="sticky left-0 z-sticky w-36 border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                  <th className="sticky left-0 z-sticky w-28 min-w-0 sm:w-32 border border-slate-200 bg-slate-50 px-2 py-1.5 text-2xs font-semibold uppercase tracking-wide text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
                     Trainer
                   </th>
                   {weekDates.map((dateStr) => (
                     <th
                       key={dateStr}
-                      className={`border border-slate-200 bg-slate-50 px-1 py-2 text-center text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 ${
+                      className={`border border-slate-200 bg-slate-50 px-0.5 py-1.5 text-center text-2xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 ${
                         period === '1_month' ? ADMIN_SCHEDULE_MONTH_DAY_CELL_CLASSES : ADMIN_SCHEDULE_WEEK_DAY_CELL_CLASSES
                       }`}
                       title={formatDateLabel(dateStr)}
@@ -1335,24 +1335,24 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
               <tbody>
                 {trainerRows.map((row) => (
                   <tr key={row.id || 'unassigned'} className="align-top">
-                    <td className="sticky left-0 z-sticky border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                    <td className="sticky left-0 z-sticky min-w-0 w-28 sm:w-32 border border-slate-200 bg-white px-2 py-1.5 text-sm font-medium text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                     {row.id === ADD_TRAINER_ROW_ID ? (
                       <button
                         type="button"
                         onClick={() => router.push('/dashboard/admin/trainers')}
-                        className="inline-flex items-center gap-1 text-indigo-600 hover:underline dark:text-indigo-300"
+                        className="inline-flex min-h-[44px] touch-manipulation items-center gap-1 text-indigo-600 hover:underline dark:text-indigo-300"
                       >
-                        <UserPlus className="h-4 w-4" aria-hidden />
-                        {row.name}
+                        <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
+                        <span className="truncate">{row.name}</span>
                       </button>
                     ) : (
                       <>
-                        <span className="block">{row.name}</span>
+                        <span className="block truncate" title={row.name}>{row.name}</span>
                         {row.id && (
                           <button
                             type="button"
                             onClick={() => router.push(`/dashboard/admin/trainers?trainer=${row.id}`)}
-                            className="mt-1 flex items-center gap-1 text-[10px] font-medium text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
+                            className="mt-1 flex min-h-[44px] touch-manipulation items-center gap-1 text-[10px] font-medium text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
                             aria-label={`View schedule for ${row.name}`}
                             title="View schedule"
                           >
@@ -1429,7 +1429,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
                         key={key}
                         data-row-id={cellRowId}
                         data-date={cellDateStr}
-                        className={`relative border border-slate-200 p-1 dark:border-slate-700 ${
+                        className={`relative border border-slate-200 p-0.5 dark:border-slate-700 ${
                           period === '1_month' ? ADMIN_SCHEDULE_MONTH_DAY_CELL_CLASSES : ADMIN_SCHEDULE_WEEK_DAY_CELL_CLASSES
                         } ${cellBgClass} ${isDropTarget ? 'ring-2 ring-indigo-400 ring-inset dark:ring-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30' : ''}`}
                         onDragOver={handleCellDragOver}
@@ -1461,7 +1461,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
                           const cellKey = `${row.id ?? ''}|${dateStr}`;
                           return (
                             <>
-                        <ul className="space-y-1.5">
+                        <ul className="space-y-1">
                           {visibleSessions.map((session) => {
                             const displayStatus = getSessionDisplayStatus(session.date, session);
                             const styleConfig = SESSION_DISPLAY_STYLES[displayStatus];
@@ -1477,7 +1477,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
                               aria-label={canDrag
                                 ? `Session ${session.reference}, ${session.date} ${session.startTime}. Drag to another trainer or Unassigned to reassign.`
                                 : `Session ${session.reference}, ${session.date} ${session.startTime}. Trainer confirmed; cannot reassign.`}
-                              className={`rounded-lg border p-2 shadow-sm dark:bg-slate-900 ${styleConfig.cellClass} ${canDrag ? 'cursor-grab active:cursor-grabbing select-none' : 'cursor-default'}`}
+                              className={`rounded-md border p-1.5 shadow-sm dark:bg-slate-900 ${styleConfig.cellClass} ${canDrag ? 'cursor-grab active:cursor-grabbing select-none' : 'cursor-default'}`}
                               onDragStart={canDrag ? (e) => {
                                 const payload = {
                                   sessionId: session.sessionId,
@@ -1499,9 +1499,9 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
                                 if (e.key === 'Enter' || e.key === ' ') e.preventDefault();
                               } : undefined}
                             >
-                              <div className="flex items-center justify-between gap-1">
+                              <div className="flex items-center justify-between gap-0.5">
                                 <SessionStatusBadge session={session} dateStr={session.date} showLabel={true} />
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-0.5">
                                   {isTrainerConfirmed && (
                                     <span className="text-[9px] font-medium text-emerald-600 dark:text-emerald-400 whitespace-nowrap" title="Trainer confirmed; drag disabled">
                                       Confirmed
@@ -1520,16 +1520,15 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
                                   <SessionStatusIcon session={session} dateStr={session.date} />
                                 </div>
                               </div>
-                              <div className="mt-0.5 flex items-start justify-between gap-1">
-                                <p className="text-xs font-medium text-slate-900 dark:text-slate-100">
-                                  {formatTime(session.startTime)} –{' '}
-                                  {formatTime(session.endTime)}
+                              <div className="flex items-center gap-1 mt-0">
+                                <p className="text-[11px] font-medium tabular-nums text-slate-900 dark:text-slate-100">
+                                  {formatTime(session.startTime)} – {formatTime(session.endTime)}
+                                </p>
+                                <p className="truncate text-[11px] text-slate-600 dark:text-slate-400 min-w-0 flex-1">
+                                  {session.childrenSummary}
                                 </p>
                               </div>
-                              <p className="mt-0.5 truncate text-[11px] text-slate-600 dark:text-slate-400">
-                                {session.childrenSummary}
-                              </p>
-                              <div className="mt-1.5 flex flex-wrap justify-end items-center gap-1">
+                              <div className="mt-1 flex flex-wrap justify-end items-center gap-0.5">
                                 {!session.trainerId && (
                                   <select
                                     aria-label={`Assign trainer for ${session.reference}`}
@@ -1548,7 +1547,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
                                       assignOpts.loading ||
                                       assignOpts.list.length === 0
                                     }
-                                    className="max-w-full rounded border border-slate-300 bg-white px-1.5 py-1 text-[11px] focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 disabled:opacity-50"
+                                    className="max-w-full min-h-[44px] sm:min-h-0 rounded border border-slate-300 bg-white px-1 py-0.5 text-[11px] focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 disabled:opacity-50"
                                   >
                                     <option value="">
                                       {assigningSessionId === session.sessionId
@@ -1587,9 +1586,9 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
                                         });
                                       }
                                     }}
-                                    className="rounded p-0.5 text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-slate-200"
+                                    className="flex min-h-[44px] min-w-[44px] touch-manipulation shrink-0 items-center justify-center rounded p-2 text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-slate-200"
                                   >
-                                    <ChevronRight className="h-4 w-4" aria-hidden />
+                                    <ChevronRight className="h-3.5 w-3.5" aria-hidden />
                                   </button>
                                 </span>
                               </div>
@@ -1606,7 +1605,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
                               dateStr,
                               sessions: overflowSessions,
                             })}
-                            className="mt-1 w-full rounded border border-slate-300 bg-white px-1.5 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                            className="mt-0.5 w-full min-h-[44px] sm:min-h-0 flex items-center justify-center touch-manipulation rounded border border-slate-300 bg-white px-1 py-0.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                           >
                             Show {overflowSessions.length} more
                           </button>
@@ -1625,7 +1624,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
         )}
       </div>
 
-      <div className="border-t border-slate-200 px-4 py-2 dark:border-slate-700">
+      <div className="border-t border-slate-200 px-3 py-1.5 dark:border-slate-700">
         <button
           type="button"
           onClick={() => router.push('/dashboard/admin/bookings')}

@@ -13,7 +13,7 @@ interface ChildrenListSkeletonProps {
 
 export default function ChildrenListSkeleton({ count = 3 }: ChildrenListSkeletonProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 animate-pulse overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 overflow-hidden">
       {/* Section Title */}
       <div className="flex items-center justify-between mb-4">
         <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded" />

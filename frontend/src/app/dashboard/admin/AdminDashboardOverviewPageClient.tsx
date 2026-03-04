@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useCallback, useEffect, useMemo } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle, CalendarDays, CalendarClock, ExternalLink, UserCheck, Users, BarChart2, UserPlus, PoundSterling, ClipboardList, UserCog, ShieldAlert } from "lucide-react";
+import { AlertCircle, CalendarDays, CalendarClock, ChevronRight, ExternalLink, UserCheck, Users, LayoutDashboard, UserPlus, PoundSterling, ClipboardList, UserCog, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/interfaces/web/hooks/auth/useAuth";
 import { Breadcrumbs } from "@/components/dashboard/universal";
 import { ROUTES } from "@/utils/routes";
@@ -26,7 +27,6 @@ import { AdminScheduleWeekGrid } from "@/components/dashboard/admin/AdminSchedul
 import { AdminTimesheetsGrid } from "@/components/dashboard/admin/AdminTimesheetsGrid";
 import { AdminDashboardTrainersTab } from "@/components/dashboard/admin/AdminDashboardTrainersTab";
 import { AdminDashboardFamiliesTab } from "@/components/dashboard/admin/AdminDashboardFamiliesTab";
-import { AdminDashboardStatsTab } from "@/components/dashboard/admin/AdminDashboardStatsTab";
 import { SessionDetailSidePanel } from "@/components/dashboard/admin/SessionDetailSidePanel";
 import { TodaySessionsSidePanel } from "@/components/dashboard/admin/TodaySessionsSidePanel";
 import { SessionLatestActivityPanel } from "@/components/dashboard/admin/SessionLatestActivityPanel";
@@ -153,8 +153,8 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
   /** "All children" when empty string; otherwise filter Latest activity by this child ID. */
   const [latestActivityChildFilter, setLatestActivityChildFilter] = useState<string>("");
   const [showAllLatestActivity, setShowAllLatestActivity] = useState(false);
-  /** Dashboard tabs: Schedule (primary), Trainers, Families, Stats, Timesheets */
-  const [activeTab, setActiveTab] = useState<'schedule' | 'trainers' | 'families' | 'stats' | 'timesheets'>('schedule');
+  /** Dashboard tabs: Overview (default), Schedule, Timesheets, Trainers, Families. Stats merged into Overview. */
+  const [activeTab, setActiveTab] = useState<'overview' | 'schedule' | 'timesheets' | 'trainers' | 'families'>('overview');
   /** Modals opened from alert bar */
   const [modalNeedsAttentionList, setModalNeedsAttentionList] = useState(false);
   const [modalUnassigned, setModalUnassigned] = useState(false);
@@ -433,15 +433,8 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
   }
 
   const adminDisplayName = user?.name?.trim().split(/\s+/)[0] || 'Admin';
-  const needsAttentionTotal =
-    (stats?.alerts?.sessionsAwaitingTrainer ?? 0) +
-    (stats?.alerts?.pendingPaymentsCount ?? 0) +
-    (stats?.alerts?.childrenWithZeroHoursCount ?? 0) +
-    (stats?.alerts?.pendingChildChecklists ?? 0) +
-    (stats?.bookings?.pending ?? 0) +
-    (pendingParentApprovals ?? 0) +
-    (pendingTrainerApplications ?? 0) +
-    (pendingSafeguarding ?? 0);
+  /** Total = sum of counts in the modal list so card and modal always match */
+  const needsAttentionTotal = needsAttentionItems.reduce((sum, item) => sum + item.count, 0);
   const hasNeedsAttention = needsAttentionTotal > 0;
 
   return (
@@ -452,15 +445,31 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
           { label: "Overview" },
         ]}
       />
-      {/* Page header – responsive typography */}
-      <header className="space-y-1">
-        <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-2xl xl:text-3xl">
-          {getGreeting()}, {adminDisplayName}
-        </h1>
-        <p className="max-w-[65ch] text-sm text-slate-600 dark:text-slate-400">
-          Schedule and today&apos;s sessions. Review items needing attention first.
-        </p>
-      </header>
+
+      {/* Tabs: Overview (default), Schedule, Timesheets, Trainers, Families – Google Calendar–style */}
+      <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
+        {[
+          { id: 'overview' as const, label: 'Overview', icon: LayoutDashboard },
+          { id: 'schedule' as const, label: 'Schedule', icon: CalendarDays },
+          { id: 'timesheets' as const, label: 'Timesheets', icon: CalendarClock },
+          { id: 'trainers' as const, label: 'Trainers', icon: UserCheck },
+          { id: 'families' as const, label: 'Families', icon: Users },
+        ].map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setActiveTab(id)}
+            className={`flex items-center gap-2 shrink-0 border-b-2 px-4 py-3 text-sm font-medium transition-colors duration-150 ${
+              activeTab === id
+                ? 'border-gcal-primary text-gcal-primary dark:text-gcal-primary'
+                : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
+            }`}
+          >
+            <Icon className="h-4 w-4 shrink-0" aria-hidden />
+            {label}
+          </button>
+        ))}
+      </div>
 
       {(error || todayBookingsError) && (
         <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200" role="alert">
@@ -468,148 +477,226 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
         </div>
       )}
 
-      {/* Single needs-attention strip – one purpose, one primary CTA (Google Calendar–style) */}
-      <div
-        className={`rounded-xl border px-4 py-4 sm:px-5 shadow-sm transition-shadow duration-200 ${
-          hasNeedsAttention
-            ? 'border-amber-200 bg-amber-50/80 dark:border-amber-800 dark:bg-amber-950/30'
-            : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/40'
-        }`}
-        aria-label={hasNeedsAttention ? 'Items need your attention' : 'All clear'}
-      >
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            {hasNeedsAttention ? (
-              <>
-                <AlertCircle className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
-                <p className="text-base font-medium text-slate-900 dark:text-slate-100">
-                  {needsAttentionTotal} item{needsAttentionTotal !== 1 ? 's' : ''} need your attention
-                </p>
-              </>
-            ) : (
-              <p className="text-sm text-slate-600 dark:text-slate-400">All clear — no pending decisions</p>
-            )}
-          </div>
-          {hasNeedsAttention && (
-            <button
-              type="button"
-              onClick={handleReviewNeedsAttention}
-              className="inline-flex items-center gap-2 rounded-full bg-primary-blue px-6 py-2 text-sm font-medium text-white shadow-sm hover:opacity-90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 transition-all duration-150 dark:bg-primary-blue dark:text-white dark:focus:ring-offset-slate-900"
-            >
-              Review
-              <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
-            </button>
-          )}
-        </div>
-      </div>
+      {activeTab === 'overview' && (
+        <>
+          {/* Page header – only on Overview tab */}
+          <header className="space-y-1">
+            <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-2xl xl:text-3xl">
+              {getGreeting()}, {adminDisplayName}
+            </h1>
+            <p className="max-w-[65ch] text-sm text-slate-600 dark:text-slate-400">
+              Schedule and today&apos;s sessions. Review items needing attention first.
+            </p>
+          </header>
 
-      {/* Four key metrics – Google Calendar–style cards: white surfaces, subtle shadow, status colour only on accent */}
-      <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
-        <button
-          type="button"
-          onClick={handleReviewNeedsAttention}
-          className="rounded-xl border border-slate-200 border-l-4 border-l-amber-500 bg-white p-4 text-left shadow-sm transition-shadow duration-200 hover:shadow-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 dark:focus:ring-offset-slate-900 min-h-[44px] touch-manipulation"
-          aria-label="Needs attention – open relevant modal or page"
-        >
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-700 dark:text-slate-300">Needs attention</p>
-          <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-50">{needsAttentionTotal}</p>
-          <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Pending decisions</p>
-        </button>
-        <button
-          type="button"
-          onClick={() => setShowTodaySessionsPanel(true)}
-          className="rounded-xl border border-slate-200 border-l-4 border-l-blue-500 bg-white p-4 text-left shadow-sm transition-shadow duration-200 hover:shadow-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 dark:focus:ring-offset-slate-900 min-h-[44px] touch-manipulation"
-          aria-label="Today's sessions – open side panel"
-        >
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-700 dark:text-slate-300">Today&apos;s sessions</p>
-          <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-50">{todaySessions.length}</p>
-          <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-            {ongoingSessions.length} in progress · {upcomingSessions.length} upcoming
-          </p>
-        </button>
-        <button
-          type="button"
-          onClick={() => router.push(ROUTES.DASHBOARD_ADMIN_BOOKINGS)}
-          className="rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-shadow duration-200 hover:shadow-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 dark:focus:ring-offset-slate-900 min-h-[44px] touch-manipulation"
-          aria-label="Bookings – view all"
-        >
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Bookings</p>
-          <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-50">{loading ? '…' : totalBookings}</p>
-          <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">View all</p>
-        </button>
-        <button
-          type="button"
-          onClick={() => router.push(ROUTES.DASHBOARD_ADMIN_REPORTS)}
-          className="rounded-xl border border-slate-200 border-l-4 border-l-emerald-500 bg-white p-4 text-left shadow-sm transition-shadow duration-200 hover:shadow-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 dark:focus:ring-offset-slate-900 min-h-[44px] touch-manipulation"
-          aria-label="Revenue this month – view reports"
-        >
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-700 dark:text-slate-300">Revenue (month)</p>
-          <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-50">
-            {stats?.revenue != null ? `£${(stats.revenue.thisMonth / 1000).toFixed(1)}k` : '—'}
-          </p>
-          <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">View reports</p>
-        </button>
-      </div>
-
-      <div className="flex flex-col gap-6 lg:flex-row">
-        <div className="min-w-0 flex-1 space-y-6">
-          {/* Tabs: Schedule (primary), Trainers, Families, Stats, Timesheets – Google Calendar–style */}
-          <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
-            {[
-              { id: 'schedule' as const, label: 'Schedule', icon: CalendarDays },
-              { id: 'timesheets' as const, label: 'Timesheets', icon: CalendarClock },
-              { id: 'trainers' as const, label: 'Trainers', icon: UserCheck },
-              { id: 'families' as const, label: 'Families', icon: Users },
-              { id: 'stats' as const, label: 'Stats', icon: BarChart2 },
-            ].map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setActiveTab(id)}
-                className={`flex items-center gap-2 shrink-0 border-b-2 px-4 py-3 text-sm font-medium transition-colors duration-150 ${
-                  activeTab === id
-                    ? 'border-gcal-primary text-gcal-primary dark:text-gcal-primary'
-                    : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
-                }`}
-              >
-                <Icon className="h-4 w-4 shrink-0" aria-hidden />
-                {label}
-              </button>
-            ))}
+          {/* Single needs-attention strip – one purpose, one primary CTA (Google Calendar–style) */}
+          <div
+            className={`rounded-xl border px-4 py-4 sm:px-5 shadow-sm transition-shadow duration-200 ${
+              hasNeedsAttention
+                ? 'border-amber-200 bg-amber-50/80 dark:border-amber-800 dark:bg-amber-950/30'
+                : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/40'
+            }`}
+            aria-label={hasNeedsAttention ? 'Items need your attention' : 'All clear'}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                {hasNeedsAttention ? (
+                  <>
+                    <AlertCircle className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
+                    <p className="text-base font-medium text-slate-900 dark:text-slate-100">
+                      {needsAttentionTotal} item{needsAttentionTotal !== 1 ? 's' : ''} need your attention
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-sm text-slate-600 dark:text-slate-400">All clear — no pending decisions</p>
+                )}
+              </div>
+              {hasNeedsAttention && (
+                <button
+                  type="button"
+                  onClick={handleReviewNeedsAttention}
+                  className="inline-flex items-center gap-2 rounded-full bg-primary-blue px-6 py-2 text-sm font-medium text-white shadow-sm hover:opacity-90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 transition-all duration-150 dark:bg-primary-blue dark:text-white dark:focus:ring-offset-slate-900"
+                >
+                  Review
+                  <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
+                </button>
+              )}
+            </div>
           </div>
 
-          {activeTab === 'schedule' && (
-            <AdminScheduleWeekGrid
-              onRefetchStats={refetchStats}
+          {/* Overview: four cards + right sidebar (no redundant stats block) */}
+          <div className="flex flex-col gap-6 lg:flex-row">
+            <div className="min-w-0 flex-1">
+              <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
+                <button
+                  type="button"
+                  onClick={handleReviewNeedsAttention}
+                  className="rounded-xl border border-slate-200 border-l-4 border-l-amber-500 bg-white p-4 text-left shadow-sm transition-shadow duration-200 hover:shadow-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 dark:focus:ring-offset-slate-900 min-h-[44px] touch-manipulation"
+                  aria-label="Needs attention – open relevant modal or page"
+                >
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-700 dark:text-slate-300">Needs attention</p>
+                  <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-50">{needsAttentionTotal}</p>
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Pending decisions</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowTodaySessionsPanel(true)}
+                  className="rounded-xl border border-slate-200 border-l-4 border-l-blue-500 bg-white p-4 text-left shadow-sm transition-shadow duration-200 hover:shadow-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 dark:focus:ring-offset-slate-900 min-h-[44px] touch-manipulation"
+                  aria-label="Today's sessions – open side panel"
+                >
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-700 dark:text-slate-300">Today&apos;s sessions</p>
+                  <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-50">{todaySessions.length}</p>
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                    {ongoingSessions.length} in progress · {upcomingSessions.length} upcoming
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push(ROUTES.DASHBOARD_ADMIN_BOOKINGS)}
+                  className="rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-shadow duration-200 hover:shadow-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 dark:focus:ring-offset-slate-900 min-h-[44px] touch-manipulation"
+                  aria-label="Bookings – view all"
+                >
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Bookings</p>
+                  <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-50">{loading ? '…' : totalBookings}</p>
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">View all</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push(ROUTES.DASHBOARD_ADMIN_REPORTS)}
+                  className="rounded-xl border border-slate-200 border-l-4 border-l-emerald-500 bg-white p-4 text-left shadow-sm transition-shadow duration-200 hover:shadow-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 dark:focus:ring-offset-slate-900 min-h-[44px] touch-manipulation"
+                  aria-label="Revenue this month – view reports"
+                >
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-700 dark:text-slate-300">Revenue (month)</p>
+                  <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-50">
+                    {stats?.revenue != null ? `£${(stats.revenue.thisMonth / 1000).toFixed(1)}k` : '—'}
+                  </p>
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">View reports</p>
+                </button>
+              </div>
+
+              {/* Four cards: Schedule (switches tab), Total bookings, Active parents, Active trainers */}
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('schedule')}
+                  className="rounded-xl border border-slate-200 border-l-4 border-l-primary-blue bg-white p-5 text-left shadow-sm transition-shadow duration-200 hover:shadow-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 dark:focus:ring-offset-slate-900 min-h-[44px] touch-manipulation"
+                  aria-label="Open Schedule tab"
+                >
+                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
+                    Schedule
+                  </h3>
+                  <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                    This week&apos;s sessions
+                  </p>
+                  <p className="mt-0.5 text-2xs text-slate-500 dark:text-slate-400">
+                    View by trainer or day
+                  </p>
+                </button>
+                <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
+                    Total bookings
+                  </h3>
+                  <p className="text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100">
+                    {stats?.bookings?.total ?? 0}
+                  </p>
+                  {stats?.bookings?.trendPercent != null && stats.bookings.trendPercent !== 0 && (
+                    <p className="mt-0.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                      {stats.bookings.trendPercent > 0 ? '↑' : '↓'} {Math.abs(stats.bookings.trendPercent)}%
+                    </p>
+                  )}
+                  <p className="mt-1 text-2xs text-slate-500 dark:text-slate-400">
+                    {stats?.bookings?.confirmed ?? 0} confirmed · {stats?.bookings?.pending ?? 0} pending · {stats?.bookings?.cancelled ?? 0} cancelled
+                  </p>
+                  <Link
+                    href={ROUTES.DASHBOARD_ADMIN_BOOKINGS}
+                    className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary-blue hover:underline dark:text-primary-blue"
+                  >
+                    View bookings
+                    <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+                  </Link>
+                </section>
+                <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
+                    Active parents
+                  </h3>
+                  <p className="text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100">
+                    {stats?.users?.parentsApproved ?? 0}
+                  </p>
+                  {stats?.users?.trendPercent != null && stats.users.trendPercent !== 0 && (
+                    <p className="mt-0.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                      {stats.users.trendPercent > 0 ? '↑' : '↓'} {Math.abs(stats.users.trendPercent)}%
+                    </p>
+                  )}
+                  {(stats?.users?.parentsPendingApproval ?? 0) > 0 && (
+                    <p className="mt-1 text-2xs text-amber-600 dark:text-amber-400">
+                      {stats?.users?.parentsPendingApproval ?? 0} awaiting approval
+                    </p>
+                  )}
+                  <Link
+                    href={ROUTES.DASHBOARD_ADMIN_PARENTS}
+                    className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary-blue hover:underline dark:text-primary-blue"
+                  >
+                    View parents
+                    <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+                  </Link>
+                </section>
+                <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
+                    Active trainers
+                  </h3>
+                  <p className="text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100">
+                    {stats?.trainers?.active ?? 0}
+                  </p>
+                  {stats?.trainers?.trendPercent != null && stats.trainers.trendPercent !== 0 && (
+                    <p className="mt-0.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                      {stats.trainers.trendPercent > 0 ? '↑' : '↓'} {Math.abs(stats.trainers.trendPercent)}%
+                    </p>
+                  )}
+                  <p className="mt-1 text-2xs text-slate-500 dark:text-slate-400">
+                    {stats?.trainers?.total ?? 0} total trainer profiles
+                  </p>
+                  <Link
+                    href={ROUTES.DASHBOARD_ADMIN_TRAINERS}
+                    className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary-blue hover:underline dark:text-primary-blue"
+                  >
+                    View trainers
+                    <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+                  </Link>
+                </section>
+              </div>
+            </div>
+            <AdminDashboardRightSidebar
+              ongoingSessions={ongoingSessions}
+              upcomingSessions={upcomingSessions}
+              unassignedCount={stats?.alerts?.sessionsAwaitingTrainer ?? 0}
+              pendingPaymentsCount={stats?.alerts?.pendingPaymentsCount ?? 0}
+              zeroHoursCount={stats?.alerts?.childrenWithZeroHoursCount ?? 0}
+              stats={{
+                activeTrainers: stats?.trainers?.active ?? 0,
+                activeParents: stats?.users?.parentsApproved ?? 0,
+                sessionsThisWeek: (stats?.weekDayCounts ?? []).reduce((a, b) => a + b, 0),
+                revenueThisMonth: stats?.revenue?.thisMonth ?? null,
+              }}
               onViewSession={(sessionId, bookingId, options) =>
                 setSessionPanel({ sessionId, bookingId, focusOnActivity: options?.focusOnActivity })
               }
             />
-          )}
+          </div>
+        </>
+      )}
 
-          {activeTab === 'trainers' && <AdminDashboardTrainersTab />}
-          {activeTab === 'families' && <AdminDashboardFamiliesTab />}
-          {activeTab === 'stats' && <AdminDashboardStatsTab />}
-          {activeTab === 'timesheets' && <AdminTimesheetsGrid />}
-        </div>
-
-        <AdminDashboardRightSidebar
-          ongoingSessions={ongoingSessions}
-          upcomingSessions={upcomingSessions}
-          unassignedCount={stats?.alerts?.sessionsAwaitingTrainer ?? 0}
-          pendingPaymentsCount={stats?.alerts?.pendingPaymentsCount ?? 0}
-          zeroHoursCount={stats?.alerts?.childrenWithZeroHoursCount ?? 0}
-          stats={{
-            activeTrainers: stats?.trainers?.active ?? 0,
-            activeParents: stats?.users?.parentsApproved ?? 0,
-            sessionsThisWeek: (stats?.weekDayCounts ?? []).reduce((a, b) => a + b, 0),
-            revenueThisMonth: stats?.revenue?.thisMonth ?? null,
-          }}
+      {activeTab === 'schedule' && (
+        <AdminScheduleWeekGrid
+          onRefetchStats={refetchStats}
           onViewSession={(sessionId, bookingId, options) =>
-                setSessionPanel({ sessionId, bookingId, focusOnActivity: options?.focusOnActivity })
-              }
+            setSessionPanel({ sessionId, bookingId, focusOnActivity: options?.focusOnActivity })
+          }
         />
-      </div>
+      )}
+
+      {activeTab === 'timesheets' && <AdminTimesheetsGrid />}
+      {activeTab === 'trainers' && <AdminDashboardTrainersTab />}
+      {activeTab === 'families' && <AdminDashboardFamiliesTab />}
       <NeedsAttentionModal
         isOpen={modalNeedsAttentionList}
         onClose={() => setModalNeedsAttentionList(false)}

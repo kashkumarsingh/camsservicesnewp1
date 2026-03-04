@@ -406,6 +406,20 @@ export const AdminBookingsPageClient: React.FC = () => {
     updateFilters({});
   }, [router, pathname, updateFilters]);
 
+  /** When arriving from a notification link with schedule_id, open the side panel for that booking. */
+  const scheduleIdFromUrl = searchParams.get('schedule_id') ?? undefined;
+  useEffect(() => {
+    if (!scheduleIdFromUrl || bookings.length === 0) return;
+    const booking = bookings.find((b) => b.sessions.some((s) => s.id === scheduleIdFromUrl));
+    if (booking) {
+      setSelectedBooking(booking);
+      const params = new URLSearchParams(searchParams);
+      params.delete('schedule_id');
+      const newSearch = params.toString();
+      router.replace(newSearch ? `${pathname}?${newSearch}` : pathname, { scroll: false });
+    }
+  }, [scheduleIdFromUrl, bookings, pathname, router, searchParams]);
+
   /** Sync staged filters from URL when opening the panel. */
   useEffect(() => {
     if (filterPanelOpen) {

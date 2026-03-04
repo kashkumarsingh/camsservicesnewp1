@@ -138,6 +138,18 @@ function groupNotificationsByCategory(
   return byCategory;
 }
 
+/** Fallback link when notification has no link (e.g. old records). Ensures click always navigates somewhere sensible. */
+function getNotificationFallbackLink(type: string): string | null {
+  switch (type) {
+    case 'session_needs_trainer':
+      return `${ROUTES.DASHBOARD_ADMIN_BOOKINGS}?needs_trainer=1`;
+    case 'trainer_availability_updated':
+      return ROUTES.DASHBOARD_ADMIN;
+    default:
+      return null;
+  }
+}
+
 /** Category with the single most recent notification appears first; items within each category are already newest-first. */
 function orderedCategoryEntries(
   grouped: Map<string, DashboardNotification[]>
@@ -177,7 +189,7 @@ function getSectionRole(user: User | null): "parent" | "trainer" | "admin" | "ed
 
 export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [parentSettingsOpen, setParentSettingsOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -584,10 +596,10 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                 <Bell className="h-4 w-4" aria-hidden />
                 {unreadCount > 0 && (
                   <span
-                    className="absolute -top-1 -right-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-slate-900 bg-amber-500 text-2xs font-bold text-slate-900 shadow-sm dark:border-white dark:bg-amber-500 dark:text-slate-900"
+                    className="absolute -top-1 -right-1 flex h-5 min-w-[1.25rem] shrink-0 items-center justify-center rounded-full px-1 bg-amber-500 text-2xs font-bold text-slate-900 shadow-sm dark:bg-amber-500 dark:text-slate-900"
                     aria-label={`${unreadCount} unread notification${unreadCount !== 1 ? "s" : ""}`}
                   >
-                    {unreadCount > 9 ? "9+" : unreadCount}
+                    {unreadCount > 99 ? "99+" : unreadCount}
                   </span>
                 )}
               </button>
@@ -663,8 +675,10 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                                         <button
                                           type="button"
                                           onClick={() => {
-                                            if (n.link) {
-                                              router.push(n.link);
+                                            const targetLink =
+                                              (n.link && String(n.link).trim()) || getNotificationFallbackLink(n.type);
+                                            if (targetLink) {
+                                              router.push(targetLink);
                                               setNotificationsOpen(false);
                                             }
                                             if (!n.readAt) markRead(n.id);

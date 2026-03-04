@@ -18,7 +18,7 @@ export default function StatCardSkeleton({ count = 1, showProgress = false }: St
       {Array.from({ length: count }, (_, i) => (
         <div
           key={`stat-card-skeleton-${i}`}
-          className="rounded-xl border-2 border-gray-200 bg-white p-4 sm:p-6 min-h-[100px] relative animate-pulse"
+          className="rounded-xl border-2 border-gray-200 bg-white p-4 sm:p-6 min-h-[100px] relative"
         >
           {/* Title Skeleton */}
           <div className="flex items-center justify-between mb-1">

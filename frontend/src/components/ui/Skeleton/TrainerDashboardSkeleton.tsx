@@ -11,7 +11,7 @@ const PADDING = 'px-5 sm:px-6 md:px-8';
 
 export default function TrainerDashboardSkeleton() {
   return (
-    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 pb-20 lg:pb-0 animate-pulse`} aria-busy="true" aria-label="Loading dashboard">
+    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 pb-20 lg:pb-0 `} aria-busy="true" aria-label="Loading dashboard">
       <div className={`w-full ${PADDING}`}>
         {/* Header – greeting + action buttons */}
         <div className="mb-4 sm:mb-6">

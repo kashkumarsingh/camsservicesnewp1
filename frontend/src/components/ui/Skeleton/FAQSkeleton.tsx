@@ -15,7 +15,7 @@ export default function FAQSkeleton({ count = 1 }: FAQSkeletonProps) {
     <>
       {Array.from({ length: count }, (_, i) => (
         <div key={`faq-skeleton-${i}`} className="mb-6 p-6 rounded-lg shadow-md bg-gradient-to-br from-purple-50 to-blue-50">
-          <div className="h-6 w-3/4 bg-gray-200 rounded animate-pulse mx-auto" />
+          <div className="h-6 w-3/4 bg-gray-200 rounded mx-auto" />
         </div>
       ))}
     </>
