@@ -41,6 +41,7 @@ interface IPaymentService
      * @param string|null $successUrl Success redirect URL
      * @param string|null $cancelUrl Cancel redirect URL
      * @param string|null $customerEmail Customer email to pre-fill in checkout
+     * @param string|null $idempotencyKey Optional idempotency key for safe retries (Stripe recommendation)
      * @return array{success: bool, checkout_url?: string, session_id?: string, payment_intent_id?: string, error?: string}
      */
     public function createCheckoutSession(
@@ -49,7 +50,8 @@ interface IPaymentService
         array $metadata = [],
         ?string $successUrl = null,
         ?string $cancelUrl = null,
-        ?string $customerEmail = null
+        ?string $customerEmail = null,
+        ?string $idempotencyKey = null
     ): array;
 
     /**
@@ -83,6 +85,14 @@ interface IPaymentService
      * @return array<string, string> Metadata key-value pairs (e.g. ['top_up_hours' => '5'])
      */
     public function getCheckoutSessionMetadataByPaymentIntent(string $paymentIntentId): array;
+
+    /**
+     * Get the Stripe receipt URL for a payment intent (hosted receipt page – used as invoice link).
+     *
+     * @param string $paymentIntentId Stripe PaymentIntent id (e.g. pi_xxx)
+     * @return string|null Receipt URL or null if not available
+     */
+    public function getReceiptUrl(string $paymentIntentId): ?string;
 
     /**
      * Refund a payment.

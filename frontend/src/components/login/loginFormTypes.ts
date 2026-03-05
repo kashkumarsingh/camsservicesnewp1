@@ -5,6 +5,7 @@
 export interface LoginFormData {
   email: string;
   password: string;
+  rememberMe: boolean;
 }
 
 export interface LoginFormSectionProps {
@@ -21,4 +22,6 @@ export interface LoginFormSectionProps {
   handleSubmit: (e: React.FormEvent) => void;
   authError: string | null;
   registerHref: string;
+  /** When set, shows a "Forgot password?" link below the password field */
+  forgotPasswordHref?: string;
 }

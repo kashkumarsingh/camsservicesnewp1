@@ -43,8 +43,9 @@ import { getChildChecklistFlags, canChildBuyHours, childNeedsChecklistCta, child
 import { USER_ROLE, APPROVAL_STATUS, BOOKING_STATUS, PAYMENT_STATUS } from '@/utils/dashboardConstants';
 import { CHECKLIST_SUBMIT_SUCCESS_MESSAGE } from '@/utils/appConstants';
 import { ROUTES } from '@/utils/routes';
-import { getMessageForDateReason, toWholeActivityHours } from '@/utils/bookingValidationMessages';
+import { getMessageForDateReason } from '@/utils/bookingValidationMessages';
 import { getApiErrorMessage } from '@/utils/errorUtils';
+import { toApiTimeFormat } from '@/utils/timeFormatUtils';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
 import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
 import { ChildrenFilter } from '@/components/dashboard/ChildrenFilter';
@@ -97,35 +98,30 @@ export default function ParentDashboardPageClient() {
   const hasConfirmedPaymentFromSessionRef = React.useRef(false);
   const purchaseSuccessTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // After returning from Stripe Checkout: confirm payment with backend when session_id is present, then toast + refetch
+  // After returning from Stripe Checkout: redirect to payment confirmation page (single place for confirm + invoice UI)
   useEffect(() => {
     const purchaseStatus = searchParams.get('purchase');
     const sessionId = searchParams.get('session_id');
 
-    if (purchaseStatus === 'success') {
-      const run = async () => {
-        if (sessionId && !hasConfirmedPaymentFromSessionRef.current) {
-          hasConfirmedPaymentFromSessionRef.current = true;
-          const result = await ApiPaymentService.confirmPaymentFromSession(sessionId);
-          if (!result.ok) {
-            hasShownPurchaseToastRef.current = true;
-            toastManager.error(result.error);
-          }
-        }
+    if (purchaseStatus === 'success' && sessionId) {
+      if (!hasConfirmedPaymentFromSessionRef.current) {
+        hasConfirmedPaymentFromSessionRef.current = true;
+        router.replace(`${ROUTES.DASHBOARD_PARENT_PAYMENT_CONFIRMATION}?session_id=${encodeURIComponent(sessionId)}`, { scroll: false });
+      }
+      return;
+    }
 
-        if (!hasShownPurchaseToastRef.current) {
-          hasShownPurchaseToastRef.current = true;
-          toastManager.success(
-            'Payment received. Your hours will update in a moment—you can now book sessions from your dashboard.',
-          );
-        }
-        refetchBookings(true);
-        refresh();
-        purchaseSuccessTimeoutRef.current = setTimeout(() => refetchBookings(true), 2000);
-        setTimeout(() => refetchBookings(true), 5000);
-        router.replace('/dashboard/parent', { scroll: false });
-      };
-      run();
+    if (purchaseStatus === 'success' && !sessionId) {
+      if (!hasShownPurchaseToastRef.current) {
+        hasShownPurchaseToastRef.current = true;
+        toastManager.success(
+          'Payment received. Your hours will update in a moment—you can now book sessions from your dashboard.',
+        );
+      }
+      refetchBookings(true);
+      refresh();
+      purchaseSuccessTimeoutRef.current = setTimeout(() => refetchBookings(true), 2000);
+      router.replace(ROUTES.DASHBOARD_PARENT, { scroll: false });
       return () => {
         if (purchaseSuccessTimeoutRef.current) {
           clearTimeout(purchaseSuccessTimeoutRef.current);
@@ -138,7 +134,7 @@ export default function ParentDashboardPageClient() {
       toastManager.info(
         'Payment was cancelled. Your package will only be confirmed once payment is completed.',
       );
-      router.replace('/dashboard/parent', { scroll: false });
+      router.replace(ROUTES.DASHBOARD_PARENT, { scroll: false });
     }
   }, [searchParams, router, refetchBookings, refresh]);
 
@@ -622,12 +618,12 @@ export default function ParentDashboardPageClient() {
     let totalDuration = MIN_DURATION_HOURS; // Default to minimum hours (business rule)
     
     if (bookingData.activitySelectionType === 'package_activity') {
-      // Base duration from database-backed activities
+      // Base duration from database-backed activities (actual decimal hours so backend total matches UI, e.g. 4h not 6h)
       const selectedIds = bookingData.selectedActivityIds || [];
       const dbDuration = selectedIds.reduce((sum, activityId) => {
         const activity = allActivities.find(a => String(a.id) === String(activityId));
-        const wholeHours = activity ? toWholeActivityHours(activity.duration) : 1;
-        return sum + wholeHours;
+        const hours = activity?.duration ?? MIN_DURATION_HOURS;
+        return sum + hours;
       }, 0);
 
       // Additional duration from custom activities
@@ -638,11 +634,11 @@ export default function ParentDashboardPageClient() {
 
       totalDuration = Math.max(MIN_DURATION_HOURS, dbDuration + customDuration);
 
-      // Populate activity duration_hours for backend (whole hours so stored duration matches 1h display)
+      // Populate activity duration_hours for backend (actual decimal so session total matches remaining-hours check)
       selectedIds.forEach((activityId, idx) => {
         const activity = allActivities.find(a => String(a.id) === String(activityId));
         if (activity && activities[idx]) {
-          activities[idx].duration_hours = toWholeActivityHours(activity.duration);
+          activities[idx].duration_hours = activity.duration;
         }
       });
     } else if (bookingData.duration) {
@@ -683,8 +679,8 @@ export default function ParentDashboardPageClient() {
           API_ENDPOINTS.BOOKING_SCHEDULE_BY_ID(editingSession.scheduleId),
           {
             date: bookingData.date,
-            start_time: bookingData.startTime,
-            end_time: finalEndTime,
+            start_time: toApiTimeFormat(bookingData.startTime),
+            end_time: toApiTimeFormat(finalEndTime),
             activities: activities, // Array of {activity_id, duration_hours?, order?}
             itinerary_notes: bookingData.notes || null,
           }
@@ -696,8 +692,8 @@ export default function ParentDashboardPageClient() {
           API_ENDPOINTS.BOOKING_SCHEDULES(activeBooking.id),
           {
             date: bookingData.date,
-            start_time: bookingData.startTime,
-            end_time: finalEndTime,
+            start_time: toApiTimeFormat(bookingData.startTime),
+            end_time: toApiTimeFormat(finalEndTime),
             activities: activities, // Array of {activity_id, duration_hours?, order?}
             itinerary_notes: bookingData.notes || null,
           }
@@ -787,8 +783,8 @@ export default function ParentDashboardPageClient() {
       try {
         await apiClient.put(API_ENDPOINTS.BOOKING_SCHEDULE_BY_ID(session.scheduleId), {
           date: newDate,
-          start_time: newStartTime,
-          end_time: newEndTime,
+          start_time: toApiTimeFormat(newStartTime),
+          end_time: toApiTimeFormat(newEndTime),
         });
         toastManager.success('Session rescheduled successfully!');
         await refetchBookings();
@@ -1667,7 +1663,7 @@ export default function ParentDashboardPageClient() {
         <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
           <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm transition-shadow duration-200 dark:border-slate-700 dark:bg-slate-900">
             <XCircle className="mx-auto mb-4 h-12 w-12 text-rose-500" aria-hidden />
-            <h1 className="mb-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">Loading Timeout</h1>
+            <h1 className="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-100">Loading Timeout</h1>
             <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
               The dashboard is taking too long to load. This might be due to a slow API response or network issue.
             </p>
@@ -1697,7 +1693,7 @@ export default function ParentDashboardPageClient() {
     return null;
   }
 
-  // Unapproved parents: show only pending/rejected screen (no full dashboard) until admin approves
+  // Unapproved parents: show only pending/rejected screen (no full dashboard, no sign out — they should not have a token; edge case e.g. old token)
   if (user.role === USER_ROLE.PARENT && user.approvalStatus !== APPROVAL_STATUS.APPROVED) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center bg-slate-50 dark:bg-slate-950">
@@ -1705,17 +1701,17 @@ export default function ParentDashboardPageClient() {
           {user.approvalStatus === APPROVAL_STATUS.PENDING ? (
             <>
               <AlertCircle className="mx-auto mb-4 h-16 w-16 text-amber-500" aria-hidden />
-              <h1 className="mb-2 text-2xl font-semibold text-slate-900 dark:text-slate-50">
+              <h1 className="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-50">
                 Account Pending Approval
               </h1>
               <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
-                Your registration is pending admin approval. You&apos;ll be notified once approved.
+                Your registration is pending admin approval. You&apos;ll be notified once approved. You can sign in only after your account is approved.
               </p>
             </>
           ) : (
             <>
               <XCircle className="mx-auto mb-4 h-16 w-16 text-rose-500" aria-hidden />
-              <h1 className="mb-2 text-2xl font-semibold text-slate-900 dark:text-slate-50">
+              <h1 className="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-50">
                 Account Not Approved
               </h1>
               <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
@@ -1723,14 +1719,9 @@ export default function ParentDashboardPageClient() {
               </p>
             </>
           )}
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Button onClick={() => router.push(ROUTES.HOME)} className="w-full rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover hover:shadow-md sm:w-auto focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
-              Go to Homepage
-            </Button>
-            <Button variant="outline" onClick={() => logout()} className="w-full rounded-full border border-slate-300 bg-white px-6 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-400 sm:w-auto transition-all duration-150">
-              Sign out
-            </Button>
-          </div>
+          <Button onClick={() => router.push(ROUTES.HOME)} className="w-full rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover hover:shadow-md sm:w-auto focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
+            Go to Homepage
+          </Button>
         </div>
       </div>
     );
@@ -1808,7 +1799,7 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
       <header className="hidden border-b border-slate-200 pb-3 md:block dark:border-slate-800">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
           <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-            <h1 className="truncate text-2xl font-semibold text-slate-900 dark:text-slate-100">
+            <h1 className="truncate text-xl font-semibold text-slate-900 dark:text-slate-100">
               {getGreeting()}, {parentName.split(' ')[0]}
             </h1>
             {isRefreshing && (
@@ -1870,11 +1861,11 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                 {/* Row 1 (side by side): Scheduled Sessions + subtitle | Children filter | Day/Week/Month + March 2026 / This month */}
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                   <div className="min-w-0">
-                    <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100 md:text-xl">
+                    <h2 className="flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-slate-100 md:text-lg">
                       <Calendar className="h-5 w-5 shrink-0 text-slate-600 dark:text-slate-400" aria-hidden />
                       Scheduled Sessions
                     </h2>
-                    <p className="mt-0.5 text-base text-slate-600 dark:text-slate-400">Click any date to book a new session.</p>
+                    <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">Click any date to book a new session.</p>
                   </div>
                   <div className="flex items-center shrink-0">
                     <ChildrenFilter
@@ -2151,7 +2142,7 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                   {activeMobileTab === 'hours' && (
                     <div className="space-y-4">
                       <div className="text-center py-2">
-                        <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">{totalRemainingHoursForBanner.toFixed(1)}h</p>
+                        <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{totalRemainingHoursForBanner.toFixed(1)}h</p>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">left to book sessions</p>
                       </div>
                       <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">

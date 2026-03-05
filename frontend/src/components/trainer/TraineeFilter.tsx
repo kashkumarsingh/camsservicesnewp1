@@ -4,6 +4,56 @@ import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Users, ChevronDown } from 'lucide-react';
 
+const POPOVER_OFFSET = 8;
+const VIEWPORT_PADDING = 16;
+const MIN_PANEL_WIDTH = 180;
+const MIN_SPACE_BELOW = 200;
+
+type PanelPosition = {
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+  minWidth: number;
+};
+
+function getClampedPosition(triggerRect: DOMRect): PanelPosition {
+  if (typeof window === 'undefined') {
+    return { top: VIEWPORT_PADDING, right: VIEWPORT_PADDING, minWidth: MIN_PANEL_WIDTH };
+  }
+  const { innerWidth, innerHeight } = window;
+  const minWidth = Math.min(MIN_PANEL_WIDTH, innerWidth - 2 * VIEWPORT_PADDING);
+
+  const panelLeftPreferred = triggerRect.right - MIN_PANEL_WIDTH;
+  const panelRightPreferred = triggerRect.right;
+
+  let left: number | undefined;
+  let right: number | undefined;
+  if (panelLeftPreferred < VIEWPORT_PADDING) {
+    left = VIEWPORT_PADDING;
+  } else if (panelRightPreferred > innerWidth - VIEWPORT_PADDING) {
+    right = VIEWPORT_PADDING;
+  } else {
+    right = innerWidth - triggerRect.right;
+  }
+
+  const spaceBelow = innerHeight - (triggerRect.bottom + POPOVER_OFFSET);
+  const showAbove = spaceBelow < MIN_SPACE_BELOW && triggerRect.top > spaceBelow;
+
+  if (showAbove) {
+    return {
+      bottom: innerHeight - triggerRect.top + POPOVER_OFFSET,
+      left,
+      right,
+      minWidth,
+    };
+  }
+  const top = triggerRect.bottom + POPOVER_OFFSET;
+  const maxTop = innerHeight - VIEWPORT_PADDING - 150;
+  const clampedTop = Math.min(top, maxTop);
+  return { top: clampedTop, left, right, minWidth };
+}
+
 export interface TraineeFilterItem {
   id: number;
   name: string;
@@ -21,6 +71,7 @@ interface TraineeFilterProps {
 /**
  * Trainee filter popover for trainer dashboard and schedule.
  * Same anchored popover pattern as ChildrenFilter: fixed overlay + positioned panel portaled to body.
+ * Viewport-aware: stays on-screen on tablet and mobile (clamp + flip above when needed).
  */
 export function TraineeFilter({
   trainees: traineeList,
@@ -31,22 +82,25 @@ export function TraineeFilter({
 }: TraineeFilterProps) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [panelRect, setPanelRect] = useState<{ top: number; right: number } | null>(null);
+  const [position, setPosition] = useState<PanelPosition | null>(null);
 
   useLayoutEffect(() => {
     if (!open || !dropdownRef.current) {
-      setPanelRect(null);
+      setPosition(null);
       return;
     }
     const update = () => {
       const el = dropdownRef.current;
       if (!el) return;
-      const rect = el.getBoundingClientRect();
-      setPanelRect({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+      setPosition(getClampedPosition(el.getBoundingClientRect()));
     };
     update();
     window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
+    window.addEventListener('scroll', update, true);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update, true);
+    };
   }, [open]);
 
   useEffect(() => {
@@ -101,13 +155,19 @@ export function TraineeFilter({
         />
       </button>
 
-      {open && typeof document !== 'undefined' && panelRect && createPortal(
+      {open && typeof document !== 'undefined' && position && createPortal(
         <>
           <div className="fixed inset-0 z-dropdown" aria-hidden onClick={() => setOpen(false)} />
           <div
             role="listbox"
-            className="fixed z-dropdown min-w-[180px] max-w-[calc(100vw-1rem)] max-h-[85vh] overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg py-1"
-            style={{ top: panelRect.top, right: panelRect.right }}
+            className="fixed z-dropdown max-w-[calc(100vw-2rem)] max-h-[85vh] overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg py-1"
+            style={{
+              top: position.top,
+              bottom: position.bottom,
+              left: position.left,
+              right: position.right,
+              minWidth: position.minWidth,
+            }}
             aria-label={`Filter by trainee. Currently: ${label}`}
           >
             <button

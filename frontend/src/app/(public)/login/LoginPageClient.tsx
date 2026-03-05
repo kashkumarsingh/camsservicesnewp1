@@ -13,6 +13,7 @@ import { LOGIN_VALIDATION_FALLBACKS } from '@/components/login/constants';
 const INITIAL_FORM_DATA: LoginFormData = {
   email: '',
   password: '',
+  rememberMe: true,
 };
 
 export default function LoginPageClient() {
@@ -65,8 +66,11 @@ export default function LoginPageClient() {
   }, [formData, touched]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, type, value, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
     if (!touched[name]) {
       setTouched((prev) => ({ ...prev, [name]: true }));
     }
@@ -92,7 +96,11 @@ export default function LoginPageClient() {
     setIsSubmitting(true);
     try {
       await login(
-        { email: formData.email, password: formData.password },
+        {
+          email: formData.email,
+          password: formData.password,
+          rememberMe: formData.rememberMe,
+        },
         redirectParam ?? undefined
       );
     } finally {
@@ -117,6 +125,7 @@ export default function LoginPageClient() {
           handleSubmit={handleSubmit}
           authError={authError}
           registerHref={ROUTES.REGISTER}
+          forgotPasswordHref={ROUTES.FORGOT_PASSWORD}
         />
       </div>
     </div>

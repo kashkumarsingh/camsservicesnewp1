@@ -44,6 +44,7 @@ class ProcessPaymentAction
      * @param string $paymentMethod
      * @param bool $isTopUp When true, skip outstanding-amount check (top-up adds new charge; hours applied on payment success).
      * @param array<string, string> $extraMetadata Merged into Stripe session metadata (e.g. top_up_hours, line_item_name, line_item_description).
+     * @param string|null $idempotencyKey Optional idempotency key for Stripe (safe retries; see https://docs.stripe.com/api/idempotent_requests).
      * @return array{success: bool, payment_intent_id?: string, client_secret?: string, checkout_url?: string, error?: string}
      */
     public function createPaymentIntent(
@@ -52,9 +53,10 @@ class ProcessPaymentAction
         string $currency = 'GBP',
         string $paymentMethod = 'stripe',
         bool $isTopUp = false,
-        array $extraMetadata = []
+        array $extraMetadata = [],
+        ?string $idempotencyKey = null
     ): array {
-        return DB::transaction(function () use ($bookingId, $amount, $currency, $paymentMethod, $isTopUp, $extraMetadata) {
+        return DB::transaction(function () use ($bookingId, $amount, $currency, $paymentMethod, $isTopUp, $extraMetadata, $idempotencyKey) {
             // Get booking (eager load user relationship for email access)
             $booking = $this->bookingRepository->findById($bookingId);
 
@@ -96,6 +98,7 @@ class ProcessPaymentAction
                 'currency' => $currency,
                 'payment_method' => $paymentMethod,
                 'payment_provider' => 'Stripe',
+                'payment_type' => $isTopUp ? 'top_up' : 'package',
                 'status' => PaymentStatusVO::PENDING,
             ]);
 
@@ -144,7 +147,8 @@ class ProcessPaymentAction
                 // from Stripe webhooks.
                 $frontendUrl . '/dashboard/parent?purchase=success&session_id={CHECKOUT_SESSION_ID}',
                 $frontendUrl . '/dashboard/parent?purchase=canceled',
-                $parentEmail // Pre-fill parent email in Stripe checkout
+                $parentEmail, // Pre-fill parent email in Stripe checkout
+                $idempotencyKey
             );
 
             if (!$checkoutResult['success']) {
@@ -494,6 +498,12 @@ class ProcessPaymentAction
                     PaymentStatusVO::COMPLETED,
                     now()->toIso8601String()
                 );
+
+                // Persist Stripe receipt URL (invoice link – Option A: receipt as invoice)
+                $receiptUrl = $this->paymentService->getReceiptUrl($paymentIntentId);
+                if ($receiptUrl !== null) {
+                    $this->paymentRepository->updateReceiptUrl($payment->id(), $receiptUrl);
+                }
 
                 // Reload payment to get updated entity
                 $updatedPayment = $this->paymentRepository->findById($payment->id());

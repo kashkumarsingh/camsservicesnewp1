@@ -9,11 +9,15 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
+use App\Notifications\ParentRegisteredNotification;
+use App\Notifications\AdminParentRegistrationNotification;
 
 /**
  * Auth Controller (Interface Layer)
@@ -71,27 +75,17 @@ class AuthController extends Controller
                 // Refresh user to ensure all attributes are loaded
                 $user->refresh();
 
-                // Create access token
-                try {
-                    // Check if personal_access_tokens table exists
-                    if (!Schema::hasTable('personal_access_tokens')) {
-                        Log::error('personal_access_tokens table does not exist', [
-                            'user_id' => $user->id,
-                        ]);
-                        throw new \Exception('Authentication system not properly configured. Please run migrations.');
-                    }
-                    
-                    $token = $user->createToken('auth-token')->plainTextToken;
-                } catch (\Exception $tokenError) {
-                    Log::error('Token creation failed after user creation', [
-                        'user_id' => $user->id,
-                        'error' => $tokenError->getMessage(),
-                        'error_class' => get_class($tokenError),
-                        'trace' => $tokenError->getTraceAsString(),
-                    ]);
-                    
-                    // Rollback user creation if token fails
-                    throw $tokenError;
+                // Parent registration: do not issue a token. They can sign in only after admin approval.
+                // Notify parent and admins (queued). If ADMIN_NOTIFICATION_EMAIL is set, only that inbox gets the alert (avoids duplicate emails when multiple admin accounts exist).
+                $user->notify(new ParentRegisteredNotification($user));
+                $adminQuery = User::whereIn('role', ['admin', 'super_admin']);
+                $singleAdminEmail = config('services.admin_notification_email');
+                if ($singleAdminEmail) {
+                    $adminQuery->where('email', $singleAdminEmail);
+                }
+                $admins = $adminQuery->get();
+                foreach ($admins as $admin) {
+                    $admin->notify(new AdminParentRegistrationNotification($user));
                 }
 
                 return $this->successResponse(
@@ -105,10 +99,8 @@ class AuthController extends Controller
                             'approval_status' => $user->approval_status,
                             'created_at' => $user->created_at->toIso8601String(),
                         ],
-                        'access_token' => $token,
-                        'token_type' => 'Bearer',
                     ],
-                    'Registration successful. Your account is pending admin approval.',
+                    'Registration successful. Your account is pending admin approval. You can sign in once approved.',
                     [],
                     201
                 );
@@ -183,6 +175,7 @@ class AuthController extends Controller
             $request->validate([
                 'email' => ['required', 'email'],
                 'password' => ['required', 'string'],
+                'remember_me' => ['sometimes', 'boolean'],
             ]);
 
             $user = User::where('email', $request->email)->first();
@@ -196,9 +189,20 @@ class AuthController extends Controller
                 );
             }
 
-            // Create access token
+            // Parent and trainer: must be approved before they can sign in
+            if (in_array($user->role, ['parent', 'trainer'], true) && $user->approval_status !== 'approved') {
+                $message = $user->approval_status === 'pending'
+                    ? 'Your account is pending admin approval. You can sign in once approved.'
+                    : 'Your account was not approved. Please contact us for more information.';
+
+                return $this->errorResponse($message, ErrorCodes::FORBIDDEN, ['approvalStatus' => [$message]], 403);
+            }
+
+            // Create access token. When "remember me" is false, token expires in 24 hours (session-like).
+            $rememberMe = $request->boolean('remember_me', true);
+            $expiresAt = $rememberMe ? now()->addDays(30) : now()->addDay();
             try {
-                $token = $user->createToken('auth-token')->plainTextToken;
+                $token = $user->createToken('auth-token', ['*'], $expiresAt)->plainTextToken;
             } catch (\Exception $tokenError) {
                 Log::error('Login token creation failed', [
                     'user_id' => $user->id,
@@ -283,7 +287,7 @@ class AuthController extends Controller
 
     /**
      * Logout user
-     * 
+     *
      * @param Request $request
      * @return JsonResponse
      */
@@ -292,6 +296,97 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return $this->successResponse([], 'Logged out successfully');
+    }
+
+    /**
+     * Send a password reset link to the given email (forgot password).
+     * Throttled to prevent abuse. Always returns success for valid format to avoid email enumeration.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'string', 'email'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors()->toArray());
+        }
+
+        $status = Password::sendResetLink($request->only('email'));
+
+        if ($status === Password::RESET_THROTTLED) {
+            return $this->errorResponse(
+                'Too many reset attempts. Please try again later.',
+                ErrorCodes::RATE_LIMIT_EXCEEDED,
+                [],
+                429
+            );
+        }
+
+        if ($status === Password::INVALID_USER) {
+            return $this->errorResponse(
+                'This email is not registered with us. Please check the address or create an account.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                ['email' => ['No account found for this email address.']],
+                404
+            );
+        }
+
+        return $this->successResponse(
+            [],
+            'We have sent a password reset link to your email address.'
+        );
+    }
+
+    /**
+     * Reset the user's password using the token from the reset link.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'token' => ['required', 'string'],
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors()->toArray());
+        }
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password): void {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                ])->save();
+            }
+        );
+
+        if ($status === Password::INVALID_TOKEN) {
+            return $this->errorResponse(
+                'This password reset link is invalid or has expired. Please request a new one.',
+                ErrorCodes::TOKEN_INVALID,
+                ['token' => ['Invalid or expired reset token.']],
+                400
+            );
+        }
+
+        if ($status === Password::INVALID_USER) {
+            return $this->errorResponse(
+                'We could not find a user with that email address.',
+                ErrorCodes::RESOURCE_NOT_FOUND,
+                ['email' => ['No user found for this email.']],
+                400
+            );
+        }
+
+        return $this->successResponse([], 'Your password has been reset. You can now sign in.');
     }
 }
 

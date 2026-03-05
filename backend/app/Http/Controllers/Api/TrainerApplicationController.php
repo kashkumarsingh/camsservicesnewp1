@@ -9,6 +9,8 @@ use App\Models\TrainerApplication;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\TrainerApplicationReceivedNotification;
 
 class TrainerApplicationController extends Controller
 {
@@ -42,6 +44,12 @@ class TrainerApplicationController extends Controller
 
         app(\App\Contracts\Notifications\INotificationDispatcher::class)
             ->dispatch(\App\Services\Notifications\NotificationIntentFactory::trainerApplicationSubmittedToAdmin($application));
+
+        // Notify applicant: application received (queued)
+        if (! empty($application->email)) {
+            Notification::route('mail', $application->email)
+                ->notify(new TrainerApplicationReceivedNotification($application));
+        }
 
         return $this->successResponse([
             'id' => $application->id,

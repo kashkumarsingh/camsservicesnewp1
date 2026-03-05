@@ -281,7 +281,7 @@ export default function DashboardRightSidebar({
             <Clock size={14} className="text-[#5f6368] dark:text-gray-400" aria-hidden />
             Your hours
           </h3>
-          <p className="text-2xl font-semibold tabular-nums text-[#202124] dark:text-gray-100 mb-5">
+          <p className="text-xl font-semibold tabular-nums text-[#202124] dark:text-gray-100 mb-5">
             {hoursSummary.totalHoursBooked.toFixed(1)} hours booked
           </p>
           <div className="grid grid-cols-2 gap-4 mb-5">

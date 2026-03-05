@@ -12,7 +12,7 @@
  */
 
 import { loadStripe, Stripe } from '@stripe/stripe-js';
-import { ApiPaymentService } from './ApiPaymentService';
+import { ApiPaymentService, type CreatePaymentIntentOptions } from './ApiPaymentService';
 
 const STRIPE_NOISE_PATTERNS = [
   'r.stripe.com/b',
@@ -107,14 +107,16 @@ export interface CreatePaymentIntentResult {
 
 /**
  * Create a payment intent for a booking.
+ * Pass options.idempotencyKey when initiating a pay flow so retries return the same Checkout Session.
  */
 export async function createPaymentIntent(
   bookingId: string,
   amount: number,
   currency: string = 'GBP',
-  paymentMethod: string = 'stripe'
+  paymentMethod: string = 'stripe',
+  options?: CreatePaymentIntentOptions
 ): Promise<CreatePaymentIntentResult> {
-  return ApiPaymentService.createPaymentIntent(bookingId, amount, currency, paymentMethod);
+  return ApiPaymentService.createPaymentIntent(bookingId, amount, currency, paymentMethod, options);
 }
 
 export const PaymentGatewayManager = {

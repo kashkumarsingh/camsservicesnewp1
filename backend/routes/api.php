@@ -57,7 +57,12 @@ Route::prefix('v1')->get('/health', function (Request $request) {
 Route::prefix('v1')->group(function () {
     Route::post('auth/register', [\App\Http\Controllers\Api\AuthController::class, 'register']);
     Route::post('auth/login', [\App\Http\Controllers\Api\AuthController::class, 'login']);
-    
+    // Forgot/reset password (public). If "route could not be found" → php artisan route:clear. If "Table password_reset_tokens doesn't exist" → see migration in backend root, move to database/migrations, then php artisan migrate.
+    Route::post('auth/forgot-password', [\App\Http\Controllers\Api\AuthController::class, 'forgotPassword'])
+        ->middleware('throttle:5,1'); // 5 attempts per minute per IP
+    Route::post('auth/reset-password', [\App\Http\Controllers\Api\AuthController::class, 'resetPassword'])
+        ->middleware('throttle:5,1');
+
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('auth/user', [\App\Http\Controllers\Api\AuthController::class, 'user']);
         Route::post('auth/logout', [\App\Http\Controllers\Api\AuthController::class, 'logout']);

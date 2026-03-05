@@ -14,6 +14,8 @@ export const LOGIN_FORM = {
   SENDING: 'Signing in…',
   NO_ACCOUNT: "Don't have an account?",
   REQUEST_ACCESS: 'Create one',
+  FORGOT_PASSWORD: 'Forgot password?',
+  REMEMBER_ME: 'Remember me',
   SHOW_PASSWORD: 'Show password',
   HIDE_PASSWORD: 'Hide password',
 } as const;

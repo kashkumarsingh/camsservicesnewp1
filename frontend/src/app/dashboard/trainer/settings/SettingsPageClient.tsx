@@ -87,7 +87,7 @@ export default function SettingsPageClient() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
           <AlertCircle className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Account Not Approved</h1>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Account Not Approved</h1>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
             Your trainer account must be approved to access settings.
           </p>
@@ -110,7 +110,7 @@ export default function SettingsPageClient() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <SettingsIcon className="h-8 w-8 text-gcal-primary" />
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Settings</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Settings</h1>
           </div>
           <p className="text-gray-600 dark:text-gray-300">Manage your trainer profile and qualifications</p>
         </div>

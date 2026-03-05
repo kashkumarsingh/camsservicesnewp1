@@ -15,6 +15,8 @@ import { ROUTES } from '@/utils/routes';
 import { RegisterFormSection } from '@/components/register';
 import type { RegisterFormData } from '@/components/register';
 import { REGISTER_VALIDATION_FALLBACKS } from '@/components/register/constants';
+import Button from '@/components/ui/Button';
+import { AlertCircle } from 'lucide-react';
 
 const INITIAL_FORM_DATA: RegisterFormData = {
   name: '',
@@ -39,6 +41,8 @@ export default function RegisterPageClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
+  /** After parent registration: no token until approved; show this instead of form. */
+  const [showPendingApproval, setShowPendingApproval] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && !loading) {
@@ -191,7 +195,7 @@ export default function RegisterPageClient() {
 
     setIsSubmitting(true);
     try {
-      await register({
+      const authData = await register({
         name: formData.name,
         email: formData.email,
         password: formData.password,
@@ -202,6 +206,10 @@ export default function RegisterPageClient() {
         city: formData.city || undefined,
         region: formData.region || undefined,
       });
+      // Parent registration returns no token until approved; show pending message (no redirect, no sign out)
+      if (authData && !authData.accessToken && authData.user?.approvalStatus === 'pending') {
+        setShowPendingApproval(true);
+      }
     } catch (err: unknown) {
       const errorData =
         (err as { response?: { data?: unknown }; data?: unknown; message?: string }).response
@@ -238,6 +246,25 @@ export default function RegisterPageClient() {
       setIsSubmitting(false);
     }
   };
+
+  if (showPendingApproval) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/70 dark:from-slate-950 dark:to-slate-900 px-4 py-12 sm:px-6 lg:flex lg:items-center lg:justify-center lg:px-8 transition-colors duration-300">
+        <div className="mx-auto w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <AlertCircle className="mx-auto mb-4 h-16 w-16 text-amber-500" aria-hidden />
+          <h1 className="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-50">
+            Account Pending Approval
+          </h1>
+          <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
+            Your registration is pending admin approval. You&apos;ll be notified once approved. You can sign in only after your account is approved.
+          </p>
+          <Button onClick={() => router.push(ROUTES.HOME)} className="w-full rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover sm:w-auto">
+            Go to Homepage
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/70 px-4 py-12 sm:px-6 lg:flex lg:items-center lg:justify-center lg:px-8 transition-colors duration-300">

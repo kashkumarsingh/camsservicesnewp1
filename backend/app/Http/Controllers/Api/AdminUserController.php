@@ -425,6 +425,9 @@ class AdminUserController extends Controller
             $user->rejection_reason = null;
             $user->save();
 
+            app(\App\Contracts\Notifications\INotificationDispatcher::class)
+                ->dispatch(\App\Services\Notifications\NotificationIntentFactory::userApproved($user));
+
             $data = [
                 'id' => (string) $user->id,
                 'name' => $user->name,
@@ -471,12 +474,17 @@ class AdminUserController extends Controller
                 return $this->validationErrorResponse($validator->errors()->toArray());
             }
 
+            $reason = $request->input('reason') ?? '';
+
             $user->approval_status = 'rejected';
             $user->rejected_at = now();
-            $user->rejection_reason = $request->input('reason');
+            $user->rejection_reason = $reason;
             $user->approved_at = null;
             $user->approved_by = null;
             $user->save();
+
+            app(\App\Contracts\Notifications\INotificationDispatcher::class)
+                ->dispatch(\App\Services\Notifications\NotificationIntentFactory::userRejected($user, $reason));
 
             $data = [
                 'id' => (string) $user->id,

@@ -66,5 +66,10 @@ interface IPaymentRepository
      * Mark payment as refunded.
      */
     public function markAsRefunded(string $id, ?string $refundedAt = null): bool;
+
+    /**
+     * Update receipt URL for a payment (Stripe hosted receipt – used as invoice link).
+     */
+    public function updateReceiptUrl(string $id, ?string $receiptUrl): bool;
 }
 

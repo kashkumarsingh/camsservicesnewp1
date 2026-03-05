@@ -90,6 +90,16 @@ export interface SessionActivityUpdate {
   at: string;
 }
 
+/** Payment item returned when loading a single admin booking (GET /admin/bookings/{id}). */
+export interface RemoteBookingPayment {
+  id: string;
+  amount: number;
+  status: string;
+  paymentType?: string;
+  receiptUrl?: string | null;
+  paidAt?: string | null;
+}
+
 export interface RemoteBookingResponse {
   id: string;
   reference: string;
@@ -126,6 +136,7 @@ export interface RemoteBookingResponse {
   children?: RemoteBookingParticipant[];
   sessionCount?: number;
   sessions?: RemoteBookingSession[];
+  payments?: RemoteBookingPayment[];
   createdAt: string;
   updatedAt: string;
 }
@@ -173,6 +184,16 @@ export interface RemoteUpdateNotesResponse {
 
 // ========== Frontend DTOs (for UI consumption) ==========
 
+/** Payment item for admin booking detail (single-booking response includes payments). */
+export interface AdminBookingPaymentDTO {
+  id: string;
+  amount: number;
+  status: string;
+  paymentType?: string;
+  receiptUrl?: string | null;
+  paidAt?: string | null;
+}
+
 export interface AdminBookingDTO {
   id: string;
   reference: string;
@@ -209,6 +230,7 @@ export interface AdminBookingDTO {
   children: RemoteBookingParticipant[];
   sessionCount: number;
   sessions: RemoteBookingSession[];
+  payments?: AdminBookingPaymentDTO[];
   createdAt: string;
   updatedAt: string;
 }
@@ -260,6 +282,20 @@ export interface AdminBookingsFilters {
 
 // ========== Mapper Functions (Remote → Frontend) ==========
 
+function mapRemotePayments(
+  payments: RemoteBookingPayment[] | undefined
+): AdminBookingPaymentDTO[] {
+  if (!payments || !Array.isArray(payments)) return [];
+  return payments.map((p) => ({
+    id: p.id,
+    amount: p.amount,
+    status: p.status,
+    paymentType: p.paymentType,
+    receiptUrl: p.receiptUrl ?? null,
+    paidAt: p.paidAt ?? null,
+  }));
+}
+
 export function mapRemoteBookingToAdminBookingDTO(
   remote: RemoteBookingResponse
 ): AdminBookingDTO {
@@ -299,6 +335,7 @@ export function mapRemoteBookingToAdminBookingDTO(
     children: remote.children || [],
     sessionCount: remote.sessionCount || remote.sessions?.length || 0,
     sessions: remote.sessions || [],
+    payments: mapRemotePayments(remote.payments),
     createdAt: remote.createdAt,
     updatedAt: remote.updatedAt,
   };

@@ -99,8 +99,10 @@ class EloquentPaymentRepository implements IPaymentRepository
             'currency' => $data['currency'] ?? 'GBP',
             'payment_method' => $data['payment_method'] ?? 'other',
             'payment_provider' => $data['payment_provider'] ?? null,
+            'payment_type' => $data['payment_type'] ?? 'package',
             'transaction_id' => $data['transaction_id'] ?? null,
             'status' => $data['status'] ?? 'pending',
+            'receipt_url' => $data['receipt_url'] ?? null,
             'metadata' => $data['metadata'] ?? null,
             'failure_reason' => $data['failure_reason'] ?? null,
             'retry_count' => $data['retry_count'] ?? 0,
@@ -194,6 +196,19 @@ class EloquentPaymentRepository implements IPaymentRepository
             $model->refunded_at = now();
         }
 
+        return $model->save();
+    }
+
+    /**
+     * Update receipt URL for a payment (Stripe hosted receipt – used as invoice link).
+     */
+    public function updateReceiptUrl(string $id, ?string $receiptUrl): bool
+    {
+        $model = PaymentModel::find($id);
+        if (!$model) {
+            return false;
+        }
+        $model->receipt_url = $receiptUrl;
         return $model->save();
     }
 }

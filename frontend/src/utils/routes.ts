@@ -28,6 +28,8 @@ export const ROUTES = {
   CONTACT_THANK_YOU: '/contact/thank-you',
   LOGIN: '/login',
   REGISTER: '/register',
+  FORGOT_PASSWORD: '/forgot-password',
+  RESET_PASSWORD: '/reset-password',
   ACCOUNT: '/account',
   BECOME_A_TRAINER: '/become-a-trainer',
   BOOKINGS: '/bookings',
@@ -40,7 +42,10 @@ export const ROUTES = {
 
   // Parent
   DASHBOARD_PARENT: '/dashboard/parent',
+  /** Payment confirmation after Stripe Checkout return (invoice paid + receipt). */
+  DASHBOARD_PARENT_PAYMENT_CONFIRMATION: '/dashboard/parent/payment-confirmation',
   DASHBOARD_PARENT_BOOKINGS: '/dashboard/parent/bookings',
+  DASHBOARD_PARENT_BILLING: '/dashboard/parent/billing',
   DASHBOARD_PARENT_CHILDREN: '/dashboard/parent/children',
   DASHBOARD_PARENT_PROGRESS: '/dashboard/parent/progress',
   DASHBOARD_PARENT_SETTINGS: '/dashboard/parent/settings',

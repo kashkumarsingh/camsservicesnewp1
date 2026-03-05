@@ -15,6 +15,10 @@ export const EMPTY_STATE = {
     title: 'No bookings yet',
     message: 'Create a booking to get started.',
   },
+  NO_INVOICES_YET: {
+    title: 'No invoices yet',
+    message: 'Payment history and receipts will appear here once you have completed a booking or top-up.',
+  },
   NO_SESSIONS_BOOKED_YET: {
     title: 'No sessions booked yet',
     message: 'Sessions for this booking will appear here once scheduled.',

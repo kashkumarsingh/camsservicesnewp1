@@ -65,7 +65,12 @@ import Button from '@/components/ui/Button';
 import { ROUTES } from '@/utils/routes';
 import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/utils/appConstants';
 import Link from 'next/link';
-import { ArrowDown, ArrowUp, ArrowUpDown, CalendarDays, CheckCircle, Download, FileText, Plus, Receipt, XCircle } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, CalendarDays, CheckCircle, Download, ExternalLink, FileText, Plus, Receipt, XCircle } from 'lucide-react';
+import {
+  VIEW_RECEIPT_LABEL,
+  PAYMENT_TYPE_LABEL_PACKAGE,
+  PAYMENT_TYPE_LABEL_TOP_UP,
+} from '@/utils/appConstants';
 import { toastManager } from '@/utils/toast';
 import { AdminTopUpModal } from '@/components/dashboard/admin/AdminTopUpModal';
 
@@ -185,6 +190,8 @@ export const AdminBookingsPageClient: React.FC = () => {
   const [stagedStatus, setStagedStatus] = useState('');
   const [stagedPaymentStatus, setStagedPaymentStatus] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<AdminBookingDTO | null>(null);
+  /** Full booking with payments (from GET /admin/bookings/{id}); used in side panel for payments/receipts. */
+  const [detailBooking, setDetailBooking] = useState<AdminBookingDTO | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkOperationLoading, setBulkOperationLoading] = useState(false);
 
@@ -203,6 +210,25 @@ export const AdminBookingsPageClient: React.FC = () => {
   useEffect(() => {
     if (selectedBooking) setBookingDetailTab('sessions');
   }, [selectedBooking?.id]);
+
+  /** Fetch full booking (with payments) when side panel opens so we can show receipts. */
+  useEffect(() => {
+    if (!selectedBooking) {
+      setDetailBooking(null);
+      return;
+    }
+    let cancelled = false;
+    getBooking(selectedBooking.id)
+      .then((booking) => {
+        if (!cancelled) setDetailBooking(booking);
+      })
+      .catch(() => {
+        if (!cancelled) setDetailBooking(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedBooking?.id, getBooking]);
 
   /** Fetch available trainers for each session when side panel opens */
   const sessionIdsKey = useMemo(
@@ -630,7 +656,7 @@ export const AdminBookingsPageClient: React.FC = () => {
             </Link>
           }
         />
-        <h1 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+        <h1 className="text-base font-semibold tracking-tight text-slate-900 dark:text-slate-50">
           Bookings Management
         </h1>
         <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -978,7 +1004,10 @@ export const AdminBookingsPageClient: React.FC = () => {
       {/* Detail Side Panel */}
       <SideCanvas
         isOpen={!!selectedBooking}
-        onClose={() => setSelectedBooking(null)}
+        onClose={() => {
+          setSelectedBooking(null);
+          setDetailBooking(null);
+        }}
         title={
           selectedBooking
             ? `Booking ${selectedBooking.reference}`
@@ -991,7 +1020,9 @@ export const AdminBookingsPageClient: React.FC = () => {
         }
         widthClassName="md:w-[520px] lg:w-[640px]"
       >
-        {selectedBooking && (
+        {selectedBooking && (() => {
+          const displayBooking = detailBooking ?? selectedBooking;
+          return (
           <div className="flex flex-col h-full min-h-0">
             {/* Tab list */}
             <nav className="flex shrink-0 border-b border-slate-200 dark:border-slate-700 -mx-4 px-4 md:-mx-6 md:px-6" aria-label="Booking details" role="tablist">
@@ -1029,34 +1060,34 @@ export const AdminBookingsPageClient: React.FC = () => {
                 <section className="space-y-3">
                   <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/60">
                     <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
-                      {selectedBooking.packageName ?? 'Package'}
+                      {displayBooking.packageName ?? 'Package'}
                     </p>
                     <div className="mt-1 flex flex-wrap items-center gap-1 text-xs text-slate-600 dark:text-slate-400">
-                      <span className="font-medium">Ref {selectedBooking.reference}</span>
-                      <span className={`inline-flex rounded-full px-2 py-0.5 ${getStatusBadgeClasses(selectedBooking.status)}`}>
-                        {selectedBooking.status}
+                      <span className="font-medium">Ref {displayBooking.reference}</span>
+                      <span className={`inline-flex rounded-full px-2 py-0.5 ${getStatusBadgeClasses(displayBooking.status)}`}>
+                        {displayBooking.status}
                       </span>
-                      <span className={`inline-flex rounded-full px-2 py-0.5 ${getPaymentStatusBadgeClasses(selectedBooking.paymentStatus)}`}>
-                        {selectedBooking.paymentStatus}
+                      <span className={`inline-flex rounded-full px-2 py-0.5 ${getPaymentStatusBadgeClasses(displayBooking.paymentStatus)}`}>
+                        {displayBooking.paymentStatus}
                       </span>
                     </div>
                     <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-                      Total £{selectedBooking.totalPrice.toFixed(2)} · Outstanding £{(selectedBooking.totalPrice - selectedBooking.paidAmount).toFixed(2)}
+                      Total £{displayBooking.totalPrice.toFixed(2)} · Outstanding £{(displayBooking.totalPrice - displayBooking.paidAmount).toFixed(2)}
                     </p>
                   </div>
                   <p className="text-2xs text-slate-500 dark:text-slate-400">
-                    {selectedBooking.sessionCount} session{selectedBooking.sessionCount !== 1 ? 's' : ''} · {selectedBooking.children?.length ?? 0} child{(selectedBooking.children?.length ?? 0) !== 1 ? 'ren' : ''}
+                    {displayBooking.sessionCount} session{displayBooking.sessionCount !== 1 ? 's' : ''} · {displayBooking.children?.length ?? 0} child{(displayBooking.children?.length ?? 0) !== 1 ? 'ren' : ''}
                   </p>
                 </section>
               )}
 
               {bookingDetailTab === 'sessions' && (
                 <section className="space-y-3">
-                  {selectedBooking.sessions.length === 0 ? (
+                  {displayBooking.sessions.length === 0 ? (
                     <p className="text-xs text-slate-500 dark:text-slate-400">No sessions scheduled.</p>
                   ) : (
                     <ul className="space-y-2">
-                      {selectedBooking.sessions.map((session) => {
+                      {displayBooking.sessions.map((session) => {
                         const isCancelled = session.status === SCHEDULE_SESSION_STATUS.CANCELLED;
                         const activities = session.activities ?? [];
                         const hasChosenActivities = activities.length > 0;
@@ -1118,24 +1149,83 @@ export const AdminBookingsPageClient: React.FC = () => {
 
               {bookingDetailTab === 'details' && (
                 <div className="space-y-4">
+                  {(() => {
+                    const completedPayments = (displayBooking.payments ?? []).filter(
+                      (p) => p.status === 'completed'
+                    );
+                    return completedPayments.length > 0 ? (
+                      <section className="space-y-2">
+                        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Payments & receipts</h3>
+                        <p className="text-2xs text-slate-500 dark:text-slate-400">Successful payments with invoice links.</p>
+                        <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+                          <table className="w-full text-2xs text-slate-700 dark:text-slate-200">
+                            <thead>
+                              <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+                                <th scope="col" className="text-left font-semibold text-slate-500 dark:text-slate-400 px-3 py-2">Type</th>
+                                <th scope="col" className="text-left font-semibold text-slate-500 dark:text-slate-400 px-3 py-2">Amount</th>
+                                <th scope="col" className="text-left font-semibold text-slate-500 dark:text-slate-400 px-3 py-2">Status</th>
+                                <th scope="col" className="text-left font-semibold text-slate-500 dark:text-slate-400 px-3 py-2">Date</th>
+                                <th scope="col" className="text-right font-semibold text-slate-500 dark:text-slate-400 px-3 py-2">Invoice</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                              {completedPayments.map((payment) => {
+                                const typeLabel = payment.paymentType === 'top_up' ? PAYMENT_TYPE_LABEL_TOP_UP : PAYMENT_TYPE_LABEL_PACKAGE;
+                                return (
+                                  <tr key={payment.id} className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                    <td className="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">{typeLabel}</td>
+                                    <td className="px-3 py-2">£{payment.amount.toFixed(2)}</td>
+                                    <td className="px-3 py-2">
+                                      <span className={`inline-flex rounded-full px-2 py-0.5 font-medium border ${getPaymentStatusBadgeClasses(payment.status)}`}>
+                                        {payment.status}
+                                      </span>
+                                    </td>
+                                    <td className="px-3 py-2 text-slate-600 dark:text-slate-400">
+                                      {payment.paidAt ? formatDateTime(payment.paidAt) : '—'}
+                                    </td>
+                                    <td className="px-3 py-2 text-right">
+                                      {payment.receiptUrl ? (
+                                        <a
+                                          href={payment.receiptUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="inline-flex items-center gap-1 font-medium text-primary-blue hover:underline focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 rounded px-2 py-1 -m-1"
+                                          title={VIEW_RECEIPT_LABEL}
+                                        >
+                                          <ExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                                          {VIEW_RECEIPT_LABEL}
+                                        </a>
+                                      ) : (
+                                        <span className="text-slate-400 dark:text-slate-500">—</span>
+                                      )}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </section>
+                    ) : null;
+                  })()}
                   <section className="space-y-1">
                     <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Parent</h3>
                     <dl className="grid grid-cols-1 gap-1 text-xs text-slate-700 dark:text-slate-200">
-                      <div><dt className="font-medium">Name</dt><dd>{selectedBooking.parentName}</dd></div>
-                      <div><dt className="font-medium">Email</dt><dd>{selectedBooking.parentEmail}</dd></div>
-                      <div><dt className="font-medium">Phone</dt><dd>{selectedBooking.parentPhone}</dd></div>
+                      <div><dt className="font-medium">Name</dt><dd>{displayBooking.parentName}</dd></div>
+                      <div><dt className="font-medium">Email</dt><dd>{displayBooking.parentEmail}</dd></div>
+                      <div><dt className="font-medium">Phone</dt><dd>{displayBooking.parentPhone}</dd></div>
                     </dl>
                   </section>
                   <section className="space-y-1">
                     <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Financial & hours</h3>
                     <dl className="grid grid-cols-2 gap-2 text-xs text-slate-700 dark:text-slate-200">
-                      <div><dt className="font-medium">Total price</dt><dd>£{selectedBooking.totalPrice.toFixed(2)}</dd></div>
-                      <div><dt className="font-medium">Paid</dt><dd>£{selectedBooking.paidAmount.toFixed(2)}</dd></div>
-                      <div><dt className="font-medium">Outstanding</dt><dd>£{(selectedBooking.totalPrice - selectedBooking.paidAmount).toFixed(2)}</dd></div>
-                      <div><dt className="font-medium">Total hours</dt><dd>{selectedBooking.totalHours}h</dd></div>
-                      <div><dt className="font-medium">Booked</dt><dd>{selectedBooking.bookedHours}h</dd></div>
-                      <div><dt className="font-medium">Used</dt><dd>{selectedBooking.usedHours}h</dd></div>
-                      <div><dt className="font-medium">Remaining</dt><dd>{selectedBooking.remainingHours}h</dd></div>
+                      <div><dt className="font-medium">Total price</dt><dd>£{displayBooking.totalPrice.toFixed(2)}</dd></div>
+                      <div><dt className="font-medium">Paid</dt><dd>£{displayBooking.paidAmount.toFixed(2)}</dd></div>
+                      <div><dt className="font-medium">Outstanding</dt><dd>£{(displayBooking.totalPrice - displayBooking.paidAmount).toFixed(2)}</dd></div>
+                      <div><dt className="font-medium">Total hours</dt><dd>{displayBooking.totalHours}h</dd></div>
+                      <div><dt className="font-medium">Booked</dt><dd>{displayBooking.bookedHours}h</dd></div>
+                      <div><dt className="font-medium">Used</dt><dd>{displayBooking.usedHours}h</dd></div>
+                      <div><dt className="font-medium">Remaining</dt><dd>{displayBooking.remainingHours}h</dd></div>
                     </dl>
                   </section>
                   {canTopUpBooking && (
@@ -1148,12 +1238,12 @@ export const AdminBookingsPageClient: React.FC = () => {
                     </section>
                   )}
                   <section className="space-y-1">
-                    <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Children ({selectedBooking.children.length})</h3>
-                    {selectedBooking.children.length === 0 ? (
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Children ({displayBooking.children.length})</h3>
+                    {displayBooking.children.length === 0 ? (
                       <p className="text-xs text-slate-500 dark:text-slate-400">No children recorded.</p>
                     ) : (
                       <ul className="text-xs text-slate-700 dark:text-slate-200 space-y-0.5">
-                        {selectedBooking.children.map((child) => <li key={child.id}>{child.name}</li>)}
+                        {displayBooking.children.map((child) => <li key={child.id}>{child.name}</li>)}
                       </ul>
                     )}
                   </section>
@@ -1163,14 +1253,15 @@ export const AdminBookingsPageClient: React.FC = () => {
               {bookingDetailTab === 'audit' && (
                 <section className="space-y-1">
                   <dl className="grid grid-cols-1 gap-1 text-xs text-slate-700 dark:text-slate-200">
-                    <div><dt className="font-medium">Created</dt><dd>{formatDateTime(selectedBooking.createdAt)}</dd></div>
-                    <div><dt className="font-medium">Last updated</dt><dd>{formatDateTime(selectedBooking.updatedAt)}</dd></div>
+                    <div><dt className="font-medium">Created</dt><dd>{formatDateTime(displayBooking.createdAt)}</dd></div>
+                    <div><dt className="font-medium">Last updated</dt><dd>{formatDateTime(displayBooking.updatedAt)}</dd></div>
                   </dl>
                 </section>
               )}
             </div>
           </div>
-        )}
+          );
+        })()}
       </SideCanvas>
 
       <AdminTopUpModal

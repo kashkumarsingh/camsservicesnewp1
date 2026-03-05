@@ -462,12 +462,12 @@ export default function TrainerDashboardPageClient() {
   // should jump into Day view focused on that date.
   const [switchToDayView, setSwitchToDayView] = useState(false);
   const handleMiniCalendarDateSelect = useCallback((date: string) => {
+    setCalendarAnchor(date);
+    setCalendarPeriod('1_day');
     setSelectedCalendarDate(date);
     setCurrentCalendarMonth(moment(date, 'YYYY-MM-DD').format('YYYY-MM'));
     setSwitchToDayView(true);
 
-    // Smoothly scroll main trainer calendar into view to reduce cognitive load,
-    // mirroring the parent dashboard behaviour when jumping to a specific day.
     const container = document.getElementById('trainer-sessions-calendar');
     if (container) {
       container.scrollIntoView({
@@ -476,18 +476,18 @@ export default function TrainerDashboardPageClient() {
       });
     }
 
-    // Reset the flag shortly after so internal calendar navigation does not
-    // keep forcing Day view.
     setTimeout(() => {
       setSwitchToDayView(false);
     }, 100);
   }, []);
 
-  // Handle calendar date change from main calendar (Day/Week navigation → mini calendar)
+  // Handle calendar date change from main calendar (date click or Day/Week nav → sync anchor and mini calendar)
   const handleCalendarDateChange = useCallback((date: string) => {
+    setCalendarAnchor(date);
     setSelectedCalendarDate(date);
     const month = moment(date, 'YYYY-MM-DD').format('YYYY-MM');
     setCurrentCalendarMonth(month);
+    setCalendarPeriod('1_day');
   }, []);
 
   // Handle week range change from main calendar (Week view → mini calendar highlight)
@@ -1120,7 +1120,7 @@ export default function TrainerDashboardPageClient() {
       <div className="flex min-h-[60vh] items-center justify-center bg-slate-50">
         <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
           <AlertCircle className="mx-auto mb-4 h-16 w-16 text-amber-500" aria-hidden />
-          <h1 className="mb-2 text-2xl font-semibold text-slate-900 dark:text-slate-50">
+          <h1 className="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-50">
             {user.approvalStatus === 'pending' ? 'Account Pending Approval' : 'Account Not Approved'}
           </h1>
           <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
@@ -1141,7 +1141,7 @@ export default function TrainerDashboardPageClient() {
       <header className="space-y-0.5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <h1 className="text-2xl font-semibold text-slate-900 tracking-tight truncate dark:text-slate-50">
+            <h1 className="text-xl font-semibold text-slate-900 tracking-tight truncate dark:text-slate-50">
               {getGreeting()}, {trainerName.split(' ')[0]}
             </h1>
             <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">
@@ -1238,6 +1238,8 @@ export default function TrainerDashboardPageClient() {
               currentMonth={currentCalendarMonth}
               onMonthChange={handleCalendarMonthChange}
               onWeekRangeChange={handleCalendarWeekRangeChange}
+              period={calendarPeriod}
+              anchor={calendarAnchor}
               availabilityDates={availabilityDates}
               approvedAbsenceDates={approvedAbsenceDates}
               pendingAbsenceDates={pendingAbsenceDates}

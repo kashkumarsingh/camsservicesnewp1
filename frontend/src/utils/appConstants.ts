@@ -99,6 +99,9 @@ export const CHECKLIST_SUBMIT_SUCCESS_MESSAGE =
 export const PAYMENT_CONFIRM_FROM_SESSION_ERROR_FALLBACK =
   'Payment was received but we could not confirm it. Your booking may update shortly—check back in a moment.';
 
+/** HTTP header for Stripe idempotency (safe retries). See https://docs.stripe.com/api/idempotent_requests */
+export const STRIPE_IDEMPOTENCY_HEADER = 'Idempotency-Key' as const;
+
 /** Top-up modal: tooltip/popover copy explaining how the total is calculated. */
 export const TOP_UP_CALCULATION_TOOLTIP =
   'Top-up uses your package hourly rate (package price ÷ package hours). Your expiry date stays the same.';
@@ -110,4 +113,23 @@ export const SONNER_TOAST_DURATION_MS = 6000;
 export const NOTIFICATION_TOAST_VIEW_LABEL = 'View';
 
 /** Dashboard: root font size when viewing dashboard (rem). Slightly larger than default 16px for readability. */
-export const DASHBOARD_BASE_FONT_SIZE = '1.125rem';
+/** Root font size for dashboard (1rem = same as rest of site; was 1.125rem for readability but made fonts look too large). */
+export const DASHBOARD_BASE_FONT_SIZE = '1rem';
+
+/** Invoice/receipt: label for link to Stripe hosted receipt (Option A: receipt as invoice). */
+export const VIEW_RECEIPT_LABEL = 'View receipt';
+
+/** Payment type label for initial package payment (invoice management). */
+export const PAYMENT_TYPE_LABEL_PACKAGE = 'Package payment';
+
+/** Payment type label for top-up payment (invoice management). */
+export const PAYMENT_TYPE_LABEL_TOP_UP = 'Top-up payment';
+
+/** Payment confirmation page: main heading after successful payment. */
+export const INVOICE_PAID_TITLE = 'Invoice paid';
+
+/** Payment confirmation page: footer branding (Stripe). */
+export const POWERED_BY_STRIPE = 'Powered by Stripe';
+
+/** Invoice "From" business name (payment confirmation / invoice summary). */
+export const INVOICE_FROM_NAME = 'CAMS Services';

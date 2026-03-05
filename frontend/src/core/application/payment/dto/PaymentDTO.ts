@@ -15,6 +15,10 @@ export interface PaymentDTO {
   currency: string;
   paymentMethod: string; // e.g., 'stripe', 'paypal', 'bank_transfer', 'cash', 'other'
   paymentProvider: string | null; // e.g., 'Stripe', 'PayPal'
+  /** 'package' | 'top_up' — for invoice labelling (Package payment vs Top-up payment). */
+  paymentType?: string; // default 'package' from backend
+  /** Stripe hosted receipt URL (invoice link); null until payment completed. */
+  receiptUrl?: string | null;
   transactionId: string | null; // External transaction ID (e.g., Stripe payment_intent_id)
   status: string; // 'pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded'
   processedAt?: string | null; // ISO 8601 timestamp

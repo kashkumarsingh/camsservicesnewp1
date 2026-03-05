@@ -138,6 +138,15 @@ class ChildController extends Controller
 
         $user = $request->user();
 
+        // Parents must be approved before they can add children
+        if ($user->role === 'parent' && $user->approval_status !== 'approved') {
+            $message = $user->approval_status === 'pending'
+                ? 'Your account is pending admin approval. You cannot add children until approved.'
+                : 'Your account was not approved. Please contact us for more information.';
+
+            return $this->errorResponse($message, null, ['approvalStatus' => [$message]], 403);
+        }
+
         // Calculate age from DOB if not provided
         $age = $request->age;
         if (! $age && $request->date_of_birth) {

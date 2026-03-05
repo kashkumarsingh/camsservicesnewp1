@@ -52,6 +52,19 @@ return [
         'url' => env('FRONTEND_URL', env('APP_URL')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin notification email (optional)
+    |--------------------------------------------------------------------------
+    |
+    | When set, only this email receives "New Parent Registration" alerts.
+    | Use when you have multiple admin accounts but want a single inbox for
+    | registration notifications (avoids duplicate emails).
+    |
+    */
+
+    'admin_notification_email' => env('ADMIN_NOTIFICATION_EMAIL'),
+
 ];
 
 

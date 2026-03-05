@@ -79,6 +79,17 @@ class PaymentController extends Controller
                 return $this->notFoundResponse('Booking');
             }
 
+            // Optional idempotency key (Stripe recommendation: https://docs.stripe.com/api/idempotent_requests)
+            $idempotencyKey = $request->header('Idempotency-Key') ?: $request->input('idempotency_key');
+            if (is_string($idempotencyKey)) {
+                $idempotencyKey = trim($idempotencyKey);
+                if ($idempotencyKey === '') {
+                    $idempotencyKey = null;
+                }
+            } else {
+                $idempotencyKey = null;
+            }
+
             // Log payment intent creation request
             Log::info('Payment intent creation request received', [
                 'booking_id_param' => $bookingId,
@@ -87,6 +98,7 @@ class PaymentController extends Controller
                 'amount' => $amount,
                 'currency' => $currency,
                 'payment_method' => $paymentMethod,
+                'has_idempotency_key' => !empty($idempotencyKey),
             ]);
 
             // Use the actual booking ID (integer) for the action
@@ -94,7 +106,10 @@ class PaymentController extends Controller
                 (int) $booking->id,
                 $amount,
                 $currency,
-                $paymentMethod
+                $paymentMethod,
+                false,
+                [],
+                $idempotencyKey
             );
 
             if (!$result['success']) {
@@ -253,29 +268,40 @@ class PaymentController extends Controller
                 'booking_id' => $result['booking']->id,
             ]);
 
+            $booking = $result['booking'];
+            $payment = $result['payment'];
             $schedulesCount = 0;
-            if (isset($result['booking']->schedules)) {
-                $schedulesCount = $result['booking']->schedules->count();
-            } elseif (method_exists($result['booking'], 'schedules')) {
-                $schedulesCount = $result['booking']->schedules()->count();
+            if (isset($booking->schedules)) {
+                $schedulesCount = $booking->schedules->count();
+            } elseif (method_exists($booking, 'schedules')) {
+                $schedulesCount = $booking->schedules()->count();
             }
+            $package = $booking->package ?? null;
 
             return $this->successResponse([
                 'booking' => [
-                    'id' => $result['booking']->id,
-                    'reference' => $result['booking']->reference,
-                    'status' => $result['booking']->status,
-                    'payment_status' => $result['booking']->payment_status,
-                    'paid_amount' => $result['booking']->paid_amount,
-                    'total_price' => $result['booking']->total_price,
+                    'id' => $booking->id,
+                    'reference' => $booking->reference,
+                    'status' => $booking->status,
+                    'payment_status' => $booking->payment_status,
+                    'paid_amount' => $booking->paid_amount,
+                    'total_price' => $booking->total_price,
+                    'discount_amount' => $booking->discount_amount ?? 0,
+                    'parent_first_name' => $booking->parent_first_name,
+                    'parent_last_name' => $booking->parent_last_name,
+                    'parent_email' => $booking->parent_email ?? $booking->guest_email,
+                    'package_name' => $package?->name ?? 'Package',
                     'has_sessions' => $schedulesCount > 0,
                     'schedules_count' => $schedulesCount,
                 ],
                 'payment' => [
-                    'id' => $result['payment']->id(),
-                    'amount' => $result['payment']->amount(),
-                    'status' => $result['payment']->status()->toString(),
-                    'transaction_id' => $result['payment']->transactionId(),
+                    'id' => $payment->id(),
+                    'amount' => $payment->amount(),
+                    'status' => $payment->status()->toString(),
+                    'transaction_id' => $payment->transactionId(),
+                    'payment_type' => $payment->paymentType() ?? 'package',
+                    'receipt_url' => $payment->receiptUrl(),
+                    'processed_at' => $payment->processedAt(),
                 ],
             ], 'Payment confirmed successfully.');
         } catch (\Exception $e) {

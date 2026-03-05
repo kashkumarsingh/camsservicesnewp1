@@ -13,8 +13,10 @@
 
 const STORAGE_KEY = 'auth_token';
 const COOKIE_NAME = 'auth_token';
-/** Cookie max-age: 7 days. */
-const COOKIE_MAX_AGE_SEC = 60 * 60 * 24 * 7;
+/** Cookie max-age when "Remember me" is checked: 30 days. */
+const COOKIE_MAX_AGE_REMEMBER_SEC = 60 * 60 * 24 * 30;
+/** Cookie max-age when "Remember me" is unchecked: 24 hours (session-like). */
+const COOKIE_MAX_AGE_SESSION_SEC = 60 * 60 * 24;
 
 function isBrowser(): boolean {
   return typeof window !== 'undefined';
@@ -55,15 +57,22 @@ export function getAuthTokenFromCookies(
   return typeof value === 'string' && value.length > 0 ? value : null;
 }
 
+export interface SetAuthTokenOptions {
+  /** When false, cookie expires in 24 hours. Default true = 30 days. */
+  rememberMe?: boolean;
+}
+
 /**
  * Stores the auth token in localStorage and sets the auth_token cookie (path=/, SameSite=Lax)
- * so SSR/RSC requests send it. Client-only.
+ * so SSR/RSC requests send it. Client-only. Cookie duration follows rememberMe (30 days vs 24 hours).
  */
-export function setAuthToken(token: string): void {
+export function setAuthToken(token: string, options?: SetAuthTokenOptions): void {
   if (!isBrowser()) return;
+  const rememberMe = options?.rememberMe ?? true;
+  const maxAge = rememberMe ? COOKIE_MAX_AGE_REMEMBER_SEC : COOKIE_MAX_AGE_SESSION_SEC;
   try {
     window.localStorage.setItem(STORAGE_KEY, token);
-    document.cookie = `${COOKIE_NAME}=${encodeURIComponent(token)}; path=/; max-age=${COOKIE_MAX_AGE_SEC}; SameSite=Lax`;
+    document.cookie = `${COOKIE_NAME}=${encodeURIComponent(token)}; path=/; max-age=${maxAge}; SameSite=Lax`;
   } catch {
     // Storage/cookie disabled — ignore
   }

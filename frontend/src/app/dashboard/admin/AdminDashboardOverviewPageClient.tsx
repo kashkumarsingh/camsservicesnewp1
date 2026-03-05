@@ -481,7 +481,7 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
         <>
           {/* Page header – only on Overview tab */}
           <header className="space-y-1">
-            <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-2xl xl:text-3xl">
+            <h1 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-xl">
               {getGreeting()}, {adminDisplayName}
             </h1>
             <p className="max-w-[65ch] text-sm text-slate-600 dark:text-slate-400">
@@ -535,7 +535,7 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
                   aria-label="Needs attention – open relevant modal or page"
                 >
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-700 dark:text-slate-300">Needs attention</p>
-                  <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-50">{needsAttentionTotal}</p>
+                  <p className="mt-1 text-base font-semibold text-slate-900 dark:text-slate-50">{needsAttentionTotal}</p>
                   <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Pending decisions</p>
                 </button>
                 <button
@@ -545,7 +545,7 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
                   aria-label="Today's sessions – open side panel"
                 >
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-700 dark:text-slate-300">Today&apos;s sessions</p>
-                  <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-50">{todaySessions.length}</p>
+                  <p className="mt-1 text-base font-semibold text-slate-900 dark:text-slate-50">{todaySessions.length}</p>
                   <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                     {ongoingSessions.length} in progress · {upcomingSessions.length} upcoming
                   </p>
@@ -557,7 +557,7 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
                   aria-label="Bookings – view all"
                 >
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Bookings</p>
-                  <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-50">{loading ? '…' : totalBookings}</p>
+                  <p className="mt-1 text-base font-semibold text-slate-900 dark:text-slate-50">{loading ? '…' : totalBookings}</p>
                   <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">View all</p>
                 </button>
                 <button
@@ -567,7 +567,7 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
                   aria-label="Revenue this month – view reports"
                 >
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-700 dark:text-slate-300">Revenue (month)</p>
-                  <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-50">
+                  <p className="mt-1 text-base font-semibold text-slate-900 dark:text-slate-50">
                     {stats?.revenue != null ? `£${(stats.revenue.thisMonth / 1000).toFixed(1)}k` : '—'}
                   </p>
                   <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">View reports</p>
@@ -585,7 +585,7 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
                   <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
                     Schedule
                   </h3>
-                  <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                  <p className="text-base font-semibold text-slate-900 dark:text-slate-50">
                     This week&apos;s sessions
                   </p>
                   <p className="mt-0.5 text-2xs text-slate-500 dark:text-slate-400">
@@ -596,7 +596,7 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
                   <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
                     Total bookings
                   </h3>
-                  <p className="text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100">
+                  <p className="text-xl font-bold tabular-nums text-slate-900 dark:text-slate-100">
                     {stats?.bookings?.total ?? 0}
                   </p>
                   {stats?.bookings?.trendPercent != null && stats.bookings.trendPercent !== 0 && (
@@ -619,7 +619,7 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
                   <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
                     Active parents
                   </h3>
-                  <p className="text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100">
+                  <p className="text-xl font-bold tabular-nums text-slate-900 dark:text-slate-100">
                     {stats?.users?.parentsApproved ?? 0}
                   </p>
                   {stats?.users?.trendPercent != null && stats.users.trendPercent !== 0 && (
@@ -644,7 +644,7 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
                   <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
                     Active trainers
                   </h3>
-                  <p className="text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100">
+                  <p className="text-xl font-bold tabular-nums text-slate-900 dark:text-slate-100">
                     {stats?.trainers?.active ?? 0}
                   </p>
                   {stats?.trainers?.trendPercent != null && stats.trainers.trendPercent !== 0 && (

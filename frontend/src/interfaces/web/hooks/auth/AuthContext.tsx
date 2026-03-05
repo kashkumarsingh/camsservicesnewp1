@@ -20,7 +20,7 @@ import { authRepository } from '@/infrastructure/http/auth/AuthRepository';
 import { clearAuthToken } from '@/infrastructure/http/auth/authTokenProvider';
 import { childrenRepository } from '@/infrastructure/http/children/ChildrenRepository';
 import { dashboardSyncStore } from '@/core/dashboardSync/dashboardSyncStore';
-import type { User, Child, RegisterRequest, LoginRequest } from '@/core/application/auth/types';
+import type { User, Child, RegisterRequest, LoginRequest, AuthResponse } from '@/core/application/auth/types';
 import { getChildChecklistFlags } from '@/core/application/auth/types';
 import { getDashboardRoute, getPostAuthRedirect } from '@/utils/navigation';
 import { getApiErrorMessage } from '@/utils/errorUtils';
@@ -48,7 +48,7 @@ export interface AuthContextValue {
   isApproved: boolean;
   hasApprovedChildren: boolean;
   canBook: boolean;
-  register: (data: RegisterRequest) => Promise<void>;
+  register: (data: RegisterRequest) => Promise<AuthResponse>;
   login: (data: LoginRequest, redirectUrl?: string | null) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -171,14 +171,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadUser();
   }, [loadUser]);
 
-  const register = useCallback(async (data: RegisterRequest) => {
+  const register = useCallback(async (data: RegisterRequest): Promise<AuthResponse> => {
     setError(null);
     setLoading(true);
     try {
       const authData = await authRepository.register(data);
       hasWarnedNoTokenThisSession = false;
-      setUser(authData.user);
-      router.push(getDashboardRoute(authData.user));
+      // Parent registration does not return a token until approved; do not set user or redirect
+      if (authData.accessToken) {
+        setUser(authData.user);
+        router.push(getDashboardRoute(authData.user));
+      }
+      return authData;
     } catch (err: unknown) {
       setError(getApiErrorMessage(err, 'Registration failed'));
       throw err;

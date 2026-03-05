@@ -26,7 +26,7 @@ export default function AdminContactSubmissionsPage() {
         </Link>
       </div>
       <div className="rounded-card border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-card">
-        <h1 className="text-xl font-semibold text-navy-blue dark:text-slate-100 mb-2">
+        <h1 className="text-lg font-semibold text-navy-blue dark:text-slate-100 mb-2">
           Contact submissions
         </h1>
         <p className="text-slate-600 dark:text-slate-400 text-sm">

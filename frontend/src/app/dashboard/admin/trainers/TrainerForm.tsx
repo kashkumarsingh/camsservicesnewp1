@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { User, Briefcase, MapPin, ToggleRight } from 'lucide-react';
 import type {
   CreateTrainerDTO,
   UpdateTrainerDTO,
@@ -10,6 +11,7 @@ import type {
   TrainerCertification,
   UploadQualificationRequest,
 } from '@/core/application/trainer/types';
+import { TabbedSidePanelContent } from '@/components/ui/TabbedSidePanelContent';
 import { toastManager } from '@/utils/toast';
 
 // ==========================================================================
@@ -87,6 +89,8 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
     initialData?.certifications || []
   );
 
+  const [activeTabId, setActiveTabId] = useState<string>('basic');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -131,165 +135,159 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="flex h-full min-h-0 flex-col text-sm space-y-4">
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pb-4">
-      {/* Basic Information */}
-      <section className="space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          Basic Information
-        </h3>
+  const basicTab = (
+    <section className="space-y-3">
+      <div>
+        <label htmlFor="name" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
+          Name <span className="text-rose-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="name"
+          required
+          placeholder="e.g. Jane Smith"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+        />
+      </div>
 
-        <div>
-          <label htmlFor="name" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-            Name <span className="text-rose-500">*</span>
-          </label>
-          <input
-            type="text"
-            id="name"
-            required
-            placeholder="e.g. Jane Smith"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-          />
-        </div>
+      {mode === 'create' && (
+        <>
+          <div>
+            <label htmlFor="email" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
+              Email <span className="text-rose-500">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              required
+              placeholder="e.g. trainer@example.com"
+              value={(formData as CreateTrainerDTO).email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+            />
+          </div>
 
-        {mode === 'create' && (
-          <>
-            <div>
-              <label htmlFor="email" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-                Email <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="email"
-                id="email"
-                required
-                placeholder="e.g. trainer@example.com"
-                value={(formData as CreateTrainerDTO).email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-              />
-            </div>
+          <div>
+            <label htmlFor="password" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
+              Password <span className="text-rose-500">*</span>
+            </label>
+            <input
+              type="password"
+              id="password"
+              required
+              placeholder="Min. 8 characters (trainer can change it later)"
+              value={(formData as CreateTrainerDTO).password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+            />
+          </div>
+        </>
+      )}
 
-            <div>
-              <label htmlFor="password" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-                Password <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="password"
-                id="password"
-                required
-                placeholder="Min. 8 characters (trainer can change it later)"
-                value={(formData as CreateTrainerDTO).password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-              />
-            </div>
-          </>
-        )}
+      <div>
+        <label htmlFor="role" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
+          Role
+        </label>
+        <input
+          type="text"
+          id="role"
+          placeholder="e.g. Sports Coach, Fitness Trainer"
+          value={formData.role || ''}
+          onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+          className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+        />
+      </div>
 
-        <div>
-          <label htmlFor="role" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-            Role
-          </label>
-          <input
-            type="text"
-            id="role"
-            placeholder="e.g. Sports Coach, Fitness Trainer"
-            value={formData.role || ''}
-            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-            className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-          />
-        </div>
+      <div>
+        <label htmlFor="bio" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
+          Bio (Short)
+        </label>
+        <textarea
+          id="bio"
+          rows={3}
+          placeholder="Brief introduction (1-2 sentences)"
+          value={formData.bio || ''}
+          onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+          className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+        />
+      </div>
 
-        <div>
-          <label htmlFor="bio" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-            Bio (Short)
-          </label>
-          <textarea
-            id="bio"
-            rows={3}
-            placeholder="Brief introduction (1-2 sentences)"
-            value={formData.bio || ''}
-            onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-            className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-          />
-        </div>
+      <div>
+        <label htmlFor="fullDescription" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
+          Full Description
+        </label>
+        <textarea
+          id="fullDescription"
+          rows={5}
+          placeholder="Detailed trainer profile and experience"
+          value={formData.full_description || ''}
+          onChange={(e) => setFormData({ ...formData, full_description: e.target.value })}
+          className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+        />
+      </div>
 
-        <div>
-          <label htmlFor="fullDescription" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-            Full Description
-          </label>
-          <textarea
-            id="fullDescription"
-            rows={5}
-            placeholder="Detailed trainer profile and experience"
-            value={formData.full_description || ''}
-            onChange={(e) => setFormData({ ...formData, full_description: e.target.value })}
-            className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="image" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-            Image URL (optional)
-          </label>
-          <input
-            type="url"
-            id="image"
-            placeholder="https://example.com/trainer-photo.jpg"
-            value={formData.image || ''}
-            onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-            className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-          />
-          {mode === 'edit' && onUploadImage && initialData && (
-            <div className="mt-3 space-y-1">
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-                Or upload a profile photo
-              </label>
-              <input
-                type="file"
-                accept="image/jpeg,image/jpg,image/png,image/webp"
-                onChange={(e) => {
-                  const file = e.target.files?.[0] || null;
-                  setImageFile(file);
+      <div>
+        <label htmlFor="image" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
+          Image URL (optional)
+        </label>
+        <input
+          type="url"
+          id="image"
+          placeholder="https://example.com/trainer-photo.jpg"
+          value={formData.image || ''}
+          onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+          className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+        />
+        {mode === 'edit' && onUploadImage && initialData && (
+          <div className="mt-3 space-y-1">
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-200">
+              Or upload a profile photo
+            </label>
+            <input
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setImageFile(file);
+              }}
+              className="mt-1 block w-full text-xs text-slate-700 file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-slate-700 hover:file:bg-slate-200 dark:text-slate-200 dark:file:bg-slate-800 dark:file:text-slate-100 dark:hover:file:bg-slate-700"
+            />
+            <div className="mt-2 flex items-center gap-2">
+              <button
+                type="button"
+                disabled={!imageFile || uploadingImage}
+                onClick={async () => {
+                  if (!imageFile || !onUploadImage) return;
+                  try {
+                    setUploadingImage(true);
+                    await onUploadImage(imageFile);
+                    setImageFile(null);
+                  } catch (err: unknown) {
+                    toastManager.error(err instanceof Error ? err.message : 'Failed to upload image');
+                  } finally {
+                    setUploadingImage(false);
+                  }
                 }}
-                className="mt-1 block w-full text-xs text-slate-700 file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-slate-700 hover:file:bg-slate-200 dark:text-slate-200 dark:file:bg-slate-800 dark:file:text-slate-100 dark:hover:file:bg-slate-700"
-              />
-              <div className="mt-2 flex items-center gap-2">
-                <button
-                  type="button"
-                  disabled={!imageFile || uploadingImage}
-                  onClick={async () => {
-                    if (!imageFile || !onUploadImage) return;
-                    try {
-                      setUploadingImage(true);
-                      await onUploadImage(imageFile);
-                      setImageFile(null);
-                    } catch (err: unknown) {
-                      toastManager.error(err instanceof Error ? err.message : 'Failed to upload image');
-                    } finally {
-                      setUploadingImage(false);
-                    }
-                  }}
-                  className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-[11px] font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
-                >
-                  {uploadingImage ? 'Uploading…' : 'Upload Photo'}
-                </button>
-                {initialData.image && (
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                    Current image in use
-                  </span>
-                )}
-              </div>
+                className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-[11px] font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
+              >
+                {uploadingImage ? 'Uploading…' : 'Upload Photo'}
+              </button>
+              {initialData.image && (
+                <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Current image in use
+                </span>
+              )}
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        )}
+      </div>
+    </section>
+  );
 
-      {/* Professional Details */}
-      <section className="space-y-3">
+  const professionalTab = (
+    <section className="space-y-3">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Professional Details
         </h3>
@@ -534,98 +532,110 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
             Separate multiple age groups with commas
           </p>
         </div>
-      </section>
+    </section>
+  );
 
-      {/* Service Areas */}
-      <section className="space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          Service Areas
-        </h3>
+  const serviceAreasTab = (
+    <section className="space-y-3">
+      <div>
+        <label htmlFor="homePostcode" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
+          Home Postcode
+        </label>
+        <input
+          type="text"
+          id="homePostcode"
+          placeholder="e.g. SW1A 1AA"
+          value={formData.home_postcode || ''}
+          onChange={(e) => setFormData({ ...formData, home_postcode: e.target.value })}
+          className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+        />
+      </div>
 
-        <div>
-          <label htmlFor="homePostcode" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-            Home Postcode
-          </label>
-          <input
-            type="text"
-            id="homePostcode"
-            placeholder="e.g. SW1A 1AA"
-            value={formData.home_postcode || ''}
-            onChange={(e) => setFormData({ ...formData, home_postcode: e.target.value })}
-            className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-          />
-        </div>
+      <div>
+        <label htmlFor="travelRadius" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
+          Travel Radius (km)
+        </label>
+        <input
+          type="number"
+          id="travelRadius"
+          min="0"
+          max="999"
+          placeholder="e.g. 25"
+          value={formData.travel_radius_km || 0}
+          onChange={(e) =>
+            setFormData({ ...formData, travel_radius_km: parseInt(e.target.value, 10) || 0 })
+          }
+          className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+        />
+      </div>
 
-        <div>
-          <label htmlFor="travelRadius" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-            Travel Radius (km)
-          </label>
-          <input
-            type="number"
-            id="travelRadius"
-            min="0"
-            max="999"
-            placeholder="e.g. 25"
-            value={formData.travel_radius_km || 0}
-            onChange={(e) =>
-              setFormData({ ...formData, travel_radius_km: parseInt(e.target.value, 10) || 0 })
-            }
-            className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-          />
-        </div>
+      <div>
+        <label htmlFor="serviceAreas" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
+          Service Area Postcodes
+        </label>
+        <input
+          type="text"
+          id="serviceAreas"
+          placeholder="e.g. SW1, W1, NW1 (comma-separated)"
+          value={serviceAreasInput}
+          onChange={(e) => setServiceAreasInput(e.target.value)}
+          className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
+        />
+        <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+          Separate multiple postcodes with commas
+        </p>
+      </div>
+    </section>
+  );
 
-        <div>
-          <label htmlFor="serviceAreas" className="block text-xs font-medium text-slate-700 dark:text-slate-200">
-            Service Area Postcodes
-          </label>
-          <input
-            type="text"
-            id="serviceAreas"
-            placeholder="e.g. SW1, W1, NW1 (comma-separated)"
-            value={serviceAreasInput}
-            onChange={(e) => setServiceAreasInput(e.target.value)}
-            className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
-          />
-          <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-            Separate multiple postcodes with commas
-          </p>
-        </div>
-      </section>
+  const statusTab = (
+    <section className="space-y-3">
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          id="isActive"
+          checked={formData.is_active ?? true}
+          onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+          className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500"
+        />
+        <label htmlFor="isActive" className="text-xs font-medium text-slate-700 dark:text-slate-200">
+          Active (available for bookings)
+        </label>
+      </div>
 
-      {/* Status */}
-      <section className="space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          Status
-        </h3>
-
+      {mode === 'edit' && (
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
-            id="isActive"
-            checked={formData.is_active ?? true}
-            onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+            id="isFeatured"
+            checked={(formData as UpdateTrainerDTO).is_featured ?? false}
+            onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
             className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500"
           />
-          <label htmlFor="isActive" className="text-xs font-medium text-slate-700 dark:text-slate-200">
-            Active (available for bookings)
+          <label htmlFor="isFeatured" className="text-xs font-medium text-slate-700 dark:text-slate-200">
+            Featured (show on homepage)
           </label>
         </div>
+      )}
+    </section>
+  );
 
-        {mode === 'edit' && (
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="isFeatured"
-              checked={(formData as UpdateTrainerDTO).is_featured ?? false}
-              onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-              className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500"
-            />
-            <label htmlFor="isFeatured" className="text-xs font-medium text-slate-700 dark:text-slate-200">
-              Featured (show on homepage)
-            </label>
-          </div>
-        )}
-      </section>
+  const tabs = [
+    { id: 'basic', label: 'Basic', icon: User, content: basicTab },
+    { id: 'professional', label: 'Professional', icon: Briefcase, content: professionalTab },
+    { id: 'service', label: 'Service areas', icon: MapPin, content: serviceAreasTab },
+    { id: 'status', label: 'Status', icon: ToggleRight, content: statusTab },
+  ];
+
+  return (
+    <form onSubmit={handleSubmit} className="flex h-full min-h-0 flex-col text-sm">
+      <div className="min-h-0 flex-1">
+        <TabbedSidePanelContent
+          tabs={tabs}
+          activeTabId={activeTabId}
+          onTabChange={setActiveTabId}
+          ariaLabel="Trainer form sections"
+        />
       </div>
 
       {/* Form Actions */}

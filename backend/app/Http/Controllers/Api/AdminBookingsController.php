@@ -323,7 +323,9 @@ class AdminBookingsController extends Controller
                     'id' => (string) $payment->id,
                     'amount' => (float) $payment->amount,
                     'status' => $payment->status,
-                    'paidAt' => $payment->paid_at?->toIso8601String(),
+                    'paymentType' => $payment->payment_type ?? 'package',
+                    'receiptUrl' => $payment->receipt_url,
+                    'paidAt' => $payment->processed_at?->toIso8601String(),
                 ];
             });
 

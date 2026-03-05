@@ -7,7 +7,7 @@ export const EditorDashboardPageClient: React.FC = () => {
   return (
     <section className="space-y-4">
       <header className="space-y-0.5">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+        <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
           Editor dashboard
         </h1>
         <p className="text-sm text-slate-600 dark:text-slate-400">

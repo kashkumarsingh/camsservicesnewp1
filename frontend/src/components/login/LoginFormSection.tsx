@@ -32,6 +32,7 @@ export default function LoginFormSection({
   handleSubmit,
   authError,
   registerHref,
+  forgotPasswordHref,
 }: LoginFormSectionProps) {
   const disabled = isSubmitting || loading;
 
@@ -139,6 +140,35 @@ export default function LoginFormSection({
                 {errors.password}
               </p>
             )}
+            {forgotPasswordHref && (
+              <p className="mt-2 text-right text-sm">
+                <Link
+                  href={forgotPasswordHref}
+                  className="font-medium text-primary-blue underline-offset-2 hover:underline"
+                >
+                  {LOGIN_FORM.FORGOT_PASSWORD}
+                </Link>
+              </p>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="rememberMe"
+              name="rememberMe"
+              checked={formData.rememberMe}
+              onChange={handleChange}
+              className="h-4 w-4 rounded border-slate-300 text-primary-blue focus:ring-primary-blue"
+              aria-describedby="rememberMe-description"
+            />
+            <label
+              htmlFor="rememberMe"
+              id="rememberMe-description"
+              className="text-sm text-slate-700"
+            >
+              {LOGIN_FORM.REMEMBER_ME}
+            </label>
           </div>
 
           <Button

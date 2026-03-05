@@ -2,6 +2,13 @@
 
 Use this guide for any project so you never forget how to get Stripe webhooks working locally and in production.
 
+**Official Stripe resources (follow these for SDK usage, keys, testing, and idempotency):**
+
+- [Stripe Developer resources](https://docs.stripe.com/development?locale=en-GB) — SDKs, versioning, keys, error handling
+- [API keys](https://docs.stripe.com/keys?locale=en-GB) — Test vs live keys, webhook signing secret
+- [Testing](https://docs.stripe.com/testing?locale=en-GB) — Test cards (e.g. 4242 4242 4242 4242), declines, 3DS
+- [Idempotent requests](https://docs.stripe.com/api/idempotent_requests) — Use `Idempotency-Key` header when creating PaymentIntents/Checkout Sessions for safe retries
+
 ---
 
 ## Why this matters
@@ -220,6 +227,38 @@ Trigger a test payment on the deployed app; the booking/order should update. You
 - [ ] **Local:** Stripe CLI installed; run `stripe listen --forward-to <your-local-webhook-url>`; put printed secret in `.env`.
 - [ ] **Production:** In Stripe Dashboard, add endpoint with **your public webhook URL**; choose **Your account** (unless Connect); subscribe to at least `payment_intent.succeeded` (and optionally `charge.updated`, `payment_intent.payment_failed`, `payment_intent.canceled`); put that endpoint’s **signing secret** in the deployed app’s env as `STRIPE_WEBHOOK_SECRET`.
 - [ ] Never use the local CLI secret in production, or the production secret on localhost.
+
+---
+
+## Testing payments (sandbox)
+
+- Use **test API keys** (`pk_test_...`, `sk_test_...`) from the [Dashboard](https://dashboard.stripe.com/test/apikeys).
+- Use [test card numbers](https://docs.stripe.com/testing?locale=en-GB#cards), e.g. **4242 4242 4242 4242** for a successful payment; any future expiry and any 3-digit CVC.
+- Do not use real card details in test mode.
+
+---
+
+## Invoice management (receipt as invoice)
+
+The app uses **Option A: Stripe’s charge receipt URL as the “invoice” link** (one receipt per payment). Each payment row has:
+
+- **payment_type** — `package` or `top_up` (for labelling in the UI: “Package payment” / “Top-up payment”).
+- **receipt_url** — Stripe’s hosted receipt URL, persisted when the payment completes (so we don’t rely only on Stripe’s ~30‑day availability).
+
+**Migration:** Add columns to the `payments` table (run from backend directory):
+
+```bash
+php artisan make:migration add_payment_type_and_receipt_url_to_payments_table --table=payments
+```
+
+Then in the generated migration’s `up()`:
+
+- `$table->string('payment_type', 32)->default('package')->after('payment_provider');`
+- `$table->string('receipt_url', 2048)->nullable()->after('metadata');`
+
+And in `down()`: `$table->dropColumn(['payment_type', 'receipt_url']);`
+
+**Backfill (optional):** For existing rows, you can set `payment_type` by booking: first payment per booking = `package`, others = `top_up` (e.g. in a one-off command or a second migration step).
 
 ---
 

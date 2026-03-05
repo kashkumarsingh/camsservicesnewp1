@@ -25,10 +25,13 @@ import {
   Briefcase,
   Package,
   FileText,
+  Receipt,
   BarChart2,
   PanelLeftClose,
   PanelLeft,
   RefreshCw,
+  AlertCircle,
+  XCircle,
 } from "lucide-react";
 import type { IconComponent } from "@/types/icons";
 import { useAuth } from "@/interfaces/web/hooks/auth/useAuth";
@@ -41,6 +44,8 @@ import { useLiveRefresh, useLiveRefreshContext } from "@/core/liveRefresh/LiveRe
 import { LIVE_REFRESH_ENABLED } from "@/utils/liveRefreshConstants";
 import { getDashboardRoute, canAccessRoute } from "@/utils/navigation";
 import { ROUTES } from "@/utils/routes";
+import { USER_ROLE, APPROVAL_STATUS } from "@/utils/dashboardConstants";
+import Button from "@/components/ui/Button";
 import type { User } from "@/core/application/auth/types";
 import { ThemeToggle } from "@/components/theme";
 import ToastContainer from "@/components/ui/Toast/ToastContainer";
@@ -75,6 +80,7 @@ const ROLE_SECTIONS: RoleSection[] = [
     items: [
       { label: "Overview", href: "/dashboard/parent", icon: LayoutDashboard },
       { label: "Booked hours and packages", href: "/dashboard/parent/bookings", icon: Calendar },
+      { label: "Billing & invoices", href: "/dashboard/parent/billing", icon: Receipt },
       { label: "My Children", href: "/dashboard/parent/children", icon: Users },
       { label: "Progress", href: "/dashboard/parent/progress", icon: TrendingUp },
     ],
@@ -117,7 +123,7 @@ const ROLE_SECTIONS: RoleSection[] = [
   },
 ];
 
-const SIDEBAR_COLLAPSED_KEY = "dashboard-sidebar-collapsed";
+const SIDEBAR_COLLAPSED_KEY_PREFIX = "dashboard-sidebar-collapsed";
 
 function groupNotificationsByCategory(
   notifications: DashboardNotification[]
@@ -208,17 +214,19 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
       ? (searchParams.get("tab") === "more" ? "more" : "schedule")
       : null;
 
-  /** Parent mobile top bar title: reflects current page (Overview / Children / Booked hours and packages / Progress). */
+  /** Parent mobile top bar title: reflects current page (Overview / Children / Booked hours and packages / Billing / Progress). */
   const parentMobileTitle = pathname.startsWith("/dashboard/parent")
     ? pathname.startsWith("/dashboard/parent/children")
       ? "Children"
       : pathname.startsWith("/dashboard/parent/bookings")
         ? "Booked hours and packages"
-        : pathname.startsWith("/dashboard/parent/progress")
-          ? "Progress"
-          : pathname === "/dashboard/parent" && parentTab === "hours"
-            ? "Hours"
-            : "Overview"
+        : pathname.startsWith(ROUTES.DASHBOARD_PARENT_BILLING)
+          ? "Billing & invoices"
+          : pathname.startsWith("/dashboard/parent/progress")
+            ? "Progress"
+            : pathname === "/dashboard/parent" && parentTab === "hours"
+              ? "Hours"
+              : "Overview"
     : "";
 
   /** Trainer mobile top bar title: reflects current page (Overview / Schedule / Settings). */
@@ -289,7 +297,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
     setTimeout(() => setRefreshAllBusy(false), 1500);
   }, [liveRefreshContext, refreshAllBusy]);
 
-  // Dashboard: slightly larger base font size for readability (all rem-based typography scales up).
+  // Dashboard: apply root font size so typography is consistent (see appConstants.DASHBOARD_BASE_FONT_SIZE).
   useEffect(() => {
     document.documentElement.style.fontSize = DASHBOARD_BASE_FONT_SIZE;
     return () => {
@@ -297,29 +305,39 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
     };
   }, []);
 
+  const { user, loading, loadError, unauthenticatedReason, refresh, logout } = useAuth();
+  const sectionRole = getSectionRole(user);
+
   // Restore collapsed preference from localStorage (client-only to avoid hydration mismatch).
+  // Key is role-specific so trainer can default to collapsed while parent/admin keep their own preference.
   // Until hydrated we show sidebar narrow (lg:w-16) so it never "widens then shrinks" for users who had it collapsed.
   const [sidebarHydrated, setSidebarHydrated] = useState(false);
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
-      if (stored !== null) setSidebarCollapsed(JSON.parse(stored));
+      const role = getSectionRole(user);
+      const key = `${SIDEBAR_COLLAPSED_KEY_PREFIX}-${role ?? "default"}`;
+      const stored = localStorage.getItem(key);
+      if (stored !== null) {
+        setSidebarCollapsed(JSON.parse(stored));
+      } else if (role === "trainer") {
+        setSidebarCollapsed(true);
+      }
     } catch {
       // ignore
     }
     setSidebarHydrated(true);
-  }, []);
+  }, [user]);
 
   const setCollapsed = useCallback((value: boolean) => {
     setSidebarCollapsed(value);
     try {
-      localStorage.setItem(SIDEBAR_COLLAPSED_KEY, JSON.stringify(value));
+      const role = getSectionRole(user);
+      const key = `${SIDEBAR_COLLAPSED_KEY_PREFIX}-${role ?? "default"}`;
+      localStorage.setItem(key, JSON.stringify(value));
     } catch {
       // ignore
     }
-  }, []);
-  const { user, loading, loadError, unauthenticatedReason, refresh, logout } = useAuth();
-  const sectionRole = getSectionRole(user);
+  }, [user]);
   const isServerLoadError = loadError != null && (loadError.status >= 500 || loadError.status === 0);
 
   useEffect(() => {
@@ -441,6 +459,46 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
     }
     return (
       <DashboardSkeleton variant={getDashboardSkeletonVariantFromPath(pathname)} />
+    );
+  }
+
+  // Unapproved parents on any parent dashboard route: show only pending/rejected screen (no nav, no sign out — they should not have a token; this is edge case e.g. old token)
+  if (
+    pathname.startsWith(ROUTES.DASHBOARD_PARENT) &&
+    user.role === USER_ROLE.PARENT &&
+    user.approvalStatus !== APPROVAL_STATUS.APPROVED
+  ) {
+    return (
+      <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950">
+        <div className="flex min-h-[60vh] flex-1 items-center justify-center px-4">
+          <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            {user.approvalStatus === APPROVAL_STATUS.PENDING ? (
+              <>
+                <AlertCircle className="mx-auto mb-4 h-16 w-16 text-amber-500" aria-hidden />
+                <h1 className="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-50">
+                  Account Pending Approval
+                </h1>
+                <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
+                  Your registration is pending admin approval. You&apos;ll be notified once approved. You can sign in only after your account is approved.
+                </p>
+              </>
+            ) : (
+              <>
+                <XCircle className="mx-auto mb-4 h-16 w-16 text-rose-500" aria-hidden />
+                <h1 className="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-50">
+                  Account Not Approved
+                </h1>
+                <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
+                  {user.rejectionReason ?? "Your registration was not approved. Please contact us for more information."}
+                </p>
+              </>
+            )}
+            <Button onClick={() => router.push(ROUTES.HOME)} className="w-full rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover sm:w-auto">
+              Go to Homepage
+            </Button>
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -927,7 +985,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
           className="lg:hidden fixed bottom-0 left-0 right-0 z-sticky border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-[0_-1px_3px_0_rgb(0_0_0/0.06)] pb-[env(safe-area-inset-bottom,0px)]"
           aria-label="Parent dashboard navigation"
         >
-          <div className="grid grid-cols-3 h-14">
+          <div className="grid grid-cols-4 h-14">
             <Link
               href={ROUTES.DASHBOARD_PARENT}
               className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] min-w-0 touch-manipulation ${
@@ -949,6 +1007,17 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
             >
               <Calendar className="h-5 w-5 shrink-0" aria-hidden />
               <span>Bookings</span>
+            </Link>
+            <Link
+              href={ROUTES.DASHBOARD_PARENT_BILLING}
+              className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] min-w-0 touch-manipulation ${
+                pathname.startsWith(ROUTES.DASHBOARD_PARENT_BILLING)
+                  ? "text-gcal-primary dark:text-gcal-primary"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+              }`}
+            >
+              <Receipt className="h-5 w-5 shrink-0" aria-hidden />
+              <span>Billing</span>
             </Link>
             <Link
               href={ROUTES.DASHBOARD_PARENT_CHILDREN}

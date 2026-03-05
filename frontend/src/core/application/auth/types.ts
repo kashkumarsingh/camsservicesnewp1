@@ -141,13 +141,26 @@ export interface RegisterRequest {
 export interface LoginRequest {
   email: string;
   password: string;
+  /** When false, token and cookie expire in 24 hours (session-like). Default true = 30 days. */
+  rememberMe?: boolean;
 }
 
-/** API returns camelCase after backend keysToCamelCase. */
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  email: string;
+  password: string;
+  passwordConfirmation: string;
+}
+
+/** API returns camelCase after backend keysToCamelCase. Parent registration returns user only (no token) until approved. */
 export interface AuthResponse {
   user: User;
-  accessToken: string;
-  tokenType: string;
+  accessToken?: string;
+  tokenType?: string;
 }
 
 export interface CreateChildRequest {

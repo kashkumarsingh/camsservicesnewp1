@@ -820,7 +820,7 @@ export function AdminScheduleWeekGrid({ onRefetchStats, onViewSession, trainerFi
         <div className="flex flex-col gap-1 min-w-0">
           <h2
             id="schedule-week-title"
-            className="text-lg font-semibold text-slate-900 dark:text-slate-100"
+            className="text-base font-semibold text-slate-900 dark:text-slate-100"
           >
             {scheduleTitle}
           </h2>

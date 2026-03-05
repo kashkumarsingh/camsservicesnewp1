@@ -196,45 +196,33 @@ class StripeWebhookController extends Controller
     private function handlePaymentIntentFailed($paymentIntent): void
     {
         $paymentIntentId = $paymentIntent->id;
-
-        Log::info('Stripe payment failed', [
-            'payment_intent_id' => $paymentIntentId,
-            'amount' => $paymentIntent->amount / 100,
-            'failure_message' => $paymentIntent->last_payment_error->message ?? 'Unknown error',
-        ]);
-
-        // Try to find booking associated with this payment intent
-        try {
-            $payment = \App\Models\Payment::where('transaction_id', $paymentIntentId)->first();
-            
-            if ($payment && $payment->payable_type === \App\Models\Booking::class) {
-                $booking = \App\Models\Booking::find($payment->payable_id);
-                
-                if ($booking) {
-                    $errorMessage = $paymentIntent->last_payment_error->message ?? 'Payment failed. Please try again.';
-                    
-                    // Dispatch PaymentFailed event (triggers notification)
-                    event(new \App\Events\PaymentFailed($booking, $errorMessage));
-                }
-            }
-        } catch (\Exception $e) {
-            Log::error('Error handling payment failed webhook', [
-                'payment_intent_id' => $paymentIntentId,
-                'error' => $e->getMessage(),
-            ]);
-        }
         $failureMessage = $paymentIntent->last_payment_error->message ?? 'Payment failed';
 
         Log::info('Stripe payment failed', [
             'payment_intent_id' => $paymentIntentId,
+            'amount' => $paymentIntent->amount / 100,
             'failure_message' => $failureMessage,
         ]);
 
-        // Find and update payment record using Payment repository
         $payment = $this->paymentRepository->findByTransactionId($paymentIntentId);
 
         if ($payment) {
             $this->paymentRepository->markAsFailed($payment->id(), $failureMessage);
+
+            try {
+                if ($payment->payableType() === \App\Models\Booking::class) {
+                    $booking = \App\Models\Booking::find($payment->payableId());
+                    if ($booking) {
+                        $errorMessage = $paymentIntent->last_payment_error->message ?? 'Payment failed. Please try again.';
+                        event(new \App\Events\PaymentFailed($booking, $errorMessage));
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Error dispatching PaymentFailed event', [
+                    'payment_intent_id' => $paymentIntentId,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
     }
 

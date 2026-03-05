@@ -124,13 +124,15 @@ class StripePaymentService implements IPaymentService
      * 
      * Note: Stripe Checkout automatically creates a payment intent when the session is created.
      * We retrieve and return the payment intent ID so it can be stored in our database.
-     * 
+     * Uses idempotency key when provided (Stripe recommendation for safe retries).
+     *
      * @param float $amount Payment amount
      * @param string $currency Currency code (e.g., 'GBP')
      * @param array $metadata Additional metadata (booking_id, booking_reference, etc.)
      * @param string|null $successUrl Success redirect URL
      * @param string|null $cancelUrl Cancel redirect URL
      * @param string|null $customerEmail Customer email to pre-fill in checkout (improves UX)
+     * @param string|null $idempotencyKey Optional idempotency key (see https://docs.stripe.com/api/idempotent_requests)
      */
     public function createCheckoutSession(
         float $amount,
@@ -138,7 +140,8 @@ class StripePaymentService implements IPaymentService
         array $metadata = [],
         ?string $successUrl = null,
         ?string $cancelUrl = null,
-        ?string $customerEmail = null
+        ?string $customerEmail = null,
+        ?string $idempotencyKey = null
     ): array {
         if (!$this->stripe) {
             return [
@@ -186,7 +189,8 @@ class StripePaymentService implements IPaymentService
                 $sessionParams['customer_email'] = $customerEmail;
             }
 
-            $session = $this->stripe->checkout->sessions->create($sessionParams);
+            $requestOptions = array_filter(['idempotency_key' => $idempotencyKey]);
+            $session = $this->stripe->checkout->sessions->create($sessionParams, $requestOptions);
             
             Log::info('Stripe checkout session created successfully', [
                 'session_id' => $session->id,

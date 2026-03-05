@@ -400,7 +400,7 @@ export default function ParentChildrenPageClient() {
         />
         <div className="flex flex-col gap-3 md:gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-2xl">
+            <h1 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-xl">
               My children
             </h1>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">

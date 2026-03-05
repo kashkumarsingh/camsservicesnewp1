@@ -180,6 +180,8 @@ class BookingController extends Controller
                     'currency' => $payment->currency(),
                     'paymentMethod' => $payment->method()->toString(),
                     'paymentProvider' => $payment->paymentProvider(),
+                    'paymentType' => $payment->paymentType() ?? 'package',
+                    'receiptUrl' => $payment->receiptUrl(),
                     'transactionId' => $payment->transactionId(),
                     'status' => $payment->status()->toString(),
                     'processedAt' => $payment->processedAt(),
@@ -1051,11 +1053,16 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             Log::error('Error starting booking top-up', [
                 'id' => $id,
+                'exception' => get_class($e),
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return $this->serverErrorResponse('Failed to start booking top-up.');
+            $message = config('app.debug')
+                ? 'Failed to start booking top-up: ' . $e->getMessage()
+                : 'Failed to start booking top-up.';
+
+            return $this->serverErrorResponse($message);
         }
     }
 }

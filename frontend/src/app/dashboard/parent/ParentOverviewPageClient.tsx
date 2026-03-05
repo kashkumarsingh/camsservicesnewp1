@@ -20,9 +20,9 @@ import AddChildModal from "@/components/dashboard/modals/AddChildModal";
 import { useActivities } from "@/interfaces/web/hooks/activities/useActivities";
 import { apiClient } from "@/infrastructure/http/ApiClient";
 import { API_ENDPOINTS } from "@/infrastructure/http/apiEndpoints";
-import { ApiPaymentService } from "@/infrastructure/services/payment/ApiPaymentService";
 import { toastManager, type Toast } from "@/utils/toast";
 import { CHECKLIST_SUBMIT_SUCCESS_MESSAGE } from "@/utils/appConstants";
+import { ROUTES } from "@/utils/routes";
 import { EMPTY_STATE } from "@/utils/emptyStateConstants";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
@@ -88,30 +88,25 @@ export default function ParentOverviewPageClient() {
     const purchaseStatus = searchParams.get("purchase");
     const sessionId = searchParams.get("session_id");
 
-    if (purchaseStatus === "success") {
-      const run = async () => {
-        if (sessionId && !hasConfirmedPaymentFromSessionRef.current) {
-          hasConfirmedPaymentFromSessionRef.current = true;
-          const result = await ApiPaymentService.confirmPaymentFromSession(sessionId);
-          if (!result.ok) {
-            hasShownPurchaseToastRef.current = true;
-            toastManager.error(result.error);
-          }
-        }
+    if (purchaseStatus === "success" && sessionId) {
+      if (!hasConfirmedPaymentFromSessionRef.current) {
+        hasConfirmedPaymentFromSessionRef.current = true;
+        router.replace(`${ROUTES.DASHBOARD_PARENT_PAYMENT_CONFIRMATION}?session_id=${encodeURIComponent(sessionId)}`, { scroll: false });
+      }
+      return;
+    }
 
-        if (!hasShownPurchaseToastRef.current) {
-          hasShownPurchaseToastRef.current = true;
-          toastManager.success(
-            "Payment received. Your hours will update in a moment—you can now book sessions from your dashboard."
-          );
-        }
-        refetchBookings(true);
-        refresh();
-        purchaseSuccessTimeoutRef.current = setTimeout(() => refetchBookings(true), 2000);
-        setTimeout(() => refetchBookings(true), 5000);
-        router.replace("/dashboard/parent", { scroll: false });
-      };
-      run();
+    if (purchaseStatus === "success" && !sessionId) {
+      if (!hasShownPurchaseToastRef.current) {
+        hasShownPurchaseToastRef.current = true;
+        toastManager.success(
+          "Payment received. Your hours will update in a moment—you can now book sessions from your dashboard."
+        );
+      }
+      refetchBookings(true);
+      refresh();
+      purchaseSuccessTimeoutRef.current = setTimeout(() => refetchBookings(true), 2000);
+      router.replace(ROUTES.DASHBOARD_PARENT, { scroll: false });
       return () => {
         if (purchaseSuccessTimeoutRef.current) {
           clearTimeout(purchaseSuccessTimeoutRef.current);
@@ -124,7 +119,7 @@ export default function ParentOverviewPageClient() {
       toastManager.info(
         "Payment was cancelled. Your package will only be confirmed once payment is completed."
       );
-      router.replace("/dashboard/parent", { scroll: false });
+      router.replace(ROUTES.DASHBOARD_PARENT, { scroll: false });
     }
   }, [searchParams, router, refetchBookings, refresh]);
 
@@ -855,7 +850,7 @@ export default function ParentOverviewPageClient() {
       <header className="rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-sm dark:border-slate-700 dark:bg-slate-900 md:px-5 md:py-5">
         <div className="flex flex-wrap items-start justify-between gap-3 md:gap-4">
           <div className="min-w-0">
-            <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-2xl xl:text-3xl">
+            <h1 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-xl">
               {getGreeting()}, {parentFirstName}
             </h1>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-400" title="Sessions, hours and children in one place">

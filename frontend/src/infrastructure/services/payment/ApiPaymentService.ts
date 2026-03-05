@@ -14,7 +14,10 @@
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
-import { PAYMENT_CONFIRM_FROM_SESSION_ERROR_FALLBACK } from '@/utils/appConstants';
+import {
+  PAYMENT_CONFIRM_FROM_SESSION_ERROR_FALLBACK,
+  STRIPE_IDEMPOTENCY_HEADER,
+} from '@/utils/appConstants';
 import type { PaymentMethod, PaymentStatus, PaymentResult } from './types';
 
 let stripePromise: Promise<Stripe | null> | null = null;
@@ -69,28 +72,44 @@ export interface ConfirmPaymentResponse {
   message?: string;
 }
 
+/** Options for createPaymentIntent (e.g. idempotency key for safe retries). */
+export interface CreatePaymentIntentOptions {
+  /** Idempotency key sent as Idempotency-Key header; use same key on retries to avoid duplicate Checkout Sessions. */
+  idempotencyKey?: string;
+}
+
 export class ApiPaymentService {
   /**
    * Create a payment intent for a booking.
+   * Pass idempotencyKey (e.g. from useRef when opening pay flow) so retries return the same session.
    */
   static async createPaymentIntent(
     bookingId: string,
     amount: number,
     currency: string = 'GBP',
-    paymentMethod: string = 'stripe'
+    paymentMethod: string = 'stripe',
+    options?: CreatePaymentIntentOptions
   ): Promise<{ success: boolean; paymentIntentId?: string; clientSecret?: string; checkoutUrl?: string; error?: string }> {
     try {
+      const headers: Record<string, string> = {};
+      if (options?.idempotencyKey && options.idempotencyKey.trim() !== '') {
+        headers[STRIPE_IDEMPOTENCY_HEADER] = options.idempotencyKey.trim();
+      }
       // Backend returns camelCase (BaseApiController / ApiResponseHelper::keysToCamelCase)
       const response = await apiClient.post<{
         paymentIntentId?: string;
         clientSecret?: string;
         checkoutUrl?: string;
         paymentId?: number;
-      }>(API_ENDPOINTS.CREATE_PAYMENT_INTENT(bookingId), {
-        amount,
-        currency,
-        payment_method: paymentMethod,
-      });
+      }>(
+        API_ENDPOINTS.CREATE_PAYMENT_INTENT(bookingId),
+        {
+          amount,
+          currency,
+          payment_method: paymentMethod,
+        },
+        Object.keys(headers).length > 0 ? { headers } : undefined
+      );
 
       // ApiClient unwraps { success: true, data: {...} } to { data: {...} }
       const paymentData = response.data;
@@ -342,18 +361,21 @@ export class ApiPaymentService {
    * Call this when the user returns from Stripe with ?purchase=success&session_id=...
    *
    * Contract: ApiClient unwraps the API envelope, so response.data has no "success" field.
-   * Success = request did not throw. Do NOT check response.data.success in callers.
+   * Success = request did not throw. On success, returns booking + payment for invoice confirmation page.
    */
   static async confirmPaymentFromSession(sessionId: string): Promise<
-    | { ok: true }
+    | { ok: true; booking: ConfirmFromSessionBooking; payment: ConfirmFromSessionPayment }
     | { ok: false; error: string }
   > {
     try {
-      await apiClient.post<{ booking?: unknown; payment?: unknown }>(
+      const { data } = await apiClient.post<ConfirmFromSessionResponse>(
         API_ENDPOINTS.CONFIRM_PAYMENT_FROM_SESSION,
         { session_id: sessionId }
       );
-      return { ok: true };
+      if (!data?.booking || !data?.payment) {
+        return { ok: false, error: PAYMENT_CONFIRM_FROM_SESSION_ERROR_FALLBACK };
+      }
+      return { ok: true, booking: data.booking, payment: data.payment };
     } catch (err: unknown) {
       const message =
         (err as { message?: string })?.message ??
@@ -365,5 +387,37 @@ export class ApiPaymentService {
       return { ok: false, error: message };
     }
   }
+}
+
+/** Response from confirm-from-session API (camelCase). Used for payment confirmation / invoice page. */
+export interface ConfirmFromSessionBooking {
+  id: number;
+  reference: string;
+  status: string;
+  paymentStatus: string;
+  paidAmount: number;
+  totalPrice: number;
+  discountAmount?: number;
+  parentFirstName?: string;
+  parentLastName?: string;
+  parentEmail?: string;
+  packageName?: string;
+  hasSessions?: boolean;
+  schedulesCount?: number;
+}
+
+export interface ConfirmFromSessionPayment {
+  id: string;
+  amount: number;
+  status: string;
+  transactionId?: string | null;
+  paymentType?: string;
+  receiptUrl?: string | null;
+  processedAt?: string | null;
+}
+
+export interface ConfirmFromSessionResponse {
+  booking: ConfirmFromSessionBooking;
+  payment: ConfirmFromSessionPayment;
 }
 

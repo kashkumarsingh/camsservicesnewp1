@@ -30,6 +30,13 @@ import {
 } from './constants';
 import type { BookingDetailMainCardProps } from './bookingDetailTypes';
 import { ROUTES } from '@/utils/routes';
+import {
+  VIEW_RECEIPT_LABEL,
+  PAYMENT_TYPE_LABEL_PACKAGE,
+  PAYMENT_TYPE_LABEL_TOP_UP,
+} from '@/utils/appConstants';
+import { formatDateTime } from '@/utils/formatDate';
+import type { PaymentDTO } from '@/core/application/payment/dto/PaymentDTO';
 
 function getStatusIcon(status: string): React.ComponentType<{ className?: string }> {
   switch (status.toLowerCase()) {
@@ -130,6 +137,51 @@ const BookingDetailMainCard: React.FC<BookingDetailMainCardProps> = ({
           </p>
         </div>
       </div>
+
+      {booking.payments && booking.payments.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-navy-blue mb-3 flex items-center gap-2">
+            <CreditCard className="w-5 h-5" />
+            {BOOKING_DETAIL_SECTIONS.paymentsAndReceipts}
+          </h3>
+          <div className="space-y-3">
+            {booking.payments.map((payment: PaymentDTO) => {
+              const typeLabel =
+                payment.paymentType === 'top_up'
+                  ? PAYMENT_TYPE_LABEL_TOP_UP
+                  : PAYMENT_TYPE_LABEL_PACKAGE;
+              return (
+                <div
+                  key={payment.id}
+                  className="bg-gray-50 rounded-lg p-4 flex flex-wrap items-center justify-between gap-2"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                    <span className="font-medium text-gray-900">{typeLabel}</span>
+                    <span className="text-sm text-gray-600">
+                      {formatCurrency(payment.amount)} · {payment.status}
+                    </span>
+                    {payment.processedAt && (
+                      <span className="text-xs text-gray-500">
+                        {formatDateTime(payment.processedAt)}
+                      </span>
+                    )}
+                  </div>
+                  {payment.receiptUrl && payment.status === 'completed' && (
+                    <a
+                      href={payment.receiptUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium text-primary-blue hover:underline focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 rounded"
+                    >
+                      {VIEW_RECEIPT_LABEL}
+                    </a>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {booking.package && (
         <div className="mb-6">

@@ -7,7 +7,7 @@ import { Calendar, Clock, User, FileText, Loader2, Activity, Search, AlertTriang
 import moment from 'moment';
 import Button from '@/components/ui/Button';
 import { BaseModal } from '@/components/ui/Modal';
-import { BOOKING_VALIDATION_MESSAGES, getMessageForDateReason, meetsMinimumDuration, formatDurationDisplay, formatActivityDurationDisplay, getHoursNeededForMinimum, toWholeActivityHours } from '@/utils/bookingValidationMessages';
+import { BOOKING_VALIDATION_MESSAGES, getMessageForDateReason, meetsMinimumDuration, formatDurationDisplay, getHoursNeededForMinimum } from '@/utils/bookingValidationMessages';
 import { getDateBookingStatus, getEarliestBookableDate, isTomorrowBookable } from '@/utils/bookingCutoffRules';
 import { useActivities } from '@/interfaces/web/hooks/activities/useActivities';
 import { MIN_DURATION_HOURS } from '@/utils/bookingConstants';
@@ -343,7 +343,9 @@ export default function ParentBookingModal({
     [sessionCap, selectedChildRemainingHours]
   );
 
-  // Enforce cap: whenever selection total exceeds child's hours, trim immediately (simple: child has Xh → max Xh)
+  // Enforce cap: never allow selected activities to exceed the child's remaining hours (hard cap).
+  // Trim immediately whenever total > cap so we never show e.g. 7h when child has 5h.
+  const hardCapHours = Math.min(hoursCap, selectedChildRemainingHours);
   useEffect(() => {
     if (!isOpen || formData.childId === undefined) return;
 
@@ -355,17 +357,17 @@ export default function ParentBookingModal({
     }, 0);
     let customDuration = custom.reduce((t, c) => t + (c.duration ?? 0), 0);
     let total = dbDuration + customDuration;
-    if (total <= hoursCap) return;
+    if (total <= hardCapHours) return;
 
-    // Trim: remove from end until total <= hoursCap (custom first, then standard)
+    // Trim: remove from end until total <= cap (custom first, then standard)
     let newCustom = [...custom];
     let newIds = [...ids];
-    while (total > hoursCap && newCustom.length > 0) {
+    while (total > hardCapHours && newCustom.length > 0) {
       const removed = newCustom.pop()!;
       customDuration -= removed.duration ?? 0;
       total = dbDuration + customDuration;
     }
-    while (total > hoursCap && newIds.length > 0) {
+    while (total > hardCapHours && newIds.length > 0) {
       const removedId = newIds.pop()!;
       const a = availableActivities.find((ax) => ax.id === removedId);
       dbDuration -= a?.duration ?? 0;
@@ -376,7 +378,7 @@ export default function ParentBookingModal({
       selectedActivityIds: newIds,
       customActivities: newCustom,
     }));
-  }, [isOpen, formData.childId, hoursCap, availableActivities, formData.selectedActivityIds, formData.customActivities]);
+  }, [isOpen, formData.childId, hardCapHours, availableActivities, formData.selectedActivityIds, formData.customActivities]);
 
   // Reset dismissed hints and expand state when modal closes so they show again next open
   useEffect(() => {
@@ -565,20 +567,6 @@ export default function ParentBookingModal({
     // Fallback: for trainer_choice or legacy custom, use selected duration (defaults to minimum)
     return formData.duration || MIN_DURATION_HOURS;
   }, [formData.selectedActivityIds, formData.customActivities, formData.duration, formData.activitySelectionType, availableActivities]);
-
-  // Display total using whole hours so summary matches activity chips (e.g. 0.8h activity shows "1h" chip → total "1h" not "0.8h")
-  const sessionDurationForDisplay = useMemo(() => {
-    const selectedIds = formData.selectedActivityIds || [];
-    const customActivities = formData.customActivities || [];
-    const dbDisplay = selectedIds.reduce((total, activityId) => {
-      const activity = availableActivities.find(a => a.id === activityId);
-      return total + (activity != null ? toWholeActivityHours(activity.duration) : 0);
-    }, 0);
-    const customDisplay = customActivities.reduce((total, custom) => total + toWholeActivityHours(custom.duration || 0), 0);
-    const combined = dbDisplay + customDisplay;
-    if (combined > 0) return combined;
-    return sessionDuration;
-  }, [formData.selectedActivityIds, formData.customActivities, availableActivities, sessionDuration]);
 
   // Session duration valid: at least MIN_DURATION_HOURS and never above child's hours (single source of truth).
   const isDurationValid = useMemo(() => {
@@ -1008,21 +996,19 @@ export default function ParentBookingModal({
     (activityId: number, duration: number) => {
       const isSelected = formData.selectedActivityIds?.includes(activityId) ?? false;
       if (isSelected) return false; // Allow unchecking
-      // In edit mode, allow selecting so parent can swap activities; validation will block submit if over cap
-      if (isEditMode) return false;
+      // Never allow adding an activity that would exceed the child's cap (including in edit mode)
       return sessionDuration + duration > hoursCap;
     },
-    [formData.selectedActivityIds, sessionDuration, hoursCap, isEditMode]
+    [formData.selectedActivityIds, sessionDuration, hoursCap]
   );
   const isActivityDisabledBySessionCap = useCallback(
     (activityId: number, duration: number) => {
       const isSelected = formData.selectedActivityIds?.includes(activityId) ?? false;
       if (isSelected) return false; // Allow unchecking to remove
-      // In edit mode, allow selecting so parent can swap activities; validation will block submit if over cap
-      if (isEditMode) return false;
+      // Never allow adding an activity that would exceed the child's cap (including in edit mode)
       return sessionDuration + duration > hoursCap;
     },
-    [formData.selectedActivityIds, sessionDuration, hoursCap, isEditMode]
+    [formData.selectedActivityIds, sessionDuration, hoursCap]
   );
   const isActivityDisabled = useCallback(
     (activityId: number, duration: number) => {
@@ -1074,16 +1060,16 @@ export default function ParentBookingModal({
 
   const formContent = (
       <form ref={formRef} onSubmit={handleSubmit} id="booking-form" className="min-w-0 space-y-4 sm:space-y-5">
-          {/* Compact "Booking: date · child" + prominent hours – sticky on scroll; -mt/pt cancels scroll padding; overflow-hidden so scroll content doesn’t show through */}
+          {/* Compact "Booking: date · child" + prominent hours – sticky on scroll; overflow hidden so bar clips content and scrolling content doesn’t show through */}
           <div
-            className={`sticky top-0 z-10 space-y-3 overflow-hidden bg-white dark:bg-gray-800 border-b border-slate-200/80 dark:border-slate-700/80 pb-2 ${
+            className={`sticky top-0 z-10 space-y-3 overflow-hidden bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-600 pb-2 shadow-[0_1px_3px_0_rgb(0_0_0/0.06)] dark:shadow-[0_1px_3px_0_rgb(0_0_0/0.3)] ${
               renderAsPanel ? '-mx-4 -mt-4 px-4 pt-4' : '-mx-4 -mt-4 px-4 pt-4 md:-mx-6 md:-mt-6 md:px-6 md:pt-6'
             }`}
           >
           {formData.date && (
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-              <p className="text-2xs text-gray-500 flex flex-wrap items-center gap-x-1 gap-y-1">
-                <span>Booking:</span>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 min-w-0">
+              <p className="text-2xs text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-x-1 gap-y-1 min-w-0 flex-1">
+                <span className="shrink-0">Booking:</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -1093,11 +1079,11 @@ export default function ParentBookingModal({
                       dateInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }, 0);
                   }}
-                  className="text-primary-blue hover:underline font-medium"
+                  className="text-primary-blue hover:underline font-medium truncate max-w-[8rem] sm:max-w-[10rem]"
                 >
                   {moment(formData.date, 'YYYY-MM-DD').format('D MMM YYYY')}
                 </button>
-                <span aria-hidden>·</span>
+                <span aria-hidden className="shrink-0">·</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -1107,13 +1093,13 @@ export default function ParentBookingModal({
                       childSelectRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }, 0);
                   }}
-                  className="text-primary-blue hover:underline font-medium"
+                  className="text-primary-blue hover:underline font-medium truncate max-w-[6rem] sm:max-w-[8rem]"
                 >
                   {formData.childId === 0 ? 'Select child' : children.find((c) => c.id === formData.childId)?.name ?? 'Child'}
                 </button>
                 {formData.startTime && sessionEndTime.display && (
                   <>
-                    <span aria-hidden>·</span>
+                    <span aria-hidden className="shrink-0">·</span>
                     <button
                       type="button"
                       onClick={() => {
@@ -1123,17 +1109,17 @@ export default function ParentBookingModal({
                           timeSelectRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }, 0);
                       }}
-                      className="inline-flex items-center gap-1 text-2xs text-primary-blue hover:underline font-medium transition-colors"
+                      className="inline-flex items-center gap-1 text-2xs text-primary-blue hover:underline font-medium transition-colors min-w-0 shrink"
                       aria-label="Change activity start time"
                     >
                       <Clock size={12} className="shrink-0 text-primary-blue/80" aria-hidden />
-                      <span>
+                      <span className="truncate">
                         {moment(formData.startTime, 'HH:mm').format(TIME_FORMAT_24H)} – {sessionEndTime.display}
                         {sessionEndTime.isNextDay ? ' (next day)' : ''}
                       </span>
                     </button>
-                    <span aria-hidden>·</span>
-                    <span className={`text-2xs font-medium ${isDurationValid ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                    <span aria-hidden className="shrink-0">·</span>
+                    <span className={`shrink-0 text-2xs font-medium ${isDurationValid ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
                       ✓ {formatDurationDisplay(sessionDuration)}
                     </span>
                   </>
@@ -1331,7 +1317,11 @@ export default function ParentBookingModal({
             <select
               ref={timeSelectRef}
               value={formData.startTime}
-              onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
+              onChange={(e) => {
+                const time = e.target.value;
+                setFormData(prev => ({ ...prev, startTime: time }));
+                if (time) setShowTimeSelect(false);
+              }}
               className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                 !formData.startTime ? 'border-gray-300 text-gray-500' : 'border-gray-300 text-gray-900'
               }`}
@@ -1449,25 +1439,25 @@ export default function ParentBookingModal({
             )}
           </div>
 
-          {/* Activity Selection – radio (choose one) + color system: blue = Standard, violet = Custom */}
-          <div>
-            <label className="mb-1 flex items-center gap-1.5 text-sm font-medium text-gray-800">
+          {/* Activity Selection – radio (choose one); Trainer option first, then I'll choose all; bordered sections */}
+          <div className="rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-800/30 p-4 space-y-4">
+            <label className="flex items-center gap-1.5 text-sm font-medium text-slate-800 dark:text-slate-200">
               <Activity size={16} className="shrink-0 text-gcal-primary" aria-hidden />
               Activity Selection <span className="text-red-500">*</span>
             </label>
 
             {!canSelectActivities && (
-              <p className="text-2xs text-gray-500 mb-2">
+              <p className="text-2xs text-slate-500">
                 {selectedChildHasNoHours
                   ? (selectedChildNeedsTopUp ? 'No hours left. Top up to book.' : 'No package. Buy hours to book.')
                   : 'Select date and start time first.'}
               </p>
             )}
 
-            {/* STEP 1: Who chooses? – accordion-style, one box, two options; selected row expands content below */}
-            <p className="text-2xs font-medium text-gray-500 mb-1.5">Choose one</p>
+            {/* Who chooses? – Trainer first (top), then I'll choose all activities (beneath); clear borders */}
+            <p className="text-2xs font-medium text-slate-500 dark:text-slate-400">Choose one</p>
             <div
-              className={`rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 overflow-hidden mb-3 ${
+              className={`rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800/50 overflow-hidden ${
                 !canSelectActivities ? 'opacity-60 pointer-events-none select-none' : ''
               }`}
               aria-disabled={!canSelectActivities}
@@ -1475,30 +1465,10 @@ export default function ParentBookingModal({
               aria-label="Who chooses activities"
             >
               <label
-                className={`flex min-h-[44px] items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors duration-150 border-b border-gray-200 dark:border-gray-600 ${
-                  selectionMode === 'all_parent'
-                    ? 'bg-gcal-primary-light border-l-4 border-l-gcal-primary'
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                } ${!canSelectActivities ? 'cursor-not-allowed' : ''}`}
-              >
-                <input
-                  type="radio"
-                  name="activitySelectionMode"
-                  value="all_parent"
-                  checked={selectionMode === 'all_parent'}
-                  onChange={() => handleSelectionModeChange('all_parent')}
-                  disabled={!canSelectActivities}
-                  className="h-4 w-4 shrink-0 border border-gray-300 text-gcal-primary focus:ring-2 focus:ring-gcal-primary/50 focus:ring-offset-0 focus-visible:outline-none"
-                />
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  I&apos;ll choose all activities
-                </span>
-              </label>
-              <label
-                className={`flex min-h-[44px] items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors duration-150 ${
+                className={`flex min-h-[44px] items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors duration-150 border-b border-slate-200 dark:border-slate-600 ${
                   selectionMode === 'all_trainer'
-                    ? 'bg-gcal-primary-light border-l-4 border-l-gcal-primary'
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                    ? 'bg-gcal-primary-light dark:bg-gcal-primary/10 border-l-4 border-l-gcal-primary'
+                    : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'
                 } ${!canSelectActivities ? 'cursor-not-allowed' : ''}`}
               >
                 <input
@@ -1508,29 +1478,45 @@ export default function ParentBookingModal({
                   checked={selectionMode === 'all_trainer'}
                   onChange={() => handleSelectionModeChange('all_trainer')}
                   disabled={!canSelectActivities}
-                  className="h-4 w-4 shrink-0 border border-gray-300 text-gcal-primary focus:ring-2 focus:ring-gcal-primary/50 focus:ring-offset-0 focus-visible:outline-none"
+                  className="h-4 w-4 shrink-0 border border-slate-300 text-gcal-primary focus:ring-2 focus:ring-gcal-primary/50 focus:ring-offset-0 focus-visible:outline-none"
                 />
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
                   Trainer chooses everything
+                </span>
+              </label>
+              <label
+                className={`flex min-h-[44px] items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors duration-150 ${
+                  selectionMode === 'all_parent'
+                    ? 'bg-gcal-primary-light dark:bg-gcal-primary/10 border-l-4 border-l-gcal-primary'
+                    : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                } ${!canSelectActivities ? 'cursor-not-allowed' : ''}`}
+              >
+                <input
+                  type="radio"
+                  name="activitySelectionMode"
+                  value="all_parent"
+                  checked={selectionMode === 'all_parent'}
+                  onChange={() => handleSelectionModeChange('all_parent')}
+                  disabled={!canSelectActivities}
+                  className="h-4 w-4 shrink-0 border border-slate-300 text-gcal-primary focus:ring-2 focus:ring-gcal-primary/50 focus:ring-offset-0 focus-visible:outline-none"
+                />
+                <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                  I&apos;ll choose all activities
                 </span>
               </label>
             </div>
 
-            {/* STEP 2: When session full, disable completely – no "remove one" */}
+            {/* STEP 2: When session full, only adding more is disabled – user can still remove activities or Clear all */}
             {selectionMode !== 'all_trainer' && (
-              <div
-                ref={parentModeSectionRef}
-                className={`space-y-3 ${hasReachedSessionCap ? 'pointer-events-none opacity-70' : ''}`}
-                aria-disabled={hasReachedSessionCap}
-              >
+              <div ref={parentModeSectionRef} className="space-y-3">
                 {hasReachedSessionCap && (
                   <p className="rounded-lg bg-gcal-primary-light/60 dark:bg-gcal-primary/10 px-4 py-3 text-sm font-medium text-gcal-primary">
-                    {EMPTY_STATE.STANDARD_ACTIVITY_SECTION.SESSION_FULL} ({formatDurationDisplay(hoursCap)} max).
+                    {EMPTY_STATE.STANDARD_ACTIVITY_SECTION.SESSION_FULL} ({formatDurationDisplay(hoursCap)} max). Remove one or more to add a different activity.
                   </p>
                 )}
-                {/* Section 1: Standard Activities – from activity list; + opens "Add your own" popover */}
-                <section className="rounded-lg bg-slate-50/80 dark:bg-slate-800/30">
-                  <div className="flex min-h-[44px] items-center rounded-t-lg bg-white/80 dark:bg-slate-800/50">
+                {/* Section 1: Standard Activities – from activity list; + opens "Add your own" popover; checkboxes disabled when at cap */}
+                <section className="rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50/80 dark:bg-slate-800/30 overflow-hidden">
+                  <div className="flex min-h-[44px] items-center rounded-t-lg border-b border-slate-200 dark:border-slate-600 bg-white/80 dark:bg-slate-800/50">
                     <button
                       type="button"
                       onClick={() => setShowStandardSection(prev => !prev)}
@@ -1666,7 +1652,7 @@ export default function ParentBookingModal({
                                     {activity.name}
                                   </div>
                                   <div className="text-2xs text-slate-600 dark:text-slate-400" id={disabled ? `activity-${activity.id}-reason` : undefined}>
-                                    Duration: {formatActivityDurationDisplay(activity.duration)}
+                                    Duration: {formatDurationDisplay(activity.duration)}
                                     {activity.category && ` · ${activity.category.replace('_', ' ')}`}
                                     {disabledBySession && (
                                       <span className="mt-0.5 block text-amber-600">
@@ -1708,19 +1694,32 @@ export default function ParentBookingModal({
 
                 {/* Section 2: Selected Activities – pill UI (same as custom activities), each pill removable */}
                 {(totalSelectedActivities > 0 || sessionDuration > 0) && (
-                  <section className="rounded-lg bg-white dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-600/50 p-4 space-y-3">
+                  <section className="rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800/40 p-4 space-y-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-xs font-medium text-slate-800 dark:text-slate-200">
-                        {sessionDuration > hoursCap ? (
-                          <>{totalSelectedActivities} activities · {formatDurationDisplay(sessionDurationForDisplay)} — max {formatDurationDisplay(hoursCap)}. Remove activities or pick earlier time.</>
-                        ) : (
-                          <>
-                            {sessionDuration >= MIN_DURATION_HOURS ? '✓ ' : '⚠️ '}
-                            {totalSelectedActivities} {totalSelectedActivities === 1 ? 'activity' : 'activities'} · {formatDurationDisplay(sessionDurationForDisplay)}
-                            {sessionDuration < MIN_DURATION_HOURS && <span className="text-amber-600"> (add {formatDurationDisplay(getHoursNeededForMinimum(sessionDurationForDisplay))})</span>}
-                          </>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`inline-flex items-center rounded-full border px-2.5 py-1 text-2xs font-medium ${
+                            sessionDuration > hoursCap
+                              ? 'border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-900/30 dark:text-red-200'
+                              : 'border-slate-200 bg-slate-100 text-slate-800 dark:border-slate-600 dark:bg-slate-700/50 dark:text-slate-200'
+                          }`}
+                        >
+                          {sessionDuration > hoursCap ? (
+                            <>{totalSelectedActivities} activities · {formatDurationDisplay(sessionDuration)} — max {formatDurationDisplay(hoursCap)}</>
+                          ) : (
+                            <>
+                              {sessionDuration >= MIN_DURATION_HOURS ? '✓ ' : '⚠️ '}
+                              {totalSelectedActivities} {totalSelectedActivities === 1 ? 'activity' : 'activities'} · {formatDurationDisplay(sessionDuration)}
+                              {sessionDuration < MIN_DURATION_HOURS && <span className="text-amber-600"> (add {formatDurationDisplay(getHoursNeededForMinimum(sessionDuration))})</span>}
+                            </>
+                          )}
+                        </span>
+                        {hoursCap > sessionDuration && (
+                          <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-2xs font-medium text-slate-600 dark:border-slate-600 dark:bg-slate-700/50 dark:text-slate-400">
+                            {formatDurationDisplay(Math.max(0, hoursCap - sessionDuration))} left for this session (max {formatDurationDisplay(hoursCap)})
+                          </span>
                         )}
-                      </p>
+                      </div>
                       <button
                         type="button"
                         onClick={() =>
@@ -1731,7 +1730,7 @@ export default function ParentBookingModal({
                             customActivityName: undefined,
                           }))
                         }
-                        className="rounded-full px-3 py-1.5 text-xs font-medium text-gcal-primary transition-colors duration-150 hover:bg-gcal-primary-light focus:outline-none focus:ring-2 focus:ring-gcal-primary/30"
+                        className="shrink-0 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-2xs font-medium text-gcal-primary transition-colors duration-150 hover:bg-gcal-primary-light focus:outline-none focus:ring-2 focus:ring-gcal-primary/30 dark:border-slate-600 dark:bg-slate-700/50 dark:hover:bg-slate-600"
                       >
                         Clear all
                       </button>
@@ -1739,19 +1738,16 @@ export default function ParentBookingModal({
                     {sessionDuration > hoursCap && (
                       <p className="text-2xs text-red-600">{EMPTY_STATE.STANDARD_ACTIVITY_SECTION.REMOVE_ACTIVITIES_HINT}</p>
                     )}
-                    {hoursCap > sessionDuration && (
-                      <p className="text-2xs text-slate-500 dark:text-slate-400">{formatDurationDisplay(Math.max(0, hoursCap - sessionDurationForDisplay))} left for this session (max {formatDurationDisplay(hoursCap)})</p>
-                    )}
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {formData.selectedActivityIds?.map(activityId => {
                         const activity = availableActivities.find(a => a.id === activityId);
                         if (!activity) return null;
                         return (
                           <span
                             key={activityId}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700/50 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-200"
+                            className="inline-flex items-center gap-1 rounded-full border border-primary-blue/20 bg-primary-blue/5 pl-1.5 pr-0.5 py-0.5 text-3xs font-medium text-slate-700 dark:border-primary-blue/30 dark:bg-primary-blue/10 dark:text-slate-200"
                           >
-                            {activity.name} ({formatActivityDurationDisplay(activity.duration)})
+                            {activity.name} ({formatDurationDisplay(activity.duration)})
                             <button
                               type="button"
                               onClick={() => {
@@ -1760,10 +1756,11 @@ export default function ParentBookingModal({
                                   selectedActivityIds: (prev.selectedActivityIds || []).filter(id => id !== activityId)
                                 }));
                               }}
-                              className="rounded-full p-0.5 transition-colors hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200"
+                              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-primary-blue/10 dark:hover:bg-primary-blue/20 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-gcal-primary/50"
                               aria-label={`Remove ${activity.name}`}
+                              title={`Remove ${activity.name}`}
                             >
-                              <X size={12} />
+                              <X size={12} aria-hidden />
                             </button>
                           </span>
                         );
@@ -1771,9 +1768,9 @@ export default function ParentBookingModal({
                       {formData.customActivities?.map((custom, index) => (
                         <span
                           key={`${custom.name}-${index}`}
-                          className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700/50 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-200"
+                          className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 pl-1.5 pr-0.5 py-0.5 text-3xs font-medium text-slate-700 dark:border-amber-700/50 dark:bg-amber-900/20 dark:text-slate-200"
                         >
-                          {custom.name} ({formatActivityDurationDisplay(custom.duration)})
+                          {custom.name} ({formatDurationDisplay(custom.duration)})
                           <button
                             type="button"
                             onClick={() =>
@@ -1782,26 +1779,28 @@ export default function ParentBookingModal({
                                 customActivities: (prev.customActivities || []).filter((_, i) => i !== index),
                               }))
                             }
-                            className="rounded-full p-0.5 transition-colors hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200"
-                            aria-label={`Remove ${custom.name}`}
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-amber-100 dark:hover:bg-amber-800/40 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-gcal-primary/50"
+                              aria-label={`Remove ${custom.name}`}
+                            title={`Remove ${custom.name}`}
                           >
-                            <X size={12} />
+                            <X size={12} aria-hidden />
                           </button>
                         </span>
                       ))}
                       {formData.customActivityName && (
                         <span
                           key="custom-activity-chip-legacy"
-                          className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700/50 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-200"
+                          className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 pl-1.5 pr-0.5 py-0.5 text-3xs font-medium text-slate-700 dark:border-amber-700/50 dark:bg-amber-900/20 dark:text-slate-200"
                         >
                           Custom: {formData.customActivityName}
                           <button
                             type="button"
                             onClick={() => setFormData(prev => ({ ...prev, customActivityName: undefined }))}
-                            className="rounded-full p-0.5 transition-colors hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200"
-                            aria-label="Remove custom activity"
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-amber-100 dark:hover:bg-amber-800/40 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-gcal-primary/50"
+                              aria-label="Remove custom activity"
+                            title="Remove custom activity"
                           >
-                            <X size={12} />
+                            <X size={12} aria-hidden />
                           </button>
                         </span>
                       )}
@@ -1811,11 +1810,11 @@ export default function ParentBookingModal({
               </div>
             )}
 
-            {/* Trainer-only mode – GCAL-style card */}
+            {/* Trainer-only mode – session duration only; clearly bordered */}
             {selectionMode === 'all_trainer' && canSelectActivities && (
               <div
                 ref={trainerModeSectionRef}
-                className="mt-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 p-4"
+                className="rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800/50 p-4"
               >
                 <div className="text-sm font-medium text-gray-900 mb-1">Trainer&apos;s choice</div>
                 <p className="text-2xs text-gray-600 mb-2">Choose session length; trainer selects activities.</p>
@@ -1965,8 +1964,10 @@ export default function ParentBookingModal({
                   <X size={20} />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 p-4">
-                {formContent}
+              <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 p-4 isolate">
+                  {formContent}
+                </div>
               </div>
               <div className="shrink-0 border-t border-gray-200 bg-gray-50 px-4 sm:px-5 py-3 dark:border-gray-800 dark:bg-gray-900/50">
                 {footerContent}

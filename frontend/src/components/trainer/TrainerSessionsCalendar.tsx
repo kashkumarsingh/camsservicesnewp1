@@ -14,6 +14,7 @@ import {
   type CalendarSessionTimeStatus,
 } from '@/utils/calendarLabelConstants';
 import { CALENDAR_GRID_DAY_CELL_CLASSES } from '@/utils/appConstants';
+import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
 
 const PENDING_CONFIRMATION = 'pending_trainer_confirmation';
 
@@ -97,6 +98,10 @@ interface TrainerSessionsCalendarProps {
   unavailableDates?: Set<string>;
   /** When false, hide the "Filter by type" activity-type checkboxes (e.g. on overview to reduce clutter). Default false. */
   showSessionTypeFilter?: boolean;
+  /** When provided with anchor, view is controlled by toolbar: no internal Day/Week/Month tabs, no duplicate nav. */
+  period?: CalendarPeriod;
+  /** Anchor date (YYYY-MM-DD): single day for 1_day, Monday for 1_week, 1st for 1_month. Syncs with CalendarRangeToolbar. */
+  anchor?: string;
 }
 
 /**
@@ -124,16 +129,38 @@ export default function TrainerSessionsCalendar({
   pendingAbsenceDates,
   unavailableDates,
   showSessionTypeFilter = false,
+  period: controlledPeriod,
+  anchor: controlledAnchor,
 }: TrainerSessionsCalendarProps) {
-  const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
+  const isControlled = controlledPeriod != null && controlledAnchor != null;
+
+  const [internalViewMode, setInternalViewMode] = useState<'month' | 'week' | 'day'>('month');
   const [internalMonth, setInternalMonth] = useState<Moment>(moment());
+  const [internalSelectedDay, setInternalSelectedDay] = useState<Moment | null>(null);
+  const [internalCurrentWeek, setInternalCurrentWeek] = useState<Moment>(moment().isoWeekday(1).startOf('day'));
+
+  const viewMode = isControlled
+    ? (controlledPeriod === '1_day' ? 'day' : controlledPeriod === '1_week' ? 'week' : 'month')
+    : internalViewMode;
+  const anchorMoment = controlledAnchor ? moment(controlledAnchor, 'YYYY-MM-DD') : null;
   const currentMonth = useMemo(() => {
+    if (isControlled && anchorMoment) {
+      if (controlledPeriod === '1_month') return anchorMoment.clone().startOf('month');
+      if (controlledPeriod === '1_week') return anchorMoment.clone().isoWeekday(1).startOf('month');
+      return anchorMoment.clone().startOf('month');
+    }
     return controlledMonth ? moment(controlledMonth, 'YYYY-MM') : internalMonth;
-  }, [controlledMonth, internalMonth]);
-  const [selectedDay, setSelectedDay] = useState<Moment | null>(null);
+  }, [isControlled, controlledPeriod, controlledMonth, internalMonth, anchorMoment]);
+  const currentWeek = useMemo(() => {
+    if (isControlled && controlledPeriod === '1_week' && anchorMoment)
+      return anchorMoment.clone().isoWeekday(1).startOf('day');
+    return internalCurrentWeek;
+  }, [isControlled, controlledPeriod, anchorMoment, internalCurrentWeek]);
+  const selectedDay = isControlled && controlledPeriod === '1_day' && anchorMoment
+    ? anchorMoment
+    : internalSelectedDay;
+
   const [currentTime, setCurrentTime] = useState(moment());
-  // UK-based: Week starts on Monday
-  const [currentWeek, setCurrentWeek] = useState<Moment>(moment().isoWeekday(1).startOf('day'));
   const dayTimelineRef = useRef<HTMLDivElement | null>(null);
 
   // Update time every minute for real-time status updates
@@ -256,11 +283,12 @@ export default function TrainerSessionsCalendar({
       onDateClick(date.format('YYYY-MM-DD'));
       return;
     }
-
-    // Default behaviour: switch to day view for the clicked date
-    setSelectedDay(date);
-    handleMonthChange(date);
-    onDateChange?.(date.format('YYYY-MM-DD'));
+    const dateStr = date.format('YYYY-MM-DD');
+    onDateChange?.(dateStr);
+    if (!isControlled) {
+      setInternalSelectedDay(date);
+      handleMonthChange(date);
+    }
   };
 
   // Handle session click
@@ -398,7 +426,7 @@ export default function TrainerSessionsCalendar({
   // Handle week navigation (for week view)
   const handlePrevWeek = useCallback(() => {
     const newWeek = currentWeek.clone().subtract(1, 'week').isoWeekday(1).startOf('day');
-    setCurrentWeek(newWeek);
+    setInternalCurrentWeek(newWeek);
     if (!newWeek.isSame(currentMonth, 'month')) {
       handleMonthChange(newWeek);
     }
@@ -406,7 +434,7 @@ export default function TrainerSessionsCalendar({
 
   const handleNextWeek = useCallback(() => {
     const newWeek = currentWeek.clone().add(1, 'week').isoWeekday(1).startOf('day');
-    setCurrentWeek(newWeek);
+    setInternalCurrentWeek(newWeek);
     if (!newWeek.isSame(currentMonth, 'month')) {
       handleMonthChange(newWeek);
     }
@@ -414,7 +442,7 @@ export default function TrainerSessionsCalendar({
 
   const handleTodayWeek = useCallback(() => {
     const today = moment().isoWeekday(1).startOf('day');
-    setCurrentWeek(today);
+    setInternalCurrentWeek(today);
     handleMonthChange(today);
   }, [handleMonthChange]);
 
@@ -447,12 +475,9 @@ export default function TrainerSessionsCalendar({
   }, [weekRangeDates, onWeekRangeChange]);
 
   // Sync from mini calendar: when selectedDate changes, optionally jump to that day and switch to Day view.
-  // IMPORTANT:
-  // - Only adjust the visible month/week when switchToDayView is true (mini calendar click),
-  //   otherwise Month/Week slider navigation would be overridden and appear "stuck".
-  // - This mirrors the parent dashboard behaviour in ChildrenActivitiesCalendar.
+  // When controlled (period+anchor from toolbar), parent updates anchor/period so we do nothing here.
   useEffect(() => {
-    if (!selectedDate) {
+    if (!selectedDate || isControlled) {
       return;
     }
     const newDate = moment(selectedDate, 'YYYY-MM-DD');
@@ -460,20 +485,16 @@ export default function TrainerSessionsCalendar({
       return;
     }
     if (switchToDayView) {
-      // Keep month and week anchored to the selected date when coming from mini calendar
       if (!currentMonth.isSame(newDate, 'month')) {
         handleMonthChange(newDate.clone().startOf('month'));
       }
-      setCurrentWeek(newDate.clone().isoWeekday(1).startOf('day'));
-      // Switch to day view focused on the selected date (Google Calendar-style)
-      setSelectedDay(newDate);
-      setViewMode('day');
+      setInternalCurrentWeek(newDate.clone().isoWeekday(1).startOf('day'));
+      setInternalSelectedDay(newDate);
+      setInternalViewMode('day');
     } else {
-      // If we are not forcing Day view, only update the selected day highlight.
-      // Do NOT override currentMonth or currentWeek here, so Month/Week sliders remain responsive.
-      setSelectedDay((prev) => prev ?? newDate);
+      setInternalSelectedDay((prev) => prev ?? newDate);
     }
-  }, [selectedDate, currentMonth, handleMonthChange, switchToDayView]);
+  }, [selectedDate, currentMonth, handleMonthChange, switchToDayView, isControlled]);
 
   return (
     <div id="trainer-sessions-calendar" className="min-w-0 bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-5">
@@ -508,7 +529,7 @@ export default function TrainerSessionsCalendar({
         </div>
       )}
 
-      {/* Header - Title + helper text + view mode toggle */}
+      {/* Header - Title + helper text; view mode toggle only when not controlled by toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
         <div className="min-w-0">
           <h2 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
@@ -518,64 +539,62 @@ export default function TrainerSessionsCalendar({
             Click any date to review your schedule. Sessions marked <span className="font-medium text-amber-600 dark:text-amber-400">Confirm</span> need your response – click to confirm or decline.
           </p>
         </div>
-        {/* View Mode Toggle - compact on mobile */}
-        <div className="flex items-center gap-0.5 sm:gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 sm:p-1 self-start sm:self-auto shrink-0">
-          <button
-            type="button"
-            onClick={() => {
-              setViewMode('month');
-              if (selectedDay && !selectedDay.isSame(currentMonth, 'month')) {
-                handleMonthChange(selectedDay.clone().startOf('month'));
-              }
-              setSelectedDay(null);
-            }}
-            className={`px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm font-medium rounded-md transition-colors ${
-              viewMode === 'month'
-                ? 'bg-white text-gray-900 dark:bg-gray-600 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
-            }`}
-          >
-            Month
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              // When switching to week view, always jump to the current running week
-              // so that both the main calendar and mini calendar stay aligned.
-              const today = moment().startOf('day');
-              const weekStart = today.clone().isoWeekday(1).startOf('day');
-              setViewMode('week');
-              setCurrentWeek(weekStart);
-              handleMonthChange(today);
-              onDateChange?.(today.format('YYYY-MM-DD'));
-            }}
-            className={`px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm font-medium rounded-md transition-colors ${
-              viewMode === 'week'
-                ? 'bg-white text-gray-900 dark:bg-gray-600 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
-            }`}
-          >
-            Week
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              // When switching to day view, always focus today and sync selection.
-              const today = moment();
-              setViewMode('day');
-              setSelectedDay(today);
-              handleMonthChange(today);
-              onDateChange?.(today.format('YYYY-MM-DD'));
-            }}
-            className={`px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm font-medium rounded-md transition-colors ${
-              viewMode === 'day'
-                ? 'bg-white text-gray-900 dark:bg-gray-600 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
-            }`}
-          >
-            Day
-          </button>
-        </div>
+        {!isControlled && (
+          <div className="flex items-center gap-0.5 sm:gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 sm:p-1 self-start sm:self-auto shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                setInternalViewMode('month');
+                if (internalSelectedDay && !internalSelectedDay.isSame(currentMonth, 'month')) {
+                  handleMonthChange(internalSelectedDay.clone().startOf('month'));
+                }
+                setInternalSelectedDay(null);
+              }}
+              className={`px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm font-medium rounded-md transition-colors ${
+                viewMode === 'month'
+                  ? 'bg-white text-gray-900 dark:bg-gray-600 dark:text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              Month
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const today = moment().startOf('day');
+                const weekStart = today.clone().isoWeekday(1).startOf('day');
+                setInternalViewMode('week');
+                setInternalCurrentWeek(weekStart);
+                handleMonthChange(today);
+                onDateChange?.(today.format('YYYY-MM-DD'));
+              }}
+              className={`px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm font-medium rounded-md transition-colors ${
+                viewMode === 'week'
+                  ? 'bg-white text-gray-900 dark:bg-gray-600 dark:text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              Week
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const today = moment();
+                setInternalViewMode('day');
+                setInternalSelectedDay(today);
+                handleMonthChange(today);
+                onDateChange?.(today.format('YYYY-MM-DD'));
+              }}
+              className={`px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm font-medium rounded-md transition-colors ${
+                viewMode === 'day'
+                  ? 'bg-white text-gray-900 dark:bg-gray-600 dark:text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              Day
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Legend: by trainee (when 2+) then status – Google Calendar–style */}
@@ -620,21 +639,25 @@ export default function TrainerSessionsCalendar({
       {/* Day View - Google Calendar-style time grid (aligned with parent dashboard) */}
       {viewMode === 'day' && (
         <div className="mb-4 min-w-0">
-          {/* Day Navigation (mirrors parent dashboard) */}
+          {/* Day navigation: only when not controlled (toolbar has Prev/Next) */}
           <div className="flex items-center justify-between gap-2 mb-3 py-2">
-            <button
-              type="button"
-              onClick={() => {
-                const newDay = (selectedDay || moment()).clone().subtract(1, 'day');
-                setSelectedDay(newDay);
-                handleMonthChange(newDay);
-                onDateChange?.(newDay.format('YYYY-MM-DD'));
-              }}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              aria-label="Previous day"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
-            </button>
+            {!isControlled ? (
+              <button
+                type="button"
+                onClick={() => {
+                  const newDay = (selectedDay || moment()).clone().subtract(1, 'day');
+                  setInternalSelectedDay(newDay);
+                  handleMonthChange(newDay);
+                  onDateChange?.(newDay.format('YYYY-MM-DD'));
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Previous day"
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-600" />
+              </button>
+            ) : (
+              <div aria-hidden />
+            )}
             <div className="text-center min-w-0 flex-1 px-1">
               <div className="flex flex-col items-center gap-1">
                 <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100 truncate w-full">
@@ -650,9 +673,11 @@ export default function TrainerSessionsCalendar({
                     type="button"
                     onClick={() => {
                       const today = moment();
-                      setSelectedDay(today);
-                      handleMonthChange(today);
                       onDateChange?.(today.format('YYYY-MM-DD'));
+                      if (!isControlled) {
+                        setInternalSelectedDay(today);
+                        handleMonthChange(today);
+                      }
                     }}
                     className="text-xs text-blue-600 hover:text-blue-700 hover:underline"
                   >
@@ -661,19 +686,23 @@ export default function TrainerSessionsCalendar({
                 )}
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                const newDay = (selectedDay || moment()).clone().add(1, 'day');
-                setSelectedDay(newDay);
-                handleMonthChange(newDay);
-                onDateChange?.(newDay.format('YYYY-MM-DD'));
-              }}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              aria-label="Next day"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-600" />
-            </button>
+            {!isControlled ? (
+              <button
+                type="button"
+                onClick={() => {
+                  const newDay = (selectedDay || moment()).clone().add(1, 'day');
+                  setInternalSelectedDay(newDay);
+                  handleMonthChange(newDay);
+                  onDateChange?.(newDay.format('YYYY-MM-DD'));
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Next day"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-600" />
+              </button>
+            ) : (
+              <div aria-hidden />
+            )}
           </div>
 
           {/* Day Timeline - hour-by-hour grid with sessions (no booking slots for trainers) */}
@@ -927,46 +956,47 @@ export default function TrainerSessionsCalendar({
       {/* Week View - horizontal scroll on narrow screens */}
       {viewMode === 'week' && (
         <div className="mb-4 min-w-0">
-          {/* Week Navigation */}
-          <div className="flex items-center justify-between gap-2 mb-3 py-2 flex-wrap sm:flex-nowrap">
-            <button
-              type="button"
-              onClick={handlePrevWeek}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              aria-label="Previous week"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
-            </button>
-            <div className="text-center min-w-0 px-1">
-              <div className="flex flex-col items-center gap-1">
-                <h3 className="text-xs sm:text-base font-semibold text-gray-900 dark:text-gray-100 truncate w-full">
-                  {weekDays[0].format('MMM D')} – {weekDays[6].format('MMM D, YYYY')}
-                </h3>
-                {weekDays[0].isSame(moment().isoWeekday(1).startOf('day'), 'day') ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
-                    <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
-                    This Week
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleTodayWeek}
-                    className="text-xs text-blue-600 hover:text-blue-700 hover:underline"
-                  >
-                    Go to This Week
-                  </button>
-                )}
+          {!isControlled && (
+            <div className="flex items-center justify-between gap-2 mb-3 py-2 flex-wrap sm:flex-nowrap">
+              <button
+                type="button"
+                onClick={handlePrevWeek}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Previous week"
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-600" />
+              </button>
+              <div className="text-center min-w-0 px-1">
+                <div className="flex flex-col items-center gap-1">
+                  <h3 className="text-xs sm:text-base font-semibold text-gray-900 dark:text-gray-100 truncate w-full">
+                    {weekDays[0].format('MMM D')} – {weekDays[6].format('MMM D, YYYY')}
+                  </h3>
+                  {weekDays[0].isSame(moment().isoWeekday(1).startOf('day'), 'day') ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
+                      <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
+                      This Week
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleTodayWeek}
+                      className="text-xs text-blue-600 hover:text-blue-700 hover:underline"
+                    >
+                      Go to This Week
+                    </button>
+                  )}
+                </div>
               </div>
+              <button
+                type="button"
+                onClick={handleNextWeek}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Next week"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-600" />
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={handleNextWeek}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              aria-label="Next week"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-600" />
-            </button>
-          </div>
+          )}
 
           {/* Week Grid - scroll horizontally on narrow screens */}
           <div className="overflow-x-auto -mx-1 px-1 sm:mx-0 sm:px-0" style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
@@ -1036,11 +1066,13 @@ export default function TrainerSessionsCalendar({
                         onDateClickOpenAvailability(dateStr);
                         return;
                       }
-                      const dayMoment = day.clone();
-                      setSelectedDay(dayMoment);
-                      setViewMode('day');
-                      handleMonthChange(dayMoment);
                       onDateChange?.(dateStr);
+                      if (!isControlled) {
+                        const dayMoment = day.clone();
+                        setInternalSelectedDay(dayMoment);
+                        setInternalViewMode('day');
+                        handleMonthChange(dayMoment);
+                      }
                     }}
                   >
                     {isApprovedAbsence && <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-rose-500" aria-label="Absence" title="Absence" />}

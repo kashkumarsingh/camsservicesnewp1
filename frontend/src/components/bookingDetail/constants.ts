@@ -34,6 +34,7 @@ export const BOOKING_DETAIL_FINANCIAL = {
 export const BOOKING_DETAIL_SECTIONS = {
   packageInfo: 'Package Information',
   viewPackageDetails: 'View Package Details',
+  paymentsAndReceipts: 'Payments & receipts',
   participants: (count: number) => `Participants (${count})`,
   parentGuardian: 'Parent/Guardian Information',
   medicalInfo: 'Medical Info:',

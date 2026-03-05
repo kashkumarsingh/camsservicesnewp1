@@ -2,6 +2,12 @@
 
 import React from 'react';
 import { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
+import { PaymentDTO } from '@/core/application/payment/dto/PaymentDTO';
+import {
+  VIEW_RECEIPT_LABEL,
+  PAYMENT_TYPE_LABEL_PACKAGE,
+  PAYMENT_TYPE_LABEL_TOP_UP,
+} from '@/utils/appConstants';
 
 interface BookingDetailProps {
   booking: BookingDTO;
@@ -132,6 +138,47 @@ export function BookingDetail({ booking }: BookingDetailProps) {
             </div>
           </div>
         </div>
+
+        {/* Payments / Invoices */}
+        {booking.payments && booking.payments.length > 0 && (
+          <div className="mb-8">
+            <h3 className="font-semibold text-gray-900 mb-3">Payments & receipts</h3>
+            <div className="space-y-3">
+              {booking.payments.map((payment: PaymentDTO) => {
+                const typeLabel =
+                  payment.paymentType === 'top_up' ? PAYMENT_TYPE_LABEL_TOP_UP : PAYMENT_TYPE_LABEL_PACKAGE;
+                return (
+                  <div
+                    key={payment.id}
+                    className="bg-gray-50 rounded-lg p-4 flex flex-wrap items-center justify-between gap-2"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                      <span className="font-medium text-gray-900">{typeLabel}</span>
+                      <span className="text-sm text-gray-600">
+                        {formatCurrency(payment.amount)} · {payment.status}
+                      </span>
+                      {payment.processedAt && (
+                        <span className="text-xs text-gray-500">
+                          {formatDateTime(payment.processedAt)}
+                        </span>
+                      )}
+                    </div>
+                    {payment.receiptUrl && payment.status === 'completed' && (
+                      <a
+                        href={payment.receiptUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium text-primary-blue hover:underline focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 rounded"
+                      >
+                        {VIEW_RECEIPT_LABEL}
+                      </a>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Parent/Guardian Information */}
         <div className="mb-8">

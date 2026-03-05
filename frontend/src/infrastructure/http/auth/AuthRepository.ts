@@ -14,7 +14,14 @@ import {
   clearAuthToken,
   hasAuthToken,
 } from './authTokenProvider';
-import type { RegisterRequest, LoginRequest, AuthResponse, User } from '@/core/application/auth/types';
+import type {
+  RegisterRequest,
+  LoginRequest,
+  AuthResponse,
+  User,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+} from '@/core/application/auth/types';
 
 export class AuthRepository {
   /**
@@ -49,18 +56,22 @@ export class AuthRepository {
   }
 
   /**
-   * Login user
+   * Login user. Sends remember_me to backend (token expiry) and sets cookie duration on frontend.
    */
   async login(data: LoginRequest): Promise<AuthResponse> {
     await this.ensureSanctumCsrfCookie();
-    // ApiClient unwraps the response; backend keysToCamelCase so data has accessToken, tokenType
+    const body = {
+      email: data.email,
+      password: data.password,
+      remember_me: data.rememberMe ?? true,
+    };
     const response = await apiClient.post<AuthResponse>(
       API_ENDPOINTS.AUTH_LOGIN,
-      data
+      body
     );
 
     if (response.data.accessToken) {
-      setAuthToken(response.data.accessToken);
+      setAuthToken(response.data.accessToken, { rememberMe: data.rememberMe ?? true });
     }
 
     return response.data;
@@ -106,6 +117,28 @@ export class AuthRepository {
    */
   isAuthenticated(): boolean {
     return hasAuthToken();
+  }
+
+  /**
+   * Request a password reset link for the given email (forgot password).
+   * Backend sends an email with a link to the frontend reset-password page.
+   * API returns success with empty data; success message is shown from constants on the page.
+   */
+  async requestForgotPassword(data: ForgotPasswordRequest): Promise<void> {
+    await apiClient.post(API_ENDPOINTS.AUTH_FORGOT_PASSWORD, { email: data.email });
+  }
+
+  /**
+   * Reset password using the token and email from the reset link.
+   * API returns success with empty data; success message is shown from constants on the page.
+   */
+  async resetPassword(data: ResetPasswordRequest): Promise<void> {
+    await apiClient.post(API_ENDPOINTS.AUTH_RESET_PASSWORD, {
+      token: data.token,
+      email: data.email,
+      password: data.password,
+      password_confirmation: data.passwordConfirmation,
+    });
   }
 }
 

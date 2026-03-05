@@ -86,7 +86,7 @@ export default function MiniPackageCard({
 
         {/* Price */}
         <div className="mb-3">
-          <div className="text-2xl font-extrabold text-navy-blue dark:text-gray-100">
+          <div className="text-xl font-extrabold text-navy-blue dark:text-gray-100">
             £{pkg.price}
           </div>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-gray-500 dark:text-gray-400">

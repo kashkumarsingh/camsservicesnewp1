@@ -7,6 +7,55 @@ import { cn } from '@/utils/cn';
 
 const POPOVER_WIDTH = 320;
 const POPOVER_OFFSET = 8;
+/** Keep popover inside viewport on all screen sizes. */
+const VIEWPORT_PADDING = 16;
+/** Min vertical space to show below before flipping above. */
+const MIN_SPACE_BELOW = 200;
+
+type PanelPosition = {
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+  width: number;
+};
+
+function getClampedPosition(triggerRect: DOMRect): PanelPosition {
+  if (typeof window === 'undefined') {
+    return { top: 16, right: 16, width: POPOVER_WIDTH };
+  }
+  const { innerWidth, innerHeight } = window;
+  const width = Math.min(POPOVER_WIDTH, innerWidth - 2 * VIEWPORT_PADDING);
+
+  const panelLeftPreferred = triggerRect.right - width;
+  const panelRightPreferred = triggerRect.right;
+
+  let left: number | undefined;
+  let right: number | undefined;
+  if (panelLeftPreferred < VIEWPORT_PADDING) {
+    left = VIEWPORT_PADDING;
+  } else if (panelRightPreferred > innerWidth - VIEWPORT_PADDING) {
+    right = VIEWPORT_PADDING;
+  } else {
+    right = innerWidth - triggerRect.right;
+  }
+
+  const spaceBelow = innerHeight - (triggerRect.bottom + POPOVER_OFFSET);
+  const showAbove = spaceBelow < MIN_SPACE_BELOW && triggerRect.top > spaceBelow;
+
+  if (showAbove) {
+    return {
+      bottom: innerHeight - triggerRect.top + POPOVER_OFFSET,
+      left,
+      right,
+      width,
+    };
+  }
+  const top = triggerRect.bottom + POPOVER_OFFSET;
+  const maxTop = innerHeight - VIEWPORT_PADDING - 150;
+  const clampedTop = Math.min(top, maxTop);
+  return { top: clampedTop, left, right, width };
+}
 
 export interface FilterPanelProps {
   isOpen: boolean;
@@ -37,7 +86,7 @@ export function FilterPanel({
   triggerRef,
 }: FilterPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ top: number; right: number } | null>(null);
+  const [position, setPosition] = useState<PanelPosition | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -53,15 +102,11 @@ export function FilterPanel({
       return;
     }
     if (!triggerRef?.current) {
-      setPosition({ top: 16, right: 16 });
+      setPosition({ top: VIEWPORT_PADDING, right: VIEWPORT_PADDING, width: POPOVER_WIDTH });
       return;
     }
-    const el = triggerRef.current;
-    const rect = el.getBoundingClientRect();
-    setPosition({
-      top: rect.bottom + POPOVER_OFFSET,
-      right: typeof window !== 'undefined' ? window.innerWidth - rect.right : 0,
-    });
+    const rect = triggerRef.current.getBoundingClientRect();
+    setPosition(getClampedPosition(rect));
   }, [isOpen, triggerRef]);
 
   useEffect(() => {
@@ -69,11 +114,7 @@ export function FilterPanel({
     const updatePosition = () => {
       const el = triggerRef.current;
       if (!el) return;
-      const rect = el.getBoundingClientRect();
-      setPosition({
-        top: rect.bottom + POPOVER_OFFSET,
-        right: window.innerWidth - rect.right,
-      });
+      setPosition(getClampedPosition(el.getBoundingClientRect()));
     };
     window.addEventListener('resize', updatePosition);
     window.addEventListener('scroll', updatePosition, true);
@@ -97,14 +138,20 @@ export function FilterPanel({
       aria-label={title}
       className={cn(
         'fixed z-popover flex flex-col bg-white rounded-xl border border-slate-200 shadow-xl dark:border-slate-700 dark:bg-slate-900',
-        'w-[320px] max-h-[85vh] overflow-hidden',
+        'max-h-[85vh] max-w-[calc(100vw-2rem)] overflow-hidden',
         'transition-opacity duration-150',
         isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
       )}
       style={
         position
-          ? { top: position.top, right: position.right, width: POPOVER_WIDTH }
-          : { top: 16, right: 16, width: POPOVER_WIDTH }
+          ? {
+              top: position.top,
+              bottom: position.bottom,
+              left: position.left,
+              right: position.right,
+              width: position.width,
+            }
+          : { top: VIEWPORT_PADDING, right: VIEWPORT_PADDING, width: POPOVER_WIDTH }
       }
     >
       <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-slate-700">

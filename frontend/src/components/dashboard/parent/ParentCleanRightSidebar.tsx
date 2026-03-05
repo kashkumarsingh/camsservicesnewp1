@@ -1254,7 +1254,7 @@ export default function ParentCleanRightSidebar({
         <>
         <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
           <span
-            className={`text-3xl font-semibold tabular-nums tracking-tight ${
+            className={`text-2xl font-semibold tabular-nums tracking-tight ${
               hoursUrgency === 'critical'
                 ? 'text-red-600 dark:text-red-400'
                 : hoursUrgency === 'warning'

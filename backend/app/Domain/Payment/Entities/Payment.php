@@ -27,6 +27,8 @@ final class Payment
         private readonly PaymentMethod $method,
         private readonly PaymentStatus $status,
         private readonly ?string $paymentProvider,
+        private readonly ?string $paymentType,   // 'package' | 'top_up' for invoice labelling
+        private readonly ?string $receiptUrl,    // Stripe hosted receipt URL (invoice link)
         private readonly ?string $transactionId,
         private readonly ?string $payableType,  // e.g., 'App\Models\Booking'
         private readonly ?string $payableId,    // e.g., booking ID
@@ -49,6 +51,8 @@ final class Payment
         PaymentMethod $method,
         PaymentStatus $status,
         ?string $paymentProvider = null,
+        ?string $paymentType = null,
+        ?string $receiptUrl = null,
         ?string $transactionId = null,
         ?string $payableType = null,
         ?string $payableId = null,
@@ -69,6 +73,8 @@ final class Payment
             $method,
             $status,
             $paymentProvider,
+            $paymentType,
+            $receiptUrl,
             $transactionId,
             $payableType,
             $payableId,
@@ -112,6 +118,16 @@ final class Payment
     public function paymentProvider(): ?string
     {
         return $this->paymentProvider;
+    }
+
+    public function paymentType(): ?string
+    {
+        return $this->paymentType;
+    }
+
+    public function receiptUrl(): ?string
+    {
+        return $this->receiptUrl;
     }
 
     public function transactionId(): ?string
