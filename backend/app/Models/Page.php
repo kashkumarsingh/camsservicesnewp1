@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\NullableSafeDateCast;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -71,8 +72,8 @@ class Page extends Model
      * - Not reusable entities (specific to about page)
      */
     protected $casts = [
-        'last_updated' => 'datetime',
-        'effective_date' => 'date',
+        'last_updated' => NullableSafeDateCast::class,
+        'effective_date' => NullableSafeDateCast::class,
         'views' => 'integer',
         'published' => 'boolean',
         'sections' => 'array',
@@ -135,11 +136,16 @@ class Page extends Model
 
     /**
      * Check if the page is effective (effective date is today or in the past).
+     * Null effective_date is treated as effective (no restriction).
      *
      * @return bool
      */
     public function isEffective(): bool
     {
+        if ($this->effective_date === null) {
+            return true;
+        }
+
         return $this->effective_date <= now();
     }
 

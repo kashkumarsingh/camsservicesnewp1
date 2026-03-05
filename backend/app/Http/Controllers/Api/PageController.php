@@ -33,6 +33,9 @@ class PageController extends Controller
      */
     private function formatPageResponse(Page $page): array
     {
+        $lastUpdated = $this->safeGetDateAttribute($page, 'last_updated');
+        $effectiveDate = $this->safeGetDateAttribute($page, 'effective_date');
+
         $data = [
             'id' => (string) $page->id,
             'title' => $page->title ?? '',
@@ -42,8 +45,8 @@ class PageController extends Controller
             'content' => $page->content ?? '',
             'sections' => $page->sections ?? [],
             'blocks' => $this->formatBlocks($page),
-            'lastUpdated' => $this->safeDateToIso8601($page->last_updated),
-            'effectiveDate' => $this->safeDateToDateString($page->effective_date),
+            'lastUpdated' => $this->safeDateToIso8601($lastUpdated),
+            'effectiveDate' => $this->safeDateToDateString($effectiveDate),
             'version' => $page->version ?? '1.0.0',
             'views' => (int) ($page->views ?? 0),
             'published' => (bool) $page->published,
@@ -65,20 +68,46 @@ class PageController extends Controller
     /**
      * Format page blocks for API (id, type, payload, meta per block).
      * Phase 5: id for analytics placeholders; meta for visibility/scheduling.
+     * Returns empty array if blocks are not loaded or any serialisation fails.
      *
      * @return array<int, array{id: string, type: string, payload: array, meta: array|null}>
      */
     private function formatBlocks(Page $page): array
     {
-        if (! $page->relationLoaded('blocks')) {
+        try {
+            if (! $page->relationLoaded('blocks')) {
+                return [];
+            }
+            return $page->blocks->map(fn ($b) => [
+                'id' => (string) $b->id,
+                'type' => $b->type ?? 'unknown',
+                'payload' => $b->payload ?? [],
+                'meta' => $b->meta ?? null,
+            ])->values()->all();
+        } catch (\Throwable $e) {
+            Log::warning('PageController::formatBlocks failed', [
+                'page_id' => $page->id ?? null,
+                'exception' => $e->getMessage(),
+            ]);
+
             return [];
         }
-        return $page->blocks->map(fn ($b) => [
-            'id' => (string) $b->id,
-            'type' => $b->type ?? 'unknown',
-            'payload' => $b->payload ?? [],
-            'meta' => $b->meta ?? null,
-        ])->values()->all();
+    }
+
+    /**
+     * Safely read a date/datetime attribute from a Page (handles invalid cast throwing).
+     *
+     * @return \DateTimeInterface|null
+     */
+    private function safeGetDateAttribute(Page $page, string $attribute): ?\DateTimeInterface
+    {
+        try {
+            $value = $page->{$attribute};
+
+            return $value instanceof \DateTimeInterface ? $value : null;
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**
