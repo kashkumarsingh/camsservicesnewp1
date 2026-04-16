@@ -44,15 +44,13 @@ services:
     env_file:
       - backend/.env
     environment:
-      # Only Docker topology overrides; DB credentials, APP_KEY, Stripe from backend/.env
+      # Only Docker topology overrides; DB credentials, APP_KEY, Stripe, MAIL_* from backend/.env
       - APP_ENV=local
       - APP_DEBUG=true
       - DB_HOST=db
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - MAIL_MAILER=smtp
-      - MAIL_HOST=mailhog
-      - MAIL_PORT=1025
+      # Mail: use backend/.env (e.g. Mailtrap for testing, or MAIL_HOST=mailhog + MAIL_PORT=1025 for Mailhog)
       - CACHE_DRIVER=redis
       - SESSION_DRIVER=redis
       - QUEUE_CONNECTION=sync

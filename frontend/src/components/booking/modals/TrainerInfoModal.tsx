@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { User, Award, Mail, Phone, MapPin } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
 import { BaseModal } from '@/components/ui/Modal';
-import { getTrainerChildDisplayName } from '@/utils/trainerPrivacy';
+import { getTrainerChildDisplayName } from '@/dashboard/utils/trainerPrivacy';
 
 interface TrainerInfoModalProps {
   isOpen: boolean;
@@ -52,7 +52,7 @@ export default function TrainerInfoModal({
       footer={
         <div className="flex flex-col sm:flex-row gap-3 w-full justify-end">
           {onViewTimeline && bookingId && (
-            <Button
+            <MarketingButton
               onClick={() => {
                 onViewTimeline();
                 onClose();
@@ -61,11 +61,11 @@ export default function TrainerInfoModal({
               className="flex-1 sm:flex-none"
             >
               View Progress Timeline
-            </Button>
+            </MarketingButton>
           )}
-          <Button onClick={onClose} variant="outline" className="flex-1 sm:flex-none">
+          <MarketingButton onClick={onClose} variant="outline" className="flex-1 sm:flex-none">
             Close
-          </Button>
+          </MarketingButton>
         </div>
       }
     >

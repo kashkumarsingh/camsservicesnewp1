@@ -8,8 +8,8 @@ import {
   getMonthCalendarGrid,
   formatDateLabel,
   formatWeekRangeWithMonth,
-} from '@/utils/calendarRangeUtils';
-import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
+} from '@/dashboard/utils/calendarRangeUtils';
+import type { CalendarPeriod } from '@/dashboard/utils/calendarRangeUtils';
 import type { TriggerRect } from './useCalendarRangePopover';
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];

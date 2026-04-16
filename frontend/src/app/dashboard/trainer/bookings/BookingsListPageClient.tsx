@@ -8,8 +8,8 @@ import type { TrainerBooking } from '@/core/application/trainer/types';
 import BookingsList from '@/components/trainer/bookings/BookingsList';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
-import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
-import { toastManager } from '@/utils/toast';
+import { LIVE_REFRESH_ENABLED } from '@/dashboard/utils/liveRefreshConstants';
+import { toastManager } from '@/dashboard/utils/toast';
 
 export default function BookingsListPageClient() {
   const router = useRouter();

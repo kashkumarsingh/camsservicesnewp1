@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ChevronLeft } from 'lucide-react';
-import type { IconComponent } from '@/types/icons';
+import type { IconComponent } from '@/shared/types/icons';
 
 /** Primary blue from reference design (#2196F3 / Material primary) */
 const HEADER_BG = 'bg-[#2196F3]';

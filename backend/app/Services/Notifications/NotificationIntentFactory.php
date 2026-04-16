@@ -13,6 +13,7 @@ use App\Models\SiteSetting;
 use App\Models\Trainer;
 use App\Models\TrainerApplication;
 use App\Models\User;
+use Illuminate\Support\Collection;
 
 /**
  * Builds NotificationIntent from domain models so callers use a single API.
@@ -453,21 +454,29 @@ class NotificationIntentFactory
         );
     }
 
-    public static function activityConfirmed(Booking $booking, BookingSchedule $schedule): NotificationIntent
+    /**
+     * Activity confirmation to parent. Email uses Booking as subject and schedule + activities in notification_args.
+     *
+     * @param  \Illuminate\Support\Collection<int, \App\Models\BookingScheduleActivity>|null  $activities
+     */
+    public static function activityConfirmed(Booking $booking, BookingSchedule $schedule, ?Collection $activities = null): NotificationIntent
     {
         $dateStr = $schedule->date?->format('l, j M') ?? '';
+        $activitiesCollection = $activities ?? collect([]);
+        $payload = [
+            'title' => 'Session activities confirmed',
+            'message' => 'Activities for your session on ' . $dateStr . ' have been confirmed by the trainer.',
+            'link' => '/dashboard/parent',
+            'notification_args' => [$schedule, $activitiesCollection],
+        ];
         return new NotificationIntent(
             intentType: IntentType::ACTIVITY_CONFIRMED,
-            entityType: 'schedule',
-            entityId: (string) $schedule->id,
+            entityType: 'booking',
+            entityId: (string) $booking->id,
             recipients: $booking->user_id
                 ? NotificationRecipientSet::forUser($booking->user_id)
                 : NotificationRecipientSet::forEmails($booking->parent_email ? [$booking->parent_email] : []),
-            payload: [
-                'title' => 'Session activities confirmed',
-                'message' => 'Activities for your session on ' . $dateStr . ' have been confirmed by the trainer.',
-                'link' => '/dashboard/parent',
-            ],
+            payload: $payload,
             entityKey: 'schedule:' . $schedule->id,
         );
     }
@@ -708,6 +717,60 @@ class NotificationIntentFactory
                 'link' => '/dashboard/admin/children',
             ],
             entityKey: 'child:' . $child->id,
+        );
+    }
+
+    public static function parentRegistrationToAdmin(User $user): NotificationIntent
+    {
+        $singleAdminEmail = config('services.admin_notification_email');
+        $recipients = $singleAdminEmail
+            ? NotificationRecipientSet::forEmails([$singleAdminEmail])
+            : NotificationRecipientSet::forAdmins(self::adminEmails());
+        return new NotificationIntent(
+            intentType: IntentType::PARENT_REGISTRATION_ADMIN,
+            entityType: 'user',
+            entityId: (string) $user->id,
+            recipients: $recipients,
+            payload: [
+                'title' => 'New parent registration',
+                'message' => $user->name . ' has registered. Approval required.',
+                'link' => '/dashboard/admin/users',
+            ],
+            entityKey: 'user:' . $user->id,
+        );
+    }
+
+    public static function parentRegistered(User $user): NotificationIntent
+    {
+        return new NotificationIntent(
+            intentType: IntentType::PARENT_REGISTERED,
+            entityType: 'user',
+            entityId: (string) $user->id,
+            recipients: NotificationRecipientSet::forUser($user->id),
+            payload: [
+                'title' => 'Registration received',
+                'message' => 'Your account is pending approval. You can sign in once approved.',
+                'link' => null,
+            ],
+            entityKey: 'user:' . $user->id,
+        );
+    }
+
+    public static function trainerApplicationReceived(TrainerApplication $application): NotificationIntent
+    {
+        return new NotificationIntent(
+            intentType: IntentType::TRAINER_APPLICATION_RECEIVED,
+            entityType: 'trainer_application',
+            entityId: (string) $application->id,
+            recipients: $application->email
+                ? NotificationRecipientSet::forEmails([$application->email])
+                : new NotificationRecipientSet(),
+            payload: [
+                'title' => 'Application received',
+                'message' => 'We have received your trainer application. A member of our team will review it shortly.',
+                'link' => null,
+            ],
+            entityKey: 'application:' . $application->id,
         );
     }
 

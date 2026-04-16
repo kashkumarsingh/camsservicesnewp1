@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { User, X, Save } from 'lucide-react';
 import BaseModal from '@/components/ui/Modal/BaseModal';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { parentProfileRepository } from '@/infrastructure/http/parent/ParentProfileRepository';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
-import { toastManager } from '@/utils/toast';
+import { toastManager } from '@/dashboard/utils/toast';
 
 interface ParentSettingsModalProps {
   isOpen: boolean;
@@ -109,14 +109,14 @@ export default function ParentSettingsModal({
       }
       footer={
         <div className="flex justify-end gap-3">
-          <Button
+          <DashboardButton
             onClick={onClose}
             variant="outline"
             disabled={saving}
           >
             Cancel
-          </Button>
-          <Button
+          </DashboardButton>
+          <DashboardButton
             onClick={handleSave}
             disabled={saving}
             variant="primary"
@@ -124,7 +124,7 @@ export default function ParentSettingsModal({
           >
             <Save className="h-4 w-4" />
             {saving ? 'Saving...' : 'Save Changes'}
-          </Button>
+          </DashboardButton>
         </div>
       }
     >

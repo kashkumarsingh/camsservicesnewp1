@@ -9,8 +9,7 @@ import AttendanceModal from '../schedules/AttendanceModal';
 import NotesSection from '../schedules/NotesSection';
 import ParticipantCard from './ParticipantCard';
 import SessionActivityPlanner from '../activities/SessionActivityPlanner';
-import Button from '@/components/ui/Button';
-
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 interface BookingDetailProps {
   booking: TrainerBooking;
 }

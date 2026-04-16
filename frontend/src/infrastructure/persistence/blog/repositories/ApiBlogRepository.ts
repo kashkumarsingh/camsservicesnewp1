@@ -12,7 +12,7 @@ import { BlogAuthor, BlogCategory, BlogTag } from '@/core/domain/blog/entities/B
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { extractList } from '@/infrastructure/http/responseHelpers';
-import { CACHE_TAGS, REVALIDATION_TIMES } from '@/utils/revalidationConstants';
+import { CACHE_TAGS, REVALIDATION_TIMES } from '@/shared/utils/revalidationConstants';
 
 /**
  * Remote API Response Format (CMS-agnostic)

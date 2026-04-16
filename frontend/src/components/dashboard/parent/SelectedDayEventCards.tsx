@@ -4,8 +4,8 @@ import React from 'react';
 import moment from 'moment';
 import { Activity, ChevronRight } from 'lucide-react';
 import type { ChildActivitySession } from '@/components/dashboard/ChildrenActivitiesCalendar';
-import { getChildColor } from '@/utils/childColorUtils';
-import { getCalendarLabelClasses, type CalendarSessionTimeStatus } from '@/utils/calendarLabelConstants';
+import { getChildColor } from '@/dashboard/utils/childColorUtils';
+import { getCalendarLabelClasses, type CalendarSessionTimeStatus } from '@/dashboard/utils/calendarLabelConstants';
 
 function formatDurationMinutes(startTime: string, endTime: string): string {
   const start = moment(startTime, ['HH:mm', 'HH:mm:ss']);

@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { AlertCircle, CheckCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
 import { LOGIN_FORM } from './constants';
 import type { LoginFormSectionProps } from './loginFormTypes';
 
@@ -171,7 +171,7 @@ export default function LoginFormSection({
             </label>
           </div>
 
-          <Button
+          <MarketingButton
             type="submit"
             variant="primary"
             size="lg"
@@ -187,7 +187,7 @@ export default function LoginFormSection({
             ) : (
               LOGIN_FORM.SUBMIT
             )}
-          </Button>
+          </MarketingButton>
         </form>
         <p className="mt-6 text-center text-sm text-slate-600">
           {LOGIN_FORM.NO_ACCOUNT}{' '}

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Clear Cache and Restart Services
-# Supports both local (Docker Compose) and Render.com deployments
+# Supports local Docker Compose workflows
 
 # Exit on critical errors, but continue on non-critical ones
 set -o pipefail
@@ -13,9 +13,6 @@ echo ""
 if [ -f "docker-compose.yml" ] && docker ps > /dev/null 2>&1; then
     echo "📍 Environment: Local (Docker Compose)"
     ENV="local"
-elif [ -n "$RENDER" ] || [ -n "$RENDER_EXTERNAL_URL" ]; then
-    echo "📍 Environment: Render.com"
-    ENV="render"
 else
     echo "📍 Environment: Unknown (assuming local)"
     ENV="local"
@@ -123,30 +120,6 @@ if [ "$ENV" = "local" ]; then
     echo "   3. Rebuild config: docker exec kidzrunz-backend php artisan config:cache"
     echo "   4. Check database: docker exec kidzrunz-backend php artisan db:show"
     
-elif [ "$ENV" = "render" ]; then
-    # RENDER.COM DEPLOYMENT
-    echo ""
-    echo "⚠️  Render.com detected"
-    echo ""
-    echo "For Render.com, you need to:"
-    echo ""
-    echo "1️⃣  Backend (via SSH or Render CLI):"
-    echo "   render ssh cams-backend-oj5x"
-    echo "   php artisan config:clear"
-    echo "   php artisan cache:clear"
-    echo "   php artisan route:clear"
-    echo "   php artisan view:clear"
-    echo "   php artisan optimize:clear"
-    echo "   php artisan config:cache"
-    echo ""
-    echo "2️⃣  Frontend:"
-    echo "   • Go to Render Dashboard → Frontend Service"
-    echo "   • Click 'Manual Deploy' → 'Clear build cache & deploy'"
-    echo ""
-    echo "Or use Render CLI:"
-    echo "   render services:restart cams-backend-oj5x"
-    echo "   render services:restart cams-frontend-oj5x"
-    echo ""
 fi
 
 echo ""

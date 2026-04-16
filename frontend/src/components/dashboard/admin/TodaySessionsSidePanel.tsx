@@ -9,7 +9,7 @@ import {
   Activity,
   ChevronRight,
 } from 'lucide-react';
-import { ROUTES } from '@/utils/routes';
+import { ROUTES } from '@/shared/utils/routes';
 
 export interface TodaySessionItem {
   id: string;

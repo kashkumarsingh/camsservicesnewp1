@@ -1,13 +1,13 @@
 import React from 'react';
-import { getSiteSettings } from '@/server/siteSettings/getSiteSettings';
-import Button from '@/components/ui/Button';
+import { getSiteSettings } from '@/marketing/server/siteSettings/getSiteSettings';
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
 import Section from '@/components/layout/Section';
 import CTASection from '@/components/shared/CTASection/CTASection';
 import Card from '@/components/ui/Card/Card';
 import IconList from '@/components/ui/IconList/IconList';
 import { CheckCircle2, Calendar, Phone, MessageSquare, Award, Shield, Sparkles, Star, Users, Clock } from 'lucide-react';
-import { ROUTES } from '@/utils/routes';
-import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
+import { ROUTES } from '@/shared/utils/routes';
+import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
 import { CONTACT_THANK_YOU_PAGE as C } from '@/app/(public)/constants/contactThankYouPageConstants';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
@@ -111,12 +111,12 @@ export default async function ContactThankYouPage() {
           
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-2xl mx-auto">
-            <Button href={ROUTES.PACKAGES} variant="superPlayful" size="lg" className="shadow-2xl text-lg" withArrow>
+            <MarketingButton href={ROUTES.PACKAGES} variant="superPlayful" size="lg" className="shadow-2xl text-lg" withArrow>
               {C.CTA_EXPLORE}
-            </Button>
-            <Button href={ROUTES.CONTACT} variant="outline" size="lg" className="text-lg shadow-lg" withArrow>
+            </MarketingButton>
+            <MarketingButton href={ROUTES.CONTACT} variant="outline" size="lg" className="text-lg shadow-lg" withArrow>
               {C.CTA_BOOK_CALL}
-            </Button>
+            </MarketingButton>
           </div>
         </div>
       </Section>
@@ -162,7 +162,7 @@ export default async function ContactThankYouPage() {
               {C.URGENT_DESC}
             </p>
             <div className="mt-8 space-y-4">
-              <Button
+              <MarketingButton
                 href={`tel:${phone.replace(/\s/g, '')}`}
                 variant="outline"
                 size="lg"
@@ -173,8 +173,8 @@ export default async function ContactThankYouPage() {
                   <span className="font-semibold">{phone}</span>
                 </span>
                 <span className="text-2xs text-navy-blue/70">{C.CALL_US}</span>
-              </Button>
-              <Button
+              </MarketingButton>
+              <MarketingButton
                 href={whatsappUrl}
                 variant="primary"
                 size="lg"
@@ -187,8 +187,8 @@ export default async function ContactThankYouPage() {
                   <span className="font-semibold">{C.WHATSAPP}</span>
                 </span>
                 <span className="text-2xs opacity-90">{C.WHATSAPP_SUB}</span>
-              </Button>
-              <Button
+              </MarketingButton>
+              <MarketingButton
                 href={ROUTES.CONTACT}
                 variant="bordered"
                 size="lg"
@@ -200,7 +200,7 @@ export default async function ContactThankYouPage() {
                   <span className="font-semibold">{C.SCHEDULE_CALL}</span>
                 </span>
                 <span className="text-2xs text-navy-blue/70">{C.SCHEDULE_SUB}</span>
-              </Button>
+              </MarketingButton>
             </div>
           </Card>
         </div>

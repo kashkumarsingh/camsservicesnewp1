@@ -6,7 +6,7 @@
  */
 
 import { Address } from '@/core/domain/location';
-import { getRegionFromPostcode } from '@/utils/locationUtils';
+import { getRegionFromPostcode } from '@/dashboard/utils/locationUtils';
 
 export interface IdealPostcodesResponse {
   result: Array<{

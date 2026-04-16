@@ -6,11 +6,11 @@ import { adminTrainerAbsenceRequestRepository } from '@/infrastructure/http/admi
 import type { AdminAbsenceRequestItem } from '@/infrastructure/http/admin/AdminTrainerAbsenceRequestRepository';
 import { Breadcrumbs } from '@/components/dashboard/universal';
 import { SideCanvas } from '@/components/ui/SideCanvas';
-import { ROUTES } from '@/utils/routes';
-import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/utils/appConstants';
+import { ROUTES } from '@/shared/utils/routes';
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/shared/utils/appConstants';
 import { CheckCircle, Loader2, XCircle, CalendarOff, User, Calendar, FileText } from 'lucide-react';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
-import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
+import { LIVE_REFRESH_ENABLED } from '@/dashboard/utils/liveRefreshConstants';
 
 function formatDate(d: string): string {
   return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });

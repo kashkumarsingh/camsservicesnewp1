@@ -24,6 +24,8 @@ class SiteSetting extends Model
         'full_address',
         'whatsapp_url',
         'map_embed_url',
+        'map_place_id',
+        'map_address',
         'support_emails',
         'support_whatsapp_numbers',
         'social_links',

@@ -17,7 +17,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { AdminServiceDTO, CreateServiceDTO, UpdateServiceDTO } from '@/core/application/admin/dto/AdminServiceDTO';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { apiClient } from '@/infrastructure/http/ApiClient';
-import { getApiErrorMessage } from '@/utils/errorUtils';
+import { getApiErrorMessage } from '@/shared/utils/errorUtils';
 
 interface UseAdminServicesOptions {
   category?: string;

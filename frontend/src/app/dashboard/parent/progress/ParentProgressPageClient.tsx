@@ -6,8 +6,8 @@ import { useParentActivityLogs } from '@/interfaces/web/hooks/dashboard/useParen
 import ParentProgressTimeline from '@/components/dashboard/ParentProgressTimeline';
 import { EmptyState } from '@/components/dashboard/universal';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
-import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { LIVE_REFRESH_ENABLED } from '@/dashboard/utils/liveRefreshConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 export default function ParentProgressPageClient() {
   const { sessionNotesItems, loading: notesLoading, error: notesError, refetch: refetchSessionNotes } = useParentSessionNotes();

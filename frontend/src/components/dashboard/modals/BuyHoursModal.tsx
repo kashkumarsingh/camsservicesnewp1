@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { CreditCard, Package, Loader2, AlertCircle, ChevronDown, CheckCircle2, XCircle } from "lucide-react";
-import Button from "@/components/ui/Button";
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { BaseModal } from "@/components/ui/Modal";
 import type { Child, User } from "@/core/application/auth/types";
 import type { PackageDTO } from "@/core/application/packages/dto/PackageDTO";
@@ -13,7 +13,7 @@ import { packageRepository } from "@/infrastructure/persistence/packages";
 import { ListPackagesUseCase } from "@/core/application/packages/useCases/ListPackagesUseCase";
 import { apiClient } from "@/infrastructure/http/ApiClient";
 import { API_ENDPOINTS } from "@/infrastructure/http/apiEndpoints";
-import { getChildColor } from "@/utils/childColorUtils";
+import { getChildColor } from "@/dashboard/utils/childColorUtils";
 
 interface BuyHoursModalProps {
   isOpen: boolean;
@@ -453,16 +453,16 @@ export default function BuyHoursModal({
             Secure payment · Cancel anytime · Money-back guarantee
           </p>
           <div className="flex gap-2 order-1 sm:order-2">
-            <Button
+            <DashboardButton
               type="button"
               variant="bordered"
               size="sm"
               onClick={onClose}
             >
               Cancel
-            </Button>
+            </DashboardButton>
             {!loading && !error && packages.length > 0 && availableChildren.length > 0 && !selectedChildHasActivePackage && (
-              <Button
+              <DashboardButton
                 type="button"
                 variant="primary"
                 size="sm"
@@ -470,7 +470,7 @@ export default function BuyHoursModal({
                 onClick={handleContinueToPayment}
               >
                 {creatingDraft ? 'Creating…' : 'Continue to payment'}
-              </Button>
+              </DashboardButton>
             )}
           </div>
         </div>
@@ -701,7 +701,7 @@ export default function BuyHoursModal({
                             You can add more hours (top-up) to this package or purchase a new package after the current one expires.
                           </p>
                           {onOpenTopUp && selectedChildId && (
-                            <Button
+                            <DashboardButton
                               type="button"
                               variant="primary"
                               size="sm"
@@ -712,7 +712,7 @@ export default function BuyHoursModal({
                               className="w-full sm:w-auto"
                             >
                               Add hours (top-up)
-                            </Button>
+                            </DashboardButton>
                           )}
                         </>
                       ) : (
@@ -755,7 +755,7 @@ export default function BuyHoursModal({
                   const firstTopUpEligible = unavailableChildren.find(({ child }) => childrenWithActivePackages.get(child.id)?.canTopUp);
                   if (onOpenTopUp && firstTopUpEligible) {
                     return (
-                      <Button
+                      <DashboardButton
                         type="button"
                         variant="primary"
                         size="sm"
@@ -766,7 +766,7 @@ export default function BuyHoursModal({
                         className="w-full sm:w-auto"
                       >
                         Add hours (top-up)
-                      </Button>
+                      </DashboardButton>
                     );
                   }
                   const anyUnpaid = unavailableChildren.some(({ child }) => !childrenWithActivePackages.get(child.id)?.canTopUp);
@@ -805,14 +805,14 @@ export default function BuyHoursModal({
           <div className="flex flex-col items-center justify-center py-8 bg-red-50 rounded-lg border border-red-200">
             <AlertCircle className="w-6 h-6 text-red-600 mb-2" />
             <p className="text-sm text-red-700 mb-3">{error}</p>
-            <Button
+            <DashboardButton
               type="button"
               variant="primary"
               size="sm"
               onClick={fetchPackages}
             >
               Try Again
-            </Button>
+            </DashboardButton>
           </div>
         )}
 

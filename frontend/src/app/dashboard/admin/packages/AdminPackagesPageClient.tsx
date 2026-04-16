@@ -4,9 +4,9 @@ import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react'
 import SideCanvas from '@/components/ui/SideCanvas';
 import type { AdminPackageDTO, CreatePackageDTO, UpdatePackageDTO } from '@/core/application/admin/dto/AdminPackageDTO';
 import { useAdminPackages } from '@/interfaces/web/hooks/admin/useAdminPackages';
-import { toastManager } from '@/utils/toast';
-import { getActiveBadgeClasses } from '@/utils/statusBadgeHelpers';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { toastManager } from '@/dashboard/utils/toast';
+import { getActiveBadgeClasses } from '@/dashboard/utils/statusBadgeHelpers';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 import {
   Breadcrumbs,
   DataTable,
@@ -19,27 +19,15 @@ import {
   type SortDirection,
 } from '@/components/dashboard/universal';
 import { RowActions, EditAction, DeleteAction } from '@/components/dashboard/universal/RowActions';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import Link from 'next/link';
-import { ROUTES } from '@/utils/routes';
-import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/utils/appConstants';
-import { DEFAULT_TABLE_SORT } from '@/utils/dashboardConstants';
+import { ROUTES } from '@/shared/utils/routes';
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/shared/utils/appConstants';
+import { DEFAULT_TABLE_SORT } from '@/dashboard/utils/dashboardConstants';
+import { TabbedSidePanelContent } from '@/components/ui/TabbedSidePanelContent';
+import { FileText, Zap } from 'lucide-react';
 
 type PackageFormData = CreatePackageDTO | UpdatePackageDTO;
-
-function formatDateTime(value: string | null) {
-  if (!value) return "—";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
-  return date.toLocaleString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 export const AdminPackagesPageClient: React.FC = () => {
   const [search, setSearch] = useState("");
@@ -54,6 +42,7 @@ export const AdminPackagesPageClient: React.FC = () => {
   const [sortKey, setSortKey] = useState<string | null>(DEFAULT_TABLE_SORT.sortKey);
   const [sortDirection, setSortDirection] = useState<SortDirection>(DEFAULT_TABLE_SORT.sortDirection);
   const [selectedPackage, setSelectedPackage] = useState<AdminPackageDTO | null>(null);
+  const [packageDetailsTabId, setPackageDetailsTabId] = useState<string>("overview");
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState<PackageFormData>({
@@ -151,12 +140,6 @@ export const AdminPackagesPageClient: React.FC = () => {
     setStagedDifficulty('');
     setStagedActive('all');
   }, []);
-
-  const handleClearFilters = () => {
-    setAgeGroupFilter('');
-    setDifficultyFilter('');
-    setActiveFilter('all');
-  };
 
   const handleCreateClick = () => {
     setFormData({
@@ -348,9 +331,9 @@ export const AdminPackagesPageClient: React.FC = () => {
             activeFilterCount={activeFilterCount}
             onClick={() => setFilterPanelOpen(true)}
           />
-          <Button type="button" size="sm" variant="primary" onClick={handleCreateClick}>
+          <DashboardButton type="button" size="sm" variant="primary" onClick={handleCreateClick}>
             New package
-          </Button>
+          </DashboardButton>
         </div>
       </div>
 
@@ -440,8 +423,8 @@ export const AdminPackagesPageClient: React.FC = () => {
           renderRowActions={(row, context) =>
             context?.isEditing ? (
               <RowActions>
-                <Button type="button" size="sm" variant="primary" disabled={inlineSaving || !inlineDraft?.name?.trim()} onClick={() => void handleSaveInlineEdit()} aria-label="Save">{inlineSaving ? 'Saving…' : 'Save'}</Button>
-                <Button type="button" size="sm" variant="bordered" disabled={inlineSaving} onClick={handleCancelInlineEdit} aria-label="Cancel">Cancel</Button>
+                <DashboardButton type="button" size="sm" variant="primary" disabled={inlineSaving || !inlineDraft?.name?.trim()} onClick={() => void handleSaveInlineEdit()} aria-label="Save">{inlineSaving ? 'Saving…' : 'Save'}</DashboardButton>
+                <DashboardButton type="button" size="sm" variant="bordered" disabled={inlineSaving} onClick={handleCancelInlineEdit} aria-label="Cancel">Cancel</DashboardButton>
               </RowActions>
             ) : (
               <RowActions>
@@ -454,82 +437,99 @@ export const AdminPackagesPageClient: React.FC = () => {
       />
       </div>
 
-      {/* Detail View Canvas */}
+      {/* Detail View Canvas – tabbed by default */}
       <SideCanvas
         isOpen={!!selectedPackage && !isEditing}
-        onClose={() => setSelectedPackage(null)}
+        onClose={() => {
+          setSelectedPackage(null);
+          setPackageDetailsTabId("overview");
+        }}
         title={selectedPackage ? selectedPackage.name : "Package details"}
       >
         {selectedPackage && (
-          <div className="space-y-4 text-sm">
-            <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3 dark:border-slate-700">
-              <Button type="button" size="sm" variant="bordered" onClick={() => handleEditClick(selectedPackage)}>
-                Edit
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="destructive-outline"
-                onClick={() => {
-                  setSelectedPackage(null);
-                  handleDelete(selectedPackage.id);
-                }}
-              >
-                Delete
-              </Button>
-            </div>
-            <section className="space-y-1">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Overview
-              </h3>
-              <dl className="grid grid-cols-1 gap-2 text-xs text-slate-700 dark:text-slate-200">
-                <div>
-                  <dt className="font-medium">Name</dt>
-                  <dd>{selectedPackage.name}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Slug</dt>
-                  <dd>{selectedPackage.slug}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Price</dt>
-                  <dd>£{selectedPackage.price}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Hours</dt>
-                  <dd>{selectedPackage.hours}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Age Group</dt>
-                  <dd>{selectedPackage.ageGroup || "—"}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Difficulty</dt>
-                  <dd>{selectedPackage.difficultyLevel || "—"}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Description</dt>
-                  <dd>{selectedPackage.description || "—"}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Views</dt>
-                  <dd>{selectedPackage.views}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Status</dt>
-                  <dd className="mt-0.5">
-                    <span
-                      className={`inline-flex rounded-full px-2 py-0.5 ${getActiveBadgeClasses(
-                        selectedPackage.isActive
-                      )}`}
+          <TabbedSidePanelContent
+            tabs={[
+              {
+                id: "overview",
+                label: "Overview",
+                icon: FileText,
+                content: (
+                  <dl className="grid grid-cols-1 gap-2 text-xs text-slate-700 dark:text-slate-200">
+                    <div>
+                      <dt className="font-medium">Name</dt>
+                      <dd>{selectedPackage.name}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Slug</dt>
+                      <dd>{selectedPackage.slug}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Price</dt>
+                      <dd>£{selectedPackage.price}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Hours</dt>
+                      <dd>{selectedPackage.hours}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Age Group</dt>
+                      <dd>{selectedPackage.ageGroup || "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Difficulty</dt>
+                      <dd>{selectedPackage.difficultyLevel || "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Description</dt>
+                      <dd>{selectedPackage.description || "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Views</dt>
+                      <dd>{selectedPackage.views}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Status</dt>
+                      <dd className="mt-0.5">
+                        <span
+                          className={`inline-flex rounded-full px-2 py-0.5 ${getActiveBadgeClasses(
+                            selectedPackage.isActive
+                          )}`}
+                        >
+                          {selectedPackage.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </dd>
+                    </div>
+                  </dl>
+                ),
+              },
+              {
+                id: "actions",
+                label: "Actions",
+                icon: Zap,
+                content: (
+                  <div className="flex flex-wrap gap-2">
+                    <DashboardButton type="button" size="sm" variant="bordered" onClick={() => handleEditClick(selectedPackage)}>
+                      Edit
+                    </DashboardButton>
+                    <DashboardButton
+                      type="button"
+                      size="sm"
+                      variant="destructive-outline"
+                      onClick={() => {
+                        setSelectedPackage(null);
+                        handleDelete(selectedPackage.id);
+                      }}
                     >
-                      {selectedPackage.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </dd>
-                </div>
-              </dl>
-            </section>
-          </div>
+                      Delete
+                    </DashboardButton>
+                  </div>
+                ),
+              },
+            ]}
+            activeTabId={packageDetailsTabId}
+            onTabChange={setPackageDetailsTabId}
+            ariaLabel="Package details sections"
+          />
         )}
       </SideCanvas>
 
@@ -636,7 +636,13 @@ export const AdminPackagesPageClient: React.FC = () => {
             <select
               id="difficultyLevel"
               value={formData.difficultyLevel || ""}
-              onChange={(e) => setFormData({ ...formData, difficultyLevel: (e.target.value || undefined) as any })}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  difficultyLevel:
+                    (e.target.value || undefined) as CreatePackageDTO["difficultyLevel"],
+                })
+              }
               className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
             >
               <option value="">Select difficulty</option>

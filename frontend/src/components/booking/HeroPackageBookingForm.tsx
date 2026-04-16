@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PackageDTO } from '@/core/application/packages/dto/PackageDTO';
 import { Sparkles, Calendar, AlertCircle, CheckCircle2, CheckCircle } from 'lucide-react';
-import { validateName, validateEmail, validatePhone } from '@/utils/validation';
+import { validateName, validateEmail, validatePhone } from '@/shared/utils/validation';
 
 interface HeroPackageBookingFormProps {
   packages: PackageDTO[];

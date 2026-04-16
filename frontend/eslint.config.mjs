@@ -39,4 +39,56 @@ export default defineConfig([
       ],
     },
   },
+  // Architectural boundaries: keep marketing and dashboard isolated.
+  {
+    files: ["src/marketing/**/*.ts", "src/marketing/**/*.tsx"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/app/dashboard/**", "@/components/dashboard/**"],
+              message:
+                "Marketing layer must not import dashboard modules. Use marketing-owned modules or neutral shared utilities.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/app/dashboard/**/*.ts", "src/app/dashboard/**/*.tsx"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/marketing/**"],
+              message:
+                "Dashboard layer must not import marketing modules. Share through neutral domain/shared layers when needed.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/app/(public)/**/*.ts", "src/app/(public)/**/*.tsx"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/app/dashboard/**", "@/components/dashboard/**"],
+              message:
+                "Public/marketing routes must not depend on dashboard modules.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 ]);

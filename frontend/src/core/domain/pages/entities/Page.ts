@@ -1,10 +1,10 @@
 import { BaseEntity } from '../../shared/BaseEntity';
 import type {
   PageSectionDTO,
-  PageBlockDTO,
   AboutMissionDTO,
   AboutCoreValueDTO,
   AboutSafeguardingDTO,
+  AboutPageContentDTO,
 } from '../../../application/pages/dto/PageDTO';
 
 export class Page extends BaseEntity {
@@ -26,7 +26,7 @@ export class Page extends BaseEntity {
     private readonly _coreValuesSectionTitle: string | undefined,
     private readonly _coreValuesSectionSubtitle: string | undefined,
     private readonly _safeguarding: AboutSafeguardingDTO | undefined,
-    private readonly _blocks: PageBlockDTO[] | undefined,
+    private readonly _structuredContent: AboutPageContentDTO | undefined,
     createdAt?: Date,
     updatedAt?: Date,
   ) {
@@ -51,7 +51,7 @@ export class Page extends BaseEntity {
     coreValuesSectionTitle?: string | null;
     coreValuesSectionSubtitle?: string | null;
     safeguarding?: AboutSafeguardingDTO | null;
-    blocks?: PageBlockDTO[] | null;
+    structuredContent?: AboutPageContentDTO | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
   }): Page {
@@ -73,7 +73,7 @@ export class Page extends BaseEntity {
       coreValuesSectionTitle,
       coreValuesSectionSubtitle,
       safeguarding,
-      blocks,
+      structuredContent,
       createdAt,
       updatedAt,
     } = params;
@@ -90,7 +90,8 @@ export class Page extends BaseEntity {
     const normalizedMission = mission ?? undefined;
     const normalizedCoreValues = coreValues && coreValues.length > 0 ? [...coreValues] : undefined;
     const normalizedSafeguarding = safeguarding ?? undefined;
-    const normalizedBlocks = blocks && blocks.length > 0 ? [...blocks] : undefined;
+    const normalizedStructuredContent =
+      structuredContent && typeof structuredContent === 'object' ? structuredContent : undefined;
 
     return new Page(
       id,
@@ -110,7 +111,7 @@ export class Page extends BaseEntity {
       coreValuesSectionTitle ?? undefined,
       coreValuesSectionSubtitle ?? undefined,
       normalizedSafeguarding,
-      normalizedBlocks,
+      normalizedStructuredContent,
       normalizedCreatedAt,
       normalizedUpdatedAt,
     );
@@ -180,8 +181,9 @@ export class Page extends BaseEntity {
     return this._safeguarding;
   }
 
-  get blocks(): PageBlockDTO[] | undefined {
-    return this._blocks ? [...this._blocks] : undefined;
+  /** Public Pages Content Management: type-specific section data (e.g. about: hero, mission, coreValues, safeguarding). */
+  get structuredContent(): AboutPageContentDTO | undefined {
+    return this._structuredContent;
   }
 }
 

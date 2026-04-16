@@ -3,7 +3,7 @@
 import React from 'react';
 import moment from 'moment';
 import { CheckCircle, Package } from 'lucide-react';
-import { formatHours } from '@/utils/formatHours';
+import { formatHours } from '@/shared/utils/formatHours';
 import { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
 
 interface BookingSummaryProps {

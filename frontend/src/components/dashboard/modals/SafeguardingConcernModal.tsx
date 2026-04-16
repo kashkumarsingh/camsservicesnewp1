@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ShieldAlert, Loader2 } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import BaseModal from '@/components/ui/Modal/BaseModal';
 import type { Child } from '@/core/application/auth/types';
 
@@ -121,10 +121,10 @@ export default function SafeguardingConcernModal({
       size="md"
       footer={
         <div className="flex flex-col-reverse sm:flex-row gap-2 w-full justify-end">
-          <Button type="button" variant="outline" size="sm" onClick={onClose}>
+          <DashboardButton type="button" variant="outline" size="sm" onClick={onClose}>
             Cancel
-          </Button>
-          <Button
+          </DashboardButton>
+          <DashboardButton
             type="submit"
             form="safeguarding-concern-form"
             variant="primary"
@@ -133,7 +133,7 @@ export default function SafeguardingConcernModal({
             icon={isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <ShieldAlert size={16} />}
           >
             {isSubmitting ? 'Submitting…' : 'Submit report'}
-          </Button>
+          </DashboardButton>
         </div>
       }
     >

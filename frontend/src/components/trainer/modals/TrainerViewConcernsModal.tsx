@@ -4,8 +4,8 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { ShieldAlert, Info, Loader2, Calendar, User, AlertCircle, Check } from 'lucide-react';
 import BaseModal from '@/components/ui/Modal/BaseModal';
 import { useTrainerSafeguardingConcerns, type TrainerSafeguardingConcernItem } from '@/interfaces/web/hooks/trainer/useTrainerSafeguardingConcerns';
-import { toastManager } from '@/utils/toast';
-import { getTrainerChildDisplayName } from '@/utils/trainerPrivacy';
+import { toastManager } from '@/dashboard/utils/toast';
+import { getTrainerChildDisplayName } from '@/dashboard/utils/trainerPrivacy';
 
 interface TrainerViewConcernsModalProps {
   isOpen: boolean;

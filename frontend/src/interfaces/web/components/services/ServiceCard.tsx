@@ -10,7 +10,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ServiceDTO } from '@/core/application/services';
 import { Heart, Users, Shield, ArrowRight } from 'lucide-react';
-import { SERVICES_PAGE } from '@/app/(public)/constants/servicesPageConstants';
+import { SERVICES_PAGE } from '@/marketing/constants/servicesPageConstants';
 
 interface ServiceCardProps {
   service: ServiceDTO;

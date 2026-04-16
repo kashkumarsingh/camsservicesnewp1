@@ -11,14 +11,16 @@ import {
   SearchInput,
 } from "@/components/dashboard/universal";
 import { RowActions, EditAction, DeleteAction } from "@/components/dashboard/universal/RowActions";
-import Button from "@/components/ui/Button";
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import Link from "next/link";
-import { ROUTES } from "@/utils/routes";
-import { BACK_TO_ADMIN_DASHBOARD_LABEL } from "@/utils/appConstants";
+import { ROUTES } from "@/shared/utils/routes";
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from "@/shared/utils/appConstants";
 import type { AdminActivityDTO, CreateActivityDTO, UpdateActivityDTO } from "@/core/application/admin/dto/AdminActivityDTO";
 import { useAdminActivities } from "@/interfaces/web/hooks/admin/useAdminActivities";
-import { toastManager } from "@/utils/toast";
-import { EMPTY_STATE } from "@/utils/emptyStateConstants";
+import { toastManager } from "@/dashboard/utils/toast";
+import { TabbedSidePanelContent } from "@/components/ui/TabbedSidePanelContent";
+import { FileText, Zap } from "lucide-react";
+import { EMPTY_STATE } from "@/dashboard/utils/emptyStateConstants";
 
 type ActivityFormData = CreateActivityDTO | UpdateActivityDTO;
 
@@ -43,6 +45,7 @@ export const AdminActivitiesPageClient: React.FC = () => {
   const [stagedCategory, setStagedCategory] = useState<string>("");
   const [stagedStatus, setStagedStatus] = useState<string>("all");
   const [selectedActivity, setSelectedActivity] = useState<AdminActivityDTO | null>(null);
+  const [activityDetailsTabId, setActivityDetailsTabId] = useState<string>("details");
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState<ActivityFormData>({
@@ -64,6 +67,8 @@ export const AdminActivitiesPageClient: React.FC = () => {
     isActive: boolean;
   } | null>(null);
   const [inlineSaving, setInlineSaving] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const isActiveFilterValue =
     statusFilter === "all" ? undefined : statusFilter === "active";
@@ -75,6 +80,7 @@ export const AdminActivitiesPageClient: React.FC = () => {
     createActivity,
     updateActivity,
     deleteActivity,
+    deleteActivities,
     refetch,
   } = useAdminActivities({
     isActive: isActiveFilterValue,
@@ -111,12 +117,6 @@ export const AdminActivitiesPageClient: React.FC = () => {
     setStagedCategory("");
     setStagedStatus("all");
   }, []);
-
-  const handleClearFilters = () => {
-    setCategoryFilter("");
-    setStatusFilter("all");
-    setSearch("");
-  };
 
   const categories = useMemo(() => {
     const cats = activities.map((a) => a.category).filter(Boolean) as string[];
@@ -197,6 +197,59 @@ export const AdminActivitiesPageClient: React.FC = () => {
       toastManager.error(err instanceof Error ? err.message : "Failed to delete activity");
     }
   };
+
+  const visibleActivityIds = useMemo(() => filtered.map((activity) => activity.id), [filtered]);
+  const selectedVisibleCount = useMemo(
+    () => visibleActivityIds.filter((id) => selectedIds.includes(id)).length,
+    [visibleActivityIds, selectedIds]
+  );
+  const allVisibleSelected = visibleActivityIds.length > 0 && selectedVisibleCount === visibleActivityIds.length;
+
+  useEffect(() => {
+    setSelectedIds((prev) => prev.filter((id) => visibleActivityIds.includes(id)));
+  }, [visibleActivityIds]);
+
+  const handleToggleSelectAllVisible = useCallback(() => {
+    setSelectedIds((prev) => {
+      if (allVisibleSelected) {
+        return prev.filter((id) => !visibleActivityIds.includes(id));
+      }
+      const merged = new Set([...prev, ...visibleActivityIds]);
+      return Array.from(merged);
+    });
+  }, [allVisibleSelected, visibleActivityIds]);
+
+  const handleToggleSelectOne = useCallback((id: string) => {
+    setSelectedIds((prev) => (
+      prev.includes(id) ? prev.filter((existingId) => existingId !== id) : [...prev, id]
+    ));
+  }, []);
+
+  const handleBulkDelete = useCallback(async () => {
+    const idsToDelete = selectedIds.filter((id) => visibleActivityIds.includes(id));
+    if (idsToDelete.length === 0) {
+      return;
+    }
+
+    const confirmMessage = `Are you sure you want to delete ${idsToDelete.length} selected activities? This cannot be undone.`;
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    setBulkDeleting(true);
+    try {
+      await deleteActivities(idsToDelete);
+      setSelectedIds((prev) => prev.filter((id) => !idsToDelete.includes(id)));
+      toastManager.success(`${idsToDelete.length} activities deleted`);
+      if (selectedActivity && idsToDelete.includes(selectedActivity.id)) {
+        setSelectedActivity(null);
+      }
+    } catch (err: unknown) {
+      toastManager.error(err instanceof Error ? err.message : "Failed to delete selected activities");
+    } finally {
+      setBulkDeleting(false);
+    }
+  }, [deleteActivities, selectedActivity, selectedIds, visibleActivityIds]);
 
   const closeFormPanel = () => {
     setIsCreating(false);
@@ -289,11 +342,39 @@ export const AdminActivitiesPageClient: React.FC = () => {
             activeFilterCount={activeFilterCount}
             onClick={() => setFilterPanelOpen(true)}
           />
-          <Button type="button" size="sm" variant="primary" onClick={handleCreateClick}>
+          <DashboardButton type="button" size="sm" variant="primary" onClick={handleCreateClick}>
             New activity
-          </Button>
+          </DashboardButton>
         </div>
       </div>
+
+      {selectedVisibleCount > 0 && (
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 dark:border-rose-900/60 dark:bg-rose-950/30">
+          <p className="text-xs font-medium text-rose-800 dark:text-rose-200">
+            {selectedVisibleCount} selected
+          </p>
+          <div className="flex items-center gap-2">
+            <DashboardButton
+              type="button"
+              size="sm"
+              variant="bordered"
+              onClick={() => setSelectedIds([])}
+              disabled={bulkDeleting}
+            >
+              Clear selection
+            </DashboardButton>
+            <DashboardButton
+              type="button"
+              size="sm"
+              variant="destructive-outline"
+              onClick={() => void handleBulkDelete()}
+              disabled={bulkDeleting}
+            >
+              {bulkDeleting ? "Deleting…" : "Delete selected"}
+            </DashboardButton>
+          </div>
+        </div>
+      )}
 
       <FilterPanel
         isOpen={filterPanelOpen}
@@ -342,6 +423,15 @@ export const AdminActivitiesPageClient: React.FC = () => {
           <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
             <thead className="bg-slate-50 dark:bg-slate-950/40">
               <tr>
+                <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  <input
+                    type="checkbox"
+                    aria-label="Select all visible activities"
+                    checked={allVisibleSelected}
+                    onChange={handleToggleSelectAllVisible}
+                    className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                </th>
                 <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Name</th>
                 <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Category</th>
                 <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Duration</th>
@@ -352,13 +442,13 @@ export const AdminActivitiesPageClient: React.FC = () => {
             <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-800 dark:bg-slate-900">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-3 py-4 text-center text-xs text-slate-500 dark:text-slate-400">
+                  <td colSpan={6} className="px-3 py-4 text-center text-xs text-slate-500 dark:text-slate-400">
                     Loading activities…
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-3 py-4 text-center text-xs text-slate-500 dark:text-slate-400">
+                  <td colSpan={6} className="px-3 py-4 text-center text-xs text-slate-500 dark:text-slate-400">
                     {EMPTY_STATE.NO_ACTIVITIES_FOUND.title}
                   </td>
                 </tr>
@@ -381,6 +471,15 @@ export const AdminActivitiesPageClient: React.FC = () => {
                     >
                       {isInlineEditing ? (
                         <>
+                          <td className="px-3 py-1.5" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="checkbox"
+                              aria-label={`Select ${activity.name}`}
+                              checked={selectedIds.includes(activity.id)}
+                              onChange={() => handleToggleSelectOne(activity.id)}
+                              className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                            />
+                          </td>
                           <td className="px-3 py-1.5" onClick={(e) => e.stopPropagation()}>
                             <input
                               type="text"
@@ -457,7 +556,7 @@ export const AdminActivitiesPageClient: React.FC = () => {
                           </td>
                           <td className="px-3 py-1.5 text-right text-xs" onClick={(e) => e.stopPropagation()}>
                             <RowActions>
-                              <Button
+                              <DashboardButton
                                 type="button"
                                 size="sm"
                                 variant="primary"
@@ -466,8 +565,8 @@ export const AdminActivitiesPageClient: React.FC = () => {
                                 aria-label="Save"
                               >
                                 {inlineSaving ? "Saving…" : "Save"}
-                              </Button>
-                              <Button
+                              </DashboardButton>
+                              <DashboardButton
                                 type="button"
                                 size="sm"
                                 variant="bordered"
@@ -476,12 +575,21 @@ export const AdminActivitiesPageClient: React.FC = () => {
                                 aria-label="Cancel"
                               >
                                 Cancel
-                              </Button>
+                              </DashboardButton>
                             </RowActions>
                           </td>
                         </>
                       ) : (
                         <>
+                          <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="checkbox"
+                              aria-label={`Select ${activity.name}`}
+                              checked={selectedIds.includes(activity.id)}
+                              onChange={() => handleToggleSelectOne(activity.id)}
+                              className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                            />
+                          </td>
                           <td className="px-3 py-2 text-xs text-slate-700 dark:text-slate-200">{activity.name}</td>
                           <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">{activity.category || "—"}</td>
                           <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-700 dark:text-slate-200">{formatDuration(activity.duration)}</td>
@@ -518,55 +626,77 @@ export const AdminActivitiesPageClient: React.FC = () => {
         </datalist>
       </div>
 
-      {/* View details SideCanvas */}
+      {/* View details SideCanvas – tabbed by default */}
       <SideCanvas
         isOpen={!!selectedActivity && !isCreating && !isEditing}
-        onClose={() => setSelectedActivity(null)}
+        onClose={() => {
+          setSelectedActivity(null);
+          setActivityDetailsTabId("details");
+        }}
         title={selectedActivity ? selectedActivity.name : "Activity details"}
       >
         {selectedActivity && (
-          <div className="space-y-4 text-sm">
-            <dl className="grid grid-cols-1 gap-2 text-xs text-slate-700 dark:text-slate-200">
-              <div>
-                <dt className="font-medium">Name</dt>
-                <dd>{selectedActivity.name}</dd>
-              </div>
-              <div>
-                <dt className="font-medium">Category</dt>
-                <dd>{selectedActivity.category || "—"}</dd>
-              </div>
-              <div>
-                <dt className="font-medium">Duration</dt>
-                <dd>{formatDuration(selectedActivity.duration)}</dd>
-              </div>
-              <div>
-                <dt className="font-medium">Status</dt>
-                <dd>{selectedActivity.isActive ? "Active" : "Inactive"}</dd>
-              </div>
-              {selectedActivity.description && (
-                <div>
-                  <dt className="font-medium">Description</dt>
-                  <dd className="mt-0.5">{selectedActivity.description}</dd>
-                </div>
-              )}
-            </dl>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => handleEditClick(selectedActivity)}
-                className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDelete(selectedActivity.id)}
-                className="rounded-md border border-rose-300 px-3 py-1.5 text-xs font-medium text-rose-600 shadow-sm hover:bg-rose-50 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-950/40"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
+          <TabbedSidePanelContent
+            tabs={[
+              {
+                id: "details",
+                label: "Details",
+                icon: FileText,
+                content: (
+                  <dl className="grid grid-cols-1 gap-2 text-xs text-slate-700 dark:text-slate-200">
+                    <div>
+                      <dt className="font-medium">Name</dt>
+                      <dd>{selectedActivity.name}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Category</dt>
+                      <dd>{selectedActivity.category || "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Duration</dt>
+                      <dd>{formatDuration(selectedActivity.duration)}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Status</dt>
+                      <dd>{selectedActivity.isActive ? "Active" : "Inactive"}</dd>
+                    </div>
+                    {selectedActivity.description && (
+                      <div>
+                        <dt className="font-medium">Description</dt>
+                        <dd className="mt-0.5">{selectedActivity.description}</dd>
+                      </div>
+                    )}
+                  </dl>
+                ),
+              },
+              {
+                id: "actions",
+                label: "Actions",
+                icon: Zap,
+                content: (
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleEditClick(selectedActivity)}
+                      className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(selectedActivity.id)}
+                      className="rounded-md border border-rose-300 px-3 py-1.5 text-xs font-medium text-rose-600 shadow-sm hover:bg-rose-50 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-950/40"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ),
+              },
+            ]}
+            activeTabId={activityDetailsTabId}
+            onTabChange={setActivityDetailsTabId}
+            ariaLabel="Activity details sections"
+          />
         )}
       </SideCanvas>
 

@@ -4,7 +4,7 @@
  * Type definitions for trainer application layer.
  */
 
-import { OriginalTrainer } from '@/components/features/booking/types';
+import { OriginalTrainer } from '@/marketing/components/features/booking/types';
 
 export interface Trainer extends Omit<OriginalTrainer, 'rating'> {
   capabilities?: string[];

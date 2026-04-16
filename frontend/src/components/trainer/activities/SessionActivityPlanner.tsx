@@ -9,10 +9,10 @@ import type {
   AssignActivityRequest,
 } from '@/core/application/trainer/types';
 import { Plus, X, CheckCircle, Clock, AlertCircle, Settings } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import ActivityOverrideModal from './ActivityOverrideModal';
 import { EmptyState } from '@/components/dashboard/universal/EmptyState';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface SessionActivityPlannerProps {
   scheduleId: number;
@@ -209,7 +209,7 @@ export default function SessionActivityPlanner({
           </p>
         </div>
         {schedule.package.allow_activity_override && (
-          <Button
+          <DashboardButton
             variant="outline"
             size="sm"
             onClick={() => setShowOverrideModal(true)}
@@ -217,7 +217,7 @@ export default function SessionActivityPlanner({
           >
             <Settings className="h-4 w-4" />
             Override Count
-          </Button>
+          </DashboardButton>
         )}
       </div>
 
@@ -277,7 +277,7 @@ export default function SessionActivityPlanner({
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-semibold text-gray-900">Assigned Activities</h4>
           {schedule.activity_status !== 'confirmed' && (
-            <Button
+            <DashboardButton
               variant="outline"
               size="sm"
               onClick={() => setShowAssignForm(!showAssignForm)}
@@ -285,7 +285,7 @@ export default function SessionActivityPlanner({
             >
               <Plus className="h-4 w-4" />
               {showAssignForm ? 'Cancel' : 'Add Activity'}
-            </Button>
+            </DashboardButton>
           )}
         </div>
 
@@ -378,13 +378,13 @@ export default function SessionActivityPlanner({
               </div>
 
               <div className="flex items-center gap-3">
-                <Button
+                <DashboardButton
                   type="submit"
                   disabled={assigning || !selectedActivityId}
                 >
                   {assigning ? 'Assigning...' : 'Assign Activity'}
-                </Button>
-                <Button
+                </DashboardButton>
+                <DashboardButton
                   type="button"
                   variant="ghost"
                   onClick={() => {
@@ -395,7 +395,7 @@ export default function SessionActivityPlanner({
                   disabled={assigning}
                 >
                   Cancel
-                </Button>
+                </DashboardButton>
               </div>
             </form>
           </div>
@@ -411,14 +411,14 @@ export default function SessionActivityPlanner({
                 Once confirmed, the parent will be automatically notified about the activities for this session.
               </p>
             </div>
-            <Button
+            <DashboardButton
               onClick={handleConfirmActivities}
               disabled={confirming || activities.length === 0}
               className="flex items-center gap-2"
             >
               <CheckCircle className="h-5 w-5" />
               {confirming ? 'Confirming...' : 'Confirm Activities'}
-            </Button>
+            </DashboardButton>
           </div>
         </div>
       )}

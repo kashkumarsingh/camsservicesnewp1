@@ -1,7 +1,7 @@
 'use client';
 
 import { Toaster } from 'sonner';
-import { SONNER_TOAST_DURATION_MS } from '@/utils/appConstants';
+import { SONNER_TOAST_DURATION_MS } from '@/shared/utils/appConstants';
 
 /**
  * Base Sonner toaster with app-wide defaults.

@@ -7,9 +7,9 @@
 
 import BlogPostCard from './BlogPostCard';
 import { BlogPostDTO } from '@/core/application/blog';
-import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
+import { SKELETON_COUNTS } from '@/shared/utils/skeletonConstants';
 import { BlogPostSkeleton } from '@/components/ui/Skeleton';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface BlogListProps {
   posts: BlogPostDTO[];

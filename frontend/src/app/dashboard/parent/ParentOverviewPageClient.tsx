@@ -10,7 +10,7 @@ import { useDashboardStats } from "@/interfaces/web/hooks/dashboard/useDashboard
 import { getChildChecklistFlags, canChildBuyHours, childNeedsChecklistToComplete, childAwaitingChecklistReview } from "@/core/application/auth/types";
 import type { BookingDTO } from "@/core/application/booking/dto/BookingDTO";
 import BuyHoursModal from "@/components/dashboard/modals/BuyHoursModal";
-import Button from "@/components/ui/Button/Button";
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import ParentBookingModal, { type ParentBookingFormData } from "@/components/dashboard/modals/ParentBookingModal";
 import SessionDetailModal from "@/components/dashboard/modals/SessionDetailModal";
 import CompleteChecklistModal, { type ChecklistFormData } from "@/components/dashboard/modals/CompleteChecklistModal";
@@ -20,10 +20,10 @@ import AddChildModal from "@/components/dashboard/modals/AddChildModal";
 import { useActivities } from "@/interfaces/web/hooks/activities/useActivities";
 import { apiClient } from "@/infrastructure/http/ApiClient";
 import { API_ENDPOINTS } from "@/infrastructure/http/apiEndpoints";
-import { toastManager, type Toast } from "@/utils/toast";
-import { CHECKLIST_SUBMIT_SUCCESS_MESSAGE } from "@/utils/appConstants";
-import { ROUTES } from "@/utils/routes";
-import { EMPTY_STATE } from "@/utils/emptyStateConstants";
+import { toastManager, type Toast } from "@/dashboard/utils/toast";
+import { CHECKLIST_SUBMIT_SUCCESS_MESSAGE } from "@/shared/utils/appConstants";
+import { ROUTES } from "@/shared/utils/routes";
+import { EMPTY_STATE } from "@/dashboard/utils/emptyStateConstants";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
 import ToastContainer from "@/components/ui/Toast/ToastContainer";
@@ -46,8 +46,8 @@ import { useSubmitSafeguardingConcern } from "@/interfaces/web/hooks/dashboard/u
 import SessionNotesModal from "@/components/dashboard/modals/SessionNotesModal";
 import SafeguardingConcernModal, { type SafeguardingConcernFormData } from "@/components/dashboard/modals/SafeguardingConcernModal";
 import { useLiveRefresh } from "@/core/liveRefresh/LiveRefreshContext";
-import { LIVE_REFRESH_ENABLED } from "@/utils/liveRefreshConstants";
-import { ACTIVE_BOOKING_STATUSES, BOOKING_STATUS, PAYMENT_STATUS } from "@/utils/dashboardConstants";
+import { LIVE_REFRESH_ENABLED } from "@/dashboard/utils/liveRefreshConstants";
+import { ACTIVE_BOOKING_STATUSES, BOOKING_STATUS, PAYMENT_STATUS } from "@/dashboard/utils/dashboardConstants";
 
 const MIN_DURATION_HOURS = 3;
 
@@ -867,7 +867,7 @@ export default function ParentOverviewPageClient() {
               Schedule
             </Link>
             {approvedChildren.length > 0 && (
-            <Button
+            <DashboardButton
               variant="primary"
               size="sm"
               onClick={() => { setBuyHoursChildId(undefined); setShowBuyHoursModal(true); }}
@@ -877,10 +877,10 @@ export default function ParentOverviewPageClient() {
             >
               <Package className="h-4 w-4 shrink-0" aria-hidden />
               Buy hours
-            </Button>
+            </DashboardButton>
             )}
             <div className="relative" ref={moreDropdownRef}>
-              <Button
+              <DashboardButton
                 variant="outline"
                 size="sm"
                 onClick={() => setShowMoreDropdown((v) => !v)}
@@ -892,7 +892,7 @@ export default function ParentOverviewPageClient() {
               >
                 More
                 <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${showMoreDropdown ? "rotate-180" : ""}`} aria-hidden />
-              </Button>
+              </DashboardButton>
               {showMoreDropdown && typeof document !== "undefined" && moreDropdownRect && createPortal(
                 <>
                   <div className="fixed inset-0 z-dropdown" aria-hidden onClick={() => setShowMoreDropdown(false)} />
@@ -1189,9 +1189,9 @@ export default function ParentOverviewPageClient() {
                   className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-200 bg-amber-50/60 px-3 py-2.5 dark:border-amber-800 dark:bg-amber-950/20"
                 >
                   <span className="text-sm text-slate-800 dark:text-slate-200">{strip.label}</span>
-                  <Button variant="primary" size="sm" onClick={strip.onClick} title={strip.actionLabel}>
+                  <DashboardButton variant="primary" size="sm" onClick={strip.onClick} title={strip.actionLabel}>
                     {strip.actionLabel}
-                  </Button>
+                  </DashboardButton>
                 </li>
               ))}
             </ul>
@@ -1333,7 +1333,7 @@ export default function ParentOverviewPageClient() {
                 )}
               </div>
               {(approvedChildren.length > 0 || children.length > 0) && (
-                <Button
+                <DashboardButton
                   variant="primary"
                   size="sm"
                   onClick={() => setShowAddChildModal(true)}
@@ -1342,14 +1342,14 @@ export default function ParentOverviewPageClient() {
                 >
                   <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
                   Add child
-                </Button>
+                </DashboardButton>
               )}
             </div>
 
             {children.length === 0 ? (
               <div className="mt-6 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 px-4 py-8 text-center">
                 <p className="text-sm text-slate-600 dark:text-slate-400">{EMPTY_STATE.NO_CHILDREN_ADDED_YET.title}</p>
-                <Button
+                <DashboardButton
                   variant="primary"
                   size="sm"
                   className="mt-3 inline-flex items-center gap-2"
@@ -1358,7 +1358,7 @@ export default function ParentOverviewPageClient() {
                 >
                   <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
                   Add child
-                </Button>
+                </DashboardButton>
               </div>
             ) : (
               <ul className="mt-5 space-y-3" role="list">
@@ -1505,14 +1505,14 @@ export default function ParentOverviewPageClient() {
                               <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
                             </Link>
                           ) : (
-                            <Button
+                            <DashboardButton
                               variant="outline"
                               size="sm"
                               onClick={primaryAction.onClick}
                               title={actionTooltip}
                             >
                               {primaryAction.label}
-                            </Button>
+                            </DashboardButton>
                           )}
                         </div>
                       </div>

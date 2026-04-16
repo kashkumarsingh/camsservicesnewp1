@@ -1,16 +1,15 @@
 import { notFound } from 'next/navigation';
-import FAQAccordion from '@/components/features/faq/FAQAccordion';
+import FAQAccordion from '@/marketing/components/features/faq/FAQAccordion';
 import Section from '@/components/layout/Section';
 import { bookingFAQs } from '@/data/bookingFAQData';
 import { Metadata } from 'next';
-import { headers } from 'next/headers';
 import { CheckCircle2, Shield, Award, User, Users, Clock, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
-import { formatCurrency, formatCurrencyWhole } from '@/utils/currencyFormatter';
-import QuickSummaryCard from '@/components/features/packages/QuickSummaryCard';
+import { formatCurrency, formatCurrencyWhole } from '@/shared/utils/currencyFormatter';
+import QuickSummaryCard from '@/marketing/components/features/packages/QuickSummaryCard';
 import { GetPackageUseCase } from '@/core/application/packages/useCases/GetPackageUseCase';
 import { packageRepository } from '@/infrastructure/persistence/packages';
 import { PackageMapper } from '@/core/application/packages/mappers/PackageMapper';
-import type { OriginalTrainer } from '@/components/features/booking/types';
+import type { OriginalTrainer } from '@/marketing/components/features/booking/types';
 import { ListTrainersUseCase, TrainerDTO } from '@/core/application/trainers';
 import { createTrainerRepository } from '@/infrastructure/persistence/trainers';
 import { ListActivitiesUseCase } from '@/core/application/activities';
@@ -25,18 +24,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = resolvedParams;
 
   const getPackageUseCase = new GetPackageUseCase(packageRepository);
-  const packageDTO = await getPackageUseCase.execute(slug);
+  let packageDTO = await getPackageUseCase.execute(slug);
 
   if (!packageDTO) {
-    return {};
+    const intervention = getInterventionPackageBySlug(slug);
+    if (intervention) {
+      packageDTO = interventionPackageToFallbackDTO(intervention);
+    } else {
+      return {};
+    }
   }
 
   const pkg = PackageMapper.fromDTO(packageDTO);
 
-  const headersList = await headers();
-  const host = headersList.get('host');
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`;
+  const baseUrl = getPublicSiteUrl();
   const imageUrl = '/og-images/og-image.jpg';
 
   return {
@@ -89,8 +90,13 @@ function mapTrainerToLegacy(trainer: TrainerDTO): OriginalTrainer {
   };
 }
 
-import { withTimeoutFallback } from '@/utils/promiseUtils';
-import ConditionalPriceDisplay from '@/components/features/packages/ConditionalPriceDisplay';
+import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
+import ConditionalPriceDisplay from '@/marketing/components/features/packages/ConditionalPriceDisplay';
+import { getPublicSiteUrl } from '@/marketing/lib/public-site-url';
+import {
+  getInterventionPackageBySlug,
+  interventionPackageToFallbackDTO,
+} from '@/marketing/lib/intervention-package-fallback-dto';
 
 export default async function BookPackagePage({ params }: Props) {
   // Note: Authentication check happens in BookingPageClient
@@ -99,14 +105,19 @@ export default async function BookPackagePage({ params }: Props) {
   const resolvedParams = await params;
 
   const getPackageUseCase = new GetPackageUseCase(packageRepository);
-  const packageDTO = await withTimeoutFallback(
+  let packageDTO = await withTimeoutFallback(
     getPackageUseCase.execute(resolvedParams.slug),
     3500, // 3.5s timeout – booking entrypoint, allow some time but avoid long hangs
     null
   );
 
   if (!packageDTO) {
-    notFound();
+    const intervention = getInterventionPackageBySlug(resolvedParams.slug);
+    if (intervention) {
+      packageDTO = interventionPackageToFallbackDTO(intervention);
+    } else {
+      notFound();
+    }
   }
 
   const pkg = PackageMapper.fromDTO(packageDTO);

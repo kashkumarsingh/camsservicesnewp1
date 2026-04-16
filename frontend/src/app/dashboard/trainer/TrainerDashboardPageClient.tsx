@@ -29,7 +29,7 @@ import {
   Mail,
   MapPin,
 } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import TrainerSessionsCalendar from '@/components/trainer/TrainerSessionsCalendar';
 import { TraineeFilter } from '@/components/trainer/TraineeFilter';
 import TrainerSessionDetailModal from '@/components/trainer/modals/TrainerSessionDetailModal';
@@ -42,20 +42,20 @@ import TrainerViewConcernsModal from '@/components/trainer/modals/TrainerViewCon
 import SafeguardingConcernModal, { type SafeguardingConcernFormData } from '@/components/dashboard/modals/SafeguardingConcernModal';
 import { useSubmitSafeguardingConcern } from '@/interfaces/web/hooks/dashboard/useSubmitSafeguardingConcern';
 import ToastContainer from '@/components/ui/Toast/ToastContainer';
-import { toastManager, type Toast } from '@/utils/toast';
+import { toastManager, type Toast } from '@/dashboard/utils/toast';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
 import { useSmartResponsive } from '@/interfaces/web/hooks/responsive/useSmartResponsive';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
-import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
-import { ROUTES } from '@/utils/routes';
+import { LIVE_REFRESH_ENABLED } from '@/dashboard/utils/liveRefreshConstants';
+import { ROUTES } from '@/shared/utils/routes';
 import { useDashboardSyncEnabled } from '@/core/dashboardSync/DashboardSyncContext';
 import { dashboardSyncStore } from '@/core/dashboardSync/dashboardSyncStore';
 import SideCanvas from '@/components/ui/SideCanvas';
 import type { TrainerEmergencyContact } from '@/core/application/trainer/types';
-import { getTrainerChildDisplayName } from '@/utils/trainerPrivacy';
-import { getMonday, getMonthKey, getRangeFromPeriodAnchor } from '@/utils/calendarRangeUtils';
-import { getGoogleMapsSearchUrl, formatUKPostcode } from '@/utils/locationUtils';
-import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
+import { getTrainerChildDisplayName } from '@/dashboard/utils/trainerPrivacy';
+import { getMonday, getMonthKey, getRangeFromPeriodAnchor } from '@/dashboard/utils/calendarRangeUtils';
+import { getGoogleMapsSearchUrl, formatUKPostcode } from '@/dashboard/utils/locationUtils';
+import type { CalendarPeriod } from '@/dashboard/utils/calendarRangeUtils';
 import { CalendarRangeToolbar } from '@/components/ui/CalendarRange';
 
 // Helper to format hours with one decimal place, trimming trailing .0
@@ -1128,9 +1128,9 @@ export default function TrainerDashboardPageClient() {
               ? 'Your trainer account is pending admin approval. You\'ll be notified once approved.'
               : 'Your trainer account was not approved. Please contact us for more information.'}
           </p>
-          <Button onClick={() => router.push('/')} className="w-full rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
+          <DashboardButton onClick={() => router.push('/')} className="w-full rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
             Go to Homepage
-          </Button>
+          </DashboardButton>
         </div>
       </div>
     );
@@ -1150,7 +1150,7 @@ export default function TrainerDashboardPageClient() {
           </div>
           {/* Desktop: show Availability, Concern, View; mobile: moved into FAB */}
           <div className="hidden sm:flex flex-wrap items-center gap-2 sm:gap-3">
-            <Button
+            <DashboardButton
               onClick={() => setShowAvailabilityPanel(true)}
               variant="primary"
               size="sm"
@@ -1158,8 +1158,8 @@ export default function TrainerDashboardPageClient() {
               className="rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150"
             >
               Set my availability
-            </Button>
-            <Button
+            </DashboardButton>
+            <DashboardButton
               onClick={() => setShowSafeguardingModal(true)}
               variant="outline"
               size="sm"
@@ -1167,8 +1167,8 @@ export default function TrainerDashboardPageClient() {
               className="rounded-full border border-slate-300 bg-white px-6 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all duration-150"
             >
               Log concern
-            </Button>
-            <Button
+            </DashboardButton>
+            <DashboardButton
               onClick={() => setShowViewConcernsModal(true)}
               variant="ghost"
               size="sm"
@@ -1176,7 +1176,7 @@ export default function TrainerDashboardPageClient() {
               className="rounded-lg px-3 py-2 text-sm font-medium text-gcal-primary hover:bg-gcal-primary-light transition-colors duration-150"
             >
               View concerns
-            </Button>
+            </DashboardButton>
           </div>
         </div>
       </header>

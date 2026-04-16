@@ -2,8 +2,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { Search, Loader2, MapPin, X, AlertCircle, Edit3 } from 'lucide-react';
-import { validateUKPostcode, getRegionFromPostcode } from '@/utils/locationUtils';
-import Button from '@/components/ui/Button/Button';
+import { validateUKPostcode, getRegionFromPostcode } from '@/dashboard/utils/locationUtils';
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
 import { Address } from '@/core/domain/location';
 import { LookupAddressesByPostcodeUseCase } from '@/core/application/address/useCases/LookupAddressesByPostcodeUseCase';
 import { AddressLookupService } from '@/infrastructure/services/address/AddressLookupService';
@@ -294,7 +294,7 @@ const PostcodeLookup: React.FC<PostcodeLookupProps> = ({
               </div>
             )}
           </div>
-          <Button
+          <MarketingButton
             onClick={fetchAddresses}
             disabled={loading || !postcode.trim()}
             className="px-6"
@@ -310,7 +310,7 @@ const PostcodeLookup: React.FC<PostcodeLookupProps> = ({
                 Find Address
               </>
             )}
-          </Button>
+          </MarketingButton>
         </div>
         {postcodeError && <p className="mt-1 text-xs text-red-600 font-medium">{postcodeError}</p>}
         {postcode && !postcodeError && !loading && postcodeValid === true && (
@@ -402,15 +402,15 @@ const PostcodeLookup: React.FC<PostcodeLookupProps> = ({
           />
           
           <div className="flex gap-2">
-            <Button 
+            <MarketingButton 
               onClick={handleManualSubmit} 
               disabled={!manualAddress.trim()}
               className={apiLimitExceeded ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700' : ''}
             >
               {apiLimitExceeded ? '✓ Confirm Address' : 'Use This Address'}
-            </Button>
+            </MarketingButton>
             {!apiLimitExceeded && (
-              <Button 
+              <MarketingButton 
                 onClick={() => {
                   setManualMode(false);
                   setManualAddress('');
@@ -418,7 +418,7 @@ const PostcodeLookup: React.FC<PostcodeLookupProps> = ({
                 variant="outline"
               >
                 Cancel
-              </Button>
+              </MarketingButton>
             )}
           </div>
           

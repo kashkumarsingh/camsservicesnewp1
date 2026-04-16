@@ -3,10 +3,10 @@
 import React from 'react';
 import Image from 'next/image';
 import Section from '@/components/layout/Section';
-import Button from '@/components/ui/Button';
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
 import { Users, Award } from 'lucide-react';
-import { ROUTES } from '@/utils/routes';
-import { ABOUT_PAGE } from '@/app/(public)/constants/aboutPageConstants';
+import { ROUTES } from '@/shared/utils/routes';
+import { ABOUT_PAGE } from '@/marketing/constants/aboutPageConstants';
 
 export interface AboutMissionSectionProps {
   sectionTitle: string;
@@ -46,9 +46,9 @@ export default function AboutMissionSection({ sectionTitle, description }: About
                 </p>
               </>
             )}
-            <Button href={ROUTES.CONTACT} variant="bordered" size="lg" className="rounded-full hover:shadow-2xl hover:scale-105 transition-all duration-300" withArrow>
+            <MarketingButton href={ROUTES.CONTACT} variant="bordered" size="lg" className="rounded-full hover:shadow-2xl hover:scale-105 transition-all duration-300" withArrow>
               {ABOUT_PAGE.MISSION_CTA}
-            </Button>
+            </MarketingButton>
           </div>
           <div className="order-1 lg:order-2 relative w-full h-80 md:h-96 rounded-card border-2 border-gray-200 shadow-card overflow-hidden">
             <Image

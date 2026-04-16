@@ -9,7 +9,7 @@ import { TrainerCapability } from '@/core/domain/trainers/valueObjects/TrainerCa
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { extractList } from '@/infrastructure/http/responseHelpers';
-import { CACHE_TAGS, REVALIDATION_TIMES } from '@/utils/revalidationConstants';
+import { CACHE_TAGS, REVALIDATION_TIMES } from '@/shared/utils/revalidationConstants';
 
 /**
  * Remote API Response Format

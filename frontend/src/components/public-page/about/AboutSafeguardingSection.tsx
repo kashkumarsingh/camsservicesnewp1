@@ -3,10 +3,10 @@
 import React from 'react';
 import Image from 'next/image';
 import Section from '@/components/layout/Section';
-import Button from '@/components/ui/Button';
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
 import { CheckCircle2 } from 'lucide-react';
-import { ROUTES } from '@/utils/routes';
-import { ABOUT_PAGE } from '@/app/(public)/constants/aboutPageConstants';
+import { ROUTES } from '@/shared/utils/routes';
+import { ABOUT_PAGE } from '@/marketing/constants/aboutPageConstants';
 
 const DEFAULT_BADGES = ['DBS Checked', 'First-Aid Certified', 'Safeguarding Trained', 'Risk Assessed'];
 
@@ -60,9 +60,9 @@ export default function AboutSafeguardingSection({
               We conduct rigorous risk assessments for all activities and create personalised care plans to ensure a
               secure and supportive environment for every child.
             </p>
-            <Button href={ROUTES.CONTACT} variant="bordered" size="lg" className="rounded-full hover:shadow-2xl hover:scale-105 transition-all duration-300" withArrow>
+            <MarketingButton href={ROUTES.CONTACT} variant="bordered" size="lg" className="rounded-full hover:shadow-2xl hover:scale-105 transition-all duration-300" withArrow>
               {ABOUT_PAGE.SAFEGUARDING_CTA}
-            </Button>
+            </MarketingButton>
           </div>
         </div>
       </Section>

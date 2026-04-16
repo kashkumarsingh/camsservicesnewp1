@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { ActivityLog } from '@/core/application/trainer/types';
-import { getTrainerChildDisplayName } from '@/utils/trainerPrivacy';
+import { getTrainerChildDisplayName } from '@/dashboard/utils/trainerPrivacy';
 import { Calendar, Award, TrendingUp, Clock } from 'lucide-react';
 
 interface ProgressTimelineProps {

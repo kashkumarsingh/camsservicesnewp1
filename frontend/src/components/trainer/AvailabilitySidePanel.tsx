@@ -4,8 +4,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import moment, { Moment } from 'moment';
 import { ChevronLeft, ChevronRight, CheckCircle, XCircle, CalendarOff } from 'lucide-react';
 import SideCanvas from '@/components/ui/SideCanvas';
-import Button from '@/components/ui/Button';
-
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 type ViewMode = 'month' | 'week' | 'day';
 
 const WEEKDAY_HEADERS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -202,9 +201,9 @@ export default function AvailabilitySidePanel({
 
   const footer = (
     <div className="flex flex-col gap-2">
-      <Button onClick={() => onSave(saveMonth)} disabled={saving} variant="primary" size="sm" className="w-full">
+      <DashboardButton onClick={() => onSave(saveMonth)} disabled={saving} variant="primary" size="sm" className="w-full">
         {saving ? 'Saving…' : 'Save'}
-      </Button>
+      </DashboardButton>
     </div>
   );
 

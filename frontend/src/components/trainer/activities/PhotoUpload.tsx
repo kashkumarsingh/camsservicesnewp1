@@ -3,9 +3,9 @@
 import React, { useState, useRef } from 'react';
 import { trainerActivityLogRepository } from '@/infrastructure/http/trainer/TrainerActivityLogRepository';
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { EmptyState } from '@/components/dashboard/universal/EmptyState';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface PhotoUploadProps {
   activityLogId?: number;

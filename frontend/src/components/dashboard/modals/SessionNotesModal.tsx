@@ -5,7 +5,7 @@ import { FileText, ChevronRight } from 'lucide-react';
 import moment from 'moment';
 import { BaseModal } from '@/components/ui/Modal';
 import type { SessionNoteItem } from '@/components/dashboard/SessionNotesCard';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface SessionNotesModalProps {
   isOpen: boolean;

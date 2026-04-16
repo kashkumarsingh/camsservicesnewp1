@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { IncrementViewsUseCase } from '@/core/application/blog/useCases/IncrementViewsUseCase';
 import { blogRepository } from '@/infrastructure/persistence/blog';
 import { RichTextBlock } from '@/components/shared/public-page';
-import { ROUTES } from '@/utils/routes';
+import { ROUTES } from '@/shared/utils/routes';
 
 interface BlogPostProps {
   post: BlogPost;

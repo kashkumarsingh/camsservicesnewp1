@@ -4,8 +4,7 @@ import React, { useState } from 'react';
 import { trainerProfileRepository } from '@/infrastructure/http/trainer/TrainerProfileRepository';
 import type { TrainerProfile, AvailabilityPreference, UpdateAvailabilityRequest } from '@/core/application/trainer/types';
 import { Save, Plus, X, Clock } from 'lucide-react';
-import Button from '@/components/ui/Button';
-
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 interface AvailabilityCalendarProps {
   profile: TrainerProfile;
   onUpdate: (preferences: any[], notes?: string | null) => void;
@@ -119,7 +118,7 @@ export default function AvailabilityCalendar({ profile, onUpdate, onError }: Ava
               <div key={day} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-medium text-gray-900">{DAY_LABELS[day]}</h4>
-                  <Button
+                  <DashboardButton
                     type="button"
                     onClick={() => addTimeSlot(day)}
                     variant="outline"
@@ -128,7 +127,7 @@ export default function AvailabilityCalendar({ profile, onUpdate, onError }: Ava
                   >
                     <Plus className="h-4 w-4" />
                     Add Slot
-                  </Button>
+                  </DashboardButton>
                 </div>
 
                 {timeSlots.length === 0 ? (

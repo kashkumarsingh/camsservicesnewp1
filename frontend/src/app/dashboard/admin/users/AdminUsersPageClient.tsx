@@ -14,16 +14,16 @@ import {
   type SortDirection,
 } from "@/components/dashboard/universal";
 import { RowActions, EditAction, DeleteAction, ApproveAction, RejectAction } from "@/components/dashboard/universal/RowActions";
-import Button from "@/components/ui/Button";
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import Link from "next/link";
-import { ROUTES } from "@/utils/routes";
-import { BACK_TO_ADMIN_DASHBOARD_LABEL } from "@/utils/appConstants";
+import { ROUTES } from "@/shared/utils/routes";
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from "@/shared/utils/appConstants";
 import { useAdminUsers, type AdminUserRow } from "@/interfaces/web/hooks/dashboard/useAdminUsers";
 import type { CreateUserDTO, UpdateUserDTO } from "@/core/application/admin/dto/AdminUserDTO";
 import { Download } from "lucide-react";
-import { toastManager } from "@/utils/toast";
-import { EMPTY_STATE } from "@/utils/emptyStateConstants";
-import { DEFAULT_TABLE_SORT } from "@/utils/dashboardConstants";
+import { toastManager } from "@/dashboard/utils/toast";
+import { EMPTY_STATE } from "@/dashboard/utils/emptyStateConstants";
+import { DEFAULT_TABLE_SORT } from "@/dashboard/utils/dashboardConstants";
 
 type UserFormData = CreateUserDTO | UpdateUserDTO;
 
@@ -445,12 +445,12 @@ export const AdminUsersPageClient: React.FC = () => {
             activeFilterCount={activeFilterCount}
             onClick={() => setFilterPanelOpen(true)}
           />
-          <Button type="button" size="sm" variant="bordered" onClick={handleExport} disabled={users.length === 0} icon={<Download className="h-3.5 w-3.5" />}>
+          <DashboardButton type="button" size="sm" variant="bordered" onClick={handleExport} disabled={users.length === 0} icon={<Download className="h-3.5 w-3.5" />}>
             Export CSV
-          </Button>
-          <Button type="button" size="sm" variant="primary" onClick={handleCreateClick}>
+          </DashboardButton>
+          <DashboardButton type="button" size="sm" variant="primary" onClick={handleCreateClick}>
             New user
-          </Button>
+          </DashboardButton>
         </div>
       </div>
 
@@ -524,7 +524,7 @@ export const AdminUsersPageClient: React.FC = () => {
         renderRowActions={(user, context) =>
           context?.isEditing ? (
             <RowActions>
-              <Button
+              <DashboardButton
                 type="button"
                 size="sm"
                 variant="primary"
@@ -533,8 +533,8 @@ export const AdminUsersPageClient: React.FC = () => {
                 aria-label="Save"
               >
                 {inlineSaving ? "Saving…" : "Save"}
-              </Button>
-              <Button
+              </DashboardButton>
+              <DashboardButton
                 type="button"
                 size="sm"
                 variant="bordered"
@@ -543,7 +543,7 @@ export const AdminUsersPageClient: React.FC = () => {
                 aria-label="Cancel"
               >
                 Cancel
-              </Button>
+              </DashboardButton>
             </RowActions>
           ) : (
             <RowActions>

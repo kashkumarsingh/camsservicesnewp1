@@ -10,7 +10,7 @@ import { DashboardSkeleton } from '@/components/ui/Skeleton';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
-import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
+import { LIVE_REFRESH_ENABLED } from '@/dashboard/utils/liveRefreshConstants';
 
 interface BookingDetailPageClientProps {
   bookingId: string;

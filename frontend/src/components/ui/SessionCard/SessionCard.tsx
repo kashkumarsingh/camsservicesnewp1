@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { Calendar, Clock, Edit2, Trash2, User, AlertCircle } from 'lucide-react';
-import Button from '@/components/ui/Button';
-import { formatHours } from '@/utils/formatHours';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
+import { formatHours } from '@/shared/utils/formatHours';
 import moment from 'moment';
 import SessionCancelDeadline from '@/components/sessions/SessionCancelDeadline';
 
@@ -174,7 +174,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-2">
           {canEdit && !isEditing && !isLocked && (
-            <Button
+            <DashboardButton
               onClick={onEdit}
               variant="outline"
               size="sm"
@@ -182,10 +182,10 @@ const SessionCard: React.FC<SessionCardProps> = ({
               aria-label={`Edit session on ${formattedDate}`}
             >
               Edit
-            </Button>
+            </DashboardButton>
           )}
           {canDelete && !isLocked && (
-            <Button
+            <DashboardButton
               onClick={onDelete}
               variant="outline"
               size="sm"
@@ -194,7 +194,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
               aria-label={`Cancel session on ${formattedDate}`}
             >
               Cancel
-            </Button>
+            </DashboardButton>
           )}
           {isLocked && (
             <span

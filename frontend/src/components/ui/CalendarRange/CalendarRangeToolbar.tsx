@@ -8,8 +8,8 @@ import {
   getMonthStart,
   getRangeFromPeriodAnchor,
   CALENDAR_PERIOD_OPTIONS,
-} from '@/utils/calendarRangeUtils';
-import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
+} from '@/dashboard/utils/calendarRangeUtils';
+import type { CalendarPeriod } from '@/dashboard/utils/calendarRangeUtils';
 import { useCalendarRangePopover } from './useCalendarRangePopover';
 import { CalendarRangePopoverContent } from './CalendarRangePopoverContent';
 

@@ -53,6 +53,9 @@ final class IntentType
     public const APPLICATION_INFO_REQUESTED = 'application_info_requested';
 
     // Admin
+    public const PARENT_REGISTRATION_ADMIN = 'parent_registration_admin';
+    public const PARENT_REGISTERED = 'parent_registered';
+    public const TRAINER_APPLICATION_RECEIVED = 'trainer_application_received';
     public const NEW_BOOKING = 'new_booking';
     public const PAYMENT_RECEIVED = 'payment_received';
     public const CHILD_APPROVAL_REQUIRED = 'child_approval_required';
@@ -80,6 +83,8 @@ final class IntentType
             self::TRAINER_FORGOT_CLOCK_OUT, self::TRAINER_SESSION_ENDING_SOON, self::TRAINER_SESSION_STARTING_SOON,
             self::APPLICATION_APPROVED, self::APPLICATION_REJECTED,
             self::APPLICATION_INFO_REQUESTED,
+            self::PARENT_REGISTRATION_ADMIN, self::PARENT_REGISTERED,
+            self::TRAINER_APPLICATION_RECEIVED,
             self::NEW_BOOKING, self::PAYMENT_RECEIVED,
             self::CHILD_APPROVAL_REQUIRED, self::SESSION_NEEDS_TRAINER,
             self::SESSION_BOOKED_ADMIN, self::TRAINER_APPLICATION_SUBMITTED,

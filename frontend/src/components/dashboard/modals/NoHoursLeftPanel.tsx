@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { X, CreditCard } from 'lucide-react';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 export interface NoHoursLeftPanelProps {
   isOpen: boolean;

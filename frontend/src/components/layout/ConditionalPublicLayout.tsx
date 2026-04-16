@@ -2,13 +2,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
-import { createPortal } from 'react-dom';
-import Header from '@/components/layout/Header';
+import { SiteHeader } from '@/components/layout/SiteHeader';
 import ToastContainer from '@/components/ui/Toast/ToastContainer';
-import { toastManager, type Toast } from '@/utils/toast';
+import { toastManager, type Toast } from '@/dashboard/utils/toast';
 
 const PUBLIC_MAIN_CLASS =
-  'pb-[48px] bg-white dark:bg-[hsl(240,10%,7%)] text-gray-900 dark:text-gray-100';
+  'bg-white dark:bg-[hsl(240,10%,7%)] text-gray-900 dark:text-gray-100';
 
 /**
  * Renders the public site chrome (Header, main) only when the current
@@ -42,10 +41,7 @@ export default function ConditionalPublicLayout({
 
   return (
     <>
-      {typeof document !== 'undefined'
-        ? createPortal(<Header />, document.body)
-        : <Header />}
-      {/* Header has z-header (1000) so it stays above main and hero; main needs no z-index to stack below. */}
+      <SiteHeader />
       <main className={PUBLIC_MAIN_CLASS}>{children}</main>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </>

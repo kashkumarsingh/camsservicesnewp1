@@ -6,7 +6,7 @@ import { X, Clock } from 'lucide-react';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { trainerTimeEntryRepository } from '@/infrastructure/http/trainer/TrainerTimeEntryRepository';
-import { toastManager } from '@/utils/toast';
+import { toastManager } from '@/dashboard/utils/toast';
 
 interface ScheduleSummary {
   id: number;

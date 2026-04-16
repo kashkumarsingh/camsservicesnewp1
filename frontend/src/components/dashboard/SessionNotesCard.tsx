@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { FileText, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import moment from 'moment';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 /** Number of session notes shown initially before "Show more". */
 const INITIAL_VISIBLE_COUNT = 5;

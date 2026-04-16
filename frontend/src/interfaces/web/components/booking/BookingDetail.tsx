@@ -7,7 +7,7 @@ import {
   VIEW_RECEIPT_LABEL,
   PAYMENT_TYPE_LABEL_PACKAGE,
   PAYMENT_TYPE_LABEL_TOP_UP,
-} from '@/utils/appConstants';
+} from '@/shared/utils/appConstants';
 
 interface BookingDetailProps {
   booking: BookingDTO;

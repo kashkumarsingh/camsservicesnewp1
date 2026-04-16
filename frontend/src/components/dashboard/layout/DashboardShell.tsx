@@ -33,7 +33,7 @@ import {
   AlertCircle,
   XCircle,
 } from "lucide-react";
-import type { IconComponent } from "@/types/icons";
+import type { IconComponent } from "@/shared/types/icons";
 import { useAuth } from "@/interfaces/web/hooks/auth/useAuth";
 import {
   useDashboardNotifications,
@@ -41,20 +41,20 @@ import {
   type NotificationCategory,
 } from "@/interfaces/web/hooks/dashboard/useDashboardNotifications";
 import { useLiveRefresh, useLiveRefreshContext } from "@/core/liveRefresh/LiveRefreshContext";
-import { LIVE_REFRESH_ENABLED } from "@/utils/liveRefreshConstants";
-import { getDashboardRoute, canAccessRoute } from "@/utils/navigation";
-import { ROUTES } from "@/utils/routes";
-import { USER_ROLE, APPROVAL_STATUS } from "@/utils/dashboardConstants";
-import Button from "@/components/ui/Button";
+import { LIVE_REFRESH_ENABLED } from "@/dashboard/utils/liveRefreshConstants";
+import { getDashboardRoute, canAccessRoute } from "@/shared/utils/navigation";
+import { ROUTES } from "@/shared/utils/routes";
+import { USER_ROLE, APPROVAL_STATUS } from "@/dashboard/utils/dashboardConstants";
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import type { User } from "@/core/application/auth/types";
 import { ThemeToggle } from "@/components/theme";
 import ToastContainer from "@/components/ui/Toast/ToastContainer";
 import { BaseSonner, showNotificationToast } from "@/components/ui/Sonner";
 import { DashboardSkeleton, ListRowsSkeleton } from "@/components/ui/Skeleton";
-import { getDashboardSkeletonVariantFromPath } from "@/utils/skeletonManager";
-import { SKELETON_COUNTS } from "@/utils/skeletonConstants";
-import { DASHBOARD_BASE_FONT_SIZE } from "@/utils/appConstants";
-import { toastManager, type Toast } from "@/utils/toast";
+import { getDashboardSkeletonVariantFromPath } from "@/dashboard/utils/skeletonManager";
+import { SKELETON_COUNTS } from "@/shared/utils/skeletonConstants";
+import { DASHBOARD_BASE_FONT_SIZE } from "@/shared/utils/appConstants";
+import { toastManager, type Toast } from "@/dashboard/utils/toast";
 import ParentSettingsModal from "@/components/dashboard/modals/ParentSettingsModal";
 
 type NavItem = {
@@ -107,7 +107,6 @@ const ROLE_SECTIONS: RoleSection[] = [
       { label: "Activities", href: "/dashboard/admin/activities", icon: Activity },
       { label: "Services", href: "/dashboard/admin/services", icon: Briefcase },
       { label: "Packages", href: "/dashboard/admin/packages", icon: Package },
-      { label: "Public pages", href: "/dashboard/admin/public-pages", icon: FileText },
       { label: "Reports", href: "/dashboard/admin/reports", icon: BarChart2 },
       { label: "Settings", href: "/dashboard/admin/settings", icon: Settings },
     ],
@@ -258,9 +257,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                     ? "Services"
                     : pathname.startsWith("/dashboard/admin/packages")
                       ? "Packages"
-                      : pathname.startsWith("/dashboard/admin/public-pages")
-                        ? "Public pages"
-                        : pathname.startsWith("/dashboard/admin/reports")
+                      : pathname.startsWith("/dashboard/admin/reports")
                           ? "Reports"
                           : pathname.startsWith("/dashboard/admin/settings")
                             ? "Settings"
@@ -493,9 +490,9 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                 </p>
               </>
             )}
-            <Button onClick={() => router.push(ROUTES.HOME)} className="w-full rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover sm:w-auto">
+            <DashboardButton onClick={() => router.push(ROUTES.HOME)} className="w-full rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover sm:w-auto">
               Go to Homepage
-            </Button>
+            </DashboardButton>
           </div>
         </div>
       </div>

@@ -7,14 +7,14 @@ import { Activity, Users, Clock, CheckCircle, X, ChevronLeft, ChevronRight, MapP
 import { BookingCalendar } from '@/components/ui/Calendar';
 import { calendarUtils } from '@/components/ui/Calendar/useCalendarGrid';
 import { BookingDTO } from '@/core/application/booking';
-import { isDateBookable, getDateBookingStatus } from '@/utils/bookingCutoffRules';
-import { BOOKING_VALIDATION_MESSAGES, getMessageForDateReason } from '@/utils/bookingValidationMessages';
-import { getChildColor } from '@/utils/childColorUtils';
-import { formatDurationMinutesForDisplay } from '@/utils/activitySelectionUtils';
-import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
-import { getMonthKey } from '@/utils/calendarRangeUtils';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
-import { CALENDAR_GRID_DAY_CELL_CLASSES } from '@/utils/appConstants';
+import { isDateBookable, getDateBookingStatus } from '@/dashboard/utils/bookingCutoffRules';
+import { BOOKING_VALIDATION_MESSAGES, getMessageForDateReason } from '@/dashboard/utils/bookingValidationMessages';
+import { getChildColor } from '@/dashboard/utils/childColorUtils';
+import { formatDurationMinutesForDisplay } from '@/dashboard/utils/activitySelectionUtils';
+import type { CalendarPeriod } from '@/dashboard/utils/calendarRangeUtils';
+import { getMonthKey } from '@/dashboard/utils/calendarRangeUtils';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
+import { CALENDAR_GRID_DAY_CELL_CLASSES } from '@/shared/utils/appConstants';
 
 /** Normalise schedule date to YYYY-MM-DD (handles ISO strings from API). */
 function normaliseScheduleDate(date: string | undefined): string {

@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Metadata } from 'next';
-import { headers } from 'next/headers';
 import { GetBookingUseCase } from '@/core/application/booking/useCases/GetBookingUseCase';
 import { bookingRepository } from '@/infrastructure/persistence/booking';
 import { BookingDetail } from '@/interfaces/web/components/booking';
 import { BookingSummary } from '@/components/booking/BookingSummary';
+import { getPublicSiteUrl } from '@/marketing/lib/public-site-url';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -25,10 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const headersList = await headers();
-  const host = headersList.get('host');
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`;
+  const baseUrl = getPublicSiteUrl();
   const imageUrl = '/og-images/og-image.jpg';
 
   return {
@@ -60,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-import { withTimeoutFallback } from '@/utils/promiseUtils';
+import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
 
 export default async function ThankYouPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

@@ -12,7 +12,7 @@ import type {
   UploadQualificationRequest,
 } from '@/core/application/trainer/types';
 import { TabbedSidePanelContent } from '@/components/ui/TabbedSidePanelContent';
-import { toastManager } from '@/utils/toast';
+import { toastManager } from '@/dashboard/utils/toast';
 
 // ==========================================================================
 // Types

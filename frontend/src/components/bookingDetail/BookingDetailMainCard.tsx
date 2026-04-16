@@ -21,7 +21,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import Card from '@/components/ui/Card/Card';
-import Button from '@/components/ui/Button';
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
 import {
   BOOKING_DETAIL_FINANCIAL,
   BOOKING_DETAIL_SECTIONS,
@@ -29,13 +29,13 @@ import {
   BOOKING_DETAIL_ACTIONS,
 } from './constants';
 import type { BookingDetailMainCardProps } from './bookingDetailTypes';
-import { ROUTES } from '@/utils/routes';
+import { ROUTES } from '@/shared/utils/routes';
 import {
   VIEW_RECEIPT_LABEL,
   PAYMENT_TYPE_LABEL_PACKAGE,
   PAYMENT_TYPE_LABEL_TOP_UP,
-} from '@/utils/appConstants';
-import { formatDateTime } from '@/utils/formatDate';
+} from '@/shared/utils/appConstants';
+import { formatDateTime } from '@/shared/utils/formatDate';
 import type { PaymentDTO } from '@/core/application/payment/dto/PaymentDTO';
 
 function getStatusIcon(status: string): React.ComponentType<{ className?: string }> {
@@ -376,7 +376,7 @@ const BookingDetailMainCard: React.FC<BookingDetailMainCardProps> = ({
               <p className="text-xs text-amber-800 mb-3">
                 {BOOKING_DETAIL_PAYMENT_REFRESH.description}
               </p>
-              <Button
+              <MarketingButton
                 onClick={onRefreshPayment}
                 disabled={refreshing}
                 size="sm"
@@ -386,7 +386,7 @@ const BookingDetailMainCard: React.FC<BookingDetailMainCardProps> = ({
                 {refreshing
                   ? BOOKING_DETAIL_PAYMENT_REFRESH.buttonChecking
                   : BOOKING_DETAIL_PAYMENT_REFRESH.buttonCheck}
-              </Button>
+              </MarketingButton>
               {refreshError && <p className="text-xs text-red-600 mt-2">{refreshError}</p>}
             </div>
           </div>
@@ -398,16 +398,16 @@ const BookingDetailMainCard: React.FC<BookingDetailMainCardProps> = ({
           booking.status !== 'cancelled' &&
           booking.status !== 'canceled' && (
             <Link href={payOutstandingHref} className="flex-1">
-              <Button className="w-full flex items-center justify-center gap-2">
+              <MarketingButton className="w-full flex items-center justify-center gap-2">
                 <CreditCard className="w-4 h-4" />
                 {payOutstandingLabel}
-              </Button>
+              </MarketingButton>
             </Link>
           )}
         <Link href={backToDashboardHref} className="flex-1">
-          <Button variant="outline" className="w-full">
+          <MarketingButton variant="outline" className="w-full">
             {BOOKING_DETAIL_ACTIONS.backToDashboard}
-          </Button>
+          </MarketingButton>
         </Link>
       </div>
     </Card>

@@ -1,22 +1,17 @@
 'use client';
 
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertCircle, CalendarDays, CalendarClock, ChevronRight, ExternalLink, UserCheck, Users, LayoutDashboard, UserPlus, PoundSterling, ClipboardList, UserCog, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/interfaces/web/hooks/auth/useAuth";
 import { Breadcrumbs } from "@/components/dashboard/universal";
-import { ROUTES } from "@/utils/routes";
+import { ROUTES } from "@/shared/utils/routes";
 import { useAdminDashboardStats } from "@/interfaces/web/hooks/dashboard/useAdminDashboardStats";
 import { useAdminBookings } from "@/interfaces/web/hooks/admin/useAdminBookings";
-import { useAdminTrainers } from "@/interfaces/web/hooks/admin/useAdminTrainers";
-import { useLiveRefresh, useLiveRefreshContext } from "@/core/liveRefresh/LiveRefreshContext";
-import { LIVE_REFRESH_ENABLED } from "@/utils/liveRefreshConstants";
-import { apiClient } from "@/infrastructure/http/ApiClient";
-import { API_ENDPOINTS } from "@/infrastructure/http/apiEndpoints";
+import { useLiveRefresh } from "@/core/liveRefresh/LiveRefreshContext";
+import { LIVE_REFRESH_ENABLED } from "@/dashboard/utils/liveRefreshConstants";
 import type { AdminBookingDTO } from "@/core/application/admin/dto/AdminBookingDTO";
-import { getApiErrorMessage } from "@/utils/errorUtils";
-import { ASSIGN_TRAINER_ERROR_FALLBACK } from "@/utils/appConstants";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
 import { UnassignedSessionsModal } from "@/components/dashboard/admin/UnassignedSessionsModal";
 import { PendingPaymentsModal } from "@/components/dashboard/admin/PendingPaymentsModal";
@@ -57,22 +52,6 @@ interface AdminTodaySession {
   completedAt?: string | null;
   /** Trainer-set "doing now" activity name (e.g. "Horse riding"). */
   currentActivityName?: string | null;
-}
-
-/** Format session time for display (HH:MM:SS → HH:MM). */
-function formatSessionTime(t: string): string {
-  return t && t.length >= 5 ? t.slice(0, 5) : t;
-}
-
-/** Format ISO 8601 datetime to HH:MM for clock in/out. */
-function formatClockTime(iso: string | null | undefined): string {
-  if (!iso) return "";
-  try {
-    const d = new Date(iso);
-    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-  } catch {
-    return "";
-  }
 }
 
 function buildAdminTodaySessions(bookings: AdminBookingDTO[], todayStr: string): AdminTodaySession[] {
@@ -146,13 +125,6 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
   const router = useRouter();
   const { user } = useAuth();
   const { stats, loading, error, refetch: refetchStats } = useAdminDashboardStats();
-  const { trainers: trainersForAssign } = useAdminTrainers({ is_active: true, limit: 100 });
-  const [assigningSessionId, setAssigningSessionId] = useState<string | null>(null);
-  const [assignError, setAssignError] = useState<string | null>(null);
-  const [hasInitialLoadCompleted, setHasInitialLoadCompleted] = useState(false);
-  /** "All children" when empty string; otherwise filter Latest activity by this child ID. */
-  const [latestActivityChildFilter, setLatestActivityChildFilter] = useState<string>("");
-  const [showAllLatestActivity, setShowAllLatestActivity] = useState(false);
   /** Dashboard tabs: Overview (default), Schedule, Timesheets, Trainers, Families. Stats merged into Overview. */
   const [activeTab, setActiveTab] = useState<'overview' | 'schedule' | 'timesheets' | 'trainers' | 'families'>('overview');
   /** Modals opened from alert bar */
@@ -166,6 +138,7 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
     focusOnActivity?: boolean;
   } | null>(null);
   const [showTodaySessionsPanel, setShowTodaySessionsPanel] = useState(false);
+  const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
 
   // Local calendar date (YYYY-MM-DD) so "today's sessions" matches the admin's date
   const today = useMemo(() => {
@@ -187,87 +160,17 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
     limit: 200,
   });
 
-  const liveRefreshContext = useLiveRefreshContext();
-
-  // Show skeleton until both stats and today's bookings have finished first load (avoids empty KPIs then data popping in)
-  useEffect(() => {
-    if (hasInitialLoadCompleted) return;
-    if (!loading && !todayBookingsLoading) {
-      setHasInitialLoadCompleted(true);
-    }
-  }, [hasInitialLoadCompleted, loading, todayBookingsLoading]);
-
-  const handleAssignTrainer = useCallback(
-    async (sessionId: string, trainerId: string) => {
-      if (!trainerId) return;
-      setAssignError(null);
-      setAssigningSessionId(sessionId);
-      try {
-        await apiClient.put(
-          API_ENDPOINTS.ADMIN_BOOKING_ASSIGN_TRAINER(sessionId),
-          { trainer_id: trainerId }
-        );
-        liveRefreshContext?.invalidate("notifications");
-        liveRefreshContext?.invalidate("bookings");
-        liveRefreshContext?.invalidate("trainer_schedules");
-        await refetchStats();
-      } catch (err) {
-        setAssignError(getApiErrorMessage(err, ASSIGN_TRAINER_ERROR_FALLBACK));
-      } finally {
-        setAssigningSessionId(null);
-      }
-    },
-    [refetchStats, liveRefreshContext]
-  );
+  const hasInitialLoadCompleted = !loading && !todayBookingsLoading;
 
   const totalBookings = stats?.bookings.total ?? 0;
-  const activeUsers = stats?.users.parentsApproved ?? 0;
-  const activeTrainers = stats?.trainers.active ?? 0;
   const pendingSafeguarding = stats?.alerts.pendingSafeguardingConcerns ?? 0;
   const pendingParentApprovals = stats?.alerts.pendingParentApprovals ?? 0;
-  const pendingChildChecklists = stats?.alerts.pendingChildChecklists ?? 0;
   const pendingTrainerApplications = stats?.alerts.pendingTrainerApplications ?? 0;
-  const sessionsAwaitingTrainer = stats?.alerts.sessionsAwaitingTrainer ?? 0;
-
-  const totalPendingDecisions =
-    (stats?.bookings.pending ?? 0) +
-    pendingParentApprovals +
-    pendingChildChecklists +
-    pendingTrainerApplications +
-    sessionsAwaitingTrainer;
-  const hasSafeguardingRisk = pendingSafeguarding > 0;
-  const hasDecisionWork = totalPendingDecisions > 0;
-  const hasAnyAttention = hasSafeguardingRisk || hasDecisionWork;
 
   const todaySessions = React.useMemo(
     () => buildAdminTodaySessions(todayBookings, today),
     [todayBookings, today],
   );
-
-  /** Unique children from today's bookings (for Latest activity per-child filter). */
-  const uniqueChildrenFromToday = React.useMemo(() => {
-    const seen = new Set<string>();
-    const list: { id: string; name: string }[] = [];
-    todayBookings.forEach((b) => {
-      b.children?.forEach((c) => {
-        if (!seen.has(c.id)) {
-          seen.add(c.id);
-          list.push({ id: c.id, name: c.name });
-        }
-      });
-    });
-    return list.sort((a, b) => a.name.localeCompare(b.name));
-  }, [todayBookings]);
-
-  /** Sessions to show in Latest activity (filtered by child if selected). */
-  const latestActivitySessions = React.useMemo(() => {
-    if (!latestActivityChildFilter) return todaySessions;
-    return todaySessions.filter((s) => s.childIds.includes(latestActivityChildFilter));
-  }, [todaySessions, latestActivityChildFilter]);
-
-  const latestActivityDisplayCount = showAllLatestActivity ? latestActivitySessions.length : 5;
-  const latestActivityToShow = latestActivitySessions.slice(0, latestActivityDisplayCount);
-  const hasMoreLatestActivity = latestActivitySessions.length > 5 && !showAllLatestActivity;
 
   // Centralised live refresh: refetch when backend reports changes so Today's activity
   // (right sidebar In progress / Upcoming), schedule grid, needs attention, and stats stay in sync.
@@ -286,32 +189,6 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
 
   const ongoingSessions = todaySessions.filter((s) => s.isOngoing);
   const upcomingSessions = todaySessions.filter((s) => s.isUpcoming);
-
-  /** Session status stats for dashboard cards and alerts (completion, issues, no-shows). */
-  const sessionStats = React.useMemo(() => {
-    const past = todaySessions.filter((s) => s.isPast);
-    const completed = past.filter((s) => (s.status ?? '').toLowerCase() === 'completed');
-    const noShow = todaySessions.filter((s) => (s.status ?? '').toLowerCase() === 'no_show');
-    const incomplete = past.filter(
-      (s) =>
-        (s.status ?? '').toLowerCase() !== 'completed' &&
-        (s.status ?? '').toLowerCase() !== 'cancelled' &&
-        (s.status ?? '').toLowerCase() !== 'no_show' &&
-        !s.completedAt &&
-        !s.clockedOutAt
-    );
-    const issues = noShow.length + incomplete.length;
-    const completedDenom = completed.length + incomplete.length + noShow.length;
-    const completionRatePct =
-      completedDenom > 0 ? Math.round((completed.length / completedDenom) * 100) : null;
-    return {
-      completedToday: completed.length,
-      incompleteToday: incomplete.length,
-      noShowToday: noShow.length,
-      issuesCount: issues,
-      completionRatePct,
-    };
-  }, [todaySessions]);
 
   /** Open the pending-decisions list modal so the admin can choose which category to act on. */
   const handleReviewNeedsAttention = useCallback(() => {
@@ -446,30 +323,57 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
         ]}
       />
 
-      {/* Tabs: Overview (default), Schedule, Timesheets, Trainers, Families – Google Calendar–style */}
-      <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
-        {[
+      {/* Tabs: Overview (default), Schedule, Timesheets, Trainers, Families – dropdown on small screens */}
+      {(() => {
+        const tabList = [
           { id: 'overview' as const, label: 'Overview', icon: LayoutDashboard },
           { id: 'schedule' as const, label: 'Schedule', icon: CalendarDays },
           { id: 'timesheets' as const, label: 'Timesheets', icon: CalendarClock },
           { id: 'trainers' as const, label: 'Trainers', icon: UserCheck },
           { id: 'families' as const, label: 'Families', icon: Users },
-        ].map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => setActiveTab(id)}
-            className={`flex items-center gap-2 shrink-0 border-b-2 px-4 py-3 text-sm font-medium transition-colors duration-150 ${
-              activeTab === id
-                ? 'border-gcal-primary text-gcal-primary dark:text-gcal-primary'
-                : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
-            }`}
-          >
-            <Icon className="h-4 w-4 shrink-0" aria-hidden />
-            {label}
-          </button>
-        ))}
-      </div>
+        ];
+        return (
+          <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700">
+            {/* Small screens: dropdown */}
+            <div className="md:hidden w-full py-2">
+              <label htmlFor="admin-overview-tab-select" className="sr-only">
+                Select tab
+              </label>
+              <select
+                id="admin-overview-tab-select"
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value as typeof activeTab)}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary-blue focus:border-primary-blue"
+                aria-label="Overview tab"
+              >
+                {tabList.map(({ id, label }) => (
+                  <option key={id} value={id}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {/* md+: horizontal tabs */}
+            <div className="hidden md:flex gap-1 overflow-x-auto">
+              {tabList.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setActiveTab(id)}
+                  className={`flex items-center gap-2 shrink-0 border-b-2 px-4 py-3 text-sm font-medium transition-colors duration-150 ${
+                    activeTab === id
+                      ? 'border-gcal-primary text-gcal-primary dark:text-gcal-primary'
+                      : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
+                  }`}
+                >
+                  <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {(error || todayBookingsError) && (
         <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200" role="alert">
@@ -680,6 +584,8 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
               onViewSession={(sessionId, bookingId, options) =>
                 setSessionPanel({ sessionId, bookingId, focusOnActivity: options?.focusOnActivity })
               }
+              isCollapsed={rightSidebarCollapsed}
+              onToggleCollapse={() => setRightSidebarCollapsed((prev) => !prev)}
             />
           </div>
         </>

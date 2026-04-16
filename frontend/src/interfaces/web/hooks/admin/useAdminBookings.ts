@@ -13,8 +13,8 @@ import { useDashboardSyncEnabled } from '@/core/dashboardSync/DashboardSyncConte
 import { dashboardSyncStore } from '@/core/dashboardSync/dashboardSyncStore';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
-import { getApiErrorMessage } from '@/utils/errorUtils';
-import { ASSIGN_TRAINER_ERROR_FALLBACK } from '@/utils/appConstants';
+import { getApiErrorMessage } from '@/shared/utils/errorUtils';
+import { ASSIGN_TRAINER_ERROR_FALLBACK } from '@/shared/utils/appConstants';
 import type { BookingTopUpApiResponse } from '@/core/application/booking/dto/BookingTopUpApiResponse';
 import type {
   AdminBookingDTO,

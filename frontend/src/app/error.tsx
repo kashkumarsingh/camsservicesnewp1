@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import Button from '@/components/ui/Button/Button';
-
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
 interface ErrorProps {
   error: Error & { digest?: string };
   reset: () => void;
@@ -37,15 +36,15 @@ export default function Error({ error, reset }: ErrorProps) {
           </details>
         )}
         <div className="flex gap-4 justify-center">
-          <Button onClick={reset} variant="primary">
+          <MarketingButton onClick={reset} variant="primary">
             Try Again
-          </Button>
-          <Button
+          </MarketingButton>
+          <MarketingButton
             onClick={() => (window.location.href = '/')}
             variant="secondary"
           >
             Go Home
-          </Button>
+          </MarketingButton>
         </div>
       </div>
     </div>

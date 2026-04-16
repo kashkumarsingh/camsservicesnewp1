@@ -1,4 +1,4 @@
-import { FAQItem } from '@/components/features/faq/FAQAccordion';
+import { FAQItem } from '@/marketing/components/features/faq/FAQAccordion';
 
 /**
  * Booking-specific FAQs

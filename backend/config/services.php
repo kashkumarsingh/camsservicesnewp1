@@ -65,6 +65,30 @@ return [
 
     'admin_notification_email' => env('ADMIN_NOTIFICATION_EMAIL'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Google Maps Embed API (optional)
+    |--------------------------------------------------------------------------
+    |
+    | When set, and site settings have map_place_id or map_address (and no
+    | map_embed_url), the contact page map uses Maps Embed API. Otherwise
+    | the classic iframe embed URL (map_embed_url) is used.
+    |
+    */
+    'google_maps_embed' => [
+        'api_key' => env('GOOGLE_MAPS_EMBED_API_KEY'),
+    ],
+
+    'pexels' => [
+        'api_key' => env('PEXELS_API_KEY'),
+        'base_uri' => env('PEXELS_BASE_URI', 'https://api.pexels.com'),
+    ],
+
+    'unsplash' => [
+        'access_key' => env('UNSPLASH_ACCESS_KEY'),
+        'base_uri' => env('UNSPLASH_BASE_URI', 'https://api.unsplash.com'),
+    ],
+
 ];
 
 

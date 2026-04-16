@@ -13,7 +13,7 @@ import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { PackageDTO, PackageRecommendation } from '@/core/application/packages';
-import { renderHtml } from '@/utils/htmlRenderer';
+import { renderHtml } from '@/shared/utils/htmlRenderer';
 
 interface PackageCardProps {
   package: PackageDTO;

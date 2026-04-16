@@ -20,9 +20,25 @@ export interface ReviewProviderSummary {
   averageRating?: number | null;
 }
 
+/** Single external review as returned by the aggregate endpoint. */
+export interface ExternalReviewAggregateItem {
+  id: string;
+  providerReviewId?: string | null;
+  authorName: string;
+  authorAvatarUrl?: string | null;
+  rating?: number | null;
+  content?: string | null;
+  language?: string | null;
+  countryCode?: string | null;
+  publishedAt?: string | null;
+  permalink?: string | null;
+  provider?: string | null;
+  providerDisplayName?: string | null;
+}
+
 export interface ReviewAggregateResult {
-  testimonials: any[];
-  externalReviews: any[];
+  testimonials: unknown[];
+  externalReviews: ExternalReviewAggregateItem[];
   providerSummaries: ReviewProviderSummary[];
 }
 

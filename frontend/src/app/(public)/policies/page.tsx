@@ -1,12 +1,14 @@
-import Section from '@/components/layout/Section';
+import { PoliciesIndexPageView } from '@/marketing/components/policies/PoliciesIndexPageView';
 import { ListPoliciesUseCase } from '@/core/application/pages/useCases/ListPoliciesUseCase';
+import { GetPageUseCase } from '@/core/application/pages/useCases/GetPageUseCase';
+import { PageMapper } from '@/core/application/pages/mappers/PageMapper';
 import { pageRepository } from '@/infrastructure/persistence/pages';
+import { StaticPageRepository } from '@/infrastructure/persistence/pages/repositories/StaticPageRepository';
+import type { PoliciesPageContentDTO, PageDTO } from '@/core/application/pages/dto/PageDTO';
 import { Metadata } from 'next';
-import Link from 'next/link';
-import { withTimeoutFallback } from '@/utils/promiseUtils';
-import { FileText } from 'lucide-react';
-import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
-import { ROUTES } from '@/utils/routes';
+import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
+import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
+import { ROUTES } from '@/shared/utils/routes';
 import { POLICIES_PAGE } from '@/app/(public)/constants/policiesPageConstants';
 
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
@@ -14,9 +16,22 @@ export const revalidate = 1800;
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
 
+const POLICIES_SLUG = 'policies';
+
 async function getPolicies() {
   const useCase = new ListPoliciesUseCase(pageRepository);
-  return withTimeoutFallback(useCase.execute(), 5000, []);
+  const policies = await withTimeoutFallback(useCase.execute(), 5000, []);
+  return policies.map((page) => PageMapper.toDTO(page));
+}
+
+async function getPoliciesPage(): Promise<
+  PageDTO | Awaited<ReturnType<StaticPageRepository['findBySlug']>> | null
+> {
+  const useCase = new GetPageUseCase(pageRepository);
+  const page = await withTimeoutFallback(useCase.execute(POLICIES_SLUG), 5000, null);
+  if (page) return page;
+  const staticRepo = new StaticPageRepository();
+  return staticRepo.findBySlug(POLICIES_SLUG);
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -32,60 +47,36 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PoliciesIndexPage() {
-  const policies = await getPolicies();
+  const [policies, page] = await Promise.all([
+    getPolicies(),
+    getPoliciesPage(),
+  ]);
+
+  const structuredContent: PoliciesPageContentDTO | undefined =
+    page && 'structuredContent' in page
+      ? (page as { structuredContent?: PoliciesPageContentDTO }).structuredContent
+      : undefined;
+
+  const heroTitle =
+    structuredContent?.hero?.title ?? POLICIES_PAGE.FALLBACK_HERO_TITLE;
+  const heroSubtitle =
+    structuredContent?.hero?.subtitle ?? POLICIES_PAGE.FALLBACK_HERO_SUBTITLE;
+  const introHeading = structuredContent?.intro?.heading ?? POLICIES_PAGE.DEFAULT_INTRO_HEADING;
+  const introBody = structuredContent?.intro?.body ?? POLICIES_PAGE.DEFAULT_INTRO_BODY;
 
   return (
-    <div>
-      <Section className="relative pt-20 pb-16 px-4 sm:px-6 lg:px-8 text-white overflow-hidden bg-gradient-to-br from-primary-blue to-navy-blue">
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: "url('/svgs/geometric-pattern.svg')",
-            backgroundRepeat: 'repeat',
-          }}
-        />
-        <div className="relative max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-heading font-extrabold leading-tight tracking-tight">
-            {POLICIES_PAGE.HERO_TITLE}
-          </h1>
-          <p className="mt-6 text-lg md:text-xl max-w-2xl mx-auto font-sans font-light text-white/90">
-            {POLICIES_PAGE.HERO_SUBTITLE}
-          </p>
-        </div>
-      </Section>
-
-      <div className="py-20 bg-gradient-to-br from-blue-50 to-white">
-        <Section>
-          <div className="max-w-2xl mx-auto">
-            {policies.length > 0 ? (
-              <ul className="space-y-3">
-                {policies.map((policy) => (
-                  <li key={policy.id}>
-                    <Link
-                      href={ROUTES.POLICIES_BY_SLUG(policy.slug)}
-                      className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary-blue/20 bg-white hover:border-primary-blue/30 hover:shadow-card transition-all text-navy-blue font-medium"
-                    >
-                      <FileText className="h-5 w-5 text-primary-blue flex-shrink-0" />
-                      <span>{policy.title}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="rounded-xl border-2 border-primary-blue/20 bg-white p-8 text-center text-navy-blue/80">
-                <p className="mb-4">{POLICIES_PAGE.EMPTY_MESSAGE}</p>
-                <p className="text-sm">
-                  {POLICIES_PAGE.EMPTY_CONTACT}{' '}
-                  <a href={POLICIES_PAGE.CONTACT_EMAIL_MAILTO} className="text-primary-blue hover:underline">
-                    {POLICIES_PAGE.CONTACT_EMAIL}
-                  </a>{' '}
-                  {POLICIES_PAGE.EMPTY_CONTACT_SUFFIX}
-                </p>
-              </div>
-            )}
-          </div>
-        </Section>
-      </div>
-    </div>
+    <PoliciesIndexPageView
+      policies={policies}
+      heroTitle={heroTitle}
+      heroSubtitle={heroSubtitle}
+      introHeading={introHeading}
+      introBody={introBody}
+      policiesBySlug={ROUTES.POLICIES_BY_SLUG}
+      emptyMessage={POLICIES_PAGE.EMPTY_MESSAGE}
+      emptyContact={POLICIES_PAGE.EMPTY_CONTACT}
+      emptyContactSuffix={POLICIES_PAGE.EMPTY_CONTACT_SUFFIX}
+      contactMailTo={POLICIES_PAGE.CONTACT_EMAIL_MAILTO}
+      contactEmail={POLICIES_PAGE.CONTACT_EMAIL}
+    />
   );
 }

@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { trainerScheduleRepository } from '@/infrastructure/http/trainer/TrainerScheduleRepository';
 import type { TrainerNote, CreateNoteRequest } from '@/core/application/trainer/types';
 import { Plus, FileText, AlertCircle, MessageSquare, CheckCircle, Lock } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { EmptyState } from '@/components/dashboard/universal/EmptyState';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface NotesSectionProps {
   scheduleId: number;
@@ -115,14 +115,14 @@ export default function NotesSection({ scheduleId }: NotesSectionProps) {
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold text-gray-900">Notes</h3>
-        <Button
+        <DashboardButton
           onClick={() => setShowAddForm(!showAddForm)}
           variant="outline"
           className="flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
           Add Note
-        </Button>
+        </DashboardButton>
       </div>
 
       {error && (
@@ -174,15 +174,15 @@ export default function NotesSection({ scheduleId }: NotesSectionProps) {
             </label>
           </div>
           <div className="flex items-center gap-2">
-            <Button onClick={handleAddNote} disabled={saving || !newNote.note.trim()}>
+            <DashboardButton onClick={handleAddNote} disabled={saving || !newNote.note.trim()}>
               {saving ? 'Saving...' : 'Save Note'}
-            </Button>
-            <Button onClick={() => {
+            </DashboardButton>
+            <DashboardButton onClick={() => {
               setShowAddForm(false);
               setNewNote({ note: '', type: 'general', is_private: false });
             }} variant="outline" disabled={saving}>
               Cancel
-            </Button>
+            </DashboardButton>
           </div>
         </div>
       )}

@@ -1,7 +1,6 @@
 'use client';
 
 import React from "react";
-import Link from "next/link";
 
 export const EditorDashboardPageClient: React.FC = () => {
   return (
@@ -21,16 +20,8 @@ export const EditorDashboardPageClient: React.FC = () => {
             Public pages
           </h2>
           <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-            Create, edit and publish marketing pages (home, about, policies and more).
+            Public pages are maintained in the admin dashboard. Editor access is not enabled.
           </p>
-          <div className="mt-3">
-            <Link
-              href="/dashboard/admin/public-pages"
-              className="inline-flex items-center rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-slate-800 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200"
-            >
-              Open public pages editor
-            </Link>
-          </div>
         </div>
 
         <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-slate-700 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-200">

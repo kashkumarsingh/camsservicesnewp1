@@ -4,7 +4,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { Calendar, Clock, Activity, AlertCircle, X } from 'lucide-react';
 import moment from 'moment';
 import type { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
-import { LOCAL_STORAGE_KEYS, getLocalStorageItem, setLocalStorageItem } from '@/utils/localStorageConstants';
+import { LOCAL_STORAGE_KEYS, getLocalStorageItem, setLocalStorageItem } from '@/dashboard/utils/localStorageConstants';
 
 interface TodaysActivitiesProps {
   bookings: BookingDTO[];

@@ -1,6 +1,6 @@
 #!/bin/bash
 # TypeScript Type Checking & Next.js Build Validation
-# Run this locally before deploying to Render to catch type errors
+# Run this locally before deploying (Vercel frontend / Railway backend) to catch type errors
 
 set -o pipefail
 
@@ -102,7 +102,7 @@ else
     echo -e "${RED}Type Errors Found:${NC}"
     echo "$TYPE_CHECK_OUTPUT" | grep -E "error TS|Found [0-9]+ error" || echo "$TYPE_CHECK_OUTPUT"
     echo ""
-    print_info "Fix the errors above before deploying to Render"
+    print_info "Fix the errors above before deploying."
     ((ERRORS++))
 fi
 
@@ -186,19 +186,19 @@ if [ $ERRORS -eq 0 ]; then
     print_info "✅ TypeScript type checking: PASSED"
     print_info "✅ Next.js build type checking: PASSED"
     echo ""
-    print_info "Ready to deploy to Render - no type errors will occur during build."
+    print_info "Ready to deploy - no type errors will occur during build."
     echo ""
     print_info "Next steps:"
     echo "  1. Commit your changes: git add . && git commit -m 'fix: resolve type errors'"
     echo "  2. Push to your repository: git push"
-    echo "  3. Render will automatically build and deploy"
+    echo "  3. Trigger your Vercel/Railway deployment"
     exit 0
 else
     print_error "Type checking failed with $ERRORS error(s)"
     echo ""
-    print_info "Fix the type errors above before deploying to Render."
+    print_info "Fix the type errors above before deploying."
     echo ""
-    print_info "These errors will cause the build to fail on Render."
+    print_info "These errors will cause CI/CD build failures."
     echo ""
     print_info "Quick fixes:"
     echo "  • Run type checking: npm run typecheck"

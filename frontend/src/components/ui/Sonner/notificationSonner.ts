@@ -5,7 +5,7 @@
  */
 
 import { toast } from 'sonner';
-import { SONNER_TOAST_DURATION_MS, NOTIFICATION_TOAST_VIEW_LABEL } from '@/utils/appConstants';
+import { SONNER_TOAST_DURATION_MS, NOTIFICATION_TOAST_VIEW_LABEL } from '@/shared/utils/appConstants';
 
 export interface NotificationToastPayload {
   title: string;

@@ -11,8 +11,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, Clock, Eye, User } from 'lucide-react';
 import { BlogPostDTO } from '@/core/application/blog';
-import { formatDate } from '@/utils/formatDate';
-import { DATE_FORMAT_LONG } from '@/utils/appConstants';
+import { formatDate } from '@/shared/utils/formatDate';
+import { DATE_FORMAT_LONG } from '@/shared/utils/appConstants';
 
 interface BlogPostCardProps {
   post: BlogPostDTO;

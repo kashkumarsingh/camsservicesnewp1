@@ -3,8 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { X, AlertCircle, UserPlus, ClipboardList } from 'lucide-react';
-import { BOOKING_VALIDATION_MESSAGES } from '@/utils/bookingValidationMessages';
-import { ROUTES } from '@/utils/routes';
+import { BOOKING_VALIDATION_MESSAGES } from '@/dashboard/utils/bookingValidationMessages';
+import { ROUTES } from '@/shared/utils/routes';
 
 export interface NoApprovedChildrenPanelProps {
   isOpen: boolean;

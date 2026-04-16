@@ -2,20 +2,20 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { Breadcrumbs, EmptyState } from '@/components/dashboard/universal';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 import { useMyBookings } from '@/interfaces/web/hooks/booking/useMyBookings';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
-import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { LIVE_REFRESH_ENABLED } from '@/dashboard/utils/liveRefreshConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 import { UserPlus, CheckCircle, Clock, XCircle, Trash2, Calendar, Package, TrendingUp, ClipboardCheck, PlusCircle } from 'lucide-react';
 import AddChildModal from '@/components/dashboard/modals/AddChildModal';
 import CompleteChecklistModal, { type ChecklistFormData } from '@/components/dashboard/modals/CompleteChecklistModal';
 import TopUpModal from '@/components/dashboard/modals/TopUpModal';
-import { toastManager } from '@/utils/toast';
+import { toastManager } from '@/dashboard/utils/toast';
 import ToastContainer from '@/components/ui/Toast/ToastContainer';
-import type { Toast } from '@/utils/toast';
+import type { Toast } from '@/dashboard/utils/toast';
 import { childrenRepository } from '@/infrastructure/http/children/ChildrenRepository';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
@@ -311,7 +311,7 @@ export default function ParentChildrenPageClient() {
     const canUpdateChecklist = child.approvalStatus === 'pending' && child.hasChecklist === true && child.checklistCompleted !== true;
     if (needsChecklist || canUpdateChecklist) {
       actions.push(
-        <Button
+        <DashboardButton
           key="checklist"
           size="sm"
           variant="primary"
@@ -319,13 +319,13 @@ export default function ParentChildrenPageClient() {
           onClick={() => handleCompleteChecklist(child.id)}
         >
           {needsChecklist ? 'Complete checklist' : 'Update checklist'}
-        </Button>
+        </DashboardButton>
       );
     }
 
     // View progress (always available)
     actions.push(
-      <Button
+      <DashboardButton
         key="progress"
         size="sm"
         variant="bordered"
@@ -333,7 +333,7 @@ export default function ParentChildrenPageClient() {
         onClick={() => router.push('/dashboard/parent/progress')}
       >
         Progress
-      </Button>
+      </DashboardButton>
     );
 
     // Buy package / Top up (only if approved): "Top up" when child has a package (add more hours); "Buy package" when no package. 0h left opens modal; else go to dashboard.
@@ -343,7 +343,7 @@ export default function ParentChildrenPageClient() {
       const needsTopUp = hasActivePackage && summary.remainingHours <= 0;
       const label = hasActivePackage ? 'Top up' : 'Buy package';
       actions.push(
-        <Button
+        <DashboardButton
           key="buy"
           size="sm"
           variant="bordered"
@@ -353,14 +353,14 @@ export default function ParentChildrenPageClient() {
           }
         >
           {label}
-        </Button>
+        </DashboardButton>
       );
     }
 
     // Book session (only if approved)
     if (child.approvalStatus === 'approved') {
       actions.push(
-        <Button
+        <DashboardButton
           key="book"
           size="sm"
           variant="primary"
@@ -368,7 +368,7 @@ export default function ParentChildrenPageClient() {
           onClick={() => router.push(`/dashboard/parent?bookChildId=${child.id}`)}
         >
           Book session
-        </Button>
+        </DashboardButton>
       );
     }
 
@@ -407,7 +407,7 @@ export default function ParentChildrenPageClient() {
               Review and manage all children linked to this parent account.
             </p>
           </div>
-          <Button
+          <DashboardButton
             size="sm"
             variant="primary"
             icon={<UserPlus size={14} />}
@@ -415,7 +415,7 @@ export default function ParentChildrenPageClient() {
             className="w-full sm:w-auto"
           >
             Add child
-          </Button>
+          </DashboardButton>
         </div>
       </header>
 
@@ -424,14 +424,14 @@ export default function ParentChildrenPageClient() {
           title={EMPTY_STATE.NO_CHILDREN_LINKED_YET.title}
           message={EMPTY_STATE.NO_CHILDREN_LINKED_YET.message}
           action={
-            <Button
+            <DashboardButton
               size="sm"
               variant="primary"
               icon={<UserPlus size={14} />}
               onClick={() => setShowAddChildModal(true)}
             >
               Add child
-            </Button>
+            </DashboardButton>
           }
         />
       ) : (

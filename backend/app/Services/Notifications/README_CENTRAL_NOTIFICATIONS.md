@@ -82,11 +82,11 @@ $dispatcher->dispatch(NotificationIntentFactory::trainerAssignedToParent($schedu
 
 ## Migration from legacy code
 
-- **Listeners** – Prefer dispatching an intent from the factory instead of calling `EmailNotificationService` or `DashboardNotificationService` directly. Already migrated: booking confirmation, admin new booking, payment confirmation, admin payment received, booking cancellation, payment failed, trainer session booked, admin session booked.
-- **Controllers** – Replace direct `EmailNotificationService` / `DashboardNotificationService` calls with `INotificationDispatcher::dispatch(NotificationIntentFactory::...)`. Already migrated: TrainerScheduleController (session confirmed), TrainerAbsenceRequestController.
+- **Listeners** – Prefer dispatching an intent from the factory instead of calling `EmailNotificationService` or `DashboardNotificationService` directly. Already migrated: booking confirmation, admin new booking, payment confirmation, admin payment received, booking cancellation, payment failed, trainer session booked, admin session booked, **activity confirmation** (SendActivityConfirmationNotification).
+- **Controllers** – Replace direct `EmailNotificationService` / `DashboardNotificationService` / `Notification::route()` with `INotificationDispatcher::dispatch(NotificationIntentFactory::...)`. Already migrated: TrainerScheduleController (session confirmed), TrainerAbsenceRequestController, **AuthController** (parent registration → parent + admin), **TrainerApplicationController** (application received → applicant).
 - **Jobs** – Replace ad-hoc Notification/Mail/WhatsApp logic with a single `dispatch(NotificationIntentFactory::...)`. Already migrated: SendContactSubmissionNotifications.
-- **Scheduled jobs** – SendSessionTodayNotifications, SendSessionReminders, SendDraftBookingReminders, SendPaymentReminders can be migrated to build intents (e.g. sessionToday, sessionReminder24h, draftBookingReminder, paymentReminder) and dispatch them; the dispatcher then handles dedupe and channels.
+- **Scheduled jobs** – SendSessionTodayNotifications, SendSessionReminders, SendDraftBookingReminders, SendPaymentReminders use the dispatcher.
 
 ## Legacy EmailNotificationService
 
-`EmailNotificationService` / `LaravelEmailNotificationService` remain for flows that are not yet migrated (e.g. activity confirmation with compound subject, or child/user approval Mailables). New code should use the dispatcher; existing call sites can be moved over incrementally.
+`EmailNotificationService` / `LaravelEmailNotificationService` remain only for test commands (e.g. TestAllNotifications) and any one-off flows not yet migrated. New code must use the dispatcher; feature code must not call `Notification::route()`, `Mail::to()`, or the legacy service directly.

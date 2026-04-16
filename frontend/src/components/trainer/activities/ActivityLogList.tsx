@@ -3,9 +3,9 @@
 import React from 'react';
 import type { ActivityLog } from '@/core/application/trainer/types';
 import { Calendar, Clock, User, CheckCircle, AlertCircle, Image as ImageIcon, Award } from 'lucide-react';
-import { getTrainerChildDisplayName } from '@/utils/trainerPrivacy';
+import { getTrainerChildDisplayName } from '@/dashboard/utils/trainerPrivacy';
 import { EmptyState } from '@/components/dashboard/universal/EmptyState';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface ActivityLogListProps {
   logs: ActivityLog[];

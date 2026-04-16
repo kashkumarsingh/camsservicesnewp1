@@ -45,6 +45,8 @@ interface AdminDashboardRightSidebarProps {
   };
   /** When provided, "View" opens the session detail side panel. Options.focusOnActivity scrolls to Timeline. */
   onViewSession?: (sessionId: string, bookingId: string, options?: { focusOnActivity?: boolean }) => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 function formatTime(t: string): string {
@@ -64,6 +66,8 @@ export function AdminDashboardRightSidebar({
     revenueThisMonth: null,
   },
   onViewSession,
+  isCollapsed = false,
+  onToggleCollapse,
 }: AdminDashboardRightSidebarProps) {
   const router = useRouter();
   const needsAttentionCount = (unassignedCount ?? 0) + (pendingPaymentsCount ?? 0) + (zeroHoursCount ?? 0);
@@ -92,6 +96,18 @@ export function AdminDashboardRightSidebar({
       className="w-full shrink-0 space-y-4 lg:w-72 xl:w-80"
       aria-label="Today's activity, needs attention, and quick stats"
     >
+      {onToggleCollapse && (
+        <button
+          type="button"
+          onClick={onToggleCollapse}
+          className="inline-flex items-center gap-2 self-start rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+          aria-expanded={!isCollapsed}
+        >
+          {isCollapsed ? 'Show sidebar' : 'Hide sidebar'}
+        </button>
+      )}
+      {isCollapsed ? null : (
+        <>
       <div className={cardBase}>
         <h2 className="mb-3 text-base font-semibold text-slate-900 dark:text-slate-100">
           Today&apos;s activity
@@ -328,6 +344,8 @@ export function AdminDashboardRightSidebar({
           <ChevronRight className="h-3.5 w-3.5" aria-hidden />
         </Link>
       </div>
+        </>
+      )}
     </aside>
   );
 }

@@ -24,11 +24,30 @@ class SiteSettingsController extends Controller
     }
 
     /**
-     * Format site settings for API response (camelCase).
-     *
-     * @param \App\Models\SiteSetting $settings
-     * @return array
+     * Resolve map embed URL: classic (map_embed_url) or Maps Embed API (key + place_id/address).
+     * Requires migration adding map_place_id, map_address to site_settings when using Embed API.
      */
+    private function resolveMapEmbedUrl(\App\Models\SiteSetting $settings): ?string
+    {
+        if (! empty($settings->map_embed_url)) {
+            return $settings->map_embed_url;
+        }
+        $apiKey = config('services.google_maps_embed.api_key');
+        $placeId = $settings->map_place_id ?? null;
+        $address = $settings->map_address ?? null;
+        if (empty($apiKey) || (empty($placeId) && empty($address))) {
+            return null;
+        }
+        $q = $placeId
+            ? 'place_id:' . $placeId
+            : rawurlencode((string) $address);
+
+        return 'https://www.google.com/maps/embed/v1/place?key='
+            . urlencode($apiKey)
+            . '&q='
+            . $q;
+    }
+
     private function formatSettingsResponse(\App\Models\SiteSetting $settings): array
     {
         return [
@@ -39,7 +58,7 @@ class SiteSettingsController extends Controller
                 'address' => $settings->address,
                 'fullAddress' => $settings->full_address,
                 'whatsappUrl' => $settings->whatsapp_url,
-                'mapEmbedUrl' => $settings->map_embed_url,
+                'mapEmbedUrl' => $this->resolveMapEmbedUrl($settings),
             ],
             'social' => [
                 'links' => $settings->social_links ?? [],

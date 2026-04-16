@@ -20,17 +20,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { User, Package, CheckCircle2, AlertCircle, Lock, Loader2, ArrowLeft, XCircle } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
 import PaymentForm from '@/components/booking/payment/PaymentForm';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 import { childrenRepository } from '@/infrastructure/http/children/ChildrenRepository';
 import type { Child } from '@/core/application/auth/types';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
-import { formatCurrency } from '@/utils/currencyFormatter';
+import { formatCurrency } from '@/shared/utils/currencyFormatter';
 import type { PaymentMethod, PaymentStatus } from '@/infrastructure/services/payment';
 import { parentProfileRepository } from '@/infrastructure/http/parent/ParentProfileRepository';
-import { ROUTES } from '@/utils/routes';
+import { ROUTES } from '@/shared/utils/routes';
 
 interface PackageCheckoutProps {
   packageName: string;

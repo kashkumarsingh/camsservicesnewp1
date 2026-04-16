@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Users, ChevronDown } from 'lucide-react';
-import { getChildColor } from '@/utils/childColorUtils';
+import { getChildColor } from '@/dashboard/utils/childColorUtils';
 
 export interface ChildFilterItem {
   id: number;

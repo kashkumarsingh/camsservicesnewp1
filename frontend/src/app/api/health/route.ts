@@ -11,6 +11,20 @@ import { NextResponse } from 'next/server';
 import { getApiBaseUrl } from '@/infrastructure/http/apiBaseUrl';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'Unknown error';
+}
+
+function getErrorStatus(error: unknown): number | undefined {
+  if (typeof error === 'object' && error !== null && 'response' in error) {
+    const response = (error as { response?: { status?: unknown } }).response;
+    if (response && typeof response.status === 'number') {
+      return response.status;
+    }
+  }
+  return undefined;
+}
+
 export async function GET() {
   try {
     const baseURL = getApiBaseUrl({ serverSide: true });
@@ -20,15 +34,15 @@ export async function GET() {
     let apiResponse = null;
     
     try {
-      const response = await apiClient.get('/api/packages');
+      await apiClient.get('/api/packages');
       apiStatus = 'connected';
       apiResponse = { success: true, data: 'API is reachable' };
-    } catch (error: any) {
+    } catch (error: unknown) {
       apiStatus = 'error';
       apiResponse = {
         success: false,
-        error: error.message || 'Unknown error',
-        status: error.response?.status,
+        error: getErrorMessage(error),
+        status: getErrorStatus(error),
       };
     }
 
@@ -43,11 +57,11 @@ export async function GET() {
       },
       version: '1.0.0',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
       {
         status: 'error',
-        message: error.message || 'Health check failed',
+        message: getErrorMessage(error),
         timestamp: new Date().toISOString(),
       },
       { status: 500 }

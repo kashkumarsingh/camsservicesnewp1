@@ -13,11 +13,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
-use App\Notifications\ParentRegisteredNotification;
-use App\Notifications\AdminParentRegistrationNotification;
+use App\Contracts\Notifications\INotificationDispatcher;
+use App\Services\Notifications\NotificationIntentFactory;
 
 /**
  * Auth Controller (Interface Layer)
@@ -76,17 +75,10 @@ class AuthController extends Controller
                 $user->refresh();
 
                 // Parent registration: do not issue a token. They can sign in only after admin approval.
-                // Notify parent and admins (queued). If ADMIN_NOTIFICATION_EMAIL is set, only that inbox gets the alert (avoids duplicate emails when multiple admin accounts exist).
-                $user->notify(new ParentRegisteredNotification($user));
-                $adminQuery = User::whereIn('role', ['admin', 'super_admin']);
-                $singleAdminEmail = config('services.admin_notification_email');
-                if ($singleAdminEmail) {
-                    $adminQuery->where('email', $singleAdminEmail);
-                }
-                $admins = $adminQuery->get();
-                foreach ($admins as $admin) {
-                    $admin->notify(new AdminParentRegistrationNotification($user));
-                }
+                // Notify parent and admin via central dispatcher (dedupe, rate limit, audit).
+                $dispatcher = app(INotificationDispatcher::class);
+                $dispatcher->dispatch(NotificationIntentFactory::parentRegistered($user));
+                $dispatcher->dispatch(NotificationIntentFactory::parentRegistrationToAdmin($user));
 
                 return $this->successResponse(
                     [

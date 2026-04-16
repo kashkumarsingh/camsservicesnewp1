@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ContactSubmissionController;
 use App\Http\Controllers\Api\NewsletterSubscriptionController;
+use App\Http\Controllers\Api\ReferralSubmissionController;
 use App\Http\Controllers\Api\TrainerApplicationController;
 use App\Support\ApiResponseHelper;
 use Illuminate\Http\Request;
@@ -111,6 +112,12 @@ Route::prefix('v1')->group(function () {
         Route::middleware('admin')->group(function () {
             // Admin dashboard stats
             Route::get('admin/dashboard/stats', \App\Http\Controllers\Api\AdminDashboardStatsController::class);
+            // Admin reports compatibility endpoints (keeps reports page stable across API refactors)
+            Route::get('admin/reports/revenue', [\App\Http\Controllers\Api\AdminReportsController::class, 'revenue']);
+            Route::get('admin/sessions', [\App\Http\Controllers\Api\AdminReportsController::class, 'sessions']);
+            Route::get('admin/audit-logs', [\App\Http\Controllers\Api\AdminReportsController::class, 'auditLogs']);
+            // Admin global quick search (if 404: run ./scripts/clear-cache-backend-docker.sh)
+            Route::get('admin/search', [\App\Http\Controllers\Api\AdminSearchController::class, 'index']);
 
             // Admin users (full CRUD + approve/reject)
             Route::apiResource('admin/users', \App\Http\Controllers\Api\AdminUserController::class);
@@ -168,7 +175,8 @@ Route::prefix('v1')->group(function () {
             // Admin packages (full CRUD)
             Route::apiResource('admin/packages', \App\Http\Controllers\Api\AdminPackagesController::class);
             
-            // Admin activities (full CRUD)
+            // Admin activities (full CRUD + bulk delete)
+            Route::post('admin/activities/bulk-delete', [\App\Http\Controllers\Api\AdminActivitiesController::class, 'bulkDestroy']);
             Route::apiResource('admin/activities', \App\Http\Controllers\Api\AdminActivitiesController::class);
 
             // Admin trainer applications (list, show, approve, reject)
@@ -178,6 +186,10 @@ Route::prefix('v1')->group(function () {
             Route::post('admin/trainer-applications/{id}/reject', [\App\Http\Controllers\Api\AdminTrainerApplicationsController::class, 'reject']);
             Route::post('admin/trainer-applications/{id}/request-information', [\App\Http\Controllers\Api\AdminTrainerApplicationsController::class, 'requestInformation']);
             Route::patch('admin/trainer-applications/{id}', [\App\Http\Controllers\Api\AdminTrainerApplicationsController::class, 'update']);
+
+            // Admin referrals
+            Route::get('admin/referrals', [\App\Http\Controllers\Api\AdminReferralSubmissionsController::class, 'index']);
+            Route::get('admin/referrals/{id}', [\App\Http\Controllers\Api\AdminReferralSubmissionsController::class, 'show']);
 
             // Trainer absence requests (pending approval; approve/reject)
             Route::get('admin/trainer-absence-requests', [\App\Http\Controllers\Api\AdminTrainerAbsenceRequestController::class, 'index']);
@@ -203,24 +215,51 @@ Route::prefix('v1')->group(function () {
             Route::get('admin/trainer-session-payments', [\App\Http\Controllers\Api\AdminTrainerSessionPayController::class, 'index']);
             Route::get('admin/trainer-session-payments/{id}', [\App\Http\Controllers\Api\AdminTrainerSessionPayController::class, 'show']);
             Route::post('admin/trainer-session-payments/{id}/mark-paid', [\App\Http\Controllers\Api\AdminTrainerSessionPayController::class, 'markPaid']);
+
+            // Admin testimonials (curated + promote from external reviews)
+            Route::get('admin/testimonials', [\App\Http\Controllers\Api\AdminTestimonialController::class, 'index']);
+            Route::post('admin/testimonials', [\App\Http\Controllers\Api\AdminTestimonialController::class, 'store']);
+            Route::post('admin/testimonials/promote-from/{externalReviewId}', [\App\Http\Controllers\Api\AdminTestimonialController::class, 'promote'])->where('externalReviewId', '[0-9]+');
+            Route::put('admin/testimonials/{id}', [\App\Http\Controllers\Api\AdminTestimonialController::class, 'update'])->where('id', '[0-9]+');
+            Route::delete('admin/testimonials/{id}', [\App\Http\Controllers\Api\AdminTestimonialController::class, 'destroy'])->where('id', '[0-9]+');
+
+            // Admin review sources (Google, Trustpilot config) and external reviews
+            Route::get('admin/review-sources', [\App\Http\Controllers\Api\AdminReviewSourceController::class, 'index']);
+            Route::get('admin/review-sources/{id}', [\App\Http\Controllers\Api\AdminReviewSourceController::class, 'show']);
+            Route::post('admin/review-sources', [\App\Http\Controllers\Api\AdminReviewSourceController::class, 'store']);
+            Route::put('admin/review-sources/{id}', [\App\Http\Controllers\Api\AdminReviewSourceController::class, 'update']);
+            Route::post('admin/review-sources/{id}/sync', [\App\Http\Controllers\Api\AdminReviewSourceController::class, 'sync']);
+            Route::get('admin/external-reviews', [\App\Http\Controllers\Api\AdminExternalReviewController::class, 'index']);
+            Route::get('admin/external-reviews/{id}', [\App\Http\Controllers\Api\AdminExternalReviewController::class, 'show']);
+            Route::patch('admin/external-reviews/{id}', [\App\Http\Controllers\Api\AdminExternalReviewController::class, 'update']);
+
+            // Admin payment gateways (Stripe default, PayPal, etc.)
+            Route::get('admin/payment-gateways', [\App\Http\Controllers\Api\AdminPaymentGatewayController::class, 'index']);
+            Route::get('admin/payment-gateways/{gateway}', [\App\Http\Controllers\Api\AdminPaymentGatewayController::class, 'show']);
+            Route::put('admin/payment-gateways/{gateway}', [\App\Http\Controllers\Api\AdminPaymentGatewayController::class, 'update']);
         });
 
         // Content admin endpoints (admins, super_admins and editors)
         Route::middleware('content-admin')->group(function () {
+            // Public Pages Content Management (by slug; fixed list)
+            Route::get('admin/public-pages/content/{slug}', [\App\Http\Controllers\Api\AdminPublicPageContentController::class, 'show']);
+            Route::put('admin/public-pages/content/{slug}', [\App\Http\Controllers\Api\AdminPublicPageContentController::class, 'update']);
+            // Policy documents (individual policy pages: cancellation, privacy, etc.)
+            Route::get('admin/policy-documents/{slug}', [\App\Http\Controllers\Api\AdminPolicyDocumentController::class, 'show']);
+            Route::put('admin/policy-documents/{slug}', [\App\Http\Controllers\Api\AdminPolicyDocumentController::class, 'update']);
             // Admin public pages (Next.js dashboard - full CRUD)
             Route::get('admin/public-pages', [\App\Http\Controllers\Api\AdminPublicPagesController::class, 'index']);
             Route::get('admin/public-pages/export', [\App\Http\Controllers\Api\AdminPublicPagesController::class, 'export']);
             Route::get('admin/public-pages/{id}', [\App\Http\Controllers\Api\AdminPublicPagesController::class, 'show']);
             Route::post('admin/public-pages', [\App\Http\Controllers\Api\AdminPublicPagesController::class, 'store']);
+            Route::put('admin/public-pages/{id}/save', [\App\Http\Controllers\Api\AdminPublicPagesController::class, 'saveAll']);
             Route::put('admin/public-pages/{id}', [\App\Http\Controllers\Api\AdminPublicPagesController::class, 'update']);
             Route::delete('admin/public-pages/{id}', [\App\Http\Controllers\Api\AdminPublicPagesController::class, 'destroy']);
             Route::put('admin/public-pages/{id}/publish', [\App\Http\Controllers\Api\AdminPublicPagesController::class, 'togglePublish']);
-            // Page Builder blocks (CRUD + reorder)
-            Route::get('admin/public-pages/{id}/blocks', [\App\Http\Controllers\Api\AdminPageBlocksController::class, 'index']);
-            Route::post('admin/public-pages/{id}/blocks', [\App\Http\Controllers\Api\AdminPageBlocksController::class, 'store']);
-            Route::put('admin/public-pages/{id}/blocks/reorder', [\App\Http\Controllers\Api\AdminPageBlocksController::class, 'reorder']);
-            Route::put('admin/public-pages/{id}/blocks/{blockId}', [\App\Http\Controllers\Api\AdminPageBlocksController::class, 'update']);
-            Route::delete('admin/public-pages/{id}/blocks/{blockId}', [\App\Http\Controllers\Api\AdminPageBlocksController::class, 'destroy']);
+            Route::post('admin/public-pages/{id}/publish', [\App\Http\Controllers\Api\AdminPublicPagesController::class, 'publish']);
+            Route::post('admin/public-pages/{id}/duplicate', [\App\Http\Controllers\Api\AdminPublicPagesController::class, 'duplicate']);
+            // Preview page (draft included) for admin/editor
+            Route::get('admin/preview-pages/{slug}', [\App\Http\Controllers\Api\PageController::class, 'showPreview']);
         });
         
         // Trainer endpoints (trainer only)
@@ -338,12 +377,15 @@ Route::prefix('v1')->middleware(['api.cache:300'])->group(function () {
     Route::get('testimonials', [\App\Http\Controllers\Api\TestimonialController::class, 'index']);
     Route::get('testimonials/{identifier}', [\App\Http\Controllers\Api\TestimonialController::class, 'show'])->middleware('api.cache:600');
     Route::get('reviews/aggregate', [\App\Http\Controllers\Api\ReviewController::class, 'aggregate']);
+    Route::get('media/stock/search', [\App\Http\Controllers\Api\StockMediaController::class, 'search']);
 });
 
 // Write endpoints (no caching)
 Route::prefix('v1')->group(function () {
     Route::post('contact/submissions', [ContactSubmissionController::class, 'store'])
         ->middleware('throttle:contact-submissions');
+    Route::post('referrals', [ReferralSubmissionController::class, 'store'])
+        ->middleware('throttle:referral-submissions');
     Route::post('newsletter/subscribe', [NewsletterSubscriptionController::class, 'subscribe']);
     Route::post('newsletter/unsubscribe', [NewsletterSubscriptionController::class, 'unsubscribe']);
     Route::post('trainer-applications', [TrainerApplicationController::class, 'store']);

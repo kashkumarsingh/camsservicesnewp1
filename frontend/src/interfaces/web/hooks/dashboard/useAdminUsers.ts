@@ -11,7 +11,7 @@ import type {
   RemoteAdminUserResponse,
 } from '@/core/application/admin/dto/AdminUserDTO';
 import { mapRemoteUserToDTO } from '@/core/application/admin/dto/AdminUserDTO';
-import { isAdminRole } from '@/utils/dashboardConstants';
+import { isAdminRole } from '@/dashboard/utils/dashboardConstants';
 
 export type AdminUserRow = AdminUserDTO;
 

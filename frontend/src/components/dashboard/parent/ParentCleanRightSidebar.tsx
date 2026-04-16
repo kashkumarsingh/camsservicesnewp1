@@ -5,11 +5,11 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import moment from 'moment';
 import { AlertTriangle, CheckCircle, Calendar, ChevronRight, ChevronDown, Plus, UserPlus, Clock, Ban, Filter, LayoutGrid, List, BarChart3, MoreVertical, CalendarDays, X, ShieldAlert } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { BaseModal } from '@/components/ui/Modal';
 import { SideCanvas } from '@/components/ui/SideCanvas';
-import { getChildColor } from '@/utils/childColorUtils';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { getChildColor } from '@/dashboard/utils/childColorUtils';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 import type { Child } from '@/core/application/auth/types';
 import type { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
 
@@ -1394,7 +1394,7 @@ export default function ParentCleanRightSidebar({
                       Add a child, then purchase a package to book sessions and see hours here.
                     </p>
                     {onAddChild && (
-                      <Button
+                      <DashboardButton
                         type="button"
                         onClick={closeBreakdownThen(onAddChild)}
                         variant="primary"
@@ -1402,7 +1402,7 @@ export default function ParentCleanRightSidebar({
                         className="mt-4 min-h-[44px] rounded-full"
                       >
                         Add child
-                      </Button>
+                      </DashboardButton>
                     )}
                   </div>
                 );
@@ -1707,7 +1707,7 @@ export default function ParentCleanRightSidebar({
                 Add a child and purchase a package to get started.
               </p>
                     {onAddChild && (
-                        <Button
+                        <DashboardButton
                           type="button"
                           onClick={closeBreakdownThen(onAddChild)}
                           variant="primary"
@@ -1715,7 +1715,7 @@ export default function ParentCleanRightSidebar({
                           className="w-full rounded-lg"
                         >
                           Add child
-                        </Button>
+                        </DashboardButton>
                       )}
             </div>
           ) : (
@@ -1976,7 +1976,7 @@ export default function ParentCleanRightSidebar({
                       Add a child before purchasing hours.
                     </p>
                     {onAddChild && (
-                      <Button
+                      <DashboardButton
                         type="button"
                         onClick={closeBreakdownThen(onAddChild)}
                         variant="ghost"
@@ -1984,7 +1984,7 @@ export default function ParentCleanRightSidebar({
                         className="mt-2"
                       >
                         Add child
-                      </Button>
+                      </DashboardButton>
                     )}
                   </div>
                 </div>

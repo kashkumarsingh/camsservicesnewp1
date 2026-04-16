@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { trainerBookingRepository } from '@/infrastructure/http/trainer/TrainerBookingRepository';
 import type { TrainerSchedule } from '@/core/application/trainer/types';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
 
 interface ScheduleStatusUpdateProps {
@@ -79,14 +79,14 @@ export default function ScheduleStatusUpdate({ schedule, bookingId }: ScheduleSt
 
       <div className="flex flex-wrap gap-2">
         {schedule.status !== 'completed' && (
-          <Button
+          <DashboardButton
             onClick={() => handleStatusUpdate('completed')}
             disabled={updating}
             className="flex items-center gap-2"
           >
             <CheckCircle className="h-4 w-4" />
             Mark as Completed
-          </Button>
+          </DashboardButton>
         )}
 
         {schedule.status !== 'cancelled' && (

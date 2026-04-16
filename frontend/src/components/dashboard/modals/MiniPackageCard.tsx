@@ -3,8 +3,7 @@
 import React from "react";
 import { Clock, Calendar, Activity, Sparkles } from "lucide-react";
 import type { PackageDTO } from "@/core/application/packages/dto/PackageDTO";
-import Button from "@/components/ui/Button";
-
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 interface MiniPackageCardProps {
   package: PackageDTO;
   childId?: number;
@@ -101,7 +100,7 @@ export default function MiniPackageCard({
         </div>
 
         {/* Select / Book button */}
-        <Button
+        <DashboardButton
           type="button"
           variant={isSelected ? 'bordered' : 'primary'}
           size="sm"
@@ -116,7 +115,7 @@ export default function MiniPackageCard({
           title={disabled ? 'Please select a child first' : undefined}
         >
           {isSelected ? 'Selected' : 'Select package'}
-        </Button>
+        </DashboardButton>
       </div>
     </div>
   );

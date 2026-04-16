@@ -4,9 +4,9 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, Loader2, ArrowLeft, Receipt } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { ApiPaymentService, type ConfirmFromSessionBooking, type ConfirmFromSessionPayment } from '@/infrastructure/services/payment/ApiPaymentService';
-import { ROUTES } from '@/utils/routes';
+import { ROUTES } from '@/shared/utils/routes';
 import {
   INVOICE_PAID_TITLE,
   POWERED_BY_STRIPE,
@@ -15,7 +15,7 @@ import {
   PAYMENT_TYPE_LABEL_TOP_UP,
   CURRENCY_CODE,
   INVOICE_FROM_NAME,
-} from '@/utils/appConstants';
+} from '@/shared/utils/appConstants';
 import { Breadcrumbs } from '@/components/dashboard/universal';
 
 function formatCurrency(amount: number): string {
@@ -70,7 +70,7 @@ export default function ParentPaymentConfirmationPageClient() {
             No payment session found. If you just completed a payment, try opening the link from your email or return to the dashboard.
           </p>
           <Link href={ROUTES.DASHBOARD_PARENT}>
-            <Button variant="primary">Back to dashboard</Button>
+            <DashboardButton variant="primary">Back to dashboard</DashboardButton>
           </Link>
         </div>
       </div>
@@ -101,9 +101,9 @@ export default function ParentPaymentConfirmationPageClient() {
           <p className="text-slate-700 dark:text-slate-300 mb-2">We couldn’t confirm this payment.</p>
           <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{errorMessage}</p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <Button variant="primary" onClick={runConfirm}>Try again</Button>
+            <DashboardButton variant="primary" onClick={runConfirm}>Try again</DashboardButton>
             <Link href={ROUTES.DASHBOARD_PARENT}>
-              <Button variant="bordered">Back to dashboard</Button>
+              <DashboardButton variant="bordered">Back to dashboard</DashboardButton>
             </Link>
           </div>
         </div>
@@ -156,10 +156,10 @@ export default function ParentPaymentConfirmationPageClient() {
             </a>
           )}
           <Link href={ROUTES.DASHBOARD_PARENT}>
-            <Button variant="bordered" className="inline-flex items-center gap-2">
+            <DashboardButton variant="bordered" className="inline-flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" aria-hidden />
               Back to dashboard
-            </Button>
+            </DashboardButton>
           </Link>
         </div>
       </div>

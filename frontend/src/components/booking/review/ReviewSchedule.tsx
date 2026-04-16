@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import type { BookedSession } from '../types';
-import { formatHours } from '@/utils/formatHours';
+import { formatHours } from '@/shared/utils/formatHours';
 import { Calendar, Clock, Sparkles } from 'lucide-react';
 
 interface ReviewScheduleProps {

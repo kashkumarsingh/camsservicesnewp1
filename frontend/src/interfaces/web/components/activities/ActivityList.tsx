@@ -8,7 +8,7 @@
 
 import { useActivities } from '../../hooks/activities/useActivities';
 import ActivityCard from './ActivityCard';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 // No props needed - hook fetches all activities
 export default function ActivityList() {

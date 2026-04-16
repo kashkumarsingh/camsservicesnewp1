@@ -23,20 +23,21 @@ import {
   ApproveAction,
   RejectAction,
 } from "@/components/dashboard/universal/RowActions";
-import Button from "@/components/ui/Button";
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import Link from "next/link";
-import { ROUTES } from "@/utils/routes";
-import { BACK_TO_ADMIN_DASHBOARD_LABEL } from "@/utils/appConstants";
+import { ROUTES } from "@/shared/utils/routes";
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from "@/shared/utils/appConstants";
 import { useAdminChildren, type AdminChildRow } from "@/interfaces/web/hooks/dashboard/useAdminChildren";
 import { useAdminUsers } from "@/interfaces/web/hooks/dashboard/useAdminUsers";
 import { useLiveRefresh } from "@/core/liveRefresh/LiveRefreshContext";
-import { LIVE_REFRESH_ENABLED } from "@/utils/liveRefreshConstants";
+import { LIVE_REFRESH_ENABLED } from "@/dashboard/utils/liveRefreshConstants";
 import type { CreateChildDTO, UpdateChildDTO } from "@/core/application/admin/dto/AdminChildDTO";
 import type { AdminChildChecklistDTO } from "@/core/application/admin/dto/AdminChildDTO";
-import { Download, CheckCircle, Users, ClipboardCheck, Loader2 } from "lucide-react";
-import { toastManager } from "@/utils/toast";
-import { EMPTY_STATE } from "@/utils/emptyStateConstants";
-import { APPROVAL_STATUS, DEFAULT_TABLE_SORT } from "@/utils/dashboardConstants";
+import { Download, CheckCircle, Users, ClipboardCheck, Loader2, FileText, MapPin, BookOpen, Zap } from "lucide-react";
+import { TabbedSidePanelContent } from "@/components/ui/TabbedSidePanelContent";
+import { toastManager } from "@/dashboard/utils/toast";
+import { EMPTY_STATE } from "@/dashboard/utils/emptyStateConstants";
+import { APPROVAL_STATUS, DEFAULT_TABLE_SORT } from "@/dashboard/utils/dashboardConstants";
 
 type ChildFormData = Partial<CreateChildDTO> & Partial<UpdateChildDTO>;
 
@@ -163,6 +164,7 @@ export const AdminChildrenPageClient: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isViewingDetails, setIsViewingDetails] = useState(false);
+  const [childDetailsTabId, setChildDetailsTabId] = useState<string>("overview");
   const [isLinkingParent, setIsLinkingParent] = useState(false);
   const [formData, setFormData] = useState<ChildFormData>({
     name: "",
@@ -867,10 +869,10 @@ export const AdminChildrenPageClient: React.FC = () => {
               activeFilterCount={activeFilterCount}
               onClick={() => setFilterPanelOpen(true)}
             />
-            <Button type="button" size="sm" variant="bordered" onClick={handleExport} icon={<Download className="h-3.5 w-3.5" />}>
+            <DashboardButton type="button" size="sm" variant="bordered" onClick={handleExport} icon={<Download className="h-3.5 w-3.5" />}>
               Export CSV
-            </Button>
-            <Button
+            </DashboardButton>
+            <DashboardButton
               size="sm"
               variant="primary"
               onClick={() => {
@@ -884,7 +886,7 @@ export const AdminChildrenPageClient: React.FC = () => {
               }}
             >
               + New Child
-            </Button>
+            </DashboardButton>
         </div>
       </div>
 
@@ -1009,13 +1011,13 @@ export const AdminChildrenPageClient: React.FC = () => {
         renderRowActions={(child, context) =>
           context?.isEditing ? (
             <RowActions>
-              <Button type="button" size="sm" variant="primary" disabled={inlineSaving || !inlineDraft?.name?.trim()} onClick={() => void handleSaveInlineEdit()} aria-label="Save">{inlineSaving ? "Saving…" : "Save"}</Button>
-              <Button type="button" size="sm" variant="bordered" disabled={inlineSaving} onClick={handleCancelInlineEdit} aria-label="Cancel">Cancel</Button>
+              <DashboardButton type="button" size="sm" variant="primary" disabled={inlineSaving || !inlineDraft?.name?.trim()} onClick={() => void handleSaveInlineEdit()} aria-label="Save">{inlineSaving ? "Saving…" : "Save"}</DashboardButton>
+              <DashboardButton type="button" size="sm" variant="bordered" disabled={inlineSaving} onClick={handleCancelInlineEdit} aria-label="Cancel">Cancel</DashboardButton>
             </RowActions>
           ) : (
           <RowActions>
             {child.approvalStatus === "pending" && child.hasChecklist && !child.checklistCompleted && (
-              <Button
+              <DashboardButton
                 type="button"
                 size="sm"
                 variant="bordered"
@@ -1028,7 +1030,7 @@ export const AdminChildrenPageClient: React.FC = () => {
                 title="Complete checklist"
               >
                 <ClipboardCheck className="h-3 w-3" />
-              </Button>
+              </DashboardButton>
             )}
             {child.approvalStatus === "pending" && (
               <ApproveAction
@@ -1049,7 +1051,7 @@ export const AdminChildrenPageClient: React.FC = () => {
               <RejectAction onClick={() => handleReject(child)} aria-label="Reject" />
             )}
             {(child.hasChecklist === false || child.checklistCompleted === false) && child.parentEmail && (
-              <Button
+              <DashboardButton
                 type="button"
                 size="sm"
                 variant="bordered"
@@ -1062,11 +1064,11 @@ export const AdminChildrenPageClient: React.FC = () => {
                 className="min-w-0 p-1.5 text-2xs"
               >
                 Notify
-              </Button>
+              </DashboardButton>
             )}
             <ViewAction onClick={() => handleViewDetails(child)} aria-label="View details" title="View details" />
             <EditAction onClick={() => handleStartInlineEdit(child)} aria-label="Edit" />
-            <Button
+            <DashboardButton
               type="button"
               size="sm"
               variant="ghost"
@@ -1079,9 +1081,9 @@ export const AdminChildrenPageClient: React.FC = () => {
               className="min-w-0 p-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               <Users className="h-3 w-3" />
-            </Button>
+            </DashboardButton>
             {child.parentId && (
-              <Button
+              <DashboardButton
                 type="button"
                 size="sm"
                 variant="bordered"
@@ -1096,7 +1098,7 @@ export const AdminChildrenPageClient: React.FC = () => {
                 className="min-w-0 p-1.5 text-2xs"
               >
                 View Parent
-              </Button>
+              </DashboardButton>
             )}
             <DeleteAction onClick={() => handleDelete(child)} aria-label="Delete" />
           </RowActions>
@@ -1293,320 +1295,348 @@ export const AdminChildrenPageClient: React.FC = () => {
         </form>
       </SideCanvas>
 
-      {/* View Details SideCanvas */}
+      {/* View Details SideCanvas – tabbed by default */}
       <SideCanvas
         isOpen={isViewingDetails}
         onClose={() => {
           setIsViewingDetails(false);
           setSelectedChild(null);
+          setChildDetailsTabId("overview");
         }}
         title="Child Details"
       >
         {selectedChild && (
-          <div className="space-y-4">
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
-              <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200">Basic Information</h3>
-              <dl className="mt-2 space-y-1.5">
-                <div className="flex justify-between text-xs">
-                  <dt className="text-slate-600 dark:text-slate-400">Name:</dt>
-                  <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.name}</dd>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <dt className="text-slate-600 dark:text-slate-400">Age:</dt>
-                  <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.age}</dd>
-                </div>
-                {selectedChild.dateOfBirth && (
-                  <div className="flex justify-between text-xs">
-                    <dt className="text-slate-600 dark:text-slate-400">Date of Birth:</dt>
-                    <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.dateOfBirth}</dd>
-                  </div>
-                )}
-                {selectedChild.gender && (
-                  <div className="flex justify-between text-xs">
-                    <dt className="text-slate-600 dark:text-slate-400">Gender:</dt>
-                    <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.gender}</dd>
-                  </div>
-                )}
-              </dl>
-            </div>
-
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
-              <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200">Parent Information</h3>
-              <dl className="mt-2 space-y-1.5">
-                <div className="flex justify-between text-xs">
-                  <dt className="text-slate-600 dark:text-slate-400">Parent:</dt>
-                  <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.parentName || "—"}</dd>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <dt className="text-slate-600 dark:text-slate-400">Email:</dt>
-                  <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.parentEmail || "—"}</dd>
-                </div>
-                {selectedChild.parentPhone && (
-                  <div className="flex justify-between text-xs">
-                    <dt className="text-slate-600 dark:text-slate-400">Phone:</dt>
-                    <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.parentPhone}</dd>
-                  </div>
-                )}
-              </dl>
-            </div>
-
-            {(selectedChild.address || selectedChild.city || selectedChild.postcode) && (
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
-                <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200">Address</h3>
-                <dl className="mt-2 space-y-1.5">
-                  {selectedChild.address && (
-                    <div className="text-xs">
-                      <dt className="text-slate-600 dark:text-slate-400">Street:</dt>
-                      <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.address}</dd>
+          <TabbedSidePanelContent
+            tabs={[
+              {
+                id: "overview",
+                label: "Overview",
+                icon: FileText,
+                content: (
+                  <div className="space-y-4">
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
+                      <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200">Basic Information</h3>
+                      <dl className="mt-2 space-y-1.5">
+                        <div className="flex justify-between text-xs">
+                          <dt className="text-slate-600 dark:text-slate-400">Name:</dt>
+                          <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.name}</dd>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <dt className="text-slate-600 dark:text-slate-400">Age:</dt>
+                          <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.age}</dd>
+                        </div>
+                        {selectedChild.dateOfBirth && (
+                          <div className="flex justify-between text-xs">
+                            <dt className="text-slate-600 dark:text-slate-400">Date of Birth:</dt>
+                            <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.dateOfBirth}</dd>
+                          </div>
+                        )}
+                        {selectedChild.gender && (
+                          <div className="flex justify-between text-xs">
+                            <dt className="text-slate-600 dark:text-slate-400">Gender:</dt>
+                            <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.gender}</dd>
+                          </div>
+                        )}
+                      </dl>
                     </div>
-                  )}
-                  {selectedChild.city && (
-                    <div className="flex justify-between text-xs">
-                      <dt className="text-slate-600 dark:text-slate-400">City:</dt>
-                      <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.city}</dd>
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
+                      <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200">Parent Information</h3>
+                      <dl className="mt-2 space-y-1.5">
+                        <div className="flex justify-between text-xs">
+                          <dt className="text-slate-600 dark:text-slate-400">Parent:</dt>
+                          <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.parentName || "—"}</dd>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <dt className="text-slate-600 dark:text-slate-400">Email:</dt>
+                          <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.parentEmail || "—"}</dd>
+                        </div>
+                        {selectedChild.parentPhone && (
+                          <div className="flex justify-between text-xs">
+                            <dt className="text-slate-600 dark:text-slate-400">Phone:</dt>
+                            <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.parentPhone}</dd>
+                          </div>
+                        )}
+                      </dl>
                     </div>
-                  )}
-                  {selectedChild.postcode && (
-                    <div className="flex justify-between text-xs">
-                      <dt className="text-slate-600 dark:text-slate-400">Postcode:</dt>
-                      <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.postcode}</dd>
-                    </div>
-                  )}
-                  {selectedChild.region && (
-                    <div className="flex justify-between text-xs">
-                      <dt className="text-slate-600 dark:text-slate-400">Region:</dt>
-                      <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.region}</dd>
-                    </div>
-                  )}
-                </dl>
-              </div>
-            )}
-
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
-              <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200">Approval Status</h3>
-              <dl className="mt-2 space-y-1.5">
-                <div className="flex justify-between text-xs">
-                  <dt className="text-slate-600 dark:text-slate-400">Status:</dt>
-                  <dd>
-                    <span
-                      className={`inline-flex rounded-full px-2 py-0.5 text-2xs font-medium ${getApprovalBadgeClasses(
-                        selectedChild.approvalStatus
-                      )}`}
-                    >
-                      {selectedChild.approvalStatus}
-                    </span>
-                  </dd>
-                </div>
-                {selectedChild.approvedAt && (
-                  <div className="flex justify-between text-xs">
-                    <dt className="text-slate-600 dark:text-slate-400">Approved At:</dt>
-                    <dd className="font-medium text-slate-900 dark:text-slate-50">
-                      {new Date(selectedChild.approvedAt).toLocaleDateString()}
-                    </dd>
                   </div>
-                )}
-                {selectedChild.approvedByName && (
-                  <div className="flex justify-between text-xs">
-                    <dt className="text-slate-600 dark:text-slate-400">Approved By:</dt>
-                    <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.approvedByName}</dd>
-                  </div>
-                )}
-                {selectedChild.rejectedAt && (
-                  <div className="flex justify-between text-xs">
-                    <dt className="text-slate-600 dark:text-slate-400">Rejected At:</dt>
-                    <dd className="font-medium text-slate-900 dark:text-slate-50">
-                      {new Date(selectedChild.rejectedAt).toLocaleDateString()}
-                    </dd>
-                  </div>
-                )}
-                {selectedChild.rejectionReason && (
-                  <div className="text-xs">
-                    <dt className="text-slate-600 dark:text-slate-400">Rejection Reason:</dt>
-                    <dd className="mt-1 font-medium text-slate-900 dark:text-slate-50">{selectedChild.rejectionReason}</dd>
-                  </div>
-                )}
-              </dl>
-            </div>
-
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
-              <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200">Checklist</h3>
-              <dl className="mt-2 space-y-1.5">
-                <div className="flex justify-between text-xs">
-                  <dt className="text-slate-600 dark:text-slate-400">Status:</dt>
-                  <dd className="font-medium text-slate-900 dark:text-slate-50">
-                    {!selectedChild.hasChecklist && "Missing"}
-                    {selectedChild.hasChecklist && !selectedChild.checklistCompleted && "Pending"}
-                    {selectedChild.hasChecklist && selectedChild.checklistCompleted && "Complete"}
-                  </dd>
-                </div>
-                {selectedChild.checklistCompletedAt && (
-                  <div className="flex justify-between text-xs">
-                    <dt className="text-slate-600 dark:text-slate-400">Completed At:</dt>
-                    <dd className="font-medium text-slate-900 dark:text-slate-50">
-                      {new Date(selectedChild.checklistCompletedAt).toLocaleDateString()}
-                    </dd>
-                  </div>
-                )}
-                {selectedChild.checklist && (
-                  <>
-                    {selectedChild.checklist.emergencyContactName && (
-                      <div className="flex justify-between text-xs">
-                        <dt className="text-slate-600 dark:text-slate-400">Emergency Contact:</dt>
-                        <dd className="font-medium text-slate-900 dark:text-slate-50">
-                          {selectedChild.checklist.emergencyContactName}
-                        </dd>
-                      </div>
-                    )}
-                    {selectedChild.checklist.emergencyContactPhone && (
-                      <div className="flex justify-between text-xs">
-                        <dt className="text-slate-600 dark:text-slate-400">Emergency Phone:</dt>
-                        <dd className="font-medium text-slate-900 dark:text-slate-50">
-                          {selectedChild.checklist.emergencyContactPhone}
-                        </dd>
-                      </div>
-                    )}
-                    {(selectedChild.checklist.medicalConditions ||
-                      selectedChild.checklist.allergies) && (
-                      <div className="text-xs">
-                        <dt className="text-slate-600 dark:text-slate-400">Medical / Allergies:</dt>
-                        <dd className="mt-1 font-medium text-slate-900 dark:text-slate-50 whitespace-pre-line">
-                          {selectedChild.checklist.medicalConditions || 'None reported'}
-                          {selectedChild.checklist.allergies
-                            ? `\nAllergies: ${selectedChild.checklist.allergies}`
-                            : ''}
-                        </dd>
-                      </div>
-                    )}
-                    {selectedChild.checklist.activityRestrictions && (
-                      <div className="text-xs">
-                        <dt className="text-slate-600 dark:text-slate-400">Activity Restrictions:</dt>
-                        <dd className="mt-1 font-medium text-slate-900 dark:text-slate-50 whitespace-pre-line">
-                          {selectedChild.checklist.activityRestrictions}
-                        </dd>
-                      </div>
-                    )}
-                    {(selectedChild.checklist.consentPhotography ||
-                      selectedChild.checklist.consentMedicalTreatment) && (
-                      <div className="text-xs">
-                        <dt className="text-slate-600 dark:text-slate-400">Consents:</dt>
-                        <dd className="mt-1 font-medium text-slate-900 dark:text-slate-50">
-                          {selectedChild.checklist.consentPhotography && 'Photography consent; '}
-                          {selectedChild.checklist.consentMedicalTreatment &&
-                            'Emergency medical treatment consent'}
-                        </dd>
-                      </div>
-                    )}
-                  </>
-                )}
-              </dl>
-            </div>
-
-            {/* Admin actions: Approve / Reject from detail panel */}
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
-              <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200">Actions</h3>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {(selectedChild.approvalStatus === APPROVAL_STATUS.PENDING ||
-                  selectedChild.approvalStatus === APPROVAL_STATUS.REJECTED) && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="primary"
-                    onClick={handleApproveFromDetail}
-                    disabled={
-                      detailActionLoading !== null || !selectedChild.checklistCompleted
-                    }
-                    className="min-w-0 border-emerald-300 bg-emerald-600 text-white hover:bg-emerald-700 dark:border-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-800"
-                    aria-label={selectedChild.approvalStatus === APPROVAL_STATUS.REJECTED ? "Re-approve" : "Approve"}
-                  >
-                    {detailActionLoading === 'approve' ? (
-                      <>
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        Approving…
-                      </>
-                    ) : selectedChild.approvalStatus === APPROVAL_STATUS.REJECTED ? (
-                      "Re-approve"
-                    ) : (
-                      "Approve"
-                    )}
-                  </Button>
-                )}
-                {(selectedChild.approvalStatus === APPROVAL_STATUS.PENDING ||
-                  selectedChild.approvalStatus === APPROVAL_STATUS.APPROVED) && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="bordered"
-                    onClick={handleRejectFromDetail}
-                    disabled={detailActionLoading !== null}
-                    className="min-w-0 border-rose-300 bg-white text-rose-700 hover:bg-rose-50 dark:border-rose-700 dark:bg-slate-900 dark:text-rose-300 dark:hover:bg-rose-950/40"
-                    aria-label="Reject"
-                  >
-                    {detailActionLoading === 'reject' ? (
-                      <>
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        Rejecting…
-                      </>
-                    ) : (
-                      "Reject"
-                    )}
-                  </Button>
-                )}
-                {selectedChild.approvalStatus === APPROVAL_STATUS.PENDING &&
-                  selectedChild.hasChecklist &&
-                  !selectedChild.checklistCompleted && (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="bordered"
-                      onClick={() => {
-                        setReviewChecklistChildId(selectedChild.id);
-                        setIsViewingDetails(false);
-                      }}
-                      className="min-w-0 border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
-                      aria-label="Complete checklist"
-                      title="Review checklist then mark complete and approve"
-                    >
-                      <ClipboardCheck className="h-3.5 w-3.5" />
-                      Complete checklist
-                    </Button>
-                  )}
-              </div>
-              {selectedChild.approvalStatus === APPROVAL_STATUS.PENDING &&
-                !selectedChild.checklistCompleted && (
-                  <p className="mt-2 text-2xs text-slate-600 dark:text-slate-400">
-                    Complete the checklist (or use &quot;Complete checklist&quot;) before approving.
-                  </p>
-                )}
-            </div>
-
-            {selectedChild.bookings && selectedChild.bookings.length > 0 && (
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
-                <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200">Booking History</h3>
-                <div className="mt-2 space-y-2">
-                  {selectedChild.bookings.map((booking) => (
-                    <div
-                      key={booking.id}
-                      className="rounded border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-slate-900 dark:text-slate-50">
-                          {booking.reference}
-                        </span>
-                        <span className="text-2xs text-slate-600 dark:text-slate-400">
-                          {booking.status}
-                        </span>
-                      </div>
-                      {booking.packageName && (
-                        <div className="mt-1 text-2xs text-slate-600 dark:text-slate-400">
-                          {booking.packageName}
+                ),
+              },
+              {
+                id: "address",
+                label: "Address",
+                icon: MapPin,
+                content: (selectedChild.address || selectedChild.city || selectedChild.postcode) ? (
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
+                    <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200">Address</h3>
+                    <dl className="mt-2 space-y-1.5">
+                      {selectedChild.address && (
+                        <div className="text-xs">
+                          <dt className="text-slate-600 dark:text-slate-400">Street:</dt>
+                          <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.address}</dd>
                         </div>
                       )}
+                      {selectedChild.city && (
+                        <div className="flex justify-between text-xs">
+                          <dt className="text-slate-600 dark:text-slate-400">City:</dt>
+                          <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.city}</dd>
+                        </div>
+                      )}
+                      {selectedChild.postcode && (
+                        <div className="flex justify-between text-xs">
+                          <dt className="text-slate-600 dark:text-slate-400">Postcode:</dt>
+                          <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.postcode}</dd>
+                        </div>
+                      )}
+                      {selectedChild.region && (
+                        <div className="flex justify-between text-xs">
+                          <dt className="text-slate-600 dark:text-slate-400">Region:</dt>
+                          <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.region}</dd>
+                        </div>
+                      )}
+                    </dl>
+                  </div>
+                ) : (
+                  <p className="text-2xs text-slate-500 dark:text-slate-400">No address on file.</p>
+                ),
+              },
+              {
+                id: "approval",
+                label: "Approval",
+                icon: CheckCircle,
+                content: (
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
+                    <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200">Approval Status</h3>
+                    <dl className="mt-2 space-y-1.5">
+                      <div className="flex justify-between text-xs">
+                        <dt className="text-slate-600 dark:text-slate-400">Status:</dt>
+                        <dd>
+                          <span
+                            className={`inline-flex rounded-full px-2 py-0.5 text-2xs font-medium ${getApprovalBadgeClasses(
+                              selectedChild.approvalStatus
+                            )}`}
+                          >
+                            {selectedChild.approvalStatus}
+                          </span>
+                        </dd>
+                      </div>
+                      {selectedChild.approvedAt && (
+                        <div className="flex justify-between text-xs">
+                          <dt className="text-slate-600 dark:text-slate-400">Approved At:</dt>
+                          <dd className="font-medium text-slate-900 dark:text-slate-50">
+                            {new Date(selectedChild.approvedAt).toLocaleDateString()}
+                          </dd>
+                        </div>
+                      )}
+                      {selectedChild.approvedByName && (
+                        <div className="flex justify-between text-xs">
+                          <dt className="text-slate-600 dark:text-slate-400">Approved By:</dt>
+                          <dd className="font-medium text-slate-900 dark:text-slate-50">{selectedChild.approvedByName}</dd>
+                        </div>
+                      )}
+                      {selectedChild.rejectedAt && (
+                        <div className="flex justify-between text-xs">
+                          <dt className="text-slate-600 dark:text-slate-400">Rejected At:</dt>
+                          <dd className="font-medium text-slate-900 dark:text-slate-50">
+                            {new Date(selectedChild.rejectedAt).toLocaleDateString()}
+                          </dd>
+                        </div>
+                      )}
+                      {selectedChild.rejectionReason && (
+                        <div className="text-xs">
+                          <dt className="text-slate-600 dark:text-slate-400">Rejection Reason:</dt>
+                          <dd className="mt-1 font-medium text-slate-900 dark:text-slate-50">{selectedChild.rejectionReason}</dd>
+                        </div>
+                      )}
+                    </dl>
+                  </div>
+                ),
+              },
+              {
+                id: "checklist",
+                label: "Checklist",
+                icon: ClipboardCheck,
+                content: (
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
+                    <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200">Checklist</h3>
+                    <dl className="mt-2 space-y-1.5">
+                      <div className="flex justify-between text-xs">
+                        <dt className="text-slate-600 dark:text-slate-400">Status:</dt>
+                        <dd className="font-medium text-slate-900 dark:text-slate-50">
+                          {!selectedChild.hasChecklist && "Missing"}
+                          {selectedChild.hasChecklist && !selectedChild.checklistCompleted && "Pending"}
+                          {selectedChild.hasChecklist && selectedChild.checklistCompleted && "Complete"}
+                        </dd>
+                      </div>
+                      {selectedChild.checklistCompletedAt && (
+                        <div className="flex justify-between text-xs">
+                          <dt className="text-slate-600 dark:text-slate-400">Completed At:</dt>
+                          <dd className="font-medium text-slate-900 dark:text-slate-50">
+                            {new Date(selectedChild.checklistCompletedAt).toLocaleDateString()}
+                          </dd>
+                        </div>
+                      )}
+                      {selectedChild.checklist && (
+                        <>
+                          {selectedChild.checklist.emergencyContactName && (
+                            <div className="flex justify-between text-xs">
+                              <dt className="text-slate-600 dark:text-slate-400">Emergency Contact:</dt>
+                              <dd className="font-medium text-slate-900 dark:text-slate-50">
+                                {selectedChild.checklist.emergencyContactName}
+                              </dd>
+                            </div>
+                          )}
+                          {selectedChild.checklist.emergencyContactPhone && (
+                            <div className="flex justify-between text-xs">
+                              <dt className="text-slate-600 dark:text-slate-400">Emergency Phone:</dt>
+                              <dd className="font-medium text-slate-900 dark:text-slate-50">
+                                {selectedChild.checklist.emergencyContactPhone}
+                              </dd>
+                            </div>
+                          )}
+                          {(selectedChild.checklist.medicalConditions || selectedChild.checklist.allergies) && (
+                            <div className="text-xs">
+                              <dt className="text-slate-600 dark:text-slate-400">Medical / Allergies:</dt>
+                              <dd className="mt-1 font-medium text-slate-900 dark:text-slate-50 whitespace-pre-line">
+                                {selectedChild.checklist.medicalConditions || "None reported"}
+                                {selectedChild.checklist.allergies ? `\nAllergies: ${selectedChild.checklist.allergies}` : ""}
+                              </dd>
+                            </div>
+                          )}
+                          {selectedChild.checklist.activityRestrictions && (
+                            <div className="text-xs">
+                              <dt className="text-slate-600 dark:text-slate-400">Activity Restrictions:</dt>
+                              <dd className="mt-1 font-medium text-slate-900 dark:text-slate-50 whitespace-pre-line">
+                                {selectedChild.checklist.activityRestrictions}
+                              </dd>
+                            </div>
+                          )}
+                          {(selectedChild.checklist.consentPhotography || selectedChild.checklist.consentMedicalTreatment) && (
+                            <div className="text-xs">
+                              <dt className="text-slate-600 dark:text-slate-400">Consents:</dt>
+                              <dd className="mt-1 font-medium text-slate-900 dark:text-slate-50">
+                                {selectedChild.checklist.consentPhotography && "Photography consent; "}
+                                {selectedChild.checklist.consentMedicalTreatment && "Emergency medical treatment consent"}
+                              </dd>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </dl>
+                  </div>
+                ),
+              },
+              {
+                id: "bookings",
+                label: "Bookings",
+                icon: BookOpen,
+                content: selectedChild.bookings && selectedChild.bookings.length > 0 ? (
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
+                    <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200">Booking History</h3>
+                    <div className="mt-2 space-y-2">
+                      {selectedChild.bookings.map((booking) => (
+                        <div
+                          key={booking.id}
+                          className="rounded border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-slate-900 dark:text-slate-50">{booking.reference}</span>
+                            <span className="text-2xs text-slate-600 dark:text-slate-400">{booking.status}</span>
+                          </div>
+                          {booking.packageName && (
+                            <div className="mt-1 text-2xs text-slate-600 dark:text-slate-400">{booking.packageName}</div>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+                  </div>
+                ) : (
+                  <p className="text-2xs text-slate-500 dark:text-slate-400">No bookings yet.</p>
+                ),
+              },
+              {
+                id: "actions",
+                label: "Actions",
+                icon: Zap,
+                content: (
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {(selectedChild.approvalStatus === APPROVAL_STATUS.PENDING ||
+                        selectedChild.approvalStatus === APPROVAL_STATUS.REJECTED) && (
+                        <DashboardButton
+                          type="button"
+                          size="sm"
+                          variant="primary"
+                          onClick={handleApproveFromDetail}
+                          disabled={detailActionLoading !== null || !selectedChild.checklistCompleted}
+                          className="min-w-0 border-emerald-300 bg-emerald-600 text-white hover:bg-emerald-700 dark:border-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-800"
+                          aria-label={selectedChild.approvalStatus === APPROVAL_STATUS.REJECTED ? "Re-approve" : "Approve"}
+                        >
+                          {detailActionLoading === "approve" ? (
+                            <>
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              Approving…
+                            </>
+                          ) : selectedChild.approvalStatus === APPROVAL_STATUS.REJECTED ? (
+                            "Re-approve"
+                          ) : (
+                            "Approve"
+                          )}
+                        </DashboardButton>
+                      )}
+                      {(selectedChild.approvalStatus === APPROVAL_STATUS.PENDING ||
+                        selectedChild.approvalStatus === APPROVAL_STATUS.APPROVED) && (
+                        <DashboardButton
+                          type="button"
+                          size="sm"
+                          variant="bordered"
+                          onClick={handleRejectFromDetail}
+                          disabled={detailActionLoading !== null}
+                          className="min-w-0 border-rose-300 bg-white text-rose-700 hover:bg-rose-50 dark:border-rose-700 dark:bg-slate-900 dark:text-rose-300 dark:hover:bg-rose-950/40"
+                          aria-label="Reject"
+                        >
+                          {detailActionLoading === "reject" ? (
+                            <>
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              Rejecting…
+                            </>
+                          ) : (
+                              "Reject"
+                            )}
+                        </DashboardButton>
+                      )}
+                      {selectedChild.approvalStatus === APPROVAL_STATUS.PENDING &&
+                        selectedChild.hasChecklist &&
+                        !selectedChild.checklistCompleted && (
+                          <DashboardButton
+                            type="button"
+                            size="sm"
+                            variant="bordered"
+                            onClick={() => {
+                              setReviewChecklistChildId(selectedChild.id);
+                              setIsViewingDetails(false);
+                            }}
+                            className="min-w-0 border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
+                            aria-label="Complete checklist"
+                            title="Review checklist then mark complete and approve"
+                          >
+                            <ClipboardCheck className="h-3.5 w-3.5" />
+                            Complete checklist
+                          </DashboardButton>
+                        )}
+                    </div>
+                    {selectedChild.approvalStatus === APPROVAL_STATUS.PENDING && !selectedChild.checklistCompleted && (
+                      <p className="text-2xs text-slate-600 dark:text-slate-400">
+                        Complete the checklist (or use &quot;Complete checklist&quot;) before approving.
+                      </p>
+                    )}
+                  </div>
+                ),
+              },
+            ]}
+            activeTabId={childDetailsTabId}
+            onTabChange={setChildDetailsTabId}
+            ariaLabel="Child details sections"
+          />
         )}
       </SideCanvas>
 

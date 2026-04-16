@@ -9,9 +9,9 @@ import ScheduleCalendar from '@/components/trainer/schedules/ScheduleCalendar';
 import ScheduleList from '@/components/trainer/schedules/ScheduleList';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
 import { Calendar, List, Bell } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
-import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
+import { LIVE_REFRESH_ENABLED } from '@/dashboard/utils/liveRefreshConstants';
 
 const PENDING_CONFIRMATION = 'pending_trainer_confirmation';
 type ViewMode = 'calendar' | 'list';
@@ -123,22 +123,22 @@ export default function SchedulesPageClient() {
 
           {/* View Mode Toggle */}
           <div className="flex items-center gap-2">
-            <Button
+            <DashboardButton
               onClick={() => setViewMode('calendar')}
               variant={viewMode === 'calendar' ? 'primary' : 'outline'}
               className="flex items-center gap-2"
             >
               <Calendar className="h-4 w-4" />
               Calendar
-            </Button>
-            <Button
+            </DashboardButton>
+            <DashboardButton
               onClick={() => setViewMode('list')}
               variant={viewMode === 'list' ? 'primary' : 'outline'}
               className="flex items-center gap-2"
             >
               <List className="h-4 w-4" />
               List
-            </Button>
+            </DashboardButton>
           </div>
         </div>
 
@@ -164,14 +164,14 @@ export default function SchedulesPageClient() {
                   </p>
                 </div>
               </div>
-              <Button
+              <DashboardButton
                 type="button"
                 variant="primary"
                 onClick={() => openConfirmPanelForSchedule(pendingConfirmationSchedules[0].id)}
                 className="shrink-0"
               >
                 Review & confirm
-              </Button>
+              </DashboardButton>
             </div>
           </div>
         )}

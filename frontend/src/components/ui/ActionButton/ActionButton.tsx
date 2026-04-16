@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { Loader2 } from 'lucide-react';
 
 export interface ActionButtonProps {
@@ -95,7 +95,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   const displayIcon = loading ? loadingIcon : icon;
 
   return (
-    <Button
+    <DashboardButton
       variant={variant}
       size={size}
       icon={displayIcon}
@@ -107,7 +107,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
       aria-label={ariaLabel || (loading ? `${children} (loading)` : undefined)}
     >
       {children}
-    </Button>
+    </DashboardButton>
   );
 };
 

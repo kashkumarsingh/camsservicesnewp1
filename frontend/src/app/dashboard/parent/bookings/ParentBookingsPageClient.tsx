@@ -13,13 +13,13 @@ import {
   type SortDirection,
 } from '@/components/dashboard/universal';
 import { RowActions, ViewAction } from '@/components/dashboard/universal/RowActions';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import BookedSessionsModal from '@/components/dashboard/modals/BookedSessionsModal';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
-import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
-import { getStatusBadgeClasses } from '@/utils/statusBadgeHelpers';
-import { BOOKING_STATUS } from '@/utils/dashboardConstants';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { LIVE_REFRESH_ENABLED } from '@/dashboard/utils/liveRefreshConstants';
+import { getStatusBadgeClasses } from '@/dashboard/utils/statusBadgeHelpers';
+import { BOOKING_STATUS } from '@/dashboard/utils/dashboardConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 /** Next upcoming session for a booking (by date then start time). */
 function getNextSession(schedules: BookingScheduleDTO[] | undefined): string {

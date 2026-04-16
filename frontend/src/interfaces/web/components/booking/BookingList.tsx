@@ -3,7 +3,7 @@
 import React from 'react';
 import { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
 import { BookingCard } from './BookingCard';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface BookingListProps {
   bookings: BookingDTO[];

@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Loader2, FileText, Package, CreditCard, Home } from 'lucide-react';
-import { formatCurrency } from '@/utils/currencyFormatter';
+import { formatCurrency } from '@/shared/utils/currencyFormatter';
 import { CALLBACK_CANCELED } from './constants';
 import type { CallbackCanceledCardProps } from './callbackTypes';
 

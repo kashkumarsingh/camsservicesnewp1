@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import React from "react";
-import { EMPTY_STATE } from "@/utils/emptyStateConstants";
+import { EMPTY_STATE } from "@/dashboard/utils/emptyStateConstants";
 
 export const metadata: Metadata = {
   title: "Trainer Dashboard - Clients",

@@ -3,20 +3,20 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, User, CheckCircle, XCircle, AlertCircle, Loader2, FileText, ListTodo, Activity, Clock4, MapPin } from 'lucide-react';
 import moment from 'moment';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { BaseModal } from '@/components/ui/Modal';
 import { trainerBookingRepository } from '@/infrastructure/http/trainer/TrainerBookingRepository';
-import { toastManager } from '@/utils/toast';
+import { toastManager } from '@/dashboard/utils/toast';
 import ActivityLogTimeline from '@/components/trainer/activities/ActivityLogTimeline';
 import ActivityLogDetailModal from '@/components/trainer/modals/ActivityLogDetailModal';
 import ActivityLogForm from '@/components/trainer/activities/ActivityLogForm';
 import { trainerActivityLogRepository } from '@/infrastructure/http/trainer/TrainerActivityLogRepository';
 import { trainerTimeEntryRepository } from '@/infrastructure/http/trainer/TrainerTimeEntryRepository';
 import { trainerScheduleRepository } from '@/infrastructure/http/trainer/TrainerScheduleRepository';
-import { getCurrentPositionOptional, reverseGeocode, getGoogleMapsSearchUrl } from '@/utils/locationUtils';
+import { getCurrentPositionOptional, reverseGeocode, getGoogleMapsSearchUrl } from '@/dashboard/utils/locationUtils';
 import { trainerActivityRepository } from '@/infrastructure/http/trainer/TrainerActivityRepository';
 import type { ActivityLog, TimeEntry } from '@/core/application/trainer/types';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface TrainerSessionDetailModalProps {
   isOpen: boolean;
@@ -507,9 +507,9 @@ export default function TrainerSessionDetailModal({
                             />
                           </div>
                         )}
-                        <Button type="button" variant="outline" size="sm" onClick={() => setActivityLogFormOpen(true)}>
+                        <DashboardButton type="button" variant="outline" size="sm" onClick={() => setActivityLogFormOpen(true)}>
                           + Add log
-                        </Button>
+                        </DashboardButton>
                       </>
                     )}
                   </>
@@ -629,14 +629,14 @@ export default function TrainerSessionDetailModal({
                                 <div className="min-w-0 flex-1 pl-2">
                             <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1">Update now</p>
                             {!showRightNowForm ? (
-                              <Button
+                              <DashboardButton
                                 type="button"
                                 size="sm"
                                 variant="outline"
                                 onClick={() => setShowRightNowForm(true)}
                               >
                                 Log what I&apos;m doing now
-                              </Button>
+                              </DashboardButton>
                             ) : currentActivityLoading ? (
                               <div className="animate-pulse space-y-1.5" aria-busy="true" aria-label="Loading current activity">
                                 <div className="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded" />
@@ -729,7 +729,7 @@ export default function TrainerSessionDetailModal({
                                   </p>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
-                                  <Button
+                                  <DashboardButton
                                     type="button"
                                     size="sm"
                                     disabled={currentActivityUpdating || (currentActivityId === 'custom' && !currentActivityCustomName.trim())}
@@ -777,15 +777,15 @@ export default function TrainerSessionDetailModal({
                                     }}
                                   >
                                     {currentActivityUpdating ? <><Loader2 className="h-3 w-3 animate-spin mr-1" /> Updating…</> : 'Update what I\'m doing now'}
-                                  </Button>
-                                  <Button
+                                  </DashboardButton>
+                                  <DashboardButton
                                     type="button"
                                     size="sm"
                                     variant="outline"
                                     onClick={() => setShowRightNowForm(false)}
                                   >
                                     Cancel
-                                  </Button>
+                                  </DashboardButton>
                                 </div>
                               </div>
                             )}
@@ -806,9 +806,9 @@ export default function TrainerSessionDetailModal({
                     <div className="p-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800/50">
                       <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Session not in progress</p>
                       <p className="text-[11px] text-gray-500 dark:text-gray-400 mb-3">View or add activity logs (notes, photos) in the <strong>Logs</strong> tab.</p>
-                      <Button type="button" size="sm" variant="outline" onClick={() => setActiveTab('activity_log')}>
+                      <DashboardButton type="button" size="sm" variant="outline" onClick={() => setActiveTab('activity_log')}>
                         Open Logs tab
-                      </Button>
+                      </DashboardButton>
                     </div>
                   </div>
                 )}
@@ -848,7 +848,7 @@ export default function TrainerSessionDetailModal({
                           return (
                             <>
                               {canClockIn && (
-                                <Button
+                                <DashboardButton
                                   type="button"
                                   size="sm"
                                   variant="secondary"
@@ -869,10 +869,10 @@ export default function TrainerSessionDetailModal({
                                   }}
                                 >
                                   {clockActionLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Clock in'}
-                                </Button>
+                                </DashboardButton>
                               )}
                               {canClockOut && (
-                                <Button
+                                <DashboardButton
                                   type="button"
                                   size="sm"
                                   variant="secondary"
@@ -892,7 +892,7 @@ export default function TrainerSessionDetailModal({
                                   }}
                                 >
                                   {clockActionLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Clock out'}
-                                </Button>
+                                </DashboardButton>
                               )}
                               {!canClockIn && !canClockOut && (
                                 <p className="text-xs text-gray-500 dark:text-gray-400">No clock action available.</p>
@@ -946,19 +946,19 @@ export default function TrainerSessionDetailModal({
         size="xl"
         footer={
           <div className="flex w-full justify-end gap-3">
-            <Button
+            <DashboardButton
               type="button"
               variant="outline"
               onClick={() => setActivityLogFormOpen(false)}
             >
               Cancel
-            </Button>
-            <Button
+            </DashboardButton>
+            <DashboardButton
               type="submit"
               form={activityLogFormId}
             >
               Save activity log
-            </Button>
+            </DashboardButton>
           </div>
         }
       >

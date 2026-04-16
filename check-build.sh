@@ -23,7 +23,7 @@ if [ $? -eq 0 ]; then
     BACKEND_PASSED=true
 else
     echo "${RED}❌ Backend build FAILED!${NC}"
-    echo "Fix backend errors before pushing to Render."
+    echo "Fix backend errors before deploying backend (Railway)."
 fi
 
 # Test Frontend Build
@@ -37,7 +37,7 @@ if [ $? -eq 0 ]; then
     FRONTEND_PASSED=true
 else
     echo "${RED}❌ Frontend build FAILED!${NC}"
-    echo "Fix frontend errors before pushing to Render."
+    echo "Fix frontend errors before deploying frontend (Vercel)."
 fi
 
 # Summary
@@ -50,7 +50,7 @@ echo "Frontend: $([ "$FRONTEND_PASSED" = true ] && echo "${GREEN}✅ PASS${NC}" 
 echo ""
 
 if [ "$BACKEND_PASSED" = true ] && [ "$FRONTEND_PASSED" = true ]; then
-    echo "${GREEN}🎉 All builds successful! Safe to push to Render.${NC}"
+    echo "${GREEN}🎉 All builds successful! Safe to deploy (Vercel + Railway).${NC}"
     echo ""
     echo "🧪 To test the full stack locally:"
     echo "   docker-compose -f docker-compose.prod.yml up"

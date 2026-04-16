@@ -1,6 +1,6 @@
 // WebSocket (Reverb) subscription for live-refresh – see REALTIME_LIVE_DATA_ARCHITECTURE.md
 
-import { LIVE_REFRESH_CONTEXTS_LIST, type LiveRefreshContextType } from '@/utils/liveRefreshConstants';
+import { LIVE_REFRESH_CONTEXTS_LIST, type LiveRefreshContextType } from '@/dashboard/utils/liveRefreshConstants';
 
 export interface LiveRefreshEchoOptions {
   userId: number;

@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import Button from '@/components/ui/Button/Button';
-import { ROUTES } from '@/utils/routes';
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
+import { ROUTES } from '@/shared/utils/routes';
 
 export default function NotFound() {
   return (
@@ -15,10 +15,10 @@ export default function NotFound() {
         </p>
         <div className="flex gap-4 justify-center">
           <Link href="/">
-            <Button variant="primary">Go Home</Button>
+            <MarketingButton variant="primary">Go Home</MarketingButton>
           </Link>
           <Link href={ROUTES.CONTACT}>
-            <Button variant="secondary">Contact Us</Button>
+            <MarketingButton variant="secondary">Contact Us</MarketingButton>
           </Link>
         </div>
       </div>

@@ -193,6 +193,7 @@ Thumbs.db
 Thumbs.db:encryptable
 ehthumbs.db
 ehthumbs_vista.db
+*:Zone.Identifier*
 *.stackdump
 [Dd]esktop.ini
 $RECYCLE.BIN/
@@ -337,9 +338,9 @@ docs/.vitepress/dist/
 # ============================================
 # Repository-Specific Exclusions
 # ============================================
-# Documentation (now tracked - removed from ignore)
-# docs/
-# DOCS/
+# Documentation
+docs/
+DOCS/
 
 # Cursor IDE rules (STRICTLY DO NOT PUSH)
 .cursorrules

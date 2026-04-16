@@ -14,13 +14,14 @@ import {
   SearchInput,
 } from "@/components/dashboard/universal";
 import { RowActions, EditAction, DeleteAction, ApproveAction, RejectAction } from "@/components/dashboard/universal/RowActions";
-import Button from "@/components/ui/Button";
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import Link from "next/link";
-import { ROUTES } from "@/utils/routes";
-import { BACK_TO_ADMIN_DASHBOARD_LABEL } from "@/utils/appConstants";
-import { Download, Users } from "lucide-react";
-import { toastManager } from "@/utils/toast";
-import { EMPTY_STATE } from "@/utils/emptyStateConstants";
+import { ROUTES } from "@/shared/utils/routes";
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from "@/shared/utils/appConstants";
+import { Download, Users, FileText, Zap } from "lucide-react";
+import { TabbedSidePanelContent } from "@/components/ui/TabbedSidePanelContent";
+import { toastManager } from "@/dashboard/utils/toast";
+import { EMPTY_STATE } from "@/dashboard/utils/emptyStateConstants";
 
 type ParentFormData = CreateUserDTO | UpdateUserDTO;
 
@@ -49,6 +50,7 @@ export const AdminParentsPageClient: React.FC = () => {
 
   // Selection / form state
   const [selectedParent, setSelectedParent] = useState<AdminUserRow | null>(null);
+  const [parentDetailsTabId, setParentDetailsTabId] = useState<string>("overview");
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -108,11 +110,6 @@ export const AdminParentsPageClient: React.FC = () => {
   const handleResetAllStaged = useCallback(() => {
     setStagedApprovalStatus("");
   }, []);
-
-  const handleClearFilters = () => {
-    setApprovalStatusFilter("");
-    setSearch("");
-  };
 
   const handleExport = () => {
     const csvData = parentUsers.map((user) => ({
@@ -316,12 +313,12 @@ export const AdminParentsPageClient: React.FC = () => {
             activeFilterCount={activeFilterCount}
             onClick={() => setFilterPanelOpen(true)}
           />
-          <Button type="button" size="sm" variant="bordered" onClick={handleExport} disabled={users.length === 0} icon={<Download className="h-3.5 w-3.5" />}>
+          <DashboardButton type="button" size="sm" variant="bordered" onClick={handleExport} disabled={users.length === 0} icon={<Download className="h-3.5 w-3.5" />}>
             Export CSV
-          </Button>
-          <Button type="button" size="sm" variant="primary" onClick={handleCreateClick}>
+          </DashboardButton>
+          <DashboardButton type="button" size="sm" variant="primary" onClick={handleCreateClick}>
             New parent
-          </Button>
+          </DashboardButton>
         </div>
       </div>
 
@@ -459,7 +456,7 @@ export const AdminParentsPageClient: React.FC = () => {
                             onClick={(e) => e.stopPropagation()}
                           >
                             <RowActions>
-                              <Button
+                              <DashboardButton
                                 type="button"
                                 size="sm"
                                 variant="primary"
@@ -468,8 +465,8 @@ export const AdminParentsPageClient: React.FC = () => {
                                 aria-label="Save"
                               >
                                 {inlineSaving ? "Saving…" : "Save"}
-                              </Button>
-                              <Button
+                              </DashboardButton>
+                              <DashboardButton
                                 type="button"
                                 size="sm"
                                 variant="bordered"
@@ -478,7 +475,7 @@ export const AdminParentsPageClient: React.FC = () => {
                                 aria-label="Cancel"
                               >
                                 Cancel
-                              </Button>
+                              </DashboardButton>
                             </RowActions>
                           </td>
                         </>
@@ -514,7 +511,7 @@ export const AdminParentsPageClient: React.FC = () => {
                                 </>
                               )}
                               <EditAction onClick={() => handleStartInlineEdit(parent)} aria-label="Edit" />
-                              <Button
+                              <DashboardButton
                                 type="button"
                                 size="sm"
                                 variant="bordered"
@@ -529,7 +526,7 @@ export const AdminParentsPageClient: React.FC = () => {
                                 className="min-w-0 px-2 py-1 text-2xs"
                               >
                                 Children
-                              </Button>
+                              </DashboardButton>
                               <DeleteAction onClick={() => handleDelete(parent.id)} aria-label="Delete" />
                             </RowActions>
                           </td>
@@ -549,107 +546,116 @@ export const AdminParentsPageClient: React.FC = () => {
         </div>
       </div>
 
-      {/* Detail view */}
+      {/* Detail view – tabbed by default */}
       <SideCanvas
         isOpen={!!selectedParent && !isEditing}
-        onClose={() => setSelectedParent(null)}
+        onClose={() => {
+          setSelectedParent(null);
+          setParentDetailsTabId("overview");
+        }}
         title={selectedParent ? selectedParent.name : "Parent details"}
         description="View parent details, approval status, and high-level activity."
       >
         {selectedParent && (
-          <div className="space-y-4 text-sm">
-            <section className="space-y-1">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Overview
-              </h3>
-              <dl className="grid grid-cols-1 gap-2 text-xs text-slate-700 dark:text-slate-200">
-                <div>
-                  <dt className="font-medium">Name</dt>
-                  <dd>{selectedParent.name}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Email</dt>
-                  <dd>{selectedParent.email}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Phone</dt>
-                  <dd>{selectedParent.phone || "—"}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Approval status</dt>
-                  <dd className="mt-0.5">
-                    <span
-                      className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${getApprovalBadgeClasses(
-                        selectedParent.approvalStatus,
-                      )}`}
-                    >
-                      {selectedParent.approvalStatus}
-                    </span>
-                  </dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Children</dt>
-                  <dd>{selectedParent.childrenCount || 0}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Bookings</dt>
-                  <dd>{selectedParent.bookingsCount || 0}</dd>
-                </div>
-              </dl>
-            </section>
-
-            <section className="space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Actions
-              </h3>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleEditClick(selectedParent)}
-                  className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700"
-                >
-                  Edit parent
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    router.push(
-                      `/dashboard/admin/children?parentId=${encodeURIComponent(
-                        selectedParent.id,
-                      )}`,
-                    )
-                  }
-                  className="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-                >
-                  View children
-                </button>
-                {selectedParent.approvalStatus === "pending" && (
-                  <>
+          <TabbedSidePanelContent
+            tabs={[
+              {
+                id: "overview",
+                label: "Overview",
+                icon: FileText,
+                content: (
+                  <dl className="grid grid-cols-1 gap-2 text-xs text-slate-700 dark:text-slate-200">
+                    <div>
+                      <dt className="font-medium">Name</dt>
+                      <dd>{selectedParent.name}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Email</dt>
+                      <dd>{selectedParent.email}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Phone</dt>
+                      <dd>{selectedParent.phone || "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Approval status</dt>
+                      <dd className="mt-0.5">
+                        <span
+                          className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${getApprovalBadgeClasses(
+                            selectedParent.approvalStatus
+                          )}`}
+                        >
+                          {selectedParent.approvalStatus}
+                        </span>
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Children</dt>
+                      <dd>{selectedParent.childrenCount || 0}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Bookings</dt>
+                      <dd>{selectedParent.bookingsCount || 0}</dd>
+                    </div>
+                  </dl>
+                ),
+              },
+              {
+                id: "actions",
+                label: "Actions",
+                icon: Zap,
+                content: (
+                  <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
-                      onClick={(e) => {
-                        handleApprove(selectedParent.id, e);
-                        setSelectedParent(null);
-                      }}
-                      className="inline-flex items-center rounded-md border border-emerald-600 px-3 py-1.5 text-xs font-medium text-emerald-600 shadow-sm hover:bg-emerald-50"
+                      onClick={() => handleEditClick(selectedParent)}
+                      className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700"
                     >
-                      Approve
+                      Edit parent
                     </button>
                     <button
                       type="button"
-                      onClick={(e) => {
-                        handleReject(selectedParent.id, e);
-                        setSelectedParent(null);
-                      }}
-                      className="inline-flex items-center rounded-md border border-rose-600 px-3 py-1.5 text-xs font-medium text-rose-600 shadow-sm hover:bg-rose-50"
+                      onClick={() =>
+                        router.push(
+                          `/dashboard/admin/children?parentId=${encodeURIComponent(selectedParent.id)}`
+                        )
+                      }
+                      className="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
-                      Reject
+                      View children
                     </button>
-                  </>
-                )}
-              </div>
-            </section>
-          </div>
+                    {selectedParent.approvalStatus === "pending" && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            handleApprove(selectedParent.id, e);
+                            setSelectedParent(null);
+                          }}
+                          className="inline-flex items-center rounded-md border border-emerald-600 px-3 py-1.5 text-xs font-medium text-emerald-600 shadow-sm hover:bg-emerald-50"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            handleReject(selectedParent.id, e);
+                            setSelectedParent(null);
+                          }}
+                          className="inline-flex items-center rounded-md border border-rose-600 px-3 py-1.5 text-xs font-medium text-rose-600 shadow-sm hover:bg-rose-50"
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
+                  </div>
+                ),
+              },
+            ]}
+            activeTabId={parentDetailsTabId}
+            onTabChange={setParentDetailsTabId}
+            ariaLabel="Parent details sections"
+          />
         )}
       </SideCanvas>
 
@@ -730,7 +736,10 @@ export const AdminParentsPageClient: React.FC = () => {
               id="approvalStatus"
               value={formData.approvalStatus || "pending"}
               onChange={(e) =>
-                setFormData({ ...formData, approvalStatus: e.target.value as any })
+                setFormData({
+                  ...formData,
+                  approvalStatus: e.target.value as CreateUserDTO["approvalStatus"],
+                })
               }
               className="mt-1 h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50"
             >

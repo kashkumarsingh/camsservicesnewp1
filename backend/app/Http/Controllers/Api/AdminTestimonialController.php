@@ -101,7 +101,7 @@ class AdminTestimonialController extends Controller
         $testimonial->source_type = $validated['source_type'] ?? Testimonial::SOURCE_MANUAL;
         $testimonial->source_label = $validated['source_label'] ?? null;
         $testimonial->source_url = $validated['source_url'] ?? null;
-        $testimonial->locale = $validated['locale'] ?? null;
+        $testimonial->locale = $validated['locale'] ?? config('app.locale', 'en');
         $testimonial->published = $validated['published'] ?? true;
         $testimonial->save();
 

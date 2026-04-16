@@ -37,19 +37,19 @@ function searchStringFromFilters(f: AdminBookingsFilters): string {
 }
 import SideCanvas from '@/components/ui/SideCanvas';
 import { TableRowsSkeleton } from '@/components/ui/Skeleton';
-import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
+import { SKELETON_COUNTS } from '@/shared/utils/skeletonConstants';
 import { useLiveRefresh, useLiveRefreshContext } from '@/core/liveRefresh/LiveRefreshContext';
-import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
+import { LIVE_REFRESH_ENABLED } from '@/dashboard/utils/liveRefreshConstants';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
-import { getStatusBadgeClasses, getPaymentStatusBadgeClasses } from '@/utils/statusBadgeHelpers';
+import { getStatusBadgeClasses, getPaymentStatusBadgeClasses } from '@/dashboard/utils/statusBadgeHelpers';
 import {
   BOOKING_STATUS,
   PAYMENT_STATUS,
   SCHEDULE_SESSION_STATUS,
   type BookingStatusValue,
-} from '@/utils/dashboardConstants';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+} from '@/dashboard/utils/dashboardConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 import {
   Breadcrumbs,
   EmptyState,
@@ -61,17 +61,17 @@ import {
   RowActions,
   ViewAction,
 } from '@/components/dashboard/universal';
-import Button from '@/components/ui/Button';
-import { ROUTES } from '@/utils/routes';
-import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/utils/appConstants';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
+import { ROUTES } from '@/shared/utils/routes';
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/shared/utils/appConstants';
 import Link from 'next/link';
 import { ArrowDown, ArrowUp, ArrowUpDown, CalendarDays, CheckCircle, Download, ExternalLink, FileText, Plus, Receipt, XCircle } from 'lucide-react';
 import {
   VIEW_RECEIPT_LABEL,
   PAYMENT_TYPE_LABEL_PACKAGE,
   PAYMENT_TYPE_LABEL_TOP_UP,
-} from '@/utils/appConstants';
-import { toastManager } from '@/utils/toast';
+} from '@/shared/utils/appConstants';
+import { toastManager } from '@/dashboard/utils/toast';
 import { AdminTopUpModal } from '@/components/dashboard/admin/AdminTopUpModal';
 
 // ==========================================================================
@@ -128,8 +128,7 @@ function getPrimaryTrainerId(booking: AdminBookingDTO): string {
 }
 
 /** Sortable column key supported by the API */
-const SORTABLE_COLUMNS = ['reference', 'created_at', 'updated_at'] as const;
-type SortByColumn = (typeof SORTABLE_COLUMNS)[number];
+type SortByColumn = 'reference' | 'created_at' | 'updated_at';
 
 // ==========================================================================
 // Main Component
@@ -409,13 +408,6 @@ export const AdminBookingsPageClient: React.FC = () => {
     [searchParams, applyFilters]
   );
 
-  const handleFilterChange = useCallback(
-    (filters: AdminBookingsFilters) => {
-      applyFilters({ ...filtersFromSearchParams(searchParams), ...filters });
-    },
-    [searchParams, applyFilters]
-  );
-
   const handleSortChange = useCallback(
     (newSortBy: string, newOrder: string) => {
       applyFilters({
@@ -426,11 +418,6 @@ export const AdminBookingsPageClient: React.FC = () => {
     },
     [searchParams, applyFilters]
   );
-
-  const handleClearFilters = useCallback(() => {
-    router.replace(pathname, { scroll: false });
-    updateFilters({});
-  }, [router, pathname, updateFilters]);
 
   /** When arriving from a notification link with schedule_id, open the side panel for that booking. */
   const scheduleIdFromUrl = searchParams.get('schedule_id') ?? undefined;
@@ -668,9 +655,9 @@ export const AdminBookingsPageClient: React.FC = () => {
       {error && (
         <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200">
           <p className="mb-2">{error}</p>
-          <Button type="button" size="sm" variant="bordered" onClick={() => fetchBookings()}>
+          <DashboardButton type="button" size="sm" variant="bordered" onClick={() => fetchBookings()}>
             Retry
-          </Button>
+          </DashboardButton>
         </div>
       )}
 
@@ -689,9 +676,9 @@ export const AdminBookingsPageClient: React.FC = () => {
             activeFilterCount={activeFilterCount}
             onClick={() => setFilterPanelOpen(true)}
           />
-          <Button type="button" size="sm" variant="bordered" onClick={handleExport} icon={<Download className="h-3.5 w-3.5" />}>
+          <DashboardButton type="button" size="sm" variant="bordered" onClick={handleExport} icon={<Download className="h-3.5 w-3.5" />}>
             Export CSV
-          </Button>
+          </DashboardButton>
         </div>
       </div>
 
@@ -756,7 +743,7 @@ export const AdminBookingsPageClient: React.FC = () => {
               {selectedIds.size} selected
             </span>
             <div className="ml-auto flex items-center gap-2">
-              <Button
+              <DashboardButton
                 type="button"
                 size="sm"
                 variant="bordered"
@@ -765,8 +752,8 @@ export const AdminBookingsPageClient: React.FC = () => {
                 icon={<CheckCircle className="h-3.5 w-3.5" />}
               >
                 Bulk confirm
-              </Button>
-              <Button
+              </DashboardButton>
+              <DashboardButton
                 type="button"
                 size="sm"
                 variant="destructive-outline"
@@ -775,7 +762,7 @@ export const AdminBookingsPageClient: React.FC = () => {
                 icon={<XCircle className="h-3.5 w-3.5" />}
               >
                 Bulk cancel
-              </Button>
+              </DashboardButton>
             </div>
           </div>
         )}
@@ -1232,9 +1219,9 @@ export const AdminBookingsPageClient: React.FC = () => {
                     <section className="space-y-1">
                       <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Top up</h3>
                       <p className="text-2xs text-slate-600 dark:text-slate-400 mb-2">Add hours to this package. Create a payment link and share it with the parent.</p>
-                      <Button type="button" variant="bordered" size="sm" onClick={handleOpenTopUpModal} icon={<Plus className="h-3.5 w-3.5" />}>
+                      <DashboardButton type="button" variant="bordered" size="sm" onClick={handleOpenTopUpModal} icon={<Plus className="h-3.5 w-3.5" />}>
                         Create top-up link
-                      </Button>
+                      </DashboardButton>
                     </section>
                   )}
                   <section className="space-y-1">

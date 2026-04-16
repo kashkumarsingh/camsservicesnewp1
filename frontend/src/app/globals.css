@@ -1,379 +1,255 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap');
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
-
-/* Manual dark switch: dark: variant applies when .dark is on an ancestor (e.g. <html class="dark">). */
-@custom-variant dark (&&:where(.dark, .dark *));
+@config "../../tailwind.config.js";
 
 @theme {
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(240 10% 3.9%);
-  --color-primary: #0080FF;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: hsl(38 92% 50%);
-  --color-secondary-foreground: hsl(48 96% 89%);
-  --color-accent: hsl(120 50% 45%);
-  --color-accent-foreground: hsl(120 55% 95%);
-  /* Theme tokens for gradients/shadows/scrollbars (match tailwind.config.js where applicable) */
-  --color-primary-blue: #0080FF;
-  --color-light-blue-cyan: #00D4FF;
-  --color-navy-blue: #1E3A5F;
-  --color-orbital-green: #7FFF00;
-  --color-star-gold: #FFD700;
-  --color-accent-orange: #FF6B35;
-  --color-sky-blue: #87CEEB;
-  --color-scrollbar-track: #f1f1f1;
-  --color-scrollbar-thumb: #0080FF;
-  --color-scrollbar-thumb-hover: #0069cc;
-  --color-sidebar-track: #f1f5f9;
-  --color-sidebar-thumb: #cbd5e1;
-  --color-sidebar-thumb-hover: #94a3b8;
-  /* Border radius – single source of truth for cards and form UI (rounded-card, rounded-form-*, etc.) */
-  --radius-card: 30px;
-  --radius-form-card: 1.5rem;
-  --radius-form-input: 0.5rem;
-  --radius-form-button: 0.75rem;
-  --radius-form-alert: 0.5rem;
-  --radius-header-button: 9999px;
-  /* Box shadow – single source of truth for cards (shadow-card, shadow-card-hover) */
-  --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
-  --shadow-card-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.08);
-  /* Z-index scale. Header highest of body; overlays above header when open. */
-  --z-index-base: 0;
-  --z-index-raised: 10;
-  --z-index-content: 20;
-  --z-index-dropdown: 100;
-  --z-index-sidebar: 150;
-  --z-index-sticky: 200;
-  --z-index-header: 1000;
-  --z-index-overlay: 1100;
-  --z-index-sidePanel: 1200;
-  --z-index-modal: 1300;
-  --z-index-popover: 1300;
-  --z-index-toast: 1400;
-  --z-index-critical: 1500;
+  --color-cams-primary: #0066ff;
+  --color-cams-secondary: #00d4ff;
+  --color-cams-accent: #ccff00;
+  --color-cams-dark: #0f172a;
+  --color-cams-soft: #f8fafc;
+  --color-cams-ink: #0f172a;
+  --color-cams-ink-secondary: #334155;
+  --color-cams-ink-tertiary: #64748b;
+  --color-cams-ink-onHero: #e2e8f0;
+  --color-cams-slate: #475569;
+  --color-cams-rating-star: #fbbf24;
+  --color-cams-rating-starStroke: #d97706;
+  --color-cams-icon-on-light: #0f172a;
+  --color-cams-icon-on-muted: #1e293b;
+  --color-cams-icon-on-inverse: #e2e8f0;
+  --color-cams-icon-accent-on-dark: #f8fafc;
 }
 
-/* Named z-index utilities (Tailwind v4: @theme --z-index-* may not generate z-header etc.; @utility ensures they apply) */
-@utility z-base { z-index: var(--z-index-base); }
-@utility z-raised { z-index: var(--z-index-raised); }
-@utility z-content { z-index: var(--z-index-content); }
-@utility z-dropdown { z-index: var(--z-index-dropdown); }
-@utility z-sidebar { z-index: var(--z-index-sidebar); }
-@utility z-sticky { z-index: var(--z-index-sticky); }
-@utility z-header { z-index: var(--z-index-header); }
-@utility z-overlay { z-index: var(--z-index-overlay); }
-@utility z-sidePanel { z-index: var(--z-index-sidePanel); }
-@utility z-modal { z-index: var(--z-index-modal); }
-@utility z-popover { z-index: var(--z-index-popover); }
-@utility z-toast { z-index: var(--z-index-toast); }
-@utility z-critical { z-index: var(--z-index-critical); }
-
-/* Force light when user selects light (manual switch). */
-html.light body {
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(240 10% 3.9%);
-  --color-primary: #0080FF;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: hsl(38 92% 50%);
-  --color-secondary-foreground: hsl(48 96% 89%);
-  --color-accent: hsl(120 50% 45%);
-  --color-accent-foreground: hsl(120 55% 95%);
-}
-
-/* Dark: manual switch (html.dark) or system (prefers-color-scheme). */
-html.dark,
-html.dark body {
-  color-scheme: dark;
-  --color-background: hsl(240 10% 7%);
-  --color-foreground: hsl(0 0% 95%);
-  --color-primary: #0080FF;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: hsl(38 80% 55%);
-  --color-secondary-foreground: hsl(48 30% 12%);
-  --color-accent: hsl(120 45% 45%);
-  --color-accent-foreground: hsl(120 30% 95%);
-}
-
-@media (prefers-color-scheme: dark) {
-  html:not(.light) {
-    color-scheme: dark;
-  }
-  html:not(.light) body {
-    --color-background: hsl(240 10% 7%);
-    --color-foreground: hsl(0 0% 95%);
-    --color-primary: #0080FF;
-    --color-primary-foreground: #ffffff;
-    --color-secondary: hsl(38 80% 55%);
-    --color-secondary-foreground: hsl(48 30% 12%);
-    --color-accent: hsl(120 45% 45%);
-    --color-accent-foreground: hsl(120 30% 95%);
-  }
+:root {
+  color-scheme: light;
+  --cams-diagonal-depth: clamp(1.75rem, 6vw, 4.75rem);
 }
 
 body {
-  background: var(--color-background);
-  color: var(--color-foreground);
-  font-family: var(--font-inter), sans-serif;
+  font-family: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  @apply bg-cams-soft text-cams-ink antialiased;
 }
 
-/* Parent mobile schedule dashboard typography (scoped, does not affect global brand fonts) */
-.parent-schedule-root {
-  font-family: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-outfit), "Outfit", system-ui, sans-serif;
 }
 
-.parent-schedule-root h1,
-.parent-schedule-root h2,
-.parent-schedule-root h3,
-.parent-schedule-root .heading {
-  font-family: 'Urbanist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
+@media (pointer: fine) {
+  html.cams-custom-cursor body {
+    cursor: none;
   }
-  to {
-    transform: rotate(360deg);
-  }
-}
 
-.animate-orbital-ring {
-  animation: rotate 4s linear infinite;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-orbitron), sans-serif;
-}
-
-.hero-gradient-bg {
-  background: linear-gradient(135deg, var(--color-primary-blue) 0%, var(--color-light-blue-cyan) 50%, var(--color-primary-blue) 100%);
-  background-size: cover;
-}
-
-.card-navy-border {
-  border: 4px solid var(--color-primary); /* Thicker, colorful border */
-}
-
-.card-right-shadow {
-  box-shadow: 8px 8px 0px var(--color-orbital-green), 12px 12px 0px var(--color-star-gold);
-}
-
-.card-hover-lift:hover {
-  transform: translateY(-5px);
-  box-shadow: 10px 10px 0px var(--color-orbital-green), 15px 15px 0px var(--color-star-gold);
-}
-
-@keyframes bounce-fun {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(2deg); }
-}
-
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-2deg); }
-  75% { transform: rotate(2deg); }
-}
-
-.hero-playful-gradient-bg {
-  background: linear-gradient(135deg,
-    var(--color-primary-blue) 0%,
-    var(--color-light-blue-cyan) 25%,
-    var(--color-orbital-green) 50%,
-    var(--color-star-gold) 75%,
-    var(--color-accent-orange) 100%
-  );
-  background-size: cover;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-}
-
-@keyframes twinkle {
-  0%, 100% { opacity: 0; transform: scale(0); }
-  50% { opacity: 1; transform: scale(1); }
-}
-
-.heading-text-shadow {
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4); /* More subtle shadow */
-}
-
-@keyframes pulse-slow {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.8; }
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 3s ease-in-out infinite;
-}
-
-.header-nav-text-shadow {
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Subtle shadow */
-}
-
-@keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
-}
-
-.animate-shimmer {
-  background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
-  background-size: 1000px 100%;
-  background-repeat: no-repeat;
-  animation: shimmer 3s infinite;
-}
-
-.cta-sky-nature-gradient {
-  background: linear-gradient(180deg,
-    var(--color-sky-blue) 0%,
-    var(--color-light-blue-cyan) 30%,
-    var(--color-orbital-green) 70%,
-    var(--color-star-gold) 100%
-  );
-  background-size: cover;
-}
-
-/* Slide up animation for schedule modals / panels */
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  html.cams-custom-cursor a[href],
+  html.cams-custom-cursor button:not(:disabled),
+  html.cams-custom-cursor [role="button"],
+  html.cams-custom-cursor input,
+  html.cams-custom-cursor textarea,
+  html.cams-custom-cursor select,
+  html.cams-custom-cursor label,
+  html.cams-custom-cursor summary {
+    cursor: none;
   }
 }
 
-.slide-up {
-  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.brand-image-frame {
+  position: relative;
+  overflow: hidden;
 }
 
-/* Pulse animation for pending status */
-@keyframes pulseWarning {
-  0%, 100% {
-    opacity: 1;
+/**
+ * Photography veil: analogous primary → secondary (adjacent cool hues) ties photos to the brand
+ * without complementary clash; a deeper cams-dark base toward the bottom improves contrast
+ * where copy or UI often stacks.
+ */
+.brand-image-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      145deg,
+      rgb(0 102 255 / 0.36) 0%,
+      rgb(0 212 255 / 0.16) 48%,
+      transparent 72%
+    ),
+    linear-gradient(to top, rgb(26 32 44 / 0.3) 0%, transparent 50%);
+}
+
+.cams-hero-float-card {
+  will-change: transform;
+}
+
+.cams-hero-float-card--a {
+  animation: camsHeroFloatA 8s ease-in-out infinite;
+}
+
+.cams-hero-float-card--b {
+  animation: camsHeroFloatB 7s ease-in-out infinite;
+}
+
+.cams-hero-float-card--c {
+  animation: camsHeroFloatC 9s ease-in-out infinite;
+}
+
+@keyframes camsHeroFloatA {
+  0%,
+  100% {
+    transform: rotate(-9deg) translateY(0);
   }
   50% {
-    opacity: 0.6;
+    transform: rotate(-6deg) translateY(-16px);
   }
 }
 
-.pulse-warning {
-  animation: pulseWarning 2s ease-in-out infinite;
-}
-
-/* Session card interaction */
-.session-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.session-card:active {
-  transform: scale(0.98);
-}
-
-/* Mobile Menu Animations */
-@keyframes slide-in-right {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
+@keyframes camsHeroFloatB {
+  0%,
+  100% {
+    transform: rotate(7deg) translateY(0);
   }
-  to {
+  50% {
+    transform: rotate(5deg) translateY(-12px);
+  }
+}
+
+@keyframes camsHeroFloatC {
+  0%,
+  100% {
+    transform: rotate(-5deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-3deg) translateY(-14px);
+  }
+}
+
+/**
+ * Hero bottom edge: diagonal slice (left sits lower, right rises) for handoff to the next band.
+ * Depth scales with viewport; keep shallow so primary hero copy stays clear of the cut.
+ */
+.cams-hero-diagonal-clip {
+  position: relative;
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--cams-diagonal-depth)), 0 100%);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--cams-diagonal-depth)), 0 100%);
+}
+
+.cams-hero-diagonal-clip::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgb(15 23 42 / 0.2) 0%,
+    rgb(15 23 42 / 0.1) calc(var(--cams-diagonal-depth) * 0.35),
+    transparent calc(var(--cams-diagonal-depth) * 0.85)
+  );
+}
+
+/**
+ * Bottom CTA band top edge: diagonal slice matching the hero bottom (left lower, right higher).
+ * Uses the same clamp depth as `.cams-hero-diagonal-clip` for a continuous handoff.
+ */
+.cams-cta-top-diagonal-clip {
+  position: relative;
+  -webkit-clip-path: polygon(
+    0 var(--cams-diagonal-depth),
+    100% 0,
+    100% 100%,
+    0 100%
+  );
+  clip-path: polygon(
+    0 var(--cams-diagonal-depth),
+    100% 0,
+    100% 100%,
+    0 100%
+  );
+}
+
+.cams-cta-top-diagonal-clip::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 0.16) 0%,
+    rgb(255 255 255 / 0.08) calc(var(--cams-diagonal-depth) * 0.3),
+    transparent calc(var(--cams-diagonal-depth) * 0.9)
+  );
+  mix-blend-mode: screen;
+}
+
+.cams-diagonal-overlap-top {
+  margin-top: calc(var(--cams-diagonal-depth) * -1);
+}
+
+.cams-footer-rail-track {
+  will-change: transform;
+  animation: camsFooterRailMarquee 55s linear infinite;
+}
+
+.cams-thin-x-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(148 163 184 / 0.35) transparent;
+}
+
+.cams-thin-x-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.cams-thin-x-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cams-thin-x-scroll::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184 / 0.35);
+  border-radius: 9999px;
+}
+
+.cams-thin-x-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgb(100 116 139 / 0.5);
+}
+
+@keyframes camsFooterRailMarquee {
+  0% {
     transform: translateX(0);
-    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%);
   }
 }
 
-@keyframes fade-in {
-  from {
+@media (prefers-reduced-motion: reduce) {
+  .cams-footer-rail-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-inline: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-color: rgb(100 116 139) rgb(30 41 59);
+  }
+
+  .cams-footer-rail-track {
+    animation: none;
+  }
+
+  .cams-footer-rail-mask {
     opacity: 0;
+    pointer-events: none;
   }
-  to {
-    opacity: 1;
+
+  .cams-hero-video {
+    display: none;
   }
-}
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+  .cams-hero-float-card--a,
+  .cams-hero-float-card--b,
+  .cams-hero-float-card--c {
+    animation: none !important;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
-.animate-slide-in-right {
-  animation: slide-in-right 300ms ease-out forwards;
-}
-
-.animate-fade-in {
-  animation: fade-in 300ms ease-out forwards;
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.3s ease-in-out;
-}
-
-/* Custom scrollbar for activity selection */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: var(--color-scrollbar-track);
-  border-radius: 10px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--color-scrollbar-thumb);
-  border-radius: 10px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--color-scrollbar-thumb-hover);
-}
-
-/* Sidebar list scroll: visible scrollbar when 4+ items */
-.sidebar-list-scroll {
-  scrollbar-gutter: stable;
-}
-.sidebar-list-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-.sidebar-list-scroll::-webkit-scrollbar-track {
-  background: var(--color-sidebar-track);
-  border-radius: 4px;
-}
-.sidebar-list-scroll::-webkit-scrollbar-thumb {
-  background: var(--color-sidebar-thumb);
-  border-radius: 4px;
-}
-.sidebar-list-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--color-sidebar-thumb-hover);
-}
-
-@media (prefers-color-scheme: dark) {
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: hsl(240 10% 12%);
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: hsl(207 85% 58%);
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: hsl(207 85% 48%);
-  }
-  .sidebar-list-scroll::-webkit-scrollbar-track {
-    background: hsl(240 10% 14%);
-  }
-  .sidebar-list-scroll::-webkit-scrollbar-thumb {
-    background: hsl(240 10% 35%);
-  }
-  .sidebar-list-scroll::-webkit-scrollbar-thumb:hover {
-    background: hsl(240 10% 45%);
-  }
 }

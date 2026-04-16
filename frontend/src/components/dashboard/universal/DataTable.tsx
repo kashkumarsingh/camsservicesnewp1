@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { EmptyState } from './EmptyState';
 import { ListRowsSkeleton, TableRowsSkeleton } from '@/components/ui/Skeleton';
-import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { SKELETON_COUNTS } from '@/shared/utils/skeletonConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 /**
  * Generic data table with search, sort, pagination, empty state.
@@ -162,7 +162,7 @@ export function DataTable<TData>({
             )}
           </div>
           {onAddClick && (
-            <Button
+            <DashboardButton
               type="button"
               size="sm"
               variant="primary"
@@ -170,7 +170,7 @@ export function DataTable<TData>({
               className="mt-2 w-full md:mt-0 md:w-auto"
             >
               {addLabel}
-            </Button>
+            </DashboardButton>
           )}
         </header>
       )}
@@ -182,9 +182,9 @@ export function DataTable<TData>({
         <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200">
           <p className="mb-2">{error}</p>
           {onRetry && (
-            <Button type="button" size="sm" variant="bordered" onClick={onRetry}>
+            <DashboardButton type="button" size="sm" variant="bordered" onClick={onRetry}>
               Retry
-            </Button>
+            </DashboardButton>
           )}
         </div>
       )}
@@ -202,9 +202,9 @@ export function DataTable<TData>({
               message={emptyMessage}
               action={
                 onAddClick ? (
-                  <Button type="button" size="sm" variant="primary" onClick={onAddClick}>
+                  <DashboardButton type="button" size="sm" variant="primary" onClick={onAddClick}>
                     {addLabel}
-                  </Button>
+                  </DashboardButton>
                 ) : undefined
               }
             />
@@ -331,14 +331,14 @@ export function DataTable<TData>({
                     title={emptyTitle}
                     message={emptyMessage}
                     action={onAddClick ? (
-                      <Button
+                      <DashboardButton
                         type="button"
                         size="sm"
                         variant="primary"
                         onClick={onAddClick}
                       >
                         {addLabel}
-                      </Button>
+                      </DashboardButton>
                     ) : undefined}
                   />
                 </td>
@@ -401,7 +401,7 @@ export function DataTable<TData>({
             </span>
           </div>
           <div className="flex items-center gap-1">
-            <Button
+            <DashboardButton
               type="button"
               size="xs"
               variant="bordered"
@@ -415,12 +415,12 @@ export function DataTable<TData>({
               aria-label="Previous page"
             >
               <ChevronLeft className="h-3 w-3" />
-            </Button>
+            </DashboardButton>
             <span className="px-1">
               Page <span className="font-medium">{page}</span> of{' '}
               <span className="font-medium">{totalPages}</span>
             </span>
-            <Button
+            <DashboardButton
               type="button"
               size="xs"
               variant="bordered"
@@ -434,7 +434,7 @@ export function DataTable<TData>({
               aria-label="Next page"
             >
               <ChevronRight className="h-3 w-3" />
-            </Button>
+            </DashboardButton>
           </div>
         </footer>
       )}

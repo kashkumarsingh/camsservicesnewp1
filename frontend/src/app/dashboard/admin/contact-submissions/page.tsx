@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ROUTES } from '@/utils/routes';
+import { ROUTES } from '@/shared/utils/routes';
 import { ArrowLeft } from 'lucide-react';
-import Button from '@/components/ui/Button';
-
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 export const metadata: Metadata = {
   title: 'Contact submissions | Admin',
   description: 'View contact form submissions.',
@@ -19,10 +18,10 @@ export default function AdminContactSubmissionsPage() {
     <div className="p-6 max-w-2xl mx-auto">
       <div className="mb-6">
         <Link href={ROUTES.DASHBOARD_ADMIN}>
-          <Button variant="bordered" size="sm" className="gap-2">
+          <DashboardButton variant="bordered" size="sm" className="gap-2">
             <ArrowLeft size={16} />
             Back to admin
-          </Button>
+          </DashboardButton>
         </Link>
       </div>
       <div className="rounded-card border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-card">
@@ -31,6 +30,11 @@ export default function AdminContactSubmissionsPage() {
         </h1>
         <p className="text-slate-600 dark:text-slate-400 text-sm">
           List of contact form submissions will appear here once the admin API is connected.
+        </p>
+        <p className="mt-4 text-sm">
+          <Link href={ROUTES.DASHBOARD_ADMIN_REFERRALS} className="font-semibold text-cams-primary hover:text-cams-secondary">
+            View dedicated referral submissions
+          </Link>
         </p>
       </div>
     </div>

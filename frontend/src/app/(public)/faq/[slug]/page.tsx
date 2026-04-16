@@ -1,14 +1,11 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import Section from '@/components/layout/Section';
-import Button from '@/components/ui/Button';
-import CTASection from '@/components/shared/CTASection';
-import { FAQItem } from '@/interfaces/web/components/faq';
+import { FAQDetailPageView } from '@/marketing/components/faq/FAQDetailPageView';
 import { GetFAQItemUseCase } from '@/core/application/faq/useCases/GetFAQItemUseCase';
 import { faqRepository } from '@/infrastructure/persistence/faq';
-import { ROUTES } from '@/utils/routes';
-import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
-import { SEO_DEFAULTS } from '@/utils/seoConstants';
+import { ROUTES } from '@/shared/utils/routes';
+import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
+import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
 import { FAQ_DETAIL_PAGE as F } from '@/app/(public)/constants/faqDetailPageConstants';
 
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
@@ -37,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   );
 }
 
-import { withTimeoutFallback } from '@/utils/promiseUtils';
+import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
 
 export default async function FAQDetailsPage({ params }: Props) {
   const { slug } = await params;
@@ -53,49 +50,20 @@ export default async function FAQDetailsPage({ params }: Props) {
   }
 
   return (
-    <div>
-      {/* Hero Section */}
-      <Section className="relative pt-20 pb-24 px-4 sm:px-6 lg:px-8 text-white overflow-hidden min-h-screen flex items-center">
-        <video
-          className="absolute inset-0 w-full h-full object-cover"
-          src="/videos/space-bg-2.mp4"
-          loop
-          autoPlay
-          muted
-          playsInline
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/30 to-light-blue-cyan/20"></div>
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url('/svgs/question-pattern.svg')", backgroundRepeat: "repeat", backgroundSize: "40px 40px" }}></div>
-        <div className="relative text-center max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-heading font-extrabold mb-6 leading-tight tracking-tight heading-text-shadow">
-            {faq.title}
-          </h1>
-          <div className="flex flex-col sm:flex-row justify-center gap-5 mt-10">
-            <Button href={ROUTES.CONTACT} variant="superPlayful" size="lg" className="shadow-lg" withArrow>
-              {F.CTA_CONTACT}
-            </Button>
-            <Button href={ROUTES.FAQ} variant="outline" size="lg" className="shadow-lg" withArrow>
-              {F.CTA_VIEW_ALL}
-            </Button>
-          </div>
-        </div>
-      </Section>
-
-      {/* Content Section */}
-      <div className="py-20 bg-gradient-to-br from-blue-50 to-white">
-        <Section>
-          <FAQItem slug={slug} incrementViews={true} />
-        </Section>
-      </div>
-
-      {/* CTA Section */}
-      <CTASection
-        title={F.CTA_TITLE}
-        subtitle={F.CTA_SUBTITLE}
-        primaryCTA={{ text: F.CTA_PRIMARY, href: ROUTES.CONTACT }}
-        secondaryCTA={{ text: F.CTA_SECONDARY, href: ROUTES.SERVICES }}
-        variant="default"
-      />
-    </div>
+    <FAQDetailPageView
+      faq={faq}
+      slug={slug}
+      contactRoute={ROUTES.CONTACT}
+      faqRoute={ROUTES.FAQ}
+      servicesRoute={ROUTES.SERVICES}
+      copy={{
+        ctaContact: F.CTA_CONTACT,
+        ctaViewAll: F.CTA_VIEW_ALL,
+        ctaTitle: F.CTA_TITLE,
+        ctaSubtitle: F.CTA_SUBTITLE,
+        ctaPrimary: F.CTA_PRIMARY,
+        ctaSecondary: F.CTA_SECONDARY,
+      }}
+    />
   );
 }

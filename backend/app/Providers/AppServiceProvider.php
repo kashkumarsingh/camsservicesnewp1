@@ -12,7 +12,6 @@ use App\Models\BookingSchedule;
 use App\Models\Child;
 use App\Models\FAQ;
 use App\Models\Page;
-use App\Models\PageBlock;
 use App\Models\Package;
 use App\Models\Service;
 use App\Models\SiteSetting;
@@ -25,7 +24,6 @@ use App\Observers\BookingScheduleObserver;
 use App\Observers\ChildObserver;
 use App\Observers\FAQObserver;
 use App\Observers\PackageObserver;
-use App\Observers\PageBlockObserver;
 use App\Observers\PageObserver;
 use App\Observers\ServiceObserver;
 use App\Observers\SiteSettingObserver;
@@ -136,7 +134,6 @@ class AppServiceProvider extends ServiceProvider
 
         SiteSetting::observe(SiteSettingObserver::class);
         Page::observe(PageObserver::class);
-        PageBlock::observe(PageBlockObserver::class);
         BlogPost::observe(BlogPostObserver::class);
         Service::observe(ServiceObserver::class);
         FAQ::observe(FAQObserver::class);
@@ -155,6 +152,14 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perMinute(2)->by($request->ip()), // Stricter: 2 per minute instead of 5
                 Limit::perHour(10)->by($request->ip()), // 10 per hour
                 Limit::perDay(50)->by($request->ip()), // 50 per day instead of 100
+            ];
+        });
+
+        RateLimiter::for('referral-submissions', function (Request $request) {
+            return [
+                Limit::perMinute(2)->by($request->ip()),
+                Limit::perHour(10)->by($request->ip()),
+                Limit::perDay(50)->by($request->ip()),
             ];
         });
     }

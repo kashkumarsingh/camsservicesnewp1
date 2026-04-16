@@ -7,9 +7,9 @@
 import { useTrainers } from '../../hooks/trainers/useTrainers';
 import TrainerCard from './TrainerCard';
 import { TrainerFilterOptions } from '@/core/application/trainers';
-import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
+import { SKELETON_COUNTS } from '@/shared/utils/skeletonConstants';
 import { TrainerSkeleton } from '@/components/ui/Skeleton';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface TrainerListProps {
   filterOptions?: TrainerFilterOptions;

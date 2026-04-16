@@ -3,6 +3,7 @@
 namespace App\Services\Payment;
 
 use App\Contracts\Payment\IPaymentService;
+use App\Models\PaymentGatewaySetting;
 use Stripe\StripeClient;
 use Stripe\Exception\ApiErrorException;
 use Illuminate\Support\Facades\Log;
@@ -29,7 +30,8 @@ class StripePaymentService implements IPaymentService
 
     public function __construct()
     {
-        $apiKey = config('services.stripe.secret_key');
+        $config = PaymentGatewaySetting::getEffectiveStripeConfig();
+        $apiKey = $config['secret_key'] ?? null;
         $apiKey = is_string($apiKey) ? trim($apiKey) : $apiKey;
 
         if ($apiKey === '' || $apiKey === null) {

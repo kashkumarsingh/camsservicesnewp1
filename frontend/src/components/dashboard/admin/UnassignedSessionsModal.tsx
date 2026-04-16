@@ -8,8 +8,8 @@ import type { SessionAwaitingTrainerItem } from '@/interfaces/web/hooks/dashboar
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { useLiveRefreshContext } from '@/core/liveRefresh/LiveRefreshContext';
-import { getApiErrorMessage } from '@/utils/errorUtils';
-import { ASSIGN_TRAINER_ERROR_FALLBACK } from '@/utils/appConstants';
+import { getApiErrorMessage } from '@/shared/utils/errorUtils';
+import { ASSIGN_TRAINER_ERROR_FALLBACK } from '@/shared/utils/appConstants';
 
 interface UnassignedSessionsModalProps {
   isOpen: boolean;

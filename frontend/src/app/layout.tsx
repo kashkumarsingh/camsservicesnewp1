@@ -1,27 +1,27 @@
 import type { Metadata } from "next";
-import { Fredoka, Baloo_2 } from "next/font/google";
+import { DM_Sans, Outfit } from "next/font/google";
 import "./globals.css";
-import '@/utils/moment-locales';
+import '@/shared/utils/moment-locales';
 import ConditionalPublicLayout from '@/components/layout/ConditionalPublicLayout';
 import { ThemeProvider, ThemeScript } from '@/components/theme';
 import { AuthProvider } from '@/interfaces/web/hooks/auth/useAuth';
 import PerformanceFix from '@/utils/performanceFix';
 
-const fredoka = Fredoka({
-  variable: "--font-kid-heading",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
   display: "swap",
   weight: ['400', '500', '600', '700'],
 });
 
-const baloo_2 = Baloo_2({
-  variable: "--font-kid-body",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
   display: "swap",
-  weight: ['400', '500', '600'],
+  weight: ['400', '500', '600', '700', '800'],
 });
 
-// Viewport must be exported separately in Next.js 15+
+// Viewport must be exported separately in Next.js 15+ / 16
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -74,7 +74,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${fredoka.variable} ${baloo_2.variable} font-kid-body antialiased`}
+        className={`${dmSans.variable} ${outfit.variable} antialiased`}
       >
         <ThemeScript />
         <ThemeProvider>

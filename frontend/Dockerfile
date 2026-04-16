@@ -14,7 +14,7 @@ COPY package.json package-lock.json ./
 COPY scripts ./scripts
 
 # Ensure devDependencies are installed (TypeScript, @types/*, etc.) regardless of
-# NODE_ENV that Render or the base image may set. Next.js build requires them.
+# NODE_ENV that CI/CD or the base image may set. Next.js build requires them.
 ENV NODE_ENV=development
 # Install ALL dependencies (including devDependencies for build)
 RUN npm ci

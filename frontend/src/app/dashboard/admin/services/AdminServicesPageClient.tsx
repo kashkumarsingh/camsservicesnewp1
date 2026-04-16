@@ -8,9 +8,9 @@ import type {
   UpdateServiceDTO,
 } from '@/core/application/admin/dto/AdminServiceDTO';
 import { useAdminServices } from '@/interfaces/web/hooks/admin/useAdminServices';
-import { toastManager } from '@/utils/toast';
-import { getPublishedBadgeClasses } from '@/utils/statusBadgeHelpers';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { toastManager } from '@/dashboard/utils/toast';
+import { getPublishedBadgeClasses } from '@/dashboard/utils/statusBadgeHelpers';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 import {
   Breadcrumbs,
   DataTable,
@@ -23,11 +23,13 @@ import {
   type SortDirection,
 } from '@/components/dashboard/universal';
 import { RowActions, EditAction, DeleteAction } from '@/components/dashboard/universal/RowActions';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import Link from 'next/link';
-import { ROUTES } from '@/utils/routes';
-import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/utils/appConstants';
-import { DEFAULT_TABLE_SORT_BY_TITLE } from '@/utils/dashboardConstants';
+import { ROUTES } from '@/shared/utils/routes';
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/shared/utils/appConstants';
+import { DEFAULT_TABLE_SORT_BY_TITLE } from '@/dashboard/utils/dashboardConstants';
+import { TabbedSidePanelContent } from '@/components/ui/TabbedSidePanelContent';
+import { FileText, Zap } from 'lucide-react';
 
 type ServiceFormData = CreateServiceDTO | UpdateServiceDTO;
 
@@ -55,6 +57,7 @@ export const AdminServicesPageClient: React.FC = () => {
   const [sortKey, setSortKey] = useState<string | null>(DEFAULT_TABLE_SORT_BY_TITLE.sortKey);
   const [sortDirection, setSortDirection] = useState<SortDirection>(DEFAULT_TABLE_SORT_BY_TITLE.sortDirection);
   const [selectedService, setSelectedService] = useState<AdminServiceDTO | null>(null);
+  const [serviceDetailsTabId, setServiceDetailsTabId] = useState<string>('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState<ServiceFormData>({
@@ -153,11 +156,6 @@ export const AdminServicesPageClient: React.FC = () => {
     setStagedCategory('');
     setStagedPublished('all');
   }, []);
-
-  const handleClearFilters = () => {
-    setCategoryFilter('');
-    setPublishedFilter('all');
-  };
 
   const handleSortChange = (key: string | null, dir: 'asc' | 'desc' | null) => {
     setSortKey(key);
@@ -402,9 +400,9 @@ export const AdminServicesPageClient: React.FC = () => {
             activeFilterCount={activeFilterCount}
             onClick={() => setFilterPanelOpen(true)}
           />
-          <Button type="button" size="sm" variant="primary" onClick={handleCreateClick}>
+          <DashboardButton type="button" size="sm" variant="primary" onClick={handleCreateClick}>
             New service
-          </Button>
+          </DashboardButton>
         </div>
       </div>
 
@@ -468,8 +466,35 @@ export const AdminServicesPageClient: React.FC = () => {
           editingRowId={editingId}
           renderRowActions={(row, context) => (
             <RowActions>
-              <EditAction onClick={() => handleStartInlineEdit(row)} tooltip="Edit" />
-              <DeleteAction onClick={() => handleDelete(row.id)} tooltip="Delete" />
+              {context?.isEditing ? (
+                <>
+                  <DashboardButton
+                    type="button"
+                    size="sm"
+                    variant="primary"
+                    onClick={() => void handleSaveInlineEdit()}
+                    disabled={inlineSaving || !inlineDraft}
+                    aria-label="Save service"
+                  >
+                    {inlineSaving ? 'Saving…' : 'Save'}
+                  </DashboardButton>
+                  <DashboardButton
+                    type="button"
+                    size="sm"
+                    variant="bordered"
+                    onClick={handleCancelInlineEdit}
+                    disabled={inlineSaving}
+                    aria-label="Cancel inline edit"
+                  >
+                    Cancel
+                  </DashboardButton>
+                </>
+              ) : (
+                <>
+                  <EditAction onClick={() => handleStartInlineEdit(row)} tooltip="Edit" />
+                  <DeleteAction onClick={() => handleDelete(row.id)} tooltip="Delete" />
+                </>
+              )}
             </RowActions>
           )}
           onRowClick={(row) => setSelectedService(row)}
@@ -477,70 +502,87 @@ export const AdminServicesPageClient: React.FC = () => {
         />
       </div>
 
-      {/* Detail View Canvas */}
+      {/* Detail View Canvas – tabbed by default */}
       <SideCanvas
         isOpen={!!selectedService && !isEditing}
-        onClose={() => setSelectedService(null)}
+        onClose={() => {
+          setSelectedService(null);
+          setServiceDetailsTabId('overview');
+        }}
         title={selectedService ? selectedService.title : 'Service details'}
       >
         {selectedService && (
-          <div className="space-y-4 text-sm">
-            <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3 dark:border-slate-700">
-              <Button type="button" size="sm" variant="bordered" onClick={() => handleEditClick(selectedService)}>
-                Edit
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="destructive-outline"
-                onClick={() => {
-                  setSelectedService(null);
-                  handleDelete(selectedService.id);
-                }}
-              >
-                Delete
-              </Button>
-            </div>
-            <section className="space-y-1">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Overview
-              </h3>
-              <dl className="grid grid-cols-1 gap-2 text-xs text-slate-700 dark:text-slate-200">
-                <div>
-                  <dt className="font-medium">Title</dt>
-                  <dd>{selectedService.title}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Slug</dt>
-                  <dd>{selectedService.slug}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Category</dt>
-                  <dd>{selectedService.category || '—'}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Summary</dt>
-                  <dd>{selectedService.summary || '—'}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Views</dt>
-                  <dd>{selectedService.views}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Published</dt>
-                  <dd className="mt-0.5">
-                    <span
-                      className={`inline-flex rounded-full px-2 py-0.5 ${getPublishedBadgeClasses(
-                        selectedService.published
-                      )}`}
+          <TabbedSidePanelContent
+            tabs={[
+              {
+                id: 'overview',
+                label: 'Overview',
+                icon: FileText,
+                content: (
+                  <dl className="grid grid-cols-1 gap-2 text-xs text-slate-700 dark:text-slate-200">
+                    <div>
+                      <dt className="font-medium">Title</dt>
+                      <dd>{selectedService.title}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Slug</dt>
+                      <dd>{selectedService.slug}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Category</dt>
+                      <dd>{selectedService.category || '—'}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Summary</dt>
+                      <dd>{selectedService.summary || '—'}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Views</dt>
+                      <dd>{selectedService.views}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium">Published</dt>
+                      <dd className="mt-0.5">
+                        <span
+                          className={`inline-flex rounded-full px-2 py-0.5 ${getPublishedBadgeClasses(
+                            selectedService.published
+                          )}`}
+                        >
+                          {selectedService.published ? 'Published' : 'Draft'}
+                        </span>
+                      </dd>
+                    </div>
+                  </dl>
+                ),
+              },
+              {
+                id: 'actions',
+                label: 'Actions',
+                icon: Zap,
+                content: (
+                  <div className="flex flex-wrap gap-2">
+                    <DashboardButton type="button" size="sm" variant="bordered" onClick={() => handleEditClick(selectedService)}>
+                      Edit
+                    </DashboardButton>
+                    <DashboardButton
+                      type="button"
+                      size="sm"
+                      variant="destructive-outline"
+                      onClick={() => {
+                        setSelectedService(null);
+                        handleDelete(selectedService.id);
+                      }}
                     >
-                      {selectedService.published ? 'Published' : 'Draft'}
-                    </span>
-                  </dd>
-                </div>
-              </dl>
-            </section>
-          </div>
+                      Delete
+                    </DashboardButton>
+                  </div>
+                ),
+              },
+            ]}
+            activeTabId={serviceDetailsTabId}
+            onTabChange={setServiceDetailsTabId}
+            ariaLabel="Service details sections"
+          />
         )}
       </SideCanvas>
 

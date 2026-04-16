@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { trainerActivityRepository } from '@/infrastructure/http/trainer/TrainerActivityRepository';
 import type { SessionActivityInfo } from '@/core/application/trainer/types';
 import { AlertCircle } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { BaseModal } from '@/components/ui/Modal';
 
 interface ActivityOverrideModalProps {
@@ -139,31 +139,31 @@ export default function ActivityOverrideModal({
           </div>
 
           <div className="flex items-center gap-3 pt-4">
-            <Button
+            <DashboardButton
               type="submit"
               disabled={saving || !overrideReason.trim() || overrideReason.trim().length < 10}
               className="flex-1"
             >
               {saving ? 'Saving...' : 'Save Override'}
-            </Button>
+            </DashboardButton>
             {schedule.is_activity_override && (
-              <Button
+              <DashboardButton
                 type="button"
                 variant="outline"
                 onClick={handleRemoveOverride}
                 disabled={saving}
               >
                 Remove Override
-              </Button>
+              </DashboardButton>
             )}
-            <Button
+            <DashboardButton
               type="button"
               variant="ghost"
               onClick={onClose}
               disabled={saving}
             >
               Cancel
-            </Button>
+            </DashboardButton>
           </div>
         </form>
       </>

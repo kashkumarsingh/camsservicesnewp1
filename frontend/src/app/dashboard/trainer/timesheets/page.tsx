@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { format, parseISO } from "date-fns";
 import { Calendar, PoundSterling, Clock } from "lucide-react";
 import { mockTimesheetEntries, mockPayPeriods } from "@/mock/trainerData";
-import { EMPTY_STATE } from "@/utils/emptyStateConstants";
+import { EMPTY_STATE } from "@/dashboard/utils/emptyStateConstants";
 
 export const metadata: Metadata = {
   title: "Trainer Dashboard - Timesheets",

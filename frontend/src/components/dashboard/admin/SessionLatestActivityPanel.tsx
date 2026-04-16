@@ -20,10 +20,10 @@ import {
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
-import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
-import { SCHEDULE_SESSION_STATUS } from '@/utils/dashboardConstants';
-import { getGoogleMapsSearchUrl, getGoogleMapsUrlForCoordinates } from '@/utils/locationUtils';
+import { LIVE_REFRESH_ENABLED } from '@/dashboard/utils/liveRefreshConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
+import { SCHEDULE_SESSION_STATUS } from '@/dashboard/utils/dashboardConstants';
+import { getGoogleMapsSearchUrl, getGoogleMapsUrlForCoordinates } from '@/dashboard/utils/locationUtils';
 import type { AdminBookingDTO } from '@/core/application/admin/dto/AdminBookingDTO';
 import type { RemoteBookingSession } from '@/core/application/admin/dto/AdminBookingDTO';
 

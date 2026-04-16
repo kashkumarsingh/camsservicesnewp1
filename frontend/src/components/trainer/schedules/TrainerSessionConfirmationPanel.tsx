@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Calendar, Clock, User, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import moment from 'moment';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { trainerScheduleRepository } from '@/infrastructure/http/trainer/TrainerScheduleRepository';
 import type { TrainerScheduleDetail } from '@/core/application/trainer/types';
-import { toastManager } from '@/utils/toast';
+import { toastManager } from '@/dashboard/utils/toast';
 
 const PENDING_CONFIRMATION = 'pending_trainer_confirmation';
 
@@ -169,9 +169,9 @@ export default function TrainerSessionConfirmationPanel({
             {error && !loading && (
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
                 <p className="text-sm text-amber-800 dark:text-amber-200">{error}</p>
-                <Button type="button" variant="outline" className="mt-3" onClick={onClose}>
+                <DashboardButton type="button" variant="outline" className="mt-3" onClick={onClose}>
                   Close
-                </Button>
+                </DashboardButton>
               </div>
             )}
 
@@ -218,7 +218,7 @@ export default function TrainerSessionConfirmationPanel({
           {schedule && !loading && !error && (
             <div className="shrink-0 border-t border-gray-200 bg-gray-50 px-4 sm:px-5 py-3 dark:border-gray-800 dark:bg-gray-900/50">
               <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
-                <Button
+                <DashboardButton
                   type="button"
                   variant="outline"
                   className="border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950/30"
@@ -236,8 +236,8 @@ export default function TrainerSessionConfirmationPanel({
                       Decline
                     </>
                   )}
-                </Button>
-                <Button
+                </DashboardButton>
+                <DashboardButton
                   type="button"
                   variant="primary"
                   onClick={handleConfirm}
@@ -254,7 +254,7 @@ export default function TrainerSessionConfirmationPanel({
                       Confirm session
                     </>
                   )}
-                </Button>
+                </DashboardButton>
               </div>
             </div>
           )}

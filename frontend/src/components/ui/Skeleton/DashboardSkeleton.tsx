@@ -11,7 +11,7 @@
  */
 
 import React from 'react';
-import type { DashboardSkeletonVariant } from '@/utils/skeletonManager';
+import type { DashboardSkeletonVariant } from '@/dashboard/utils/skeletonManager';
 import ParentDashboardSkeleton from './ParentDashboardSkeleton';
 import TrainerDashboardSkeleton from './TrainerDashboardSkeleton';
 import ParentChildrenPageSkeleton from './ParentChildrenPageSkeleton';

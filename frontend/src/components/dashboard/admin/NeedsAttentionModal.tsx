@@ -14,7 +14,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { BaseModal } from '@/components/ui/Modal';
-import { ROUTES } from '@/utils/routes';
+import { ROUTES } from '@/shared/utils/routes';
 
 export interface NeedsAttentionItem {
   id: string;

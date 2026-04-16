@@ -1,6 +1,6 @@
 import React from 'react';
-import { formatHours } from '@/utils/formatHours';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { formatHours } from '@/shared/utils/formatHours';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface ReviewPackageInfoProps {
   packageName: string;

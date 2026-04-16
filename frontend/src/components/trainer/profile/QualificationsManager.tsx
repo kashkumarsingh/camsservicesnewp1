@@ -4,9 +4,9 @@ import React, { useState, useRef } from 'react';
 import { trainerProfileRepository } from '@/infrastructure/http/trainer/TrainerProfileRepository';
 import type { TrainerProfile, TrainerCertification, UploadQualificationRequest } from '@/core/application/trainer/types';
 import { Upload, X, FileText, Trash2, Save, Plus } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { EmptyState } from '@/components/dashboard/universal/EmptyState';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface QualificationsManagerProps {
   profile: TrainerProfile;
@@ -153,7 +153,7 @@ export default function QualificationsManager({ profile, onUpdate, onError }: Qu
               />
             </div>
 
-            <Button
+            <DashboardButton
               type="button"
               onClick={handleUpload}
               disabled
@@ -161,7 +161,7 @@ export default function QualificationsManager({ profile, onUpdate, onError }: Qu
             >
               <Upload className="h-4 w-4" />
               Upload Qualification (Admin Only)
-            </Button>
+            </DashboardButton>
           </div>
         </div>
 

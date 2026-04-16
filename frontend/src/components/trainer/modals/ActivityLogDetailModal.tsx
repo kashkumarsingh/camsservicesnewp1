@@ -5,9 +5,8 @@ import type { ActivityLog } from '@/core/application/trainer/types';
 import { BaseModal } from '@/components/ui/Modal';
 import ActivityLogForm from '@/components/trainer/activities/ActivityLogForm';
 import { Calendar, Clock, User, CheckCircle, AlertCircle, Image as ImageIcon, Award, Edit, Lock } from 'lucide-react';
-import { getTrainerChildDisplayName } from '@/utils/trainerPrivacy';
-import Button from '@/components/ui/Button';
-
+import { getTrainerChildDisplayName } from '@/dashboard/utils/trainerPrivacy';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 interface ActivityLogDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -132,14 +131,14 @@ export default function ActivityLogDetailModal({
       footer={
         <div className="flex items-center justify-between gap-3">
           {log.is_editable && (
-            <Button onClick={() => setEditing(true)} variant="outline" size="sm" className="flex items-center gap-2">
+            <DashboardButton onClick={() => setEditing(true)} variant="outline" size="sm" className="flex items-center gap-2">
               <Edit className="h-4 w-4" />
               Edit log
-            </Button>
+            </DashboardButton>
           )}
-          <Button onClick={onClose} variant="secondary" size="sm">
+          <DashboardButton onClick={onClose} variant="secondary" size="sm">
             Close
-          </Button>
+          </DashboardButton>
         </div>
       }
     >

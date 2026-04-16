@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAdminTrainerAvailabilityDates } from '@/interfaces/web/hooks/admin/useAdminTrainerAvailabilityDates';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
-import { WEEKDAY_LABELS_MON_FRI } from '@/utils/appConstants';
+import { WEEKDAY_LABELS_MON_FRI } from '@/shared/utils/appConstants';
 import type { AdminTrainerDTO } from '@/core/application/admin/dto/AdminTrainerDTO';
 
 /** Mon–Sun for calendar grid; appConstants has Mon–Fri for admin week. */

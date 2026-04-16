@@ -2,9 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { EmptyState } from '@/components/dashboard/universal/EmptyState';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 export interface ChildrenListItem {
   id: number;
@@ -48,13 +48,13 @@ export default function ChildrenListSection({
           title={EMPTY_STATE.NO_CHILDREN_ADDED_YET.title}
           message={EMPTY_STATE.NO_CHILDREN_ADDED_YET.message}
           action={
-            <Button
+            <DashboardButton
               variant="primary"
               onClick={onAddChildClick}
               className="px-6 py-2 text-sm font-semibold"
             >
               + Add your first child
-            </Button>
+            </DashboardButton>
           }
         />
       </section>

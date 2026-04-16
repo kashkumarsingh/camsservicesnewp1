@@ -7,8 +7,8 @@
 
 import { Address } from '@/core/domain/location';
 import { AddressLookupService } from '@/infrastructure/services/address/AddressLookupService';
-import { validateUKPostcode } from '@/utils/locationUtils';
-import { getRegionFromPostcode } from '@/utils/locationUtils';
+import { validateUKPostcode } from '@/dashboard/utils/locationUtils';
+import { getRegionFromPostcode } from '@/dashboard/utils/locationUtils';
 
 export interface LookupAddressesResult {
   addresses: Address[];

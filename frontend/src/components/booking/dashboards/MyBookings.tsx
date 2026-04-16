@@ -16,8 +16,8 @@
 
 import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
-import { ROUTES } from '@/utils/routes';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
+import { ROUTES } from '@/shared/utils/routes';
 import {
   Calendar,
   Package,
@@ -35,8 +35,8 @@ import {
   Repeat,
 } from 'lucide-react';
 import { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
-import Button from '@/components/ui/Button';
-import { formatHours } from '@/utils/formatHours';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
+import { formatHours } from '@/shared/utils/formatHours';
 import moment from 'moment';
 
 interface MyBookingsProps {
@@ -214,7 +214,7 @@ const MyBookings: React.FC<MyBookingsProps> = ({ bookings, loading, error }) => 
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Bookings</h3>
           <p className="text-gray-600 mb-4">{error}</p>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
+          <DashboardButton onClick={() => window.location.reload()}>Try Again</DashboardButton>
         </div>
       </div>
     );
@@ -233,7 +233,7 @@ const MyBookings: React.FC<MyBookingsProps> = ({ bookings, loading, error }) => 
             {EMPTY_STATE.NO_BOOKINGS_YET.message}
           </p>
           <Link href={ROUTES.PACKAGES}>
-            <Button>Browse Packages</Button>
+            <DashboardButton>Browse Packages</DashboardButton>
           </Link>
         </div>
       </div>
@@ -245,9 +245,9 @@ const MyBookings: React.FC<MyBookingsProps> = ({ bookings, loading, error }) => 
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-heading font-bold text-navy-blue">My Bookings</h2>
         <Link href={ROUTES.PACKAGES}>
-          <Button variant="outline" size="sm">
+          <DashboardButton variant="outline" size="sm">
             Book Another Package
-          </Button>
+          </DashboardButton>
         </Link>
       </div>
 
@@ -534,14 +534,14 @@ const MyBookings: React.FC<MyBookingsProps> = ({ bookings, loading, error }) => 
 
                 <div className="flex flex-col gap-2 flex-shrink-0">
                   <Link href={`/bookings/${booking.reference}`}>
-                    <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <DashboardButton variant="outline" size="sm" className="flex items-center gap-2">
                       View Details
                       <ExternalLink className="w-4 h-4" />
-                    </Button>
+                    </DashboardButton>
                   </Link>
                   {booking.paymentStatus === 'paid' && booking.status === 'confirmed' && (
                     <Link href="/dashboard/parent">
-                      <Button
+                      <DashboardButton
                         size="sm"
                         className="flex items-center gap-2 bg-gradient-to-r from-primary-blue to-light-blue-cyan hover:from-primary-blue/90 hover:to-light-blue-cyan/90"
                       >
@@ -549,28 +549,28 @@ const MyBookings: React.FC<MyBookingsProps> = ({ bookings, loading, error }) => 
                         {booking.schedules && booking.schedules.length > 0
                           ? 'Manage Sessions'
                           : 'Book Sessions'}
-                      </Button>
+                      </DashboardButton>
                     </Link>
                   )}
                   {outstandingAmount > 0 && booking.status !== 'cancelled' && (
                     <Link href={`/bookings/${booking.reference}/payment`}>
-                      <Button size="sm" className="flex items-center gap-2">
+                      <DashboardButton size="sm" className="flex items-center gap-2">
                         <CreditCard className="w-4 h-4" />
                         Pay Now
-                      </Button>
+                      </DashboardButton>
                     </Link>
                   )}
                   {/* Buy Again - Show for completed/expired bookings */}
                   {booking.packageSlug && (booking.status === 'confirmed' || expiryStatus.isExpired) && (
                     <Link href={`/book/${booking.packageSlug}${booking.participants?.[0]?.childId ? `?childId=${booking.participants[0].childId}` : ''}`}>
-                      <Button 
+                      <DashboardButton 
                         size="sm" 
                         variant="outline"
                         className="flex items-center gap-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white"
                       >
                         <Repeat className="w-4 h-4" />
                         Buy Again
-                      </Button>
+                      </DashboardButton>
                     </Link>
                   )}
                 </div>

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
-import { getTrainerChildDisplayName } from '@/utils/trainerPrivacy';
+import { getTrainerChildDisplayName } from '@/dashboard/utils/trainerPrivacy';
 
 export interface TrainerSafeguardingConcernItem {
   id: number;

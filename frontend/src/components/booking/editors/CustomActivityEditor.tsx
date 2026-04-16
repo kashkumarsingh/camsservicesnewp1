@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { Sparkles, X, Edit2, Trash2 } from 'lucide-react';
-import Button from '@/components/ui/Button/Button';
-
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
 // Custom activity interface
 export interface CustomActivity {
   id: string;
@@ -383,7 +382,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                 >
                   Cancel
                 </button>
-                <Button
+                <MarketingButton
                   onClick={() => {
                     const parsedDuration = parseFloat(customDuration || '0');
                     if (customName.trim() && parsedDuration > 0) {
@@ -397,7 +396,7 @@ const CustomActivityEditor: React.FC<CustomActivityEditorProps> = ({
                   className="flex-1 shadow-lg"
                 >
                   {editingCustomActivityId ? '✏️ Update Request' : '✅ Add to Session'}
-                </Button>
+                </MarketingButton>
               </div>
             </div>
           </div>

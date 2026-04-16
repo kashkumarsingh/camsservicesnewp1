@@ -18,15 +18,14 @@ import {
   Activity,
 } from 'lucide-react';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
-import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
+import { LIVE_REFRESH_ENABLED } from '@/dashboard/utils/liveRefreshConstants';
 import type {
   AdminBookingDTO,
   UpdateBookingNotesDTO,
 } from '@/core/application/admin/dto/AdminBookingDTO';
 import type { RemoteBookingSession } from '@/core/application/admin/dto/AdminBookingDTO';
-import { getGoogleMapsSearchUrl, getGoogleMapsUrlForCoordinates } from '@/utils/locationUtils';
-import Button from '@/components/ui/Button';
-
+import { getGoogleMapsSearchUrl, getGoogleMapsUrlForCoordinates } from '@/dashboard/utils/locationUtils';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 type TimelineEventType =
   | 'start'
   | 'checkin'
@@ -846,9 +845,9 @@ export function SessionDetailSidePanel({
           {/* Sticky footer: consistent with SideCanvas (actions at bottom) */}
           <div className="shrink-0 border-t border-gray-200 bg-gray-50 px-4 sm:px-5 py-3 dark:border-gray-800 dark:bg-gray-900/50">
             <div className="flex items-center justify-end">
-              <Button type="button" variant="bordered" size="sm" onClick={handleClose}>
+              <DashboardButton type="button" variant="bordered" size="sm" onClick={handleClose}>
                 Close
-              </Button>
+              </DashboardButton>
             </div>
           </div>
         </div>

@@ -11,7 +11,6 @@ export class PageMapper {
       summary: page.summary,
       content: page.content,
       sections: page.sections,
-      blocks: page.blocks,
       lastUpdated: page.lastUpdated?.toISOString(),
       effectiveDate: page.effectiveDate?.toISOString(),
       version: page.version,
@@ -24,6 +23,7 @@ export class PageMapper {
       coreValuesSectionTitle: page.coreValuesSectionTitle ?? undefined,
       coreValuesSectionSubtitle: page.coreValuesSectionSubtitle ?? undefined,
       safeguarding: page.safeguarding ?? undefined,
+      structuredContent: page.structuredContent ?? undefined,
     };
   }
 
@@ -36,7 +36,6 @@ export class PageMapper {
       summary: dto.summary,
       content: dto.content,
       sections: dto.sections,
-      blocks: dto.blocks,
       lastUpdated: dto.lastUpdated,
       effectiveDate: dto.effectiveDate,
       version: dto.version,
@@ -47,6 +46,7 @@ export class PageMapper {
       coreValuesSectionTitle: dto.coreValuesSectionTitle,
       coreValuesSectionSubtitle: dto.coreValuesSectionSubtitle,
       safeguarding: dto.safeguarding,
+      structuredContent: dto.structuredContent,
       createdAt: dto.createdAt,
       updatedAt: dto.updatedAt,
     });

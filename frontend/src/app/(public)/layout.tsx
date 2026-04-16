@@ -1,8 +1,14 @@
 import { Metadata } from 'next';
 import React, { Suspense } from 'react';
-import Footer from '@/components/layout/Footer';
+import { FooterImageRail } from '@/components/layout/FooterImageRail';
+import { SiteFooter } from '@/components/layout/SiteFooter';
+import { SiteFloatingActions } from '@/components/layout/SiteFloatingActions';
+import { CookieConsent } from '@/components/layout/CookieConsent';
+import { SiteCursor } from '@/components/layout/SiteCursor';
 import Loading from '@/components/ui/Loading/Loading';
-import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
+import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
+import { getSiteSettings } from '@/marketing/server/siteSettings/getSiteSettings';
+import { SiteSettingsMapper } from '@/core/application/siteSettings/mappers/SiteSettingsMapper';
 
 // No dynamic here — add dynamic = 'force-dynamic' only on pages that use headers() (home, about)
 // Base URL from env so layout can stay static and children can use revalidate
@@ -26,10 +32,52 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
 
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
+export default async function PublicLayout({ children }: { children: React.ReactNode }) {
+  const settings = await getSiteSettings().catch(() => null);
+  const dto = settings ? SiteSettingsMapper.toDTO(settings) : null;
+  const footerSections = dto?.footer?.quickLinks?.length
+    ? [
+        {
+          title: 'Quick links',
+          links: dto.footer.quickLinks,
+        },
+        {
+          title: 'Families',
+          links: [
+            { href: '/login', label: 'Parent sign in' },
+            { href: '/register', label: 'Parent sign up' },
+            { href: '/contact', label: 'Make a referral' },
+            { href: '/contact', label: 'Contact' },
+          ],
+        },
+        {
+          title: 'Partners',
+          links: [
+            { href: '/login', label: 'Trainer sign in' },
+            { href: '/contact', label: 'School partnerships' },
+            { href: '/packages', label: 'Intervention packages' },
+            { href: '/about', label: 'About CAMS' },
+          ],
+        },
+        {
+          title: 'Organisation',
+          links: [
+            { href: '/become-a-trainer', label: 'Become a trainer' },
+            { href: '/policies', label: 'Policies' },
+            { href: '/faq', label: 'FAQs' },
+            { href: '/contact', label: 'Contact' },
+          ],
+        },
+      ]
+    : undefined;
+  const footerDescription = dto?.company?.description || undefined;
+  const footerCopyrightText =
+    dto?.copyright?.text?.replace('{year}', new Date().getFullYear().toString()) || undefined;
+
   return (
     <>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen overflow-x-clip bg-white">
+        <SiteCursor />
         {/* Google Tag Manager (noscript) */}
         <noscript
           dangerouslySetInnerHTML={{
@@ -41,7 +89,14 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         <Suspense fallback={<Loading />}>
           {children}
         </Suspense>
-        <Footer />
+        <FooterImageRail />
+        <SiteFooter
+          sections={footerSections}
+          description={footerDescription}
+          copyrightText={footerCopyrightText}
+        />
+        <SiteFloatingActions />
+        <CookieConsent />
       </div>
     </>
   );

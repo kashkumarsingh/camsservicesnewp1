@@ -31,4 +31,4 @@ jobs:
       if: success()
       run: |
         echo "✅ All production builds successful!"
-        echo "Safe to deploy to Render."
+        echo "Safe to deploy."

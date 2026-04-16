@@ -1,6 +1,5 @@
 import React from 'react';
-import Button from '@/components/ui/Button';
-
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
 interface CTASectionProps {
   title: string;
   subtitle: string;
@@ -63,7 +62,7 @@ const CTASection: React.FC<CTASectionProps> = ({
           {subtitle}
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-3 mb-6">
-          <Button 
+          <MarketingButton 
             href={primaryCTA.href} 
             variant={variant === 'default' ? 'primary' : 'primary'} 
             size="lg" 
@@ -71,9 +70,9 @@ const CTASection: React.FC<CTASectionProps> = ({
             withArrow
           >
             {primaryCTA.text}
-          </Button>
+          </MarketingButton>
           {secondaryCTA && (
-            <Button 
+            <MarketingButton 
               href={secondaryCTA.href} 
               variant={variant === 'default' ? 'outline' : 'outlineWhite'} 
               size="lg"
@@ -81,7 +80,7 @@ const CTASection: React.FC<CTASectionProps> = ({
               withArrow
             >
               {secondaryCTA.text}
-            </Button>
+            </MarketingButton>
           )}
         </div>
         {badges && badges.length > 0 && (

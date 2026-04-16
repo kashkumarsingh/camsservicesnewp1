@@ -16,13 +16,13 @@ import {
 } from 'lucide-react';
 import { useAdminTrainers } from '@/interfaces/web/hooks/admin/useAdminTrainers';
 import { useLiveRefresh, useLiveRefreshContext } from '@/core/liveRefresh/LiveRefreshContext';
-import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
+import { LIVE_REFRESH_ENABLED } from '@/dashboard/utils/liveRefreshConstants';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { adminTrainerAbsenceRequestRepository } from '@/infrastructure/http/admin/AdminTrainerAbsenceRequestRepository';
 import type { AdminAbsenceRequestItem } from '@/infrastructure/http/admin/AdminTrainerAbsenceRequestRepository';
 import { SideCanvas } from '@/components/ui/SideCanvas';
-import { TIMESHEET_CELL_STATUS } from '@/utils/dashboardConstants';
+import { TIMESHEET_CELL_STATUS } from '@/dashboard/utils/dashboardConstants';
 
 /** Period: 1 day, 1 week, or 1 month. */
 type TimesheetsPeriod = '1_day' | '1_week' | '1_month';

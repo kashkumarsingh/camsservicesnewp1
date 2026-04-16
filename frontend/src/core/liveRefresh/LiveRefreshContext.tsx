@@ -18,8 +18,8 @@ import {
   LIVE_REFRESH_WEBSOCKET_CONFIG,
   LIVE_REFRESH_WEBSOCKET_ENABLED,
   type LiveRefreshContextType,
-} from '@/utils/liveRefreshConstants';
-import { isAdminRole } from '@/utils/dashboardConstants';
+} from '@/dashboard/utils/liveRefreshConstants';
+import { isAdminRole } from '@/dashboard/utils/dashboardConstants';
 
 type RefetchFn = () => void | Promise<void>;
 

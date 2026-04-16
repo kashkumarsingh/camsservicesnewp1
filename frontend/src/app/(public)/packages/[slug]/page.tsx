@@ -1,12 +1,12 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Section from '@/components/layout/Section';
-import Button from '@/components/ui/Button';
-import PackageDetailsDisplay from '@/components/features/packages/PackageDetailsDisplay';
-import PackageBookingCard from '@/components/features/packages/PackageBookingCard';
-import BookNowStickyFooter from '@/components/features/common/BookNowStickyFooter';
-import SimilarPackagesSection from '@/components/features/packages/SimilarPackagesSection';
-import { Star, Users, Award, TrendingUp, Heart, Shield, Sparkles, ArrowRight, Activity as ActivityIcon, Clock, CheckCircle2, Calendar } from 'lucide-react';
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
+import PackageDetailsDisplay from '@/marketing/components/features/packages/PackageDetailsDisplay';
+import PackageBookingCard from '@/marketing/components/features/packages/PackageBookingCard';
+import BookNowStickyFooter from '@/marketing/components/features/common/BookNowStickyFooter';
+import SimilarPackagesSection from '@/marketing/components/features/packages/SimilarPackagesSection';
+import { Star, Users, Award, TrendingUp, Heart, Shield, Sparkles, ArrowRight, Activity as ActivityIcon, Clock, CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { GetPackageUseCase } from '@/core/application/packages/useCases/GetPackageUseCase';
@@ -14,7 +14,13 @@ import { packageRepository } from '@/infrastructure/persistence/packages';
 import { ListTestimonialsUseCase, type TestimonialDTO } from '@/core/application/testimonials';
 import { testimonialRepository } from '@/infrastructure/persistence/testimonials';
 import type { PackageTrainerSummary } from '@/core/domain/packages/entities/Package';
-import { ROUTES } from '@/utils/routes';
+import { ROUTES } from '@/shared/utils/routes';
+import {
+  getInterventionPackageBySlug,
+  interventionPackageToFallbackDTO,
+} from '@/marketing/lib/intervention-package-fallback-dto';
+import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
+import { getPublicSiteUrl } from '@/marketing/lib/public-site-url';
 
 type TrainerCardInfo = {
   trainer: PackageTrainerSummary;
@@ -47,7 +53,7 @@ const TRUST_INDICATOR_ICON_MAP: Record<string, React.ComponentType<{ size?: numb
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
+const BASE_URL = getPublicSiteUrl();
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -62,10 +68,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   if (!pkg) {
-    return {
-      title: 'Package Not Found | KidzRunz',
-      description: 'The requested package could not be found.',
-    };
+    const intervention = getInterventionPackageBySlug(slug);
+    if (intervention) {
+      pkg = interventionPackageToFallbackDTO(intervention);
+    } else {
+      return {
+        title: 'Package Not Found | KidzRunz',
+        description: 'The requested package could not be found.',
+      };
+    }
   }
 
   const totalWeeksLabel = `${pkg.totalWeeks}-week programme`;
@@ -98,28 +109,30 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     alternates: {
       canonical: canonicalUrl,
     },
-  };
+   };
 }
-
-import { withTimeoutFallback } from '@/utils/promiseUtils';
 
 export default async function PackageDetail({ params }: {params: Promise<{slug: string}>}) {
   const { slug } = await params;
   const getPackageUseCase = new GetPackageUseCase(packageRepository);
   
   // Use timeout for fast failure
-  const pkg = await withTimeoutFallback(
+  let pkg = await withTimeoutFallback(
     getPackageUseCase.execute(slug),
     3500, // 3.5s timeout – key sales page, allowed a bit more but still bounded
     null
   );
 
   if (!pkg) {
-    // Log in development to help debug
-    if (process.env.NODE_ENV === 'development') {
-      console.warn(`[PackageDetail] Package with slug "${slug}" not found. Returning 404.`);
+    const intervention = getInterventionPackageBySlug(slug);
+    if (intervention) {
+      pkg = interventionPackageToFallbackDTO(intervention);
+    } else {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`[PackageDetail] Package with slug "${slug}" not found. Returning 404.`);
+      }
+      notFound();
     }
-    notFound();
   }
 
   // Calculate savings (example: assume original price is 20% higher)
@@ -310,12 +323,12 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
               {(typeof pkg.description === 'string' ? pkg.description.replace(/<[^>]*>/g, '') : '') || 'SEN support package.'}
             </p>
             <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
-              <Button href={`/dashboard/parent?package=${encodeURIComponent(pkg.slug)}`} variant="primary" size="lg" withArrow>
+              <MarketingButton href={`/dashboard/parent?package=${encodeURIComponent(pkg.slug)}`} variant="primary" size="lg" withArrow>
                 Buy package
-              </Button>
-              <Button href={ROUTES.PACKAGES} variant="outline" size="lg" withArrow>
+              </MarketingButton>
+              <MarketingButton href={ROUTES.PACKAGES} variant="outline" size="lg" withArrow>
                 Compare packages
-              </Button>
+              </MarketingButton>
             </div>
           </div>
         </Section>
@@ -563,9 +576,9 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
             )}
 
             <div className="text-center mt-10">
-              <Button href="/become-a-trainer" variant="bordered" size="lg" withArrow>
+              <MarketingButton href="/become-a-trainer" variant="bordered" size="lg" withArrow>
                 Become a trainer
-              </Button>
+              </MarketingButton>
             </div>
           </div>
         </Section>
@@ -802,12 +815,12 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
               Join 500+ families who trust us with their children&apos;s development
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button href={`/dashboard/parent?package=${encodeURIComponent(pkg.slug)}`} variant="primary" size="lg" withArrow>
+              <MarketingButton href={`/dashboard/parent?package=${encodeURIComponent(pkg.slug)}`} variant="primary" size="lg" withArrow>
                 Buy package
-              </Button>
-              <Button href={ROUTES.CONTACT} variant="outline" size="lg">
+              </MarketingButton>
+              <MarketingButton href={ROUTES.CONTACT} variant="outline" size="lg">
                 Have questions?
-              </Button>
+              </MarketingButton>
             </div>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-navy-blue/80">
               <div className="flex items-center gap-2">

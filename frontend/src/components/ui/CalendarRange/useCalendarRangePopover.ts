@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { getMonthKey, getMonday } from '@/utils/calendarRangeUtils';
-import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
+import { getMonthKey, getMonday } from '@/dashboard/utils/calendarRangeUtils';
+import type { CalendarPeriod } from '@/dashboard/utils/calendarRangeUtils';
 
 /**
  * Single model for calendar range popover: one open state, view keys, and hover state.

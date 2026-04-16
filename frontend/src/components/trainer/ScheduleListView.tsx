@@ -6,7 +6,7 @@ import type { Shift, AvailabilityEntry } from '@/core/trainer/domain/entities/Tr
 import { Clock, MapPin, MessageSquare } from 'lucide-react';
 import styles from './ScheduleListView.module.css';
 import { EmptyState } from '@/components/dashboard/universal/EmptyState';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface ScheduleListViewProps {
   shifts: Shift[];

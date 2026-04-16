@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
-import { isAdminRole } from '@/utils/dashboardConstants';
+import { isAdminRole } from '@/dashboard/utils/dashboardConstants';
 import { ListBookingsUseCase } from '@/core/application/booking/useCases/ListBookingsUseCase';
 import { bookingRepository } from '@/infrastructure/persistence/booking';
 import type { BookingDTO } from '@/core/application/booking/dto/BookingDTO';

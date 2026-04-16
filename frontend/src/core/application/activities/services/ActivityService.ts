@@ -9,7 +9,7 @@ import { Activity, LocationData, ActivityFilterOptions, ActivityValidationResult
 import { ActivityMatcher } from '../matchers/ActivityMatcher';
 import { ActivityCalculator } from '../calculators/ActivityCalculator';
 import { getBadgesFor, getInsightFor } from '@/interfaces/web/utils/activities';
-import { formatHours } from '@/utils/formatHours';
+import { formatHours } from '@/shared/utils/formatHours';
 
 export class ActivityService {
   /**

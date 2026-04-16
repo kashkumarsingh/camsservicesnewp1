@@ -25,16 +25,16 @@ import {
   type SortDirection,
 } from '@/components/dashboard/universal';
 import { RowActions, ViewAction, EditAction, DeleteAction } from '@/components/dashboard/universal/RowActions';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 import { TrainerForm } from './TrainerForm';
 import { AdminTrainerAvailabilityPanel } from '@/components/dashboard/admin/AdminTrainerAvailabilityPanel';
 import { Calendar, Clock, MapPin, Download, Pencil } from 'lucide-react';
-import { getActiveBadgeClasses } from '@/utils/statusBadgeHelpers';
-import { BOOKING_STATUS, DEFAULT_TABLE_SORT } from '@/utils/dashboardConstants';
-import { ROUTES } from '@/utils/routes';
-import { BACK_TO_ADMIN_DASHBOARD_LABEL, TRAINER_ADDED_SUCCESS_MESSAGE } from '@/utils/appConstants';
-import { toastManager } from '@/utils/toast';
-import Button from '@/components/ui/Button';
+import { getActiveBadgeClasses } from '@/dashboard/utils/statusBadgeHelpers';
+import { BOOKING_STATUS, DEFAULT_TABLE_SORT } from '@/dashboard/utils/dashboardConstants';
+import { ROUTES } from '@/shared/utils/routes';
+import { BACK_TO_ADMIN_DASHBOARD_LABEL, TRAINER_ADDED_SUCCESS_MESSAGE } from '@/shared/utils/appConstants';
+import { toastManager } from '@/dashboard/utils/toast';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { Switch } from '@/components/ui/Switch';
 import { ListRowsSkeleton } from '@/components/ui/Skeleton';
 
@@ -367,10 +367,10 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
           activeFilterCount={activeFilterCount}
           onClick={() => setFilterPanelOpen(true)}
         />
-        <Button type="button" size="sm" variant="bordered" onClick={handleExport} icon={<Download className="h-3.5 w-3.5" />}>
+        <DashboardButton type="button" size="sm" variant="bordered" onClick={handleExport} icon={<Download className="h-3.5 w-3.5" />}>
           Export CSV
-        </Button>
-        <Button
+        </DashboardButton>
+        <DashboardButton
           type="button"
           size="sm"
           variant="secondary"
@@ -381,7 +381,7 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
           }}
         >
           Create Trainer
-        </Button>
+        </DashboardButton>
         </div>
       </div>
 
@@ -454,7 +454,7 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
         onSortChange={handleSortChange}
         renderRowActions={(trainer) => (
           <RowActions>
-            <Button
+            <DashboardButton
               type="button"
               size="sm"
               variant="bordered"
@@ -467,7 +467,7 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
               title="Availability"
             >
               <Calendar className="h-3 w-3" />
-            </Button>
+            </DashboardButton>
             <ViewAction
               onClick={() => setSelectedTrainer(trainer)}
               aria-label="View trainer"
@@ -509,7 +509,7 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
         footer={
           selectedTrainer ? (
             <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-              <Button
+              <DashboardButton
                 type="button"
                 variant="bordered"
                 size="sm"
@@ -521,8 +521,8 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
               >
                 <Calendar className="h-4 w-4 shrink-0" aria-hidden />
                 View availability
-              </Button>
-              <Button
+              </DashboardButton>
+              <DashboardButton
                 type="button"
                 variant="primary"
                 size="sm"
@@ -535,7 +535,7 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
               >
                 <Pencil className="h-4 w-4 shrink-0" aria-hidden />
                 Edit Trainer
-              </Button>
+              </DashboardButton>
             </div>
           ) : undefined
         }

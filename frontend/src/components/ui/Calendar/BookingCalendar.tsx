@@ -4,8 +4,8 @@ import React, { useMemo } from 'react';
 import moment, { Moment } from 'moment';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCalendarGrid } from './useCalendarGrid';
-import { isDateBookable, getDateBookingStatus } from '@/utils/bookingCutoffRules';
-import { CALENDAR_GRID_DAY_CELL_CLASSES, CALENDAR_WEEKDAY_HEADERS } from '@/utils/appConstants';
+import { isDateBookable, getDateBookingStatus } from '@/dashboard/utils/bookingCutoffRules';
+import { CALENDAR_GRID_DAY_CELL_CLASSES, CALENDAR_WEEKDAY_HEADERS } from '@/shared/utils/appConstants';
 
 export interface BookingCalendarProps {
   /** Size of the calendar: 'small' for mini calendar, 'large' for main calendar */

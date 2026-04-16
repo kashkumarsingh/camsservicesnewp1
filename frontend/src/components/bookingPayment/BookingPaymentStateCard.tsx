@@ -4,8 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { AlertCircle } from 'lucide-react';
 import Card from '@/components/ui/Card/Card';
-import Button from '@/components/ui/Button';
-
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
 export interface BookingPaymentStateCardProps {
   title: string;
   message: string;
@@ -58,9 +57,9 @@ const BookingPaymentStateCard: React.FC<BookingPaymentStateCardProps> = ({
       </p>
       {!isLoading && (
         <div className="flex gap-3 justify-center">
-          {onGoBack && <Button onClick={onGoBack}>{goBackLabel}</Button>}
+          {onGoBack && <MarketingButton onClick={onGoBack}>{goBackLabel}</MarketingButton>}
           <Link href={goToDashboardHref}>
-            <Button variant="outline">{goToDashboardLabel}</Button>
+            <MarketingButton variant="outline">{goToDashboardLabel}</MarketingButton>
           </Link>
         </div>
       )}

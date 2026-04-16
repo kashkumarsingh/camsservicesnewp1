@@ -11,9 +11,9 @@ import { useSearchParams } from 'next/navigation';
 import { usePackages } from '../../hooks/packages/usePackages';
 import PackageCard from './PackageCard';
 import { PackageFilterOptions } from '@/core/application/packages';
-import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
+import { SKELETON_COUNTS } from '@/shared/utils/skeletonConstants';
 import { PackageSkeleton } from '@/components/ui/Skeleton';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 import { usePackageRecommendations } from '@/interfaces/web/hooks/packages/usePackageRecommendations';
 
 interface PackageListProps {

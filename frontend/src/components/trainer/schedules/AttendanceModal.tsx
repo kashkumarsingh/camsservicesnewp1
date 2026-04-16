@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { trainerScheduleRepository } from '@/infrastructure/http/trainer/TrainerScheduleRepository';
 import type { TrainerSchedule, TrainerParticipant, MarkAttendanceRequest } from '@/core/application/trainer/types';
 import { CheckCircle, XCircle } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { BaseModal } from '@/components/ui/Modal';
 
 interface AttendanceModalProps {
@@ -99,12 +99,12 @@ export default function AttendanceModal({
       size="lg"
       footer={
         <div className="flex items-center justify-end gap-3 w-full">
-          <Button onClick={onClose} variant="outline" disabled={saving}>
+          <DashboardButton onClick={onClose} variant="outline" disabled={saving}>
             Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={saving}>
+          </DashboardButton>
+          <DashboardButton onClick={handleSave} disabled={saving}>
             {saving ? 'Saving...' : 'Save Attendance'}
-          </Button>
+          </DashboardButton>
         </div>
       }
     >

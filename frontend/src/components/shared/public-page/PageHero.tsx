@@ -10,18 +10,37 @@ import React from 'react';
 export interface PageHeroProps {
   title: string;
   subtitle: string;
+  /** Controls whether hero uses video or image background. */
+  backgroundMedia?: 'video' | 'image';
   /** Optional video URL (e.g. /videos/space-bg-2.mp4). If not set, only gradient + pattern. */
   videoSrc?: string;
+  /** Optional image URL for image background mode. */
+  imageSrc?: string;
   children?: React.ReactNode;
   className?: string;
 }
 
-export default function PageHero({ title, subtitle, videoSrc, children, className = '' }: PageHeroProps) {
+export default function PageHero({
+  title,
+  subtitle,
+  backgroundMedia = 'video',
+  videoSrc,
+  imageSrc,
+  children,
+  className = '',
+}: PageHeroProps) {
   return (
     <section
       className={`relative pt-20 pb-24 px-4 sm:px-6 lg:px-8 text-white overflow-hidden min-h-screen flex items-center ${className}`}
     >
-      {videoSrc && (
+      {backgroundMedia === 'image' && imageSrc ? (
+        <img
+          className="absolute inset-0 h-full w-full object-cover"
+          src={imageSrc}
+          alt=""
+          aria-hidden
+        />
+      ) : videoSrc ? (
         <video
           className="absolute inset-0 w-full h-full object-cover"
           src={videoSrc}
@@ -30,7 +49,7 @@ export default function PageHero({ title, subtitle, videoSrc, children, classNam
           muted
           playsInline
         />
-      )}
+      ) : null}
       <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/30 to-light-blue-cyan/20" />
       <div
         className="absolute inset-0 opacity-10"

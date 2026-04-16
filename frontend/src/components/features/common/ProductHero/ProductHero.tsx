@@ -3,7 +3,7 @@ import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 import { useSearchParams } from 'next/navigation';
 
 import React from 'react';
-import Button from '@/components/ui/Button/Button';
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
 import { 
   CheckCircle2, 
   Clock, 
@@ -16,9 +16,9 @@ import {
   TrendingUp,
   Heart,
   } from 'lucide-react';
-import type { IconComponent } from '@/types/icons';
+import type { IconComponent } from '@/shared/types/icons';
 import Image from 'next/image';
-import { themeColors } from '@/utils/themeColors';
+import { themeColors } from '@/shared/utils/themeColors';
 
 // Icon mapping for string-based icon names
 const iconMap: Record<string, IconComponent> = {
@@ -235,14 +235,14 @@ const ProductHero: React.FC<ProductHeroProps> = ({
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button href={primaryCTA.href} variant="yellow" size="lg" className="shadow-2xl" withArrow>
+              <MarketingButton href={primaryCTA.href} variant="yellow" size="lg" className="shadow-2xl" withArrow>
                 {primaryCTA.icon && <span className="mr-2">{primaryCTA.icon}</span>}
                 {primaryCTA.text}
-              </Button>
+              </MarketingButton>
               {secondaryCTA && (
-                <Button href={secondaryCTA.href} variant="outlineWhite" size="lg" className="shadow-lg">
+                <MarketingButton href={secondaryCTA.href} variant="outlineWhite" size="lg" className="shadow-lg">
                   {secondaryCTA.text}
-                </Button>
+                </MarketingButton>
               )}
             </div>
           </div>
@@ -307,9 +307,9 @@ const ProductHero: React.FC<ProductHeroProps> = ({
               </div>
 
               {/* Book Button */}
-              <Button href={primaryBookingUrl} variant="primary" size="lg" className="w-full mb-4" withArrow>
+              <MarketingButton href={primaryBookingUrl} variant="primary" size="lg" className="w-full mb-4" withArrow>
                 Secure Your Spot Now
-              </Button>
+              </MarketingButton>
 
               {/* Trust Indicators */}
               {trustBadges && trustBadges.length > 0 && (

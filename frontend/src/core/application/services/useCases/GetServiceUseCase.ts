@@ -13,12 +13,10 @@ export class GetServiceUseCase {
   constructor(private readonly serviceRepository: IServiceRepository) {}
 
   async execute(idOrSlug: string): Promise<ServiceDTO | null> {
-    // Try to find by ID first
-    let service = await this.serviceRepository.findById(idOrSlug);
-
-    // If not found, try by slug
+    // Slug first: public API and URLs use slugs; static repo still resolves id on second lookup.
+    let service = await this.serviceRepository.findBySlug(idOrSlug);
     if (!service) {
-      service = await this.serviceRepository.findBySlug(idOrSlug);
+      service = await this.serviceRepository.findById(idOrSlug);
     }
 
     if (!service) {

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, SlidersHorizontal } from 'lucide-react';
-import { cn } from '@/utils/cn';
+import { cn } from '@/dashboard/utils/cn';
 
 const POPOVER_WIDTH = 320;
 const POPOVER_OFFSET = 8;

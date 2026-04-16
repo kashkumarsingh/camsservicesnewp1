@@ -6,7 +6,7 @@ import { useDashboardSyncEnabled } from '@/core/dashboardSync/DashboardSyncConte
 import { dashboardSyncStore } from '@/core/dashboardSync/dashboardSyncStore';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
-import { getApiErrorMessage } from '@/utils/errorUtils';
+import { getApiErrorMessage } from '@/shared/utils/errorUtils';
 
 interface DashboardStats {
   approvedChildrenCount: number;

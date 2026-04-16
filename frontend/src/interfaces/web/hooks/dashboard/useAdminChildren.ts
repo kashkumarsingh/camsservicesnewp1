@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
-import { getApiErrorMessage } from '@/utils/errorUtils';
-import { isAdminRole } from '@/utils/dashboardConstants';
+import { getApiErrorMessage } from '@/shared/utils/errorUtils';
+import { isAdminRole } from '@/dashboard/utils/dashboardConstants';
 import {
   type AdminChildDTO,
   type CreateChildDTO,

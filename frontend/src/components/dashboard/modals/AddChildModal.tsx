@@ -3,10 +3,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AlertCircle, CheckCircle, UserPlus } from 'lucide-react';
 import BaseModal from '@/components/ui/Modal/BaseModal';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import PostcodeLookup from '@/components/booking/lookups/PostcodeLookup';
 import { childrenRepository } from '@/infrastructure/http/children/ChildrenRepository';
-import { validateFullName, validateAge } from '@/utils/validation';
+import { validateFullName, validateAge } from '@/shared/utils/validation';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 
 interface AddChildModalProps {
@@ -483,7 +483,7 @@ export default function AddChildModal({
         {/* Action Buttons + subtle next-step hint */}
         <div className="flex flex-col gap-2 pt-2">
           <div className="flex gap-3">
-          <Button
+          <DashboardButton
             type="button"
             variant="outline"
             onClick={onClose}
@@ -491,15 +491,15 @@ export default function AddChildModal({
             disabled={isSubmitting}
           >
             Cancel
-          </Button>
-          <Button
+          </DashboardButton>
+          <DashboardButton
             type="submit"
             disabled={isSubmitting}
             className="flex-1"
             icon={<UserPlus size={16} />}
           >
             {isSubmitting ? 'Adding...' : 'Add Child'}
-          </Button>
+          </DashboardButton>
           </div>
           <p className="text-[11px] text-gray-500">
             After adding a child, they will appear as <span className="font-medium">pending</span>. You can complete their checklist whilst waiting for approval.

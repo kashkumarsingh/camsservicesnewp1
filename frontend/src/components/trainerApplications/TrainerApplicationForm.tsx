@@ -4,7 +4,7 @@ import { FormEvent, useState, useEffect, useRef } from 'react';
 import { CreateTrainerApplicationDTO } from '@/core/application/trainerApplications';
 import { useTrainerApplicationForm } from '@/interfaces/web/hooks/trainerApplications/useTrainerApplicationForm';
 import { useActivities } from '@/interfaces/web/hooks/activities/useActivities';
-import { validateName, validateEmail, validatePhone } from '@/utils/validation';
+import { validateName, validateEmail, validatePhone } from '@/shared/utils/validation';
 import { AlertCircle, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 
 const AVAILABILITY_OPTIONS = [

@@ -5,21 +5,21 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { Calendar, Clock, User, FileText, Loader2, Activity, Search, AlertTriangle, X, ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import moment from 'moment';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { BaseModal } from '@/components/ui/Modal';
-import { BOOKING_VALIDATION_MESSAGES, getMessageForDateReason, meetsMinimumDuration, formatDurationDisplay, getHoursNeededForMinimum } from '@/utils/bookingValidationMessages';
-import { getDateBookingStatus, getEarliestBookableDate, isTomorrowBookable } from '@/utils/bookingCutoffRules';
+import { BOOKING_VALIDATION_MESSAGES, getMessageForDateReason, meetsMinimumDuration, formatDurationDisplay, getHoursNeededForMinimum } from '@/dashboard/utils/bookingValidationMessages';
+import { getDateBookingStatus, getEarliestBookableDate, isTomorrowBookable } from '@/dashboard/utils/bookingCutoffRules';
 import { useActivities } from '@/interfaces/web/hooks/activities/useActivities';
-import { MIN_DURATION_HOURS } from '@/utils/bookingConstants';
+import { MIN_DURATION_HOURS } from '@/dashboard/utils/bookingConstants';
 import { ListRowsSkeleton } from '@/components/ui/Skeleton';
-import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
-import { parseCustomActivityFromNotes, parseAllCustomActivitiesFromNotes, removeCustomActivityFromNotes, normaliseNotesFromApi } from '@/utils/activitySelectionUtils';
-import { toastManager } from '@/utils/toast';
-import { getApiErrorMessage } from '@/utils/errorUtils';
-import { ROUTES } from '@/utils/routes';
-import { TIME_FORMAT_24H } from '@/utils/appConstants';
-import { BOOKING_STATUS, PAYMENT_STATUS } from '@/utils/dashboardConstants';
+import { SKELETON_COUNTS } from '@/shared/utils/skeletonConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
+import { parseCustomActivityFromNotes, parseAllCustomActivitiesFromNotes, removeCustomActivityFromNotes, normaliseNotesFromApi } from '@/dashboard/utils/activitySelectionUtils';
+import { toastManager } from '@/dashboard/utils/toast';
+import { getApiErrorMessage } from '@/shared/utils/errorUtils';
+import { ROUTES } from '@/shared/utils/routes';
+import { TIME_FORMAT_24H } from '@/shared/utils/appConstants';
+import { BOOKING_STATUS, PAYMENT_STATUS } from '@/dashboard/utils/dashboardConstants';
 import type { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
 import type { FC } from 'react';
 
@@ -1024,7 +1024,7 @@ export default function ParentBookingModal({
   const bookingTitle = isEditMode ? 'Edit Session' : 'Book Session';
   const footerContent = (
     <div className="flex gap-3">
-      <Button
+      <DashboardButton
         type="button"
         variant="outline"
         onClick={onClose}
@@ -1032,8 +1032,8 @@ export default function ParentBookingModal({
         disabled={isSubmitting}
       >
         Cancel
-      </Button>
-      <Button
+      </DashboardButton>
+      <DashboardButton
         type="button"
         variant="primary"
         className="flex-1"
@@ -1054,7 +1054,7 @@ export default function ParentBookingModal({
         ) : (
           isEditMode ? 'Update Session' : 'Book Session'
         )}
-      </Button>
+      </DashboardButton>
     </div>
   );
 

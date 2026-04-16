@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, AlertCircle, CheckCircle2, Calendar, Clock, Package, Users } from 'lucide-react';
-import Button from '@/components/ui/Button/Button';
-import { formatHours } from '@/utils/formatHours';
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
+import { formatHours } from '@/shared/utils/formatHours';
 import { useBooking } from '@/interfaces/web/hooks/booking/useBooking';
 import { bookingDTOToVisitorBooking } from '@/interfaces/web/utils/bookingRetrievalAdapter';
-import { ROUTES } from '@/utils/routes';
+import { ROUTES } from '@/shared/utils/routes';
 
 interface VisitorBooking {
   reference: string;
@@ -219,13 +219,13 @@ const BookingRetrievalForm: React.FC<BookingRetrievalFormProps> = ({ onBookingRe
             />
           </div>
           <div className="flex items-end">
-            <Button
+            <MarketingButton
               onClick={handleSearch}
               disabled={searching || apiLoading || !reference.trim()}
               className="px-6 py-3 bg-primary-blue hover:bg-primary-blue text-white font-semibold"
             >
               {searching || apiLoading ? 'Searching...' : 'Search'}
-            </Button>
+            </MarketingButton>
           </div>
         </div>
       </div>
@@ -303,12 +303,12 @@ const BookingRetrievalForm: React.FC<BookingRetrievalFormProps> = ({ onBookingRe
 
           {foundBooking.remainingHours > 0 && (
             <div className="mt-4">
-              <Button
+              <MarketingButton
                 onClick={handleContinueBooking}
                 className="w-full bg-gradient-to-r from-primary-blue to-light-blue-cyan hover:from-primary-blue hover:to-light-blue-cyan text-white font-bold py-3 shadow-lg"
               >
                 Continue Booking with {formatHours(foundBooking.remainingHours)} Remaining
-              </Button>
+              </MarketingButton>
             </div>
           )}
 

@@ -2,9 +2,9 @@
 
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Plus, Loader2, Info } from "lucide-react";
-import Button from "@/components/ui/Button";
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { BaseModal } from "@/components/ui/Modal";
-import { TOP_UP_CALCULATION_TOOLTIP } from "@/utils/appConstants";
+import { TOP_UP_CALCULATION_TOOLTIP } from "@/shared/utils/appConstants";
 import type { BookingDTO } from "@/core/application/booking/dto/BookingDTO";
 
 function formatCurrency(amount: number): string {
@@ -97,10 +97,10 @@ export default function TopUpModal({
       size="md"
       footer={
         <div className="flex justify-end gap-2 w-full">
-          <Button type="button" variant="bordered" size="sm" onClick={onClose}>
+          <DashboardButton type="button" variant="bordered" size="sm" onClick={onClose}>
             Cancel
-          </Button>
-          <Button
+          </DashboardButton>
+          <DashboardButton
             type="button"
             variant="primary"
             size="sm"
@@ -115,7 +115,7 @@ export default function TopUpModal({
             ) : (
               <>Proceed to payment · {formatCurrency(totalPrice)}</>
             )}
-          </Button>
+          </DashboardButton>
         </div>
       }
     >

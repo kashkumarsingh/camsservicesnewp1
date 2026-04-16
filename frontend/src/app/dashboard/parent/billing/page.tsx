@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import React from 'react';
 import { Breadcrumbs } from '@/components/dashboard/universal';
 import ParentBillingPageClient from './ParentBillingPageClient';
-import { ROUTES } from '@/utils/routes';
+import { ROUTES } from '@/shared/utils/routes';
 
 export const metadata: Metadata = {
   title: 'Parent Dashboard - Billing & invoices',

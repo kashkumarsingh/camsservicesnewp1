@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import moment, { type Moment } from 'moment';
 import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 import { AlertCircle, CheckCircle, XCircle, ClipboardCheck, Calendar, User, Users, Package, TrendingUp, ArrowRight, X, LogOut, CreditCard, Settings, BookOpen, CalendarPlus, UserPlus, RefreshCw, ShieldAlert, Keyboard, Plus, AlertTriangle } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import Link from 'next/link';
 import ChildrenActivitiesCalendar from '@/components/dashboard/ChildrenActivitiesCalendar';
 import BookedSessionsModal from '@/components/dashboard/modals/BookedSessionsModal';
@@ -23,7 +23,7 @@ import NoHoursLeftPanel from '@/components/dashboard/modals/NoHoursLeftPanel';
 import SafeguardingConcernModal, { type SafeguardingConcernFormData } from '@/components/dashboard/modals/SafeguardingConcernModal';
 import SessionNotesModal from '@/components/dashboard/modals/SessionNotesModal';
 import ToastContainer from '@/components/ui/Toast/ToastContainer';
-import { toastManager, type Toast } from '@/utils/toast';
+import { toastManager, type Toast } from '@/dashboard/utils/toast';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
 import { useMyBookings } from '@/interfaces/web/hooks/booking/useMyBookings';
 import { useCancelBooking } from '@/interfaces/web/hooks/booking/useCancelBooking';
@@ -38,19 +38,19 @@ import { useSmartResponsive } from '@/interfaces/web/hooks/responsive/useSmartRe
 import { useDashboardStats } from '@/interfaces/web/hooks/dashboard/useDashboardStats';
 import { useParentSessionNotes } from '@/interfaces/web/hooks/dashboard/useParentSessionNotes';
 import { useSubmitSafeguardingConcern } from '@/interfaces/web/hooks/dashboard/useSubmitSafeguardingConcern';
-import { getDateBookingStatus } from '@/utils/bookingCutoffRules';
+import { getDateBookingStatus } from '@/dashboard/utils/bookingCutoffRules';
 import { getChildChecklistFlags, canChildBuyHours, childNeedsChecklistCta, childNeedsChecklistToComplete, childAwaitingChecklistReview } from '@/core/application/auth/types';
-import { USER_ROLE, APPROVAL_STATUS, BOOKING_STATUS, PAYMENT_STATUS } from '@/utils/dashboardConstants';
-import { CHECKLIST_SUBMIT_SUCCESS_MESSAGE } from '@/utils/appConstants';
-import { ROUTES } from '@/utils/routes';
-import { getMessageForDateReason } from '@/utils/bookingValidationMessages';
-import { getApiErrorMessage } from '@/utils/errorUtils';
-import { toApiTimeFormat } from '@/utils/timeFormatUtils';
+import { USER_ROLE, APPROVAL_STATUS, BOOKING_STATUS, PAYMENT_STATUS } from '@/dashboard/utils/dashboardConstants';
+import { CHECKLIST_SUBMIT_SUCCESS_MESSAGE } from '@/shared/utils/appConstants';
+import { ROUTES } from '@/shared/utils/routes';
+import { getMessageForDateReason } from '@/dashboard/utils/bookingValidationMessages';
+import { getApiErrorMessage } from '@/shared/utils/errorUtils';
+import { toApiTimeFormat } from '@/dashboard/utils/timeFormatUtils';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
-import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
+import { LIVE_REFRESH_ENABLED } from '@/dashboard/utils/liveRefreshConstants';
 import { ChildrenFilter } from '@/components/dashboard/ChildrenFilter';
-import { getMonday, getMonthKey } from '@/utils/calendarRangeUtils';
-import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
+import { getMonday, getMonthKey } from '@/dashboard/utils/calendarRangeUtils';
+import type { CalendarPeriod } from '@/dashboard/utils/calendarRangeUtils';
 import { CalendarRangeToolbar } from '@/components/ui/CalendarRange';
 import ParentCleanRightSidebar from '@/components/dashboard/parent/ParentCleanRightSidebar';
 
@@ -1671,12 +1671,12 @@ export default function ParentDashboardPageClient() {
               Debug: loading={loading}, bookingsLoading={bookingsLoading}, bookingsError={bookingsError || 'none'}
             </p>
             <div className="flex flex-wrap justify-center gap-3">
-              <Button onClick={() => window.location.reload()} className="rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
+              <DashboardButton onClick={() => window.location.reload()} className="rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
                 Reload Page
-              </Button>
-              <Button onClick={() => router.push(ROUTES.LOGIN)} variant="outline" className="rounded-full border border-slate-300 bg-white px-6 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all duration-150">
+              </DashboardButton>
+              <DashboardButton onClick={() => router.push(ROUTES.LOGIN)} variant="outline" className="rounded-full border border-slate-300 bg-white px-6 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all duration-150">
                 Go to Login
-              </Button>
+              </DashboardButton>
             </div>
           </div>
         </div>
@@ -1719,9 +1719,9 @@ export default function ParentDashboardPageClient() {
               </p>
             </>
           )}
-          <Button onClick={() => router.push(ROUTES.HOME)} className="w-full rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover hover:shadow-md sm:w-auto focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
+          <DashboardButton onClick={() => router.push(ROUTES.HOME)} className="w-full rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover hover:shadow-md sm:w-auto focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
             Go to Homepage
-          </Button>
+          </DashboardButton>
         </div>
       </div>
     );
@@ -1810,18 +1810,18 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
             )}
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <Button onClick={() => setShowAddChildModal(true)} variant="primary" size="sm" icon={<UserPlus size={14} className="sm:h-4 sm:w-4" />} className="rounded-full">
+            <DashboardButton onClick={() => setShowAddChildModal(true)} variant="primary" size="sm" icon={<UserPlus size={14} className="sm:h-4 sm:w-4" />} className="rounded-full">
               Add child
-            </Button>
+            </DashboardButton>
             {approvedChildren.length === 0 && (
-              <Button onClick={() => { setShowBuyHoursModal(true); setBuyHoursChildId(undefined); }} variant="primary" size="sm" icon={<Package size={14} className="sm:h-4 sm:w-4" />} className="rounded-full">
+              <DashboardButton onClick={() => { setShowBuyHoursModal(true); setBuyHoursChildId(undefined); }} variant="primary" size="sm" icon={<Package size={14} className="sm:h-4 sm:w-4" />} className="rounded-full">
                 Buy Hours
-              </Button>
+              </DashboardButton>
             )}
             <span className="hidden h-6 w-px bg-slate-200 sm:inline-block dark:bg-slate-700" aria-hidden />
-            <Button type="button" onClick={() => setShowSafeguardingModal(true)} variant="outline" size="sm" icon={<ShieldAlert size={14} className="shrink-0 sm:h-4 sm:w-4" />} className="rounded-full">
+            <DashboardButton type="button" onClick={() => setShowSafeguardingModal(true)} variant="outline" size="sm" icon={<ShieldAlert size={14} className="shrink-0 sm:h-4 sm:w-4" />} className="rounded-full">
               <span className="hidden sm:inline">Report a concern</span><span className="sm:hidden">Concern</span>
-            </Button>
+            </DashboardButton>
             <div className="relative">
               <button ref={keyboardShortcutsTriggerRef} type="button" onClick={() => setShowKeyboardShortcutsHint((v) => !v)} className="p-1.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Keyboard shortcuts" aria-expanded={showKeyboardShortcutsHint}>
                 <Keyboard size={18} className="sm:h-5 sm:w-5" aria-hidden />
@@ -1983,7 +1983,7 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                   You have {totalRemainingHoursForBanner.toFixed(1)}h left. Tap below to schedule a session.
                 </p>
-                <Button
+                <DashboardButton
                   onClick={() => handleBookSession(approvedChildren[0].id)}
                   variant="primary"
                   size="sm"
@@ -1991,7 +1991,7 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                   icon={<CalendarPlus size={14} />}
                 >
                   Book session
-                </Button>
+                </DashboardButton>
               </div>
             )}
 
@@ -2109,8 +2109,8 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                                   <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{dateLabel} · {timeLabel}</p>
                                   {s.trainerName && <p className="text-sm text-slate-500 dark:text-slate-400">with {s.trainerName}</p>}
                                   <div className="mt-3 flex gap-2">
-                                    <Button variant="primary" size="sm" className="rounded-full bg-gcal-primary px-4 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" onClick={() => handleUpcomingSessionClick({ scheduleId: s.scheduleId, childName: s.childName, childId: s.childId })}>View details</Button>
-                                    <Button variant="outline" size="sm" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" onClick={() => handleBookSession(s.childId)}>Reschedule</Button>
+                                    <DashboardButton variant="primary" size="sm" className="rounded-full bg-gcal-primary px-4 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" onClick={() => handleUpcomingSessionClick({ scheduleId: s.scheduleId, childName: s.childName, childId: s.childId })}>View details</DashboardButton>
+                                    <DashboardButton variant="outline" size="sm" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" onClick={() => handleBookSession(s.childId)}>Reschedule</DashboardButton>
                                   </div>
                                 </div>
                               );
@@ -2167,13 +2167,13 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                               </div>
                               <div className="flex flex-wrap gap-2">
                                 {!hasActivePackage ? (
-                                  <Button variant="primary" size="sm" className="rounded-full bg-gcal-primary px-4 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover" onClick={() => handleBuyHours(c.id)}>Buy hours</Button>
+                                  <DashboardButton variant="primary" size="sm" className="rounded-full bg-gcal-primary px-4 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover" onClick={() => handleBuyHours(c.id)}>Buy hours</DashboardButton>
                                 ) : rem <= 0 ? (
-                                  <Button variant="primary" size="sm" className="rounded-full bg-gcal-primary px-4 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover" onClick={() => handleOpenTopUp(c.id)}>Top up</Button>
+                                  <DashboardButton variant="primary" size="sm" className="rounded-full bg-gcal-primary px-4 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover" onClick={() => handleOpenTopUp(c.id)}>Top up</DashboardButton>
                                 ) : (
                                   <>
-                                    <Button variant="outline" size="sm" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" onClick={() => handleBookSession(c.id)}>Book</Button>
-                                    <Button variant="outline" size="sm" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" onClick={() => handleOpenTopUp(c.id)}>Top up</Button>
+                                    <DashboardButton variant="outline" size="sm" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" onClick={() => handleBookSession(c.id)}>Book</DashboardButton>
+                                    <DashboardButton variant="outline" size="sm" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" onClick={() => handleOpenTopUp(c.id)}>Top up</DashboardButton>
                                   </>
                                 )}
                               </div>
@@ -2189,21 +2189,21 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                         <div className="rounded-xl border border-l-4 border-amber-500 bg-white p-4 shadow-sm dark:bg-amber-950/20">
                           <p className="font-semibold text-slate-900 dark:text-slate-100">Checklist needed</p>
                           <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">Complete checklist for: {childrenNeedingChecklistForSidebar?.map(c => c.name).join(', ')}</p>
-                          <Button variant="outline" size="sm" className="mt-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" onClick={() => childrenNeedingChecklistForSidebar?.[0] && handleCompleteChecklist(childrenNeedingChecklistForSidebar[0].id)}>Complete</Button>
+                          <DashboardButton variant="outline" size="sm" className="mt-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" onClick={() => childrenNeedingChecklistForSidebar?.[0] && handleCompleteChecklist(childrenNeedingChecklistForSidebar[0].id)}>Complete</DashboardButton>
                         </div>
                       )}
                       {hasDraftOrUnpaidActivePackage && (
                         <div className="rounded-xl border border-l-4 border-rose-500 bg-white p-4 shadow-sm dark:bg-rose-950/20">
                           <p className="font-semibold text-slate-900 dark:text-slate-100">Payment required</p>
                           <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">Complete payment for your booking to confirm sessions.</p>
-                          <Button variant="primary" size="sm" className="mt-2 rounded-full bg-gcal-primary px-4 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover" onClick={() => { if (firstUnpaidBooking) { setSelectedPaymentBooking(firstUnpaidBooking); setShowPaymentModal(true); } }}>Pay now</Button>
+                          <DashboardButton variant="primary" size="sm" className="mt-2 rounded-full bg-gcal-primary px-4 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover" onClick={() => { if (firstUnpaidBooking) { setSelectedPaymentBooking(firstUnpaidBooking); setShowPaymentModal(true); } }}>Pay now</DashboardButton>
                         </div>
                       )}
                       {approvedChildren.length === 0 && (
                         <div className="rounded-xl border border-l-4 border-blue-500 bg-white p-4 shadow-sm dark:bg-blue-950/20">
                           <p className="font-semibold text-slate-900 dark:text-slate-100">Buy hours</p>
                           <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">Add a child and complete their checklist; once approved, you can buy hours here.</p>
-                          <Button variant="primary" size="sm" className="mt-2 rounded-full bg-gcal-primary px-4 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover" onClick={() => setShowBuyHoursModal(true)}>Buy hours</Button>
+                          <DashboardButton variant="primary" size="sm" className="mt-2 rounded-full bg-gcal-primary px-4 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover" onClick={() => setShowBuyHoursModal(true)}>Buy hours</DashboardButton>
                         </div>
                       )}
                       {((childrenNeedingChecklistForSidebar?.length ?? 0) === 0 && !hasDraftOrUnpaidActivePackage && approvedChildren.length > 0) && (
@@ -2222,7 +2222,7 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                   <>
                     <div className="fixed inset-0 z-dropdown bg-black/40 backdrop-blur-sm" aria-hidden onClick={() => setFabOpen(false)} />
                     <div className="relative z-dropdown flex flex-col gap-2 pb-2">
-                      <Button
+                      <DashboardButton
                         type="button"
                         onClick={() => {
                           setFabOpen(false);
@@ -2240,22 +2240,22 @@ if (user.approvalStatus === APPROVAL_STATUS.PENDING) {
                         className="min-h-[44px] justify-start rounded-full pl-4 pr-5 py-3 text-left shadow-xl"
                       >
                         Book session
-                      </Button>
-                      <Button type="button" onClick={() => { setFabOpen(false); setShowAddChildModal(true); }} variant="outline" size="sm" icon={<UserPlus className="h-5 w-5 shrink-0" />} className="min-h-[44px] justify-start rounded-full pl-4 pr-5 py-3 text-left shadow-xl">
+                      </DashboardButton>
+                      <DashboardButton type="button" onClick={() => { setFabOpen(false); setShowAddChildModal(true); }} variant="outline" size="sm" icon={<UserPlus className="h-5 w-5 shrink-0" />} className="min-h-[44px] justify-start rounded-full pl-4 pr-5 py-3 text-left shadow-xl">
                         Add child
-                      </Button>
-                      <Button type="button" onClick={() => { setFabOpen(false); setShowSafeguardingModal(true); }} variant="ghost" size="sm" icon={<ShieldAlert className="h-5 w-5 shrink-0" />} className="min-h-[44px] justify-start rounded-full pl-4 pr-5 py-3 text-left shadow-xl">
+                      </DashboardButton>
+                      <DashboardButton type="button" onClick={() => { setFabOpen(false); setShowSafeguardingModal(true); }} variant="ghost" size="sm" icon={<ShieldAlert className="h-5 w-5 shrink-0" />} className="min-h-[44px] justify-start rounded-full pl-4 pr-5 py-3 text-left shadow-xl">
                         Report a concern
-                      </Button>
+                      </DashboardButton>
                       {approvedChildren.length === 0 && (
-                      <Button type="button" onClick={() => { setFabOpen(false); setShowBuyHoursModal(true); setBuyHoursChildId(undefined); }} variant="primary" size="sm" icon={<Package className="h-5 w-5 shrink-0" />} className="min-h-[44px] justify-start rounded-full pl-4 pr-5 py-3 text-left shadow-xl">
+                      <DashboardButton type="button" onClick={() => { setFabOpen(false); setShowBuyHoursModal(true); setBuyHoursChildId(undefined); }} variant="primary" size="sm" icon={<Package className="h-5 w-5 shrink-0" />} className="min-h-[44px] justify-start rounded-full pl-4 pr-5 py-3 text-left shadow-xl">
                         Buy Hours
-                      </Button>
+                      </DashboardButton>
                       )}
                       {approvedChildren.length > 0 && (
-                      <Button type="button" onClick={() => { setFabOpen(false); const firstWithPackage = approvedChildren.find(c => childIdsWithActivePackage?.has(c.id)); if (firstWithPackage) handleOpenTopUp(firstWithPackage.id); else { toastManager.info('No active package to top up. Buy hours first.'); setShowBuyHoursModal(true); } }} variant="outline" size="sm" icon={<CreditCard className="h-5 w-5 shrink-0" />} className="min-h-[44px] justify-start rounded-full pl-4 pr-5 py-3 text-left shadow-xl">
+                      <DashboardButton type="button" onClick={() => { setFabOpen(false); const firstWithPackage = approvedChildren.find(c => childIdsWithActivePackage?.has(c.id)); if (firstWithPackage) handleOpenTopUp(firstWithPackage.id); else { toastManager.info('No active package to top up. Buy hours first.'); setShowBuyHoursModal(true); } }} variant="outline" size="sm" icon={<CreditCard className="h-5 w-5 shrink-0" />} className="min-h-[44px] justify-start rounded-full pl-4 pr-5 py-3 text-left shadow-xl">
                         Top up
-                      </Button>
+                      </DashboardButton>
                       )}
                     </div>
                   </>

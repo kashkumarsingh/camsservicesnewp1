@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { ClipboardCheck, AlertCircle, X } from "lucide-react";
-import Button from "@/components/ui/Button";
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { childrenRepository } from "@/infrastructure/http/children/ChildrenRepository";
 import type { Child } from "@/core/application/auth/types";
 
@@ -255,7 +255,7 @@ export default function CompleteChecklistModal({
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 border-t border-gray-200 p-4">
-          <Button
+          <DashboardButton
             type="button"
             variant="bordered"
             size="sm"
@@ -263,8 +263,8 @@ export default function CompleteChecklistModal({
             disabled={isSubmitting}
           >
             Cancel
-          </Button>
-          <Button
+          </DashboardButton>
+          <DashboardButton
             type="button"
             variant="primary"
             size="sm"
@@ -273,7 +273,7 @@ export default function CompleteChecklistModal({
             disabled={isSubmitting || isLoadingChecklist}
           >
             {isSubmitting ? "Submitting..." : "Submit Checklist"}
-          </Button>
+          </DashboardButton>
         </div>
       </div>
     </div>

@@ -2,16 +2,16 @@
 
 namespace App\Listeners;
 
+use App\Contracts\Notifications\INotificationDispatcher;
 use App\Events\ActivityConfirmed;
-use App\Services\Notifications\EmailNotificationService;
+use App\Services\Notifications\NotificationIntentFactory;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 /**
  * SendActivityConfirmationNotification Listener
- * 
+ *
  * Clean Architecture: Application Layer (Event Handler)
- * Purpose: Sends notification to parent when activity is confirmed
- * Location: backend/app/Listeners/SendActivityConfirmationNotification.php
+ * Purpose: Sends notification to parent when activity is confirmed via central dispatcher.
  */
 class SendActivityConfirmationNotification implements ShouldQueue
 {
@@ -24,12 +24,11 @@ class SendActivityConfirmationNotification implements ShouldQueue
         $activities = $event->activities;
         $booking = $schedule->booking;
 
-        // Load activity relationship if not already loaded
         $activities->load('activity');
 
-        // Send notification via centralized service
-        app(EmailNotificationService::class)
-            ->sendActivityConfirmation($booking, $schedule, $activities);
+        app(INotificationDispatcher::class)->dispatch(
+            NotificationIntentFactory::activityConfirmed($booking, $schedule, $activities)
+        );
     }
 }
 

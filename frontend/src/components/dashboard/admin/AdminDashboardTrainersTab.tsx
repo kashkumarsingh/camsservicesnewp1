@@ -12,7 +12,7 @@ import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import type { AdminTrainerDTO } from '@/core/application/admin/dto/AdminTrainerDTO';
 import { TrainerSkeleton } from '@/components/ui/Skeleton';
-import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
+import { SKELETON_COUNTS } from '@/shared/utils/skeletonConstants';
 
 // -----------------------------------------------------------------------------
 // Types

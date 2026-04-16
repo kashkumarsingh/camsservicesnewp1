@@ -17,7 +17,7 @@ import type { AdminUserDTO } from '@/core/application/admin/dto/AdminUserDTO';
 import type { AdminChildDTO } from '@/core/application/admin/dto/AdminChildDTO';
 import type { ChildWithZeroHoursItem, PendingPaymentItem } from '@/interfaces/web/hooks/dashboard/useAdminDashboardStats';
 import { ListRowsSkeleton } from '@/components/ui/Skeleton';
-import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
+import { SKELETON_COUNTS } from '@/shared/utils/skeletonConstants';
 // -----------------------------------------------------------------------------
 // Types
 // -----------------------------------------------------------------------------

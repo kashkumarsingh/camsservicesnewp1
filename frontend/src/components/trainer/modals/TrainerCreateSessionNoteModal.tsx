@@ -3,11 +3,11 @@
 import React, { useState, useMemo } from 'react';
 import { X, FileText, Loader2, Lock } from 'lucide-react';
 import BaseModal from '@/components/ui/Modal/BaseModal';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { trainerScheduleRepository } from '@/infrastructure/http/trainer/TrainerScheduleRepository';
 import type { TrainerBooking, CreateNoteRequest } from '@/core/application/trainer/types';
-import { toastManager } from '@/utils/toast';
-import { getTrainerChildDisplayName } from '@/utils/trainerPrivacy';
+import { toastManager } from '@/dashboard/utils/toast';
+import { getTrainerChildDisplayName } from '@/dashboard/utils/trainerPrivacy';
 
 interface TrainerCreateSessionNoteModalProps {
   isOpen: boolean;
@@ -212,17 +212,17 @@ export default function TrainerCreateSessionNoteModal({
         )}
 
         <div className="flex justify-end gap-2 pt-2">
-          <Button type="button" variant="secondary" onClick={handleClose} disabled={isSubmitting}>
+          <DashboardButton type="button" variant="secondary" onClick={handleClose} disabled={isSubmitting}>
             Cancel
-          </Button>
-          <Button
+          </DashboardButton>
+          <DashboardButton
             type="submit"
             variant="primary"
             disabled={isSubmitting || scheduleOptions.length === 0}
             icon={isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
           >
             {isSubmitting ? 'Saving…' : 'Save note'}
-          </Button>
+          </DashboardButton>
         </div>
       </form>
     </BaseModal>

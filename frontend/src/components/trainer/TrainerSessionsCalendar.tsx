@@ -6,15 +6,15 @@ import { Calendar, ChevronLeft, ChevronRight, Clock, Activity, User, FileText } 
 import { BookingCalendar } from '@/components/ui/Calendar';
 import { calendarUtils } from '@/components/ui/Calendar/useCalendarGrid';
 import type { TrainerBooking } from '@/core/application/trainer/types';
-import { getTrainerChildDisplayName } from '@/utils/trainerPrivacy';
-import { getChildColor } from '@/utils/childColorUtils';
+import { getTrainerChildDisplayName } from '@/dashboard/utils/trainerPrivacy';
+import { getChildColor } from '@/dashboard/utils/childColorUtils';
 import {
   getCalendarLabelClasses,
   getCalendarStatusDotColor,
   type CalendarSessionTimeStatus,
-} from '@/utils/calendarLabelConstants';
-import { CALENDAR_GRID_DAY_CELL_CLASSES } from '@/utils/appConstants';
-import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
+} from '@/dashboard/utils/calendarLabelConstants';
+import { CALENDAR_GRID_DAY_CELL_CLASSES } from '@/shared/utils/appConstants';
+import type { CalendarPeriod } from '@/dashboard/utils/calendarRangeUtils';
 
 const PENDING_CONFIRMATION = 'pending_trainer_confirmation';
 

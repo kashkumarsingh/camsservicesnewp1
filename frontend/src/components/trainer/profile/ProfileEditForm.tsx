@@ -4,8 +4,7 @@ import React, { useState, useRef } from 'react';
 import { trainerProfileRepository } from '@/infrastructure/http/trainer/TrainerProfileRepository';
 import type { TrainerProfile, UpdateTrainerProfileRequest } from '@/core/application/trainer/types';
 import { Save, Upload, X, User, Briefcase, MapPin, Award } from 'lucide-react';
-import Button from '@/components/ui/Button';
-
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 interface ProfileEditFormProps {
   profile: TrainerProfile;
   onUpdate: (profile: TrainerProfile) => void;
@@ -133,7 +132,7 @@ export default function ProfileEditForm({ profile, onUpdate, onError }: ProfileE
             disabled
           />
           <label htmlFor="profile-image">
-            <Button
+            <DashboardButton
               type="button"
               variant="outline"
               disabled
@@ -141,7 +140,7 @@ export default function ProfileEditForm({ profile, onUpdate, onError }: ProfileE
             >
               <Upload className="h-4 w-4" />
               Upload Image (Admin Only)
-            </Button>
+            </DashboardButton>
           </label>
           <p className="text-sm text-gray-500 mt-1">Contact admin to change profile image</p>
         </div>
@@ -223,9 +222,9 @@ export default function ProfileEditForm({ profile, onUpdate, onError }: ProfileE
             placeholder="Add specialty (e.g., SEN Support)"
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
           />
-          <Button type="button" disabled variant="outline">
+          <DashboardButton type="button" disabled variant="outline">
             Add
-          </Button>
+          </DashboardButton>
         </div>
         <div className="flex flex-wrap gap-2">
           {formData.specialties?.map((specialty, index) => (
@@ -302,9 +301,9 @@ export default function ProfileEditForm({ profile, onUpdate, onError }: ProfileE
             placeholder="Add postcode"
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
           />
-          <Button type="button" disabled variant="outline">
+          <DashboardButton type="button" disabled variant="outline">
             Add
-          </Button>
+          </DashboardButton>
         </div>
         <div className="flex flex-wrap gap-2">
           {formData.service_area_postcodes?.map((postcode, index) => (
@@ -332,9 +331,9 @@ export default function ProfileEditForm({ profile, onUpdate, onError }: ProfileE
             placeholder="e.g., 5-10, 11-16"
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
           />
-          <Button type="button" disabled variant="outline">
+          <DashboardButton type="button" disabled variant="outline">
             Add
-          </Button>
+          </DashboardButton>
         </div>
         <div className="flex flex-wrap gap-2">
           {formData.preferred_age_groups?.map((ageGroup, index) => (

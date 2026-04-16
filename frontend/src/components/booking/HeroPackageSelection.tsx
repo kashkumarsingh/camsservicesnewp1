@@ -20,9 +20,9 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { PackageDTO } from '@/core/application/packages/dto/PackageDTO';
 import { Clock, CheckCircle2, Sparkles, ArrowRight, TrendingUp } from 'lucide-react';
-import { formatCurrency } from '@/utils/currencyFormatter';
-import { formatHours } from '@/utils/formatHours';
-import { ROUTES } from '@/utils/routes';
+import { formatCurrency } from '@/shared/utils/currencyFormatter';
+import { formatHours } from '@/shared/utils/formatHours';
+import { ROUTES } from '@/shared/utils/routes';
 
 interface HeroPackageSelectionProps {
   packages: PackageDTO[];

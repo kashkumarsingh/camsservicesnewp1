@@ -202,7 +202,59 @@ class AdminActivitiesController extends Controller
         $activity = Activity::findOrFail($id);
         $activity->delete();
 
-        return $this->successResponse(null, 'Activity deleted successfully', 204);
+        return $this->successResponse(null, 'Activity deleted successfully', [], 200);
+    }
+
+    /**
+     * Bulk delete activities.
+     */
+    public function bulkDestroy(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorResponse('Validation failed', 422, $validator->errors()->toArray());
+        }
+
+        $ids = collect($validator->validated()['ids'])
+            ->map(fn ($id) => (string) $id)
+            ->filter(fn (string $id) => $id !== '')
+            ->unique()
+            ->values();
+
+        if ($ids->isEmpty()) {
+            return $this->errorResponse('Validation failed', 422, [
+                'ids' => ['At least one valid activity id is required.'],
+            ]);
+        }
+
+        $existingIds = Activity::query()
+            ->whereIn('id', $ids->all())
+            ->pluck('id')
+            ->map(fn ($id) => (string) $id)
+            ->all();
+
+        if (empty($existingIds)) {
+            return $this->errorResponse('No matching activities found', 'NOT_FOUND', [], 404);
+        }
+
+        $deletedCount = Activity::query()
+            ->whereIn('id', $existingIds)
+            ->delete();
+
+        return $this->successResponse(
+            [
+                'deletedCount' => (int) $deletedCount,
+                'requestedCount' => $ids->count(),
+                'deletedIds' => $existingIds,
+            ],
+            'Activities deleted successfully',
+            [],
+            200
+        );
     }
 }
 

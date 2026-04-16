@@ -7,18 +7,18 @@ import type { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
 import type { PaymentDTO } from '@/core/application/payment/dto/PaymentDTO';
 import { EmptyState } from '@/components/dashboard/universal';
 import { TableRowsSkeleton } from '@/components/ui/Skeleton';
-import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
-import { formatCurrency } from '@/utils/currencyFormatter';
-import { formatDateTime } from '@/utils/formatDate';
-import { ROUTES } from '@/utils/routes';
+import { SKELETON_COUNTS } from '@/shared/utils/skeletonConstants';
+import { formatCurrency } from '@/shared/utils/currencyFormatter';
+import { formatDateTime } from '@/shared/utils/formatDate';
+import { ROUTES } from '@/shared/utils/routes';
 import {
   VIEW_RECEIPT_LABEL,
   PAYMENT_TYPE_LABEL_PACKAGE,
   PAYMENT_TYPE_LABEL_TOP_UP,
-} from '@/utils/appConstants';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+} from '@/shared/utils/appConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 import { ExternalLink } from 'lucide-react';
-import { getPaymentStatusBadgeClasses } from '@/utils/statusBadgeHelpers';
+import { getPaymentStatusBadgeClasses } from '@/dashboard/utils/statusBadgeHelpers';
 
 type FlatPayment = {
   bookingReference: string;

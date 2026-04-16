@@ -16,7 +16,7 @@ import type {
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { mapRemoteActivityToDTO } from '@/core/application/admin/dto/AdminActivityDTO';
-import { getApiErrorMessage } from '@/utils/errorUtils';
+import { getApiErrorMessage } from '@/shared/utils/errorUtils';
 
 interface UseAdminActivitiesOptions {
   category?: string;
@@ -32,6 +32,7 @@ interface UseAdminActivitiesReturn {
   createActivity: (data: CreateActivityDTO) => Promise<AdminActivityDTO>;
   updateActivity: (id: string, data: UpdateActivityDTO) => Promise<AdminActivityDTO>;
   deleteActivity: (id: string) => Promise<void>;
+  deleteActivities: (ids: string[]) => Promise<void>;
   getActivityById: (id: string) => Promise<AdminActivityDTO>;
 }
 
@@ -138,6 +139,25 @@ export function useAdminActivities(options: UseAdminActivitiesOptions = {}): Use
     [fetchActivities],
   );
 
+  const deleteActivities = useCallback(
+    async (ids: string[]): Promise<void> => {
+      try {
+        const deduplicatedIds = Array.from(new Set(ids.map((id) => String(id).trim()).filter(Boolean)));
+        if (deduplicatedIds.length === 0) {
+          return;
+        }
+
+        await apiClient.post(API_ENDPOINTS.ADMIN_ACTIVITIES_BULK_DELETE, {
+          ids: deduplicatedIds,
+        });
+        await fetchActivities();
+      } catch (err: unknown) {
+        throw new Error(getApiErrorMessage(err, 'Failed to delete selected activities'));
+      }
+    },
+    [fetchActivities],
+  );
+
   const getActivityById = useCallback(async (id: string): Promise<AdminActivityDTO> => {
     try {
       const response = await apiClient.get<RemoteAdminActivityResponse>(
@@ -162,6 +182,7 @@ export function useAdminActivities(options: UseAdminActivitiesOptions = {}): Use
     createActivity,
     updateActivity,
     deleteActivity,
+    deleteActivities,
     getActivityById,
   };
 }

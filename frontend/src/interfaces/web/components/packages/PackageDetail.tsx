@@ -7,7 +7,7 @@
 'use client';
 
 import { usePackage } from '../../hooks/packages/usePackage';
-import { renderHtml } from '@/utils/htmlRenderer';
+import { renderHtml } from '@/shared/utils/htmlRenderer';
 
 interface PackageDetailProps {
   slug: string;

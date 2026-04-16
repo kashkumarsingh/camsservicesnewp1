@@ -22,10 +22,10 @@ import { childrenRepository } from '@/infrastructure/http/children/ChildrenRepos
 import { dashboardSyncStore } from '@/core/dashboardSync/dashboardSyncStore';
 import type { User, Child, RegisterRequest, LoginRequest, AuthResponse } from '@/core/application/auth/types';
 import { getChildChecklistFlags } from '@/core/application/auth/types';
-import { getDashboardRoute, getPostAuthRedirect } from '@/utils/navigation';
-import { getApiErrorMessage } from '@/utils/errorUtils';
-import { USER_ROLE, APPROVAL_STATUS } from '@/utils/dashboardConstants';
-import { ROUTES } from '@/utils/routes';
+import { getDashboardRoute, getPostAuthRedirect } from '@/shared/utils/navigation';
+import { getApiErrorMessage } from '@/shared/utils/errorUtils';
+import { USER_ROLE, APPROVAL_STATUS } from '@/dashboard/utils/dashboardConstants';
+import { ROUTES } from '@/shared/utils/routes';
 
 /** Set when getCurrentUser failed with 5xx or network error (so UI can show Retry instead of redirecting to login). */
 export interface AuthLoadError {

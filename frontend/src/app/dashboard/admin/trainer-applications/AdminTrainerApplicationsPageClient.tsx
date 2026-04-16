@@ -8,10 +8,10 @@ import { Breadcrumbs } from '@/components/dashboard/universal';
 import { EmptyState } from '@/components/dashboard/universal/EmptyState';
 import { RowActions, ApproveAction, RejectAction } from '@/components/dashboard/universal/RowActions';
 import Link from 'next/link';
-import { ROUTES } from '@/utils/routes';
-import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/utils/appConstants';
+import { ROUTES } from '@/shared/utils/routes';
+import { BACK_TO_ADMIN_DASHBOARD_LABEL } from '@/shared/utils/appConstants';
 import { Loader2 } from 'lucide-react';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface TrainerApplicationRow {
   id: string;

@@ -1,2 +1,0 @@
-export { useSiteSettings } from './useSiteSettings';
-

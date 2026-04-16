@@ -6,7 +6,7 @@ import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
 import { trainerProfileRepository } from '@/infrastructure/http/trainer/TrainerProfileRepository';
 import type { TrainerProfile } from '@/core/application/trainer/types';
 import { User, Award, Settings as SettingsIcon, AlertCircle } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
 import ProfileEditForm from '@/components/trainer/profile/ProfileEditForm';
 import QualificationsManager from '@/components/trainer/profile/QualificationsManager';
@@ -91,9 +91,9 @@ export default function SettingsPageClient() {
           <p className="text-gray-600 dark:text-gray-300 mb-6">
             Your trainer account must be approved to access settings.
           </p>
-          <Button onClick={() => router.push('/dashboard/trainer')} className="w-full">
+          <DashboardButton onClick={() => router.push('/dashboard/trainer')} className="w-full">
             Go to Dashboard
-          </Button>
+          </DashboardButton>
         </div>
       </div>
     );

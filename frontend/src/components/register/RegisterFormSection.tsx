@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { AlertCircle, CheckCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
 import { REGISTER_FORM, REGISTER_VALIDATION_FALLBACKS } from './constants';
 import type { RegisterFormSectionProps } from './registerFormTypes';
 
@@ -360,7 +360,7 @@ export default function RegisterFormSection({
             )}
           </div>
 
-          <Button
+          <MarketingButton
             type="submit"
             variant="primary"
             size="lg"
@@ -376,7 +376,7 @@ export default function RegisterFormSection({
             ) : (
               REGISTER_FORM.SUBMIT
             )}
-          </Button>
+          </MarketingButton>
         </form>
         <p className="mt-6 text-center text-sm text-slate-600">
           {REGISTER_FORM.ALREADY_ACCOUNT}{' '}

@@ -361,6 +361,19 @@ class AdminPackagesController extends Controller
     public function destroy(string $id): JsonResponse
     {
         $package = Package::findOrFail($id);
+
+        $bookingCount = $package->bookings()->count();
+        if ($bookingCount > 0) {
+            return $this->errorResponse(
+                'This package cannot be deleted because it is linked to existing bookings.',
+                409,
+                [
+                    'packageId' => (string) $package->id,
+                    'bookingCount' => $bookingCount,
+                ]
+            );
+        }
+
         $package->delete();
 
         return $this->itemResponse(

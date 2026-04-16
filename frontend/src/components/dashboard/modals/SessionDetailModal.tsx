@@ -5,18 +5,18 @@ import { Calendar, Clock, User, Edit2, Trash2, Loader2, Activity as ActivityIcon
 import moment from 'moment';
 import { BaseModal } from '@/components/ui/Modal';
 import { SideCanvas } from '@/components/ui/SideCanvas';
-import Button from '@/components/ui/Button';
-import { detectActivitySelection, parseCustomActivityFromNotes } from '@/utils/activitySelectionUtils';
-import { toastManager } from '@/utils/toast';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
+import { detectActivitySelection, parseCustomActivityFromNotes } from '@/dashboard/utils/activitySelectionUtils';
+import { toastManager } from '@/dashboard/utils/toast';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { useLiveRefresh } from '@/core/liveRefresh/LiveRefreshContext';
-import { getGoogleMapsSearchUrl } from '@/utils/locationUtils';
-import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
+import { getGoogleMapsSearchUrl } from '@/dashboard/utils/locationUtils';
+import { LIVE_REFRESH_ENABLED } from '@/dashboard/utils/liveRefreshConstants';
 import ActivityLogTimeline from '@/components/trainer/activities/ActivityLogTimeline';
 import type { ActivityLog } from '@/core/application/trainer/types';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
-import { ROUTES } from '@/utils/routes';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
+import { ROUTES } from '@/shared/utils/routes';
 
 interface SessionDetailModalProps {
   isOpen: boolean;
@@ -273,7 +273,7 @@ export default function SessionDetailModal({
 
   const sessionFooter = (
     <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 w-full">
-      <Button
+      <DashboardButton
         type="button"
         variant="bordered"
         size="sm"
@@ -282,9 +282,9 @@ export default function SessionDetailModal({
         className="sm:order-first"
       >
         Close
-      </Button>
+      </DashboardButton>
       <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
-        <Button
+        <DashboardButton
           type="button"
           variant="primary"
           size="sm"
@@ -293,8 +293,8 @@ export default function SessionDetailModal({
           icon={<Edit2 size={16} aria-hidden />}
         >
           Edit
-        </Button>
-        <Button
+        </DashboardButton>
+        <DashboardButton
           type="button"
           variant="destructive-outline"
           size="sm"
@@ -311,7 +311,7 @@ export default function SessionDetailModal({
           ariaBusy={isCancelling}
         >
           {isCancelling ? 'Cancelling…' : 'Cancel Session'}
-        </Button>
+        </DashboardButton>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { renderHtml } from '@/utils/htmlRenderer';
+import { renderHtml } from '@/shared/utils/htmlRenderer';
 import ReactMarkdown from 'react-markdown';
 
 function isHtmlContent(content: string): boolean {

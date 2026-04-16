@@ -7,6 +7,7 @@ use App\Domain\Payment\Repositories\IPaymentRepository;
 use App\Domain\Payment\ValueObjects\PaymentStatus;
 use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
+use App\Models\PaymentGatewaySetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -55,7 +56,8 @@ class StripeWebhookController extends Controller
     {
         $payload = $request->getContent();
         $signature = $request->header('Stripe-Signature');
-        $webhookSecret = config('services.stripe.webhook_secret');
+        $config = PaymentGatewaySetting::getEffectiveStripeConfig();
+        $webhookSecret = $config['webhook_secret'] ?? null;
 
         Log::info('Stripe webhook received', [
             'has_signature' => !empty($signature),

@@ -4,9 +4,9 @@ import React from 'react';
 import Link from 'next/link';
 import type { TrainerBooking } from '@/core/application/trainer/types';
 import { Calendar, Users, Package, ArrowRight, Plus, Clock, AlertCircle } from 'lucide-react';
-import Button from '@/components/ui/Button';
-import { getTrainerChildDisplayName } from '@/utils/trainerPrivacy';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
+import { getTrainerChildDisplayName } from '@/dashboard/utils/trainerPrivacy';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface BookingsListProps {
   bookings: TrainerBooking[];
@@ -162,14 +162,14 @@ export default function BookingsList({ bookings, onBookingClick }: BookingsListP
             {/* Book Sessions Button - Prominent */}
             {sessionInfo.needs && (
               <div className="border-t border-slate-200 px-4 pb-4 pt-4 md:px-6">
-                <Button 
+                <DashboardButton 
                   onClick={() => onBookingClick?.(booking.id)}
                   className="w-full min-h-[44px] rounded-full bg-gcal-primary hover:bg-gcal-primary-hover text-white font-medium flex items-center justify-center gap-2 px-6 py-2.5 text-sm transition-all duration-150 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 md:min-h-0"
                   size="lg"
                 >
                   <Plus className="h-5 w-5" />
                   Book First Session
-                </Button>
+                </DashboardButton>
               </div>
             )}
           </div>

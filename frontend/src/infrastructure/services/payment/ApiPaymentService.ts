@@ -17,7 +17,7 @@ import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import {
   PAYMENT_CONFIRM_FROM_SESSION_ERROR_FALLBACK,
   STRIPE_IDEMPOTENCY_HEADER,
-} from '@/utils/appConstants';
+} from '@/shared/utils/appConstants';
 import type { PaymentMethod, PaymentStatus, PaymentResult } from './types';
 
 let stripePromise: Promise<Stripe | null> | null = null;

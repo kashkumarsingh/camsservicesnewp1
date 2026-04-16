@@ -5,7 +5,7 @@ import moment, { Moment } from 'moment';
 import type { TrainerSchedule } from '@/core/application/trainer/types';
 import BaseMonthCalendar from '@/components/ui/Calendar/BaseMonthCalendar';
 import { calendarUtils } from '@/components/ui/Calendar/useCalendarGrid';
-import { themeColors } from '@/utils/themeColors';
+import { themeColors } from '@/shared/utils/themeColors';
 
 interface ScheduleCalendarProps {
   schedules: TrainerSchedule[];

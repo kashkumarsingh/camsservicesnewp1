@@ -9,9 +9,9 @@
 import { useServices } from '../../hooks/services/useServices';
 import ServiceCard from './ServiceCard';
 import { ServiceFilterOptions } from '@/core/application/services';
-import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
+import { SKELETON_COUNTS } from '@/shared/utils/skeletonConstants';
 import { ServiceSkeleton } from '@/components/ui/Skeleton';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface ServiceListProps {
   filterOptions?: ServiceFilterOptions;

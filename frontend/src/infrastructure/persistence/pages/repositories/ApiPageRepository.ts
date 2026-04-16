@@ -3,35 +3,31 @@ import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { extractList } from '@/infrastructure/http/responseHelpers';
 import { IPageRepository } from '@/core/application/pages/ports/IPageRepository';
 import { Page } from '@/core/domain/pages/entities/Page';
-import { CACHE_TAGS, REVALIDATION_TIMES } from '@/utils/revalidationConstants';
+import { CACHE_TAGS, REVALIDATION_TIMES } from '@/shared/utils/revalidationConstants';
 
-/** API response shape (backend sends camelCase via ApiResponseHelper). */
+/** API response shape (backend sends camelCase). */
 interface RemotePageResponse {
   id: string;
   title: string;
   slug: string;
-  type: string;
   summary?: string;
-  content: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  ogImage?: string;
+  status?: string;
+  publishedAt?: string;
+  /** Legacy fields (optional for backward compatibility). */
+  type?: string;
+  /** Rich text (legacy) or structured content (Public Pages Content Management JSON). */
+  content?: string | Record<string, unknown>;
   sections?: Array<{ type: string; data: Record<string, unknown> }>;
-  blocks?: Array<{
-    id?: string;
-    type: string;
-    payload: Record<string, unknown>;
-    meta?: { visibleFrom?: string | null; visibleUntil?: string | null; hideOnMobile?: boolean | null } | null;
-  }>;
   lastUpdated?: string;
   effectiveDate?: string;
-  version: string;
-  views: number;
-  published: boolean;
+  version?: string;
+  views?: number;
+  published?: boolean;
   createdAt?: string;
   updatedAt?: string;
-  mission?: { title?: string; description?: string } | null;
-  coreValues?: Array<{ icon?: string; title: string; description: string }> | null;
-  coreValuesSectionTitle?: string | null;
-  coreValuesSectionSubtitle?: string | null;
-  safeguarding?: { title?: string; subtitle?: string; description?: string; badges?: string[] } | null;
 }
 
 // Note: ApiClient unwraps { success: true, data: [...] } to { data: [...] }
@@ -48,25 +44,27 @@ interface PageSingleResponse {
 
 export class ApiPageRepository implements IPageRepository {
   private toDomain(data: RemotePageResponse): Page {
+    const published = data.status === 'published' || data.published === true;
+    const contentRaw = data.content;
+    const contentString = typeof contentRaw === 'string' ? contentRaw : '';
+    const structuredContent =
+      typeof contentRaw === 'object' && contentRaw !== null && !Array.isArray(contentRaw)
+        ? (contentRaw as Record<string, unknown>)
+        : undefined;
     return Page.create({
       id: data.id,
       title: data.title,
       slug: data.slug,
-      type: data.type,
-      summary: data.summary,
-      content: data.content,
+      type: data.type ?? 'other',
+      summary: data.summary ?? data.metaDescription,
+      content: contentString,
       sections: data.sections,
-      blocks: data.blocks,
+      structuredContent,
       lastUpdated: data.lastUpdated,
       effectiveDate: data.effectiveDate,
-      version: data.version,
-      views: data.views,
-      published: data.published,
-      mission: data.mission ?? undefined,
-      coreValues: data.coreValues ?? undefined,
-      coreValuesSectionTitle: data.coreValuesSectionTitle ?? undefined,
-      coreValuesSectionSubtitle: data.coreValuesSectionSubtitle ?? undefined,
-      safeguarding: data.safeguarding ?? undefined,
+      version: data.version ?? '1.0.0',
+      views: data.views ?? 0,
+      published,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     });
@@ -89,7 +87,7 @@ export class ApiPageRepository implements IPageRepository {
       // ApiClient unwraps { success: true, data: {...} } to { data: {...} }
       // So response.data is already the RemotePageResponse, not PageSingleResponse
       // Use centralized timeout utility for consistent error handling
-      const { createTimeoutPromise } = await import('@/utils/promiseUtils');
+      const { createTimeoutPromise } = await import('@/marketing/utils/promiseUtils');
       const response = await Promise.race([
         apiClient.get<RemotePageResponse>(API_ENDPOINTS.PAGE_BY_SLUG(slug), requestOptions),
         createTimeoutPromise(5000, `Page fetch timeout for slug: ${slug}`),
@@ -115,21 +113,24 @@ export class ApiPageRepository implements IPageRepository {
       }
       
       return this.toDomain(raw as RemotePageResponse);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle timeout errors gracefully - return null instead of throwing
-      if (error.message?.includes('timeout') || error.code === 'TIMEOUT' || error.message?.includes('Page fetch timeout')) {
+      const err = error as { message?: string; code?: string; status?: number; response?: { status?: number } };
+      if (err.message?.includes('timeout') || err.code === 'TIMEOUT' || err.message?.includes('Page fetch timeout')) {
         console.warn(`[ApiPageRepository] Request timed out for page "${slug}", returning null`);
         return null;
       }
-      
-      // Handle 404 errors gracefully
-      if (error?.status === 404 || error?.response?.status === 404) {
+
+      // Treat 4xx (404, 400, etc.) as "page not found" so build and runtime can continue (notFound() / 404)
+      const status = err.status ?? err.response?.status;
+      if (status != null && status >= 400 && status < 500) {
+        console.warn(`[ApiPageRepository] Page "${slug}" returned ${status}, returning null`);
         return null;
       }
-      
-      // Log the error for debugging (only non-timeout errors)
+
+      // Log the error for debugging (only non-timeout, non-4xx errors)
       console.error(`Error fetching page "${slug}":`, error);
-      
+
       throw new Error(
         `Failed to fetch page "${slug}": ${error instanceof Error ? error.message : 'Unknown error'}`,
       );

@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import {
   LIVE_UPDATE_POLL_INTERVAL_MS,
   MAX_CONSECUTIVE_POLL_ERRORS,
-} from '@/utils/liveUpdateConstants';
+} from '@/dashboard/utils/liveUpdateConstants';
 
 export interface UseLiveUpdatePollingOptions {
   /** Polling interval in ms. Defaults to LIVE_UPDATE_POLL_INTERVAL_MS. */

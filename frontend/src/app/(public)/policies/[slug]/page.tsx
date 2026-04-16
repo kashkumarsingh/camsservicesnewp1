@@ -1,23 +1,19 @@
-import Section from '@/components/layout/Section';
 import { GetPageUseCase } from '@/core/application/pages/useCases/GetPageUseCase';
 import { ListPoliciesUseCase } from '@/core/application/pages/useCases/ListPoliciesUseCase';
 import { pageRepository } from '@/infrastructure/persistence/pages';
-import { renderHtml } from '@/utils/htmlRenderer';
-import ReactMarkdown from 'react-markdown';
 import { Metadata } from 'next';
-import { buildPublicMetadata } from '@/server/metadata/buildPublicMetadata';
-import { ROUTES } from '@/utils/routes';
-import { SEO_DEFAULTS } from '@/utils/seoConstants';
+import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
+import { ROUTES } from '@/shared/utils/routes';
+import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
 import { POLICY_DETAIL_PAGE as P } from '@/app/(public)/constants/policyDetailPageConstants';
-import { formatDate } from '@/utils/formatDate';
-import { DATE_FORMAT_LONG } from '@/utils/appConstants';
+import { PolicyDetailPageView } from '@/marketing/components/policies/PolicyDetailPageView';
 
 function isHtmlContent(content: string): boolean {
   return /<[a-z][\s\S]*>/i.test(content);
 }
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { withTimeoutFallback } from '@/utils/promiseUtils';
+import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
 
 type PolicyPageProps = {
   params: Promise<{
@@ -73,40 +69,17 @@ export default async function PolicyPage({ params }: PolicyPageProps) {
     notFound();
   }
 
-  const lastUpdated = page.lastUpdated ? new Date(page.lastUpdated) : undefined;
-  const effectiveDate = page.effectiveDate ? new Date(page.effectiveDate) : undefined;
-
   return (
-    <div>
-      <Section className="relative pt-20 pb-16 px-4 sm:px-6 lg:px-8 text-white overflow-hidden bg-gradient-to-br from-primary-blue to-navy-blue">
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: "url('/svgs/geometric-pattern.svg')", backgroundRepeat: 'repeat' }}
-        />
-        <div className="relative max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-heading font-extrabold leading-tight tracking-tight">{page.title}</h1>
-          {page.summary && (
-            <p className="mt-6 text-lg md:text-xl max-w-2xl mx-auto font-sans font-light">{page.summary}</p>
-          )}
-          <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm text-white/80">
-            {lastUpdated && <span>{P.LAST_UPDATED}: {formatDate(lastUpdated, DATE_FORMAT_LONG)}</span>}
-            {effectiveDate && <span>{P.EFFECTIVE_DATE}: {formatDate(effectiveDate, DATE_FORMAT_LONG)}</span>}
-            <span>{P.VERSION}: {page.version ?? '1.0'}</span>
-            <span>{page.views ?? 0} {P.VIEWS}</span>
-          </div>
-        </div>
-      </Section>
-
-      <div className="py-20 bg-gradient-to-br from-blue-50 to-white">
-        <Section>
-          <article className="prose prose-lg md:prose-xl max-w-4xl mx-auto text-navy-blue">
-            {isHtmlContent(page.content ?? '')
-              ? renderHtml(page.content ?? '', 'prose prose-lg md:prose-xl max-w-none')
-              : <ReactMarkdown>{page.content ?? ''}</ReactMarkdown>}
-          </article>
-        </Section>
-      </div>
-    </div>
+    <PolicyDetailPageView
+      page={page}
+      isHtmlContent={isHtmlContent}
+      labels={{
+        lastUpdated: P.LAST_UPDATED,
+        effectiveDate: P.EFFECTIVE_DATE,
+        version: P.VERSION,
+        views: P.VIEWS,
+      }}
+    />
   );
 }
 

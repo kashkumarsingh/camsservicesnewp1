@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { trainerActivityLogRepository } from '@/infrastructure/http/trainer/TrainerActivityLogRepository';
 import type { CreateActivityLogRequest, UpdateActivityLogRequest, ActivityLog, TrainerBooking } from '@/core/application/trainer/types';
 import { Plus, X, Upload, Clock, Calendar, User, CheckCircle, AlertCircle } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import PhotoUpload from './PhotoUpload';
 
 interface ActivityLogFormProps {
@@ -360,13 +360,13 @@ export default function ActivityLogForm({
       {showActions && (
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
           {onCancel && (
-            <Button type="button" onClick={onCancel} variant="outline" disabled={saving}>
+            <DashboardButton type="button" onClick={onCancel} variant="outline" disabled={saving}>
               Cancel
-            </Button>
+            </DashboardButton>
           )}
-          <Button type="submit" disabled={saving || !formData.activity_name.trim()}>
+          <DashboardButton type="submit" disabled={saving || !formData.activity_name.trim()}>
             {saving ? 'Saving...' : initialData ? 'Update Activity Log' : 'Create Activity Log'}
-          </Button>
+          </DashboardButton>
         </div>
       )}
     </form>

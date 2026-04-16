@@ -33,27 +33,27 @@ import {
   formatMonthLabel,
   getMonthCalendarGrid,
   getRangeFromPeriodAnchor,
-} from '@/utils/calendarRangeUtils';
-import type { CalendarPeriod } from '@/utils/calendarRangeUtils';
+} from '@/dashboard/utils/calendarRangeUtils';
+import type { CalendarPeriod } from '@/dashboard/utils/calendarRangeUtils';
 import { CalendarRangeToolbar } from '@/components/ui/CalendarRange';
 import { useAdminBookings } from '@/interfaces/web/hooks/admin/useAdminBookings';
 import { useAdminTrainers } from '@/interfaces/web/hooks/admin/useAdminTrainers';
 import { useLiveRefresh, useLiveRefreshContext } from '@/core/liveRefresh/LiveRefreshContext';
-import { LIVE_REFRESH_ENABLED } from '@/utils/liveRefreshConstants';
+import { LIVE_REFRESH_ENABLED } from '@/dashboard/utils/liveRefreshConstants';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import type { AdminBookingDTO } from '@/core/application/admin/dto/AdminBookingDTO';
-import { getApiErrorMessage } from '@/utils/errorUtils';
+import { getApiErrorMessage } from '@/shared/utils/errorUtils';
 import {
   ASSIGN_TRAINER_ERROR_FALLBACK,
   UNASSIGN_TRAINER_ERROR_FALLBACK,
   ADMIN_SCHEDULE_WEEK_DAY_CELL_CLASSES,
   ADMIN_SCHEDULE_MONTH_DAY_CELL_CLASSES,
-} from '@/utils/appConstants';
+} from '@/shared/utils/appConstants';
 import {
   ADMIN_SCHEDULE_LEGEND,
   getAdminScheduleTitle,
-} from '@/utils/adminScheduleConstants';
+} from '@/dashboard/utils/adminScheduleConstants';
 import { FilterPanel, FilterTriggerButton } from '@/components/dashboard/universal';
 
 /** View mode for schedule tab. */

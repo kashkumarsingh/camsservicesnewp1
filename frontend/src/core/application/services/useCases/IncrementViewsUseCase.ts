@@ -13,10 +13,9 @@ export class IncrementViewsUseCase {
   constructor(private readonly serviceRepository: IServiceRepository) {}
 
   async execute(idOrSlug: string): Promise<ServiceDTO | null> {
-    // Find service
-    let service = await this.serviceRepository.findById(idOrSlug);
+    let service = await this.serviceRepository.findBySlug(idOrSlug);
     if (!service) {
-      service = await this.serviceRepository.findBySlug(idOrSlug);
+      service = await this.serviceRepository.findById(idOrSlug);
     }
 
     if (!service) {

@@ -5,7 +5,7 @@
  * Domain-specific utility for activities domain.
  */
 
-import { getRegionFromPostcode } from '@/utils/locationUtils';
+import { getRegionFromPostcode } from '@/dashboard/utils/locationUtils';
 
 interface Activity {
   id: number;

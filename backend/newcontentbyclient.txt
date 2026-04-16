@@ -1,0 +1,209 @@
+Here’s a clean developer brief you can send as-is. It explains your approach, layout, content, and package page structure using professional language that schools, commissioners, and social workers will understand.
+
+🧩 CAMS Services – Front-End Website Brief
+1. Core Message & Positioning
+Tagline (update):
+
+Connecting to Better Correct
+
+Alternative (stronger professional version):
+
+Connect First. Then Support Change.
+
+Website tone:
+• Professional
+• Outcome-focused
+• Clear and structured
+• Written for schools, local authorities, social workers, and children’s homes
+
+2. What CAMS Services Does (for homepage)
+Add this as a core intro section:
+
+CAMS Services provides structured, activity-based mentoring and intervention for children and young people who present with behavioural, emotional, or engagement needs.
+
+Our approach focuses on building trust first, then using consistent, structured sessions to support positive change, emotional regulation, and improved engagement.
+
+3. CAMS Approach (THIS MUST BE CLEAR)
+Section title:
+
+Our Approach
+
+Content:
+
+We use a “connect then correct” model.
+
+• We build trust through consistent one-to-one engagement
+• We use activity-based sessions to reduce resistance
+• We introduce structure, boundaries, and routine
+• We support emotional regulation through guided interaction
+• We reinforce positive behaviour through consistency
+
+This approach allows young people to engage without pressure, while still working towards clear behavioural and developmental outcomes.
+
+4. Visual Direction (IMPORTANT FOR FRONT END)
+What must be shown visually:
+Real content only (no stock images):
+
+• Staff engaging 1-to-1 with young people
+• Boxing / fitness / physical activity sessions
+• Calm mentoring conversations
+• Outdoor community activities
+• Travel and transition moments (real-life structure)
+
+Video Content (homepage sections)
+Add:
+• Short clips (5–15 seconds)
+• Muted autoplay
+• Looping
+
+Show:
+• Engagement (not just activity)
+• Staff guiding behaviour
+• Calm communication
+• Positive interaction
+
+5. Activities Section (Homepage)
+Section title:
+
+Structured Activities in Practice
+
+Grid layout (image + text):
+
+• Mentoring Sessions
+• Physical Activity (Boxing / Fitness)
+• Community Engagement
+• SEN Support Sessions
+• Routine Building Activities
+
+Each should show:
+• Real image
+• Short explanation (1 line max)
+
+6. Packages Page (IMPORTANT – REBUILD STRUCTURE)
+Current page: https://www.camsservices.co.uk/packages
+Needs to be redesigned for clarity and professional use.
+
+🔧 New Packages Page Structure
+1. Header
+Intervention Activity Packages
+Structured, activity-based mentoring packages designed to support engagement, behaviour, and emotional regulation.
+
+2. Quick Comparison Table
+Package	Duration	Best For
+Mars	3 Hours	Initial engagement
+Mercury	6 Hours	Ongoing intervention
+Venus	9 Hours	Full-day structured support
+3. Individual Package Sections
+Each package must include:
+
+• Name
+• Price
+• Duration
+• “Best suited for”
+• “What’s included”
+• Clear bullet points
+
+4. Add Outcomes Section (MISSING – MUST ADD)
+Title:
+
+Expected Outcomes
+
+Content:
+
+• Improved engagement
+• Reduction in challenging behaviour
+• Increased emotional regulation
+• Better response to structure
+• Improved relationships with adults
+
+5. Block Booking Section
+Title:
+
+Block Booking Benefits
+
+Content:
+
+• Builds consistency
+• Supports measurable progress
+• Strengthens engagement over time
+• Provides routine and stability
+
+6. Additional Costs (SIMPLIFIED)
+Section title:
+
+Additional Costs
+
+Content:
+
+Some sessions may require additional costs depending on need.
+
+• Travel beyond agreed distance
+• Specialist venues or activities
+• Extended or formal reports (e.g. panels or reviews)
+
+Final line (must include):
+
+All additional costs will be agreed in advance.
+
+7. Payment Terms
+• Single sessions paid in full
+• Block bookings can be discussed
+• Invoices payable within 14 days
+
+7. Add “Who This Is For” Section
+Title:
+
+Who We Work With
+
+• Schools
+• Local Authorities
+• Social Workers
+• Children’s Homes
+• Parents and Carers
+
+8. Add Case Example (VERY IMPORTANT)
+Title:
+
+Example of Support
+
+A young person with low engagement and behavioural challenges was referred for support.
+Through consistent sessions, structured activity, and relationship building, engagement improved and incidents reduced over time.
+
+(Keep it short and real)
+
+9. Final Call To Action (MUST BE CLEAR)
+Section at bottom:
+
+Discuss a Package or Make a Referral
+
+Buttons:
+• Make a Referral
+• Request Service Overview
+• Speak to CAMS Services
+
+10. Optional Add-Ons (if possible)
+• Downloadable PDF of packages
+• Simple referral form
+• Reports example (sample layout)
+
+⚠️ Key Fixes Needed (Developer must prioritise)
+• Improve layout spacing (less clutter)
+• Make sections easy to scan
+• Use consistent fonts and buttons
+• Add more video content
+• Replace static feel with real engagement visuals
+
+🎯 Final Direction
+The website must clearly show:
+
+• This is structured intervention (not casual activity)
+• There is a clear method and approach
+• There are measurable outcomes
+• It is suitable for professional commissioning
+
+If you want next step, I can:
+• Write your referral form questions
+• Or create your PDF brochure version for councils and schools
+• Or help you script what to say when pitching this
+
+Just say 👍

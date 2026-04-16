@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import moment from 'moment';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { BaseModal } from '@/components/ui/Modal';
 
 export const ABSENCE_REASONS = [
@@ -88,16 +88,16 @@ export default function AddAbsenceModal({
       ariaLabel="Add absence"
       footer={
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose} disabled={submitting}>
+          <DashboardButton type="button" variant="outline" onClick={onClose} disabled={submitting}>
             Cancel
-          </Button>
-          <Button
+          </DashboardButton>
+          <DashboardButton
             type="button"
             onClick={() => formRef.current?.requestSubmit()}
             disabled={submitting}
           >
             {submitting ? 'Submitting…' : 'Add absence'}
-          </Button>
+          </DashboardButton>
         </div>
       }
     >

@@ -5,9 +5,9 @@
 'use client';
 
 import Image from 'next/image';
-import Button from '@/components/ui/Button/Button';
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
 import { TrainerDTO } from '@/core/application/trainers';
-import { ROUTES } from '@/utils/routes';
+import { ROUTES } from '@/shared/utils/routes';
 
 interface TrainerProfileProps {
   trainer: TrainerDTO;
@@ -96,9 +96,9 @@ export default function TrainerProfile({ trainer }: TrainerProfileProps) {
       )}
 
       <div className="mt-10 text-center">
-        <Button href={ROUTES.CONTACT} variant="primary" size="lg">
+        <MarketingButton href={ROUTES.CONTACT} variant="primary" size="lg">
           Contact {trainer.name}
-        </Button>
+        </MarketingButton>
       </div>
     </article>
   );

@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
+import { SKELETON_COUNTS } from '@/shared/utils/skeletonConstants';
 
 export default function DashboardSidebarSkeleton() {
   return (

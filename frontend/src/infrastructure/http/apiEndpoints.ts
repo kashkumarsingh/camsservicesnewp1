@@ -47,14 +47,18 @@ export const API_ENDPOINTS = {
 
   // Admin Dashboard
   ADMIN_DASHBOARD_STATS: '/admin/dashboard/stats',
+  ADMIN_AUDIT_LOGS: '/admin/audit-logs',
+  ADMIN_REPORTS_REVENUE: '/admin/reports/revenue',
+  ADMIN_SESSIONS: '/admin/sessions',
+  ADMIN_SESSION_BY_ID: (id: string | number) => `/admin/sessions/${id}`,
+  /** Global quick search (parents, children, trainers, bookings). Query: ?q= */
+  ADMIN_SEARCH: '/admin/search',
 
-  // Admin Public Pages
-  ADMIN_PUBLIC_PAGES: '/admin/public-pages',
-  ADMIN_PUBLIC_PAGE_BY_ID: (id: string | number) => `/admin/public-pages/${id}`,
-  ADMIN_PUBLIC_PAGE_BLOCKS: (pageId: string | number) => `/admin/public-pages/${pageId}/blocks`,
-  ADMIN_PUBLIC_PAGE_BLOCK: (pageId: string | number, blockId: string | number) =>
-    `/admin/public-pages/${pageId}/blocks/${blockId}`,
-  ADMIN_PUBLIC_PAGE_BLOCKS_REORDER: (pageId: string | number) => `/admin/public-pages/${pageId}/blocks/reorder`,
+  // Admin Public Pages Content
+  /** Public Pages Content Management: get/update content by slug (no blocks). */
+  ADMIN_PUBLIC_PAGE_CONTENT: (slug: string) => `/admin/public-pages/content/${slug}`,
+  /** Policy documents: get/update single policy page (title, summary, content, lastUpdated, effectiveDate, version). */
+  ADMIN_POLICY_DOCUMENT: (slug: string) => `/admin/policy-documents/${slug}`,
 
   // Admin Services (full CRUD)
   ADMIN_SERVICES: '/admin/services',
@@ -67,6 +71,7 @@ export const API_ENDPOINTS = {
   // Admin Activities (full CRUD)
   ADMIN_ACTIVITIES: '/admin/activities',
   ADMIN_ACTIVITY_BY_ID: (id: string | number) => `/admin/activities/${id}`,
+  ADMIN_ACTIVITIES_BULK_DELETE: '/admin/activities/bulk-delete',
 
   // Admin Users (full CRUD + approve/reject)
   ADMIN_USERS: '/admin/users',
@@ -126,6 +131,8 @@ export const API_ENDPOINTS = {
   ADMIN_TRAINER_ABSENCE_REQUESTS: '/admin/trainer-absence-requests',
   ADMIN_TRAINER_ABSENCE_APPROVE: (id: string | number) => `/admin/trainer-absence-requests/${id}/approve`,
   ADMIN_TRAINER_ABSENCE_REJECT: (id: string | number) => `/admin/trainer-absence-requests/${id}/reject`,
+  ADMIN_REFERRALS: '/admin/referrals',
+  ADMIN_REFERRAL_BY_ID: (id: string | number) => `/admin/referrals/${id}`,
 
   // Legacy Approvals (kept for backward compatibility)
   APPROVE_USER: (userId: string | number) => `/approvals/users/${userId}/approve`,
@@ -221,6 +228,7 @@ export const API_ENDPOINTS = {
   
   // Contact
   CONTACT_SUBMISSIONS: '/contact/submissions',
+  REFERRALS: '/referrals',
   
   // Newsletter
   NEWSLETTER_SUBSCRIBE: '/newsletter/subscribe',
@@ -243,7 +251,27 @@ export const API_ENDPOINTS = {
   
   // Reviews
   REVIEWS_AGGREGATE: '/reviews/aggregate',
-  
+  STOCK_MEDIA_SEARCH: '/media/stock/search',
+
+  // Admin Review Sources (Google, Trustpilot)
+  ADMIN_REVIEW_SOURCES: '/admin/review-sources',
+  ADMIN_REVIEW_SOURCE_BY_ID: (id: string | number) => `/admin/review-sources/${id}`,
+  ADMIN_REVIEW_SOURCE_SYNC: (id: string | number) => `/admin/review-sources/${id}/sync`,
+
+  // Admin External Reviews (list + update visibility)
+  ADMIN_EXTERNAL_REVIEWS: '/admin/external-reviews',
+  ADMIN_EXTERNAL_REVIEW_BY_ID: (id: string | number) => `/admin/external-reviews/${id}`,
+
+  // Admin Payment Gateways (Stripe default, PayPal, etc.)
+  ADMIN_PAYMENT_GATEWAYS: '/admin/payment-gateways',
+  ADMIN_PAYMENT_GATEWAY_BY_SLUG: (gateway: string) => `/admin/payment-gateways/${gateway}`,
+
+  // Admin Testimonials (promote external review to testimonial)
+  ADMIN_TESTIMONIALS: '/admin/testimonials',
+  ADMIN_TESTIMONIAL_PROMOTE_FROM: (externalReviewId: string | number) =>
+    `/admin/testimonials/promote-from/${externalReviewId}`,
+  ADMIN_TESTIMONIAL_BY_ID: (id: string | number) => `/admin/testimonials/${id}`,
+
   // Testimonials
   TESTIMONIALS: '/testimonials',
   TESTIMONIAL_BY_IDENTIFIER: (identifier: string) => `/testimonials/${identifier}`,

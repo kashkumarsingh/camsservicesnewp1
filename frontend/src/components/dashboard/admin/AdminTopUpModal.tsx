@@ -2,9 +2,9 @@
 
 import React, { useState, useMemo } from 'react';
 import { Plus, Loader2, Copy, ExternalLink } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { BaseModal } from '@/components/ui/Modal';
-import { CURRENCY_CODE } from '@/utils/appConstants';
+import { CURRENCY_CODE } from '@/shared/utils/appConstants';
 import type { AdminBookingDTO } from '@/core/application/admin/dto/AdminBookingDTO';
 import type { BookingTopUpApiResponse } from '@/core/application/booking/dto/BookingTopUpApiResponse';
 
@@ -107,15 +107,15 @@ export function AdminTopUpModal({
       footer={
         <div className="flex w-full justify-end gap-2">
           {result ? (
-            <Button type="button" variant="primary" size="sm" onClick={handleClose}>
+            <DashboardButton type="button" variant="primary" size="sm" onClick={handleClose}>
               Close
-            </Button>
+            </DashboardButton>
           ) : (
             <>
-              <Button type="button" variant="bordered" size="sm" onClick={handleClose}>
+              <DashboardButton type="button" variant="bordered" size="sm" onClick={handleClose}>
                 Cancel
-              </Button>
-              <Button
+              </DashboardButton>
+              <DashboardButton
                 type="button"
                 variant="primary"
                 size="sm"
@@ -130,7 +130,7 @@ export function AdminTopUpModal({
                 ) : (
                   <>Create payment link · {formatCurrency(totalPrice)}</>
                 )}
-              </Button>
+              </DashboardButton>
             </>
           )}
         </div>
@@ -157,7 +157,7 @@ export function AdminTopUpModal({
                     className="min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-2xs text-slate-700 focus:outline-none dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
                     aria-label="Checkout URL"
                   />
-                  <Button
+                  <DashboardButton
                     type="button"
                     variant="bordered"
                     size="sm"
@@ -166,8 +166,8 @@ export function AdminTopUpModal({
                     aria-label="Copy link"
                   >
                     {copyFeedback ? 'Copied' : 'Copy'}
-                  </Button>
-                  <Button
+                  </DashboardButton>
+                  <DashboardButton
                     type="button"
                     variant="bordered"
                     size="sm"
@@ -176,7 +176,7 @@ export function AdminTopUpModal({
                     aria-label="Open link in new tab"
                   >
                     Open
-                  </Button>
+                  </DashboardButton>
                 </div>
               </div>
             )}

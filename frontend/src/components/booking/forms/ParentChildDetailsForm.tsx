@@ -1,9 +1,9 @@
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
 import { User, Mail, Phone, PlusCircle, Trash2, HeartPulse, CheckCircle2, AlertCircle } from 'lucide-react';
-import Button from '@/components/ui/Button';
-import { validateEmail, validatePhone, validateFullName, validateAge } from '@/utils/validation';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import MarketingButton from '@/design-system/components/Button/MarketingButton';
+import { validateEmail, validatePhone, validateFullName, validateAge } from '@/shared/utils/validation';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 
 interface ChildDetails {
   id: number;
@@ -427,14 +427,14 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
               <p className="text-sm text-gray-600 mb-6 max-w-sm mx-auto">
                 Start by adding your first child&apos;s information
               </p>
-              <Button 
+              <MarketingButton 
                 onClick={handleAddChild} 
                 size="lg"
                 className="bg-gradient-to-r from-primary-blue to-light-blue-cyan hover:from-primary-blue/90 hover:to-light-blue-cyan/90 text-white font-bold shadow-lg hover:shadow-xl px-8"
               >
                 <PlusCircle size={20} className="mr-2" />
                 Add First Child
-              </Button>
+              </MarketingButton>
             </div>
           ) : (
             <div className="space-y-5">
@@ -634,7 +634,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
               <p className="text-amber-600 font-semibold">{blockingMessage}</p>
             )}
           </div>
-          <Button
+          <MarketingButton
             onClick={onNext}
             variant="primary"
             size="lg"
@@ -642,7 +642,7 @@ const ParentChildDetailsForm: React.FC<ParentChildDetailsFormProps> = ({
             className="bg-gradient-to-r from-primary-blue to-light-blue-cyan disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Continue to Location →
-          </Button>
+          </MarketingButton>
         </div>
       )}
     </div>

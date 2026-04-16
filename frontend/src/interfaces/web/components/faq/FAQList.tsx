@@ -10,10 +10,10 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useFAQ } from '../../hooks/faq/useFAQ';
 import { FAQFilterOptions } from '@/core/application/faq';
-import { SKELETON_COUNTS } from '@/utils/skeletonConstants';
+import { SKELETON_COUNTS } from '@/shared/utils/skeletonConstants';
 import { FAQSkeleton } from '@/components/ui/Skeleton';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
-import { renderHtml } from '@/utils/htmlRenderer';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
+import { renderHtml } from '@/shared/utils/htmlRenderer';
 
 interface FAQListProps {
   filterOptions?: FAQFilterOptions;

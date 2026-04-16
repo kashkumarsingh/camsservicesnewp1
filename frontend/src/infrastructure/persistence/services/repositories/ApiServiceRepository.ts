@@ -13,7 +13,7 @@ import { ServiceSlug } from '@/core/domain/services/valueObjects/ServiceSlug';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { extractList } from '@/infrastructure/http/responseHelpers';
-import { CACHE_TAGS, REVALIDATION_TIMES } from '@/utils/revalidationConstants';
+import { CACHE_TAGS, REVALIDATION_TIMES } from '@/shared/utils/revalidationConstants';
 
 /**
  * Remote API Response Format
@@ -50,6 +50,27 @@ interface RemoteServiceListResponse {
 interface RemoteSingleServiceResponse {
   success: boolean;
   data: RemoteServiceResponse;
+}
+
+function httpStatus(error: unknown): number | undefined {
+  if (error && typeof error === "object") {
+    const e = error as { response?: { status?: number }; status?: number };
+    return e.response?.status ?? (typeof e.status === "number" ? e.status : undefined);
+  }
+  return undefined;
+}
+
+function errorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (error && typeof error === "object" && "message" in error) {
+    const m = (error as { message: unknown }).message;
+    if (typeof m === "string" && m.length > 0) {
+      return m;
+    }
+  }
+  return "Unknown error";
 }
 
 export class ApiServiceRepository implements IServiceRepository {
@@ -113,39 +134,48 @@ export class ApiServiceRepository implements IServiceRepository {
     }
   }
 
-  async findById(id: string): Promise<Service | null> {
+  /**
+   * Public API resolves GET /services/{segment} by slug only; segment may also be a static repo id.
+   * Fail soft (null) like findAll() so public pages can use marketing fallbacks when the API errors.
+   */
+  private async fetchServiceByPathSegment(
+    segment: string,
+    cacheSlugTag: string
+  ): Promise<Service | null> {
+    const isServerSide = typeof window === "undefined";
+    const requestOptions: RequestInit | undefined = isServerSide
+      ? {
+          next: {
+            revalidate: REVALIDATION_TIMES.CONTENT_PAGE,
+            tags: [CACHE_TAGS.SERVICES, CACHE_TAGS.SERVICE_SLUG(cacheSlugTag)]
+          }
+        }
+      : undefined;
+    const path = `${API_ENDPOINTS.SERVICES}/${encodeURIComponent(segment)}`;
     try {
-      const response = await apiClient.get<RemoteServiceResponse>(
-        `${API_ENDPOINTS.SERVICES}/${id}`
-      );
-      // ApiClient already unwraps { success: true, data: {...} } to { data: {...} }
+      const response = await apiClient.get<RemoteServiceResponse>(path, requestOptions);
       return this.toDomain(response.data);
-    } catch (error: any) {
-      if (error?.status === 404) {
+    } catch (error: unknown) {
+      const status = httpStatus(error);
+      if (status === 404) {
         return null;
       }
-      throw new Error(`Failed to find service: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.warn(
+        "[ApiServiceRepository] fetchServiceByPathSegment:",
+        segment,
+        status ?? "no-status",
+        errorMessage(error)
+      );
+      return null;
     }
   }
 
+  async findById(id: string): Promise<Service | null> {
+    return this.fetchServiceByPathSegment(id, id);
+  }
+
   async findBySlug(slug: string): Promise<Service | null> {
-    const isServerSide = typeof window === 'undefined';
-    const requestOptions: RequestInit | undefined = isServerSide
-      ? { next: { revalidate: REVALIDATION_TIMES.CONTENT_PAGE, tags: [CACHE_TAGS.SERVICES, CACHE_TAGS.SERVICE_SLUG(slug)] } }
-      : undefined;
-    try {
-      const response = await apiClient.get<RemoteServiceResponse>(
-        API_ENDPOINTS.SERVICE_BY_SLUG(slug),
-        requestOptions
-      );
-      // ApiClient already unwraps { success: true, data: {...} } to { data: {...} }
-      return this.toDomain(response.data);
-    } catch (error: any) {
-      if (error?.status === 404) {
-        return null;
-      }
-      throw new Error(`Failed to find service by slug: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    return this.fetchServiceByPathSegment(slug, slug);
   }
 
   async findAll(): Promise<Service[]> {

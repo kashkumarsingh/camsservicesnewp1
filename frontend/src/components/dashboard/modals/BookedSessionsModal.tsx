@@ -4,14 +4,14 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Calendar, Clock, Activity, Edit2, Trash2, Plus, Loader2, CreditCard } from 'lucide-react';
 import moment from 'moment';
-import Button from '@/components/ui/Button';
+import DashboardButton from '@/design-system/components/Button/DashboardButton';
 import { BaseModal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/dashboard/universal/EmptyState';
-import { EMPTY_STATE } from '@/utils/emptyStateConstants';
+import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import type { BookingDTO } from '@/core/application/booking/dto/BookingDTO';
-import { toastManager } from '@/utils/toast';
+import { toastManager } from '@/dashboard/utils/toast';
 
 interface BookedSessionsModalProps {
   isOpen: boolean;
@@ -149,7 +149,7 @@ export default function BookedSessionsModal({
       footer={
         onBookMoreSessions ? (
           <div className="flex justify-end w-full">
-            <Button
+            <DashboardButton
               onClick={() => {
                 onBookMoreSessions();
                 onClose();
@@ -159,7 +159,7 @@ export default function BookedSessionsModal({
               icon={<Plus className="w-4 h-4" />}
             >
               Book More Sessions
-            </Button>
+            </DashboardButton>
           </div>
         ) : undefined
       }

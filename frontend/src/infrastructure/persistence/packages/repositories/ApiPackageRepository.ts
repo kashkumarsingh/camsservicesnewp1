@@ -13,8 +13,8 @@ import { PackageSlug } from '@/core/domain/packages/valueObjects/PackageSlug';
 import { apiClient } from '@/infrastructure/http/ApiClient';
 import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { extractList } from '@/infrastructure/http/responseHelpers';
-import { SEARCH_QUERY_PARAM } from '@/utils/appConstants';
-import { CACHE_TAGS, REVALIDATION_TIMES } from '@/utils/revalidationConstants';
+import { SEARCH_QUERY_PARAM } from '@/shared/utils/appConstants';
+import { CACHE_TAGS, REVALIDATION_TIMES } from '@/shared/utils/revalidationConstants';
 import {
   PackageActivity,
   PackagePerformanceMetrics,

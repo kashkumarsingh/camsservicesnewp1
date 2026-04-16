@@ -9,8 +9,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-kid-body)', 'sans-serif'],
-        heading: ['var(--font-kid-heading)', 'sans-serif'],
+        sans: ['var(--font-dm-sans)', 'sans-serif'],
+        heading: ['var(--font-outfit)', 'sans-serif'],
       },
       fontSize: {
         // Dashboard typography: avoid tiny type; keep hierarchy (3xs < 2xs < xs < sm < base)

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import type { IconComponent } from '@/types/icons';
+import type { IconComponent } from '@/shared/types/icons';
 
 export interface StatCardProps {
   /**
