@@ -29,7 +29,7 @@ export function PageHeroBand({
 
   return (
     <section
-      className={`cams-hero-diagonal-clip relative left-1/2 flex w-screen max-w-none -translate-x-1/2 items-center overflow-hidden px-4 py-10 text-white sm:px-6 md:py-12 lg:px-8 lg:py-0 ${sectionHeightClass}`}
+      className={`cams-hero-diagonal-clip relative left-1/2 flex w-screen max-w-none -translate-x-1/2 items-center overflow-hidden px-4 py-10 text-white sm:px-6 md:px-8 md:py-12 lg:px-10 lg:py-0 ${sectionHeightClass}`}
     >
       <video
         className="cams-hero-video absolute inset-0 h-full w-full object-cover"
@@ -50,7 +50,7 @@ export function PageHeroBand({
 
       {layout === "centered" ? (
         <div className="relative z-10 mx-auto w-full max-w-[1600px] text-center">
-          <div className="mx-auto max-w-3xl">
+          <div className="mx-auto max-w-3xl px-1 sm:px-0">
             <h1 className="font-heading text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
               {title}
             </h1>

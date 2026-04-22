@@ -15,7 +15,7 @@ export function PageShell({
   return (
     <section
       className={cn(
-        "mx-auto flex w-full flex-col gap-8 px-4",
+        "mx-auto flex w-full flex-col gap-8 px-4 sm:px-6 lg:px-8",
         maxWidthClassName,
         className
       )}

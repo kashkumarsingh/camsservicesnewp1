@@ -104,7 +104,7 @@ export function FAQPageView({
         </div>
       )}
 
-      <div className="py-20 bg-gradient-to-br from-blue-50 to-white">
+      <div className="py-14 md:py-20 bg-gradient-to-br from-blue-50 to-white">
         <Section>
           <div className="max-w-3xl mx-auto">
             {useContentItems && accordionFaqs.length > 0 ? (

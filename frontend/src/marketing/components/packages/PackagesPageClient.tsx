@@ -95,7 +95,7 @@ export function PackagesPageClient(): ReactElement {
                 width={1400}
                 height={860}
               />
-              <div className="p-6 md:p-8">
+              <div className="p-5 sm:p-6 md:p-8">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cams-primary">
                   Outcome-led support
                 </p>
@@ -110,7 +110,7 @@ export function PackagesPageClient(): ReactElement {
               </div>
             </div>
           </div>
-          <div className="rounded-2xl border border-cams-primary/20 bg-white p-5 md:p-6">
+          <div className="rounded-2xl border border-cams-primary/20 bg-white p-4 sm:p-5 md:p-6">
             <p className={PAGE_TYPOGRAPHY.body}>
               Buying a package now starts with parent authentication. Existing parents should
               sign in, and new parents can create an account before checkout.
@@ -121,7 +121,7 @@ export function PackagesPageClient(): ReactElement {
               <article
                 key={pkg.id}
                 className={cn(
-                  "relative flex flex-col rounded-2xl border border-slate-200 bg-[#F1F5FB] p-8 transition duration-300 md:p-10",
+                  "relative flex flex-col rounded-2xl border border-slate-200 bg-[#F1F5FB] p-5 sm:p-6 md:p-10 transition duration-300",
                   "hover:-translate-y-2 hover:border-cams-primary hover:shadow-md",
                   pkg.featured &&
                     "z-10 border-2 border-cams-primary bg-white shadow-md lg:scale-[1.02]",
@@ -153,7 +153,7 @@ export function PackagesPageClient(): ReactElement {
                 <p className="mt-4 font-heading text-base font-bold tracking-tight text-cams-dark md:text-lg">
                   {pkg.frequencyLine}
                 </p>
-                <p className="mt-4 font-heading text-4xl font-bold text-cams-primary md:text-5xl">
+                <p className="mt-4 font-heading text-3xl font-bold text-cams-primary sm:text-4xl md:text-5xl">
                   {pkg.price}
                 </p>
                 <div className="mt-2 border-b border-slate-200 pb-6" />
@@ -197,10 +197,13 @@ export function PackagesPageClient(): ReactElement {
             <p className="mx-auto mt-4 max-w-[700px] text-base leading-relaxed text-cams-slate md:text-lg">
               Compare features across every tier, Mercury through Neptune, to find the right fit.
             </p>
+            <p className="mx-auto mt-2 max-w-[700px] text-sm text-cams-ink-secondary md:hidden">
+              Swipe left/right to view the full comparison table.
+            </p>
           </header>
 
           <div className="mt-8 -mx-4 overflow-x-auto rounded-xl px-4 shadow-sm sm:mx-0 sm:px-0">
-            <table className="w-full min-w-[1180px] border-collapse overflow-hidden rounded-xl bg-white text-left text-sm md:min-w-[1280px] md:text-[0.9375rem]">
+            <table className="w-full min-w-[1040px] border-collapse overflow-hidden rounded-xl bg-white text-left text-sm md:min-w-[1280px] md:text-[0.9375rem]">
               <thead>
                 <tr className="bg-[#F1F5FB]">
                   <th className="px-4 py-5 font-bold text-cams-dark md:px-5">Feature</th>

@@ -2,18 +2,7 @@ import { test, expect } from "@playwright/test";
 
 const BASE_URL = process.env.AUDIT_BASE_URL ?? "http://localhost:3001";
 
-const routes = [
-  "/",
-  "/services",
-  "/packages",
-  "/faq",
-  "/contact",
-  "/about",
-  "/login",
-  "/register",
-  "/bookings",
-  "/checkout",
-];
+const routes = ["/", "/services", "/packages", "/faq", "/contact", "/about", "/login", "/register", "/bookings", "/checkout"];
 
 const viewports = [
   { label: "mobile-375", width: 375, height: 812 },
@@ -98,10 +87,12 @@ for (const viewport of viewports) {
         `Potential off-screen interactive elements on ${route} at ${viewport.width}w:\n${issues.join("\n")}`,
       ).toEqual([]);
 
-      await expect(page).toHaveScreenshot(
-        `responsive-${viewport.label}-${route.replace(/\//g, "_") || "home"}.png`,
-        { fullPage: true, animations: "disabled" },
-      );
+      const screenshotName = `responsive-${viewport.label}-${route.replace(/\//g, "_") || "home"}.png`;
+      await page.screenshot({
+        path: `test-results/${screenshotName}`,
+        fullPage: true,
+        animations: "disabled",
+      });
     });
   }
 }

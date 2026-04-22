@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CamsIcon, type CamsIconName } from "@/marketing/components/shared/CamsIcon";
 import { PageShell } from "@/marketing/components/shared/PageShell";
 import { PageHeroBand } from "@/marketing/components/shared/PageHeroBand";
@@ -38,8 +38,29 @@ const PILLARS: ReadonlyArray<{
   }
 ];
 
+const SERVICE_DISPLAY_ORDER: readonly string[] = [
+  "SEN and Education Support",
+  "Behavioural Management and Conflict Resolution",
+  "Mentoring and Coaching",
+  "Family Support Service",
+  "Community Access and Transport Services",
+  "Fitness and Wellbeing",
+  "Sports Support Programme",
+];
+
 export function ServicesPageClient(): ReactElement {
   const [programmes, setProgrammes] = useState(SERVICE_PROGRAMME_LIST);
+  const orderedProgrammes = useMemo(() => {
+    const orderIndex = new Map(SERVICE_DISPLAY_ORDER.map((title, index) => [title, index]));
+    return [...programmes].sort((a, b) => {
+      const aIndex = orderIndex.get(a.title);
+      const bIndex = orderIndex.get(b.title);
+      if (aIndex == null && bIndex == null) return a.title.localeCompare(b.title);
+      if (aIndex == null) return 1;
+      if (bIndex == null) return -1;
+      return aIndex - bIndex;
+    });
+  }, [programmes]);
 
   useEffect(() => {
     void fetchPublicApiJson<{ success: boolean; data?: ServiceApiItem[] }>("/api/v1/services")
@@ -113,10 +134,10 @@ export function ServicesPageClient(): ReactElement {
           </p>
         </header>
 
-        <ServiceProgrammeJumpNav programmes={programmes} />
+        <ServiceProgrammeJumpNav programmes={orderedProgrammes} />
 
         <div className="flex flex-col gap-10">
-          {programmes.map((programme, index) => (
+          {orderedProgrammes.map((programme, index) => (
             <ServicesProgrammeArticle key={programme.href} programme={programme} index={index} />
           ))}
         </div>

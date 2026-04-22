@@ -13,25 +13,11 @@ export type HomeServiceProgramme = {
 /** Same order as services page jump nav. */
 export const HOME_SERVICE_PROGRAMMES: readonly HomeServiceProgramme[] = [
   {
-    icon: "trophy",
-    title: "Sports Support Programme",
-    description: "One-to-one support across training, development and participation in sport",
-    href: ROUTES.SERVICE_BY_SLUG("sports-support-programme"),
-    image: camsProgrammeImagePath("outdoorEngagement")
-  },
-  {
-    icon: "dumbbell",
-    title: "Fitness and Wellbeing",
-    description: "One-to-one support to improve physical health, routine and overall wellbeing",
-    href: ROUTES.SERVICE_BY_SLUG("boxing-fitness"),
-    image: camsProgrammeImagePath("boxingFitness")
-  },
-  {
-    icon: "trees",
-    title: "Community Access and Transport Services",
-    description: "One-to-one support to safely access the community, activities and appointments",
-    href: ROUTES.SERVICE_BY_SLUG("community"),
-    image: camsProgrammeImagePath("community")
+    icon: "puzzle",
+    title: "SEN and Education Support",
+    description: "One-to-one tailored support for additional needs, learning and school engagement",
+    href: ROUTES.SERVICE_BY_SLUG("sen"),
+    image: camsProgrammeImagePath("sen")
   },
   {
     icon: "target",
@@ -55,11 +41,25 @@ export const HOME_SERVICE_PROGRAMMES: readonly HomeServiceProgramme[] = [
     image: camsProgrammeImagePath("routine")
   },
   {
-    icon: "puzzle",
-    title: "SEN and Education Support",
-    description: "One-to-one tailored support for additional needs, learning and school engagement",
-    href: ROUTES.SERVICE_BY_SLUG("sen"),
-    image: camsProgrammeImagePath("sen")
+    icon: "trees",
+    title: "Community Access and Transport Services",
+    description: "One-to-one support to safely access the community, activities and appointments",
+    href: ROUTES.SERVICE_BY_SLUG("community"),
+    image: camsProgrammeImagePath("community")
+  },
+  {
+    icon: "dumbbell",
+    title: "Fitness and Wellbeing",
+    description: "One-to-one support to improve physical health, routine and overall wellbeing",
+    href: ROUTES.SERVICE_BY_SLUG("boxing-fitness"),
+    image: camsProgrammeImagePath("boxingFitness")
+  },
+  {
+    icon: "trophy",
+    title: "Sports Support Programme",
+    description: "One-to-one support across training, development and participation in sport",
+    href: ROUTES.SERVICE_BY_SLUG("sports-support-programme"),
+    image: camsProgrammeImagePath("outdoorEngagement")
   }
 ] as const;
 

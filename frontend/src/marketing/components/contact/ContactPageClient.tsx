@@ -190,7 +190,7 @@ export function ContactPageClient(): ReactElement {
         />
         <header className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Who should contact us</p>
-          <h2 className="mt-3 font-heading text-3xl font-bold md:text-4xl">
+          <h2 className="mt-3 font-heading text-2xl font-bold sm:text-3xl md:text-4xl">
             Built for <span className="text-cams-primary">real-world decisions</span>
           </h2>
           <p className="mx-auto mt-3 max-w-3xl text-sm leading-7 text-cams-ink-secondary md:text-base">
@@ -202,7 +202,7 @@ export function ContactPageClient(): ReactElement {
           {CONTACT_AUDIENCE.map((item) => (
             <article
               key={item.title}
-              className={`${PAGE_SURFACES.cardHoverLift} p-6`}
+              className={`${PAGE_SURFACES.cardHoverLift} p-5 sm:p-6`}
             >
               <div className="inline-flex rounded-xl border border-cams-secondary/25 bg-cams-secondary/[0.1] p-2.5">
                 <CamsIcon name={item.icon} size={30} />
@@ -215,13 +215,13 @@ export function ContactPageClient(): ReactElement {
       </section>
 
       <div className={PAGE_LAYOUT.splitGrid}>
-        <section className={`relative overflow-hidden ${PAGE_LAYOUT.panel} p-8 md:p-10`}>
+        <section className={`relative overflow-hidden ${PAGE_LAYOUT.panel} p-5 sm:p-6 md:p-10`}>
           <div
             className="pointer-events-none absolute -right-14 -top-16 h-52 w-52 rounded-full bg-cams-primary/[0.08] blur-3xl"
             aria-hidden
           />
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Enquiry</p>
-          <h2 className="text-3xl font-bold">
+          <h2 className="text-2xl font-bold sm:text-3xl">
             Start with a <span className="text-cams-primary">smarter intake</span>
           </h2>
           <p className="mt-2 text-sm text-cams-slate">
@@ -428,7 +428,7 @@ export function ContactPageClient(): ReactElement {
             {CONTACT_CHANNELS.map((card) => (
               <article
                 key={card.title}
-                className={`${PAGE_SURFACES.cardHoverLift} bg-gradient-to-br from-white to-slate-50/70 p-6`}
+                className={`${PAGE_SURFACES.cardHoverLift} bg-gradient-to-br from-white to-slate-50/70 p-5 sm:p-6`}
               >
                 <div className="inline-flex rounded-xl border border-cams-primary/20 bg-cams-primary/[0.08] p-2.5">
                   <CamsIcon name={card.icon} size={28} />
@@ -440,7 +440,7 @@ export function ContactPageClient(): ReactElement {
             ))}
           </div>
 
-          <section className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm">
+          <section className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm sm:p-6">
             <h3 className="text-xl font-bold text-cams-ink">Need a faster route?</h3>
             <p className="mt-2 text-sm leading-7 text-cams-ink-secondary">
               For immediate pathway decisions, these pages usually answer the next question fastest.
@@ -460,9 +460,9 @@ export function ContactPageClient(): ReactElement {
         </div>
       </div>
 
-      <section className={`${PAGE_LAYOUT.panel} p-6 md:p-8`}>
+      <section className={`${PAGE_LAYOUT.panel} p-5 sm:p-6 md:p-8`}>
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">What happens next</p>
-        <h2 className="font-heading text-3xl font-bold">
+        <h2 className="font-heading text-2xl font-bold sm:text-3xl">
           Contact to <span className="text-cams-primary">action plan</span>
         </h2>
         <div className="mt-6 grid gap-5 md:grid-cols-3">
@@ -478,9 +478,9 @@ export function ContactPageClient(): ReactElement {
         </div>
       </section>
 
-      <section className={`${PAGE_LAYOUT.panel} p-6 md:p-8`}>
+      <section className={`${PAGE_LAYOUT.panel} p-5 sm:p-6 md:p-8`}>
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Location</p>
-        <h2 className="font-heading text-3xl font-bold">
+        <h2 className="font-heading text-2xl font-bold sm:text-3xl">
           Find <span className="text-cams-primary">Us</span>
         </h2>
         <p className="mt-2 text-sm text-cams-slate">
@@ -508,7 +508,7 @@ export function ContactPageClient(): ReactElement {
         <p className="text-center text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Common questions</p>
         <h2
           id="contact-quick-answers-heading"
-          className="mt-3 text-center font-heading text-4xl font-bold"
+          className="mt-3 text-center font-heading text-3xl font-bold md:text-4xl"
         >
           Quick <span className="text-cams-primary">Answers</span>
         </h2>
@@ -545,7 +545,7 @@ export function ContactPageClient(): ReactElement {
           ).map((item) => (
             <article
               key={item.title}
-              className="group rounded-2xl border border-slate-200/90 bg-white p-6 text-center shadow-sm transition hover:-translate-y-1 hover:border-cams-primary/40 hover:shadow-lg"
+              className="group rounded-2xl border border-slate-200/90 bg-white p-5 text-center shadow-sm transition hover:-translate-y-1 hover:border-cams-primary/40 hover:shadow-lg sm:p-6"
             >
               <div className="flex justify-center">
                 <div className="rounded-2xl border border-cams-secondary/25 bg-cams-secondary/[0.1] p-3 transition group-hover:scale-105">

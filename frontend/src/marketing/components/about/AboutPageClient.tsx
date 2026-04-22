@@ -43,7 +43,7 @@ export function AboutPageClient(): ReactElement {
         <div className={PAGE_LAYOUT.contentContainer}>
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Our journey</p>
-            <h2 className="font-heading text-3xl font-bold tracking-tight text-cams-dark md:text-5xl">
+            <h2 className="font-heading text-2xl font-bold tracking-tight text-cams-dark sm:text-3xl md:text-5xl">
               Our <span className="text-cams-primary">story</span>
             </h2>
             <p className="mt-5 text-base leading-8 text-cams-slate md:text-lg md:leading-8">
@@ -141,7 +141,7 @@ export function AboutPageClient(): ReactElement {
         <div className={PAGE_LAYOUT.contentContainer}>
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Our framework</p>
-            <h2 className="font-heading text-3xl font-bold tracking-tight text-cams-dark md:text-5xl">
+            <h2 className="font-heading text-2xl font-bold tracking-tight text-cams-dark sm:text-3xl md:text-5xl">
               Mission &amp; <span className="text-cams-primary">values</span>
             </h2>
             <p className="mt-5 text-base leading-8 text-cams-slate md:text-lg">
@@ -193,7 +193,7 @@ export function AboutPageClient(): ReactElement {
         <div className={PAGE_LAYOUT.contentContainer}>
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">People behind CAMS</p>
-            <h2 className="font-heading text-3xl font-bold tracking-tight text-cams-dark md:text-5xl">
+            <h2 className="font-heading text-2xl font-bold tracking-tight text-cams-dark sm:text-3xl md:text-5xl">
               Meet our <span className="text-cams-primary">team</span>
             </h2>
             <p className="mt-5 text-base leading-8 text-cams-slate md:text-lg">
@@ -233,7 +233,7 @@ export function AboutPageClient(): ReactElement {
         <div className={`${PAGE_LAYOUT.contentContainer} grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:items-start`}>
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Why CAMS</p>
-            <h2 className="font-heading text-3xl font-bold tracking-tight text-cams-dark md:text-5xl">
+            <h2 className="font-heading text-2xl font-bold tracking-tight text-cams-dark sm:text-3xl md:text-5xl">
               Why schools &amp; families choose{" "}
               <span className="text-cams-primary">CAMS</span>
             </h2>

@@ -39,7 +39,7 @@ export function PageCtaSection({
   return (
     <section
       className={cn(
-        "cams-cta-top-diagonal-clip relative z-0 isolate left-1/2 mt-12 w-screen max-w-none -translate-x-1/2 overflow-hidden px-4 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-24 md:mt-20 md:px-10 md:pb-24 md:pt-28",
+        "cams-cta-top-diagonal-clip relative z-0 isolate left-1/2 mt-12 w-screen max-w-none -translate-x-1/2 overflow-hidden px-4 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-24 md:mt-20 md:px-8 md:pb-24 md:pt-28 lg:px-10",
         className
       )}
     >
@@ -61,8 +61,8 @@ export function PageCtaSection({
       />
 
       <div className="relative mx-auto w-full max-w-[1600px]">
-        <div className="rounded-[2rem] border border-white/15 bg-white/[0.04] p-8 shadow-[0_32px_120px_rgba(0,0,0,0.35)] backdrop-blur-xl md:p-12 lg:p-14">
-          <div className="grid gap-12 lg:grid-cols-12 lg:gap-10 lg:items-end">
+        <div className="rounded-[2rem] border border-white/15 bg-white/[0.04] p-5 shadow-[0_32px_120px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:p-6 md:p-10 lg:p-14">
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-10">
             <div className="lg:col-span-7">
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cams-secondary/95">
                 Take the next step
@@ -71,7 +71,7 @@ export function PageCtaSection({
                 {heading}
               </h2>
             </div>
-            <div className="flex flex-col gap-6 border-t border-white/10 pt-8 lg:col-span-5 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
+            <div className="flex flex-col gap-6 border-t border-white/10 pt-6 sm:pt-8 lg:col-span-5 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
               <p className="text-left text-base leading-relaxed text-slate-200/95 md:text-lg">
                 {description}
               </p>

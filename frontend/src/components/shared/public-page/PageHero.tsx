@@ -31,7 +31,7 @@ export default function PageHero({
 }: PageHeroProps) {
   return (
     <section
-      className={`relative pt-20 pb-24 px-4 sm:px-6 lg:px-8 text-white overflow-hidden min-h-screen flex items-center ${className}`}
+      className={`relative flex min-h-[78svh] items-center overflow-hidden px-4 pb-16 pt-20 text-white sm:min-h-[82svh] sm:px-6 sm:pb-20 lg:min-h-screen lg:px-8 lg:pb-24 ${className}`}
     >
       {backgroundMedia === 'image' && imageSrc ? (
         <img
@@ -59,12 +59,12 @@ export default function PageHero({
           backgroundSize: '40px 40px',
         }}
       />
-      <div className="relative text-center max-w-4xl mx-auto">
-        <h1 className="text-5xl md:text-7xl font-heading font-extrabold mb-6 leading-tight tracking-tight heading-text-shadow">
+      <div className="relative mx-auto max-w-4xl text-center">
+        <h1 className="mb-5 font-heading text-4xl font-extrabold leading-tight tracking-tight heading-text-shadow sm:text-5xl md:mb-6 md:text-6xl lg:text-7xl">
           {title}
         </h1>
-        <p className="text-xl md:text-2xl mb-10 max-w-2xl mx-auto font-sans font-light">{subtitle}</p>
-        {children && <div className="flex flex-col sm:flex-row justify-center gap-5">{children}</div>}
+        <p className="mx-auto mb-8 max-w-2xl text-base font-light sm:text-lg md:mb-10 md:text-2xl">{subtitle}</p>
+        {children && <div className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-5">{children}</div>}
       </div>
     </section>
   );
