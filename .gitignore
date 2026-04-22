@@ -136,6 +136,7 @@ backend/storage/framework/cache/data/*
 # Cursor IDE
 .cursorrules
 .cursor/
+.cursorignore
 
 # VSCode
 .vscode/

@@ -91,12 +91,16 @@ export function HomePageClient(): ReactElement {
                         </span>
                       </p>
                     </div>
-                    <p className="shrink-0 font-heading text-sm font-bold tracking-tight text-cams-primary md:text-base">
+                    <p className="font-heading text-sm font-bold tracking-tight text-cams-primary md:text-base">
                       <span>{pkg.frequencyLine}</span>
                       {pkg.homeDurationLine !== pkg.frequencyLine ? (
-                        <span className="font-medium text-cams-ink-secondary">
-                          {" "}
-                          <span aria-hidden>·</span> {pkg.homeDurationLine}
+                        <span className="block font-medium text-cams-ink-secondary sm:inline">
+                          <span className="hidden sm:inline" aria-hidden>
+                            {" "}
+                            ·{" "}
+                          </span>
+                          <span className="sm:hidden">Home: </span>
+                          {pkg.homeDurationLine}
                         </span>
                       ) : null}
                     </p>

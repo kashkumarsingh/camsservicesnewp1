@@ -45,11 +45,11 @@ export function HomeHeroSection(): ReactElement {
             understands what happens first, how progress is reviewed, and what support looks like week to week across
             schools, homes and community settings.
           </p>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <Button href="/referral" size="lg" variant="ctaPrimary">
+          <div className="mt-10 flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <Button href="/referral" size="lg" variant="ctaPrimary" className="w-full sm:w-auto">
               Make a referral
             </Button>
-            <Button href="/contact" size="lg" variant="ctaSecondary">
+            <Button href="/contact" size="lg" variant="ctaSecondary" className="w-full sm:w-auto">
               Book a free call
             </Button>
           </div>

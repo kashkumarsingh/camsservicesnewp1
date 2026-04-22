@@ -32,7 +32,7 @@ export function HomeServicesGridSection(): ReactElement {
             Programmes
           </h3>
           <ul
-            className="mt-4 grid grid-cols-2 gap-3 max-sm:gap-2"
+            className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
             aria-label="Programmes, each links to a service page"
           >
             {HOME_SERVICE_PROGRAMMES.map((programme) => (
@@ -42,7 +42,7 @@ export function HomeServicesGridSection(): ReactElement {
                   className="group flex h-full min-h-[4.5rem] items-stretch overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-cams-primary/30 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cams-primary"
                 >
                   <div
-                    className="relative w-[4.75rem] shrink-0 overflow-hidden sm:w-[6.5rem] md:w-[7.5rem]"
+                    className="relative w-[5.25rem] shrink-0 overflow-hidden sm:w-[6.5rem] md:w-[7.5rem]"
                     aria-hidden
                   >
                     <Image
@@ -55,7 +55,7 @@ export function HomeServicesGridSection(): ReactElement {
                     />
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-cams-dark/25 to-transparent" />
                   </div>
-                  <div className="flex min-w-0 flex-1 items-center gap-2 p-3 sm:gap-3 sm:p-4">
+                  <div className="flex min-w-0 flex-1 items-center gap-3 p-3 sm:gap-3 sm:p-4">
                     <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-slate-200/80 bg-slate-50 sm:size-11">
                       <CamsIcon name={programme.icon} surface="muted" size={20} />
                     </span>
