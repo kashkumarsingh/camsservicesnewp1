@@ -4,14 +4,26 @@ import {
   type InterventionPackage
 } from "@/marketing/mock/intervention-packages";
 
-function parseGbpPrice(price: string): number {
-  const n = Number(String(price).replace(/[^0-9.]/g, ""));
-  return Number.isFinite(n) ? n : 0;
-}
-
 function parseHoursFromFrequencyLine(line: string): number {
   const m = /^(\d+)/.exec(line.trim());
   return m ? parseInt(m[1], 10) : 0;
+}
+
+const STARTING_PRICE_RATES: Record<string, number> = {
+  mercury: 75,
+  venus: 65,
+  earth: 65,
+  mars: 65,
+  jupiter: 65,
+  saturn: 65,
+  uranus: 65,
+  neptune: 65
+};
+
+function calculateStartingPrice(intervention: InterventionPackage): number {
+  const hours = parseHoursFromFrequencyLine(intervention.frequencyLine);
+  const rate = STARTING_PRICE_RATES[intervention.id] ?? 65;
+  return hours * rate;
 }
 
 export function getInterventionPackageBySlug(slug: string): InterventionPackage | undefined {
@@ -25,7 +37,7 @@ export function getInterventionPackageBySlug(slug: string): InterventionPackage 
  */
 export function interventionPackageToFallbackDTO(intervention: InterventionPackage): PackageDTO {
   const hours = parseHoursFromFrequencyLine(intervention.frequencyLine);
-  const price = parseGbpPrice(intervention.price);
+  const price = calculateStartingPrice(intervention);
   const description =
     intervention.bestFor?.trim() ||
     intervention.programmeSubtitle?.trim() ||

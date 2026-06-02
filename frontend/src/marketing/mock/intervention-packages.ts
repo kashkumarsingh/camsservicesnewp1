@@ -42,7 +42,6 @@ export type InterventionPackage = {
   readonly packagesPageBadge: string | null;
   /** Badge look on /packages; gradient = primary highlight, outline = secondary highlight */
   readonly packagesPageBadgeStyle: "gradient" | "outline" | null;
-  readonly price: string;
   readonly programmeSubtitle: string;
   /** Total hours; shown prominently on /packages */
   readonly frequencyLine: string;
@@ -52,7 +51,7 @@ export type InterventionPackage = {
   /** Short “best for” line after feature bullets on /packages */
   readonly bestFor: string;
   readonly packagesPageCtaLabel: string;
-  readonly packagesPageCtaHref: "/sign-in";
+  readonly packagesPageCtaHref: "/sign-in" | "/contact";
   readonly homeCtaLabel: string;
   readonly homeCtaHref: "/packages";
   readonly homeCtaVariant: "primary" | "secondary";
@@ -62,12 +61,11 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
   {
     id: "mercury",
     name: "Mercury",
-    homeBadge: "Assessment",
+    homeBadge: "Assessment & Planning Package",
     featured: false,
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
-    price: "£195",
-    programmeSubtitle: "Initial Assessment",
+    programmeSubtitle: "Designed to identify strengths, challenges and recommended support pathways before intervention begins.",
     frequencyLine: "3 Hours",
     homeDurationLine: "3 Hours",
     features: [
@@ -81,8 +79,8 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
       "DBS checked mentor"
     ],
     bestFor: "Best for understanding needs before starting structured support.",
-    packagesPageCtaLabel: "Select Package",
-    packagesPageCtaHref: "/sign-in",
+    packagesPageCtaLabel: "Request a Consultation",
+    packagesPageCtaHref: "/contact",
     homeCtaLabel: "View packages",
     homeCtaHref: "/packages",
     homeCtaVariant: "secondary"
@@ -94,7 +92,6 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     featured: false,
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
-    price: "£300",
     programmeSubtitle: "Early Engagement",
     frequencyLine: "6 Hours",
     homeDurationLine: "6 Hours",
@@ -109,8 +106,8 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
       "DBS checked mentor"
     ],
     bestFor: "Best for building early engagement and quick wins.",
-    packagesPageCtaLabel: "Select Package",
-    packagesPageCtaHref: "/sign-in",
+    packagesPageCtaLabel: "Request a Consultation",
+    packagesPageCtaHref: "/contact",
     homeCtaLabel: "View packages",
     homeCtaHref: "/packages",
     homeCtaVariant: "secondary"
@@ -122,7 +119,6 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     featured: true,
     packagesPageBadge: "Most Popular",
     packagesPageBadgeStyle: "gradient",
-    price: "£450",
     programmeSubtitle: "Core Intervention",
     frequencyLine: "9 Hours",
     homeDurationLine: "9 Hours",
@@ -139,8 +135,8 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
       "DBS checked mentor"
     ],
     bestFor: "Best for consistent support and measurable progress.",
-    packagesPageCtaLabel: "Select Package",
-    packagesPageCtaHref: "/sign-in",
+    packagesPageCtaLabel: "Request a Consultation",
+    packagesPageCtaHref: "/contact",
     homeCtaLabel: "Select Package",
     homeCtaHref: "/packages",
     homeCtaVariant: "primary"
@@ -152,7 +148,6 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     featured: false,
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
-    price: "£600",
     programmeSubtitle: "Behaviour & Routine Focus",
     frequencyLine: "12 Hours",
     homeDurationLine: "12 Hours",
@@ -169,8 +164,8 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
       "DBS checked mentor"
     ],
     bestFor: "Best for building structure, routine, and behaviour change.",
-    packagesPageCtaLabel: "Select Package",
-    packagesPageCtaHref: "/sign-in",
+    packagesPageCtaLabel: "Request a Consultation",
+    packagesPageCtaHref: "/contact",
     homeCtaLabel: "View packages",
     homeCtaHref: "/packages",
     homeCtaVariant: "secondary"
@@ -182,7 +177,6 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     featured: false,
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
-    price: "£750",
     programmeSubtitle: "High Impact Mentoring",
     frequencyLine: "15 Hours",
     homeDurationLine: "15 Hours",
@@ -200,8 +194,8 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
       "DBS checked mentor"
     ],
     bestFor: "Best for higher-risk cases needing stronger structure and coordination.",
-    packagesPageCtaLabel: "Select Package",
-    packagesPageCtaHref: "/sign-in",
+    packagesPageCtaLabel: "Request a Consultation",
+    packagesPageCtaHref: "/contact",
     homeCtaLabel: "View packages",
     homeCtaHref: "/packages",
     homeCtaVariant: "secondary"
@@ -213,7 +207,6 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     featured: false,
     packagesPageBadge: "Best for Complex Needs",
     packagesPageBadgeStyle: "outline",
-    price: "£900",
     programmeSubtitle: "Deep Intervention",
     frequencyLine: "18 Hours",
     homeDurationLine: "18 Hours",
@@ -231,8 +224,8 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
       "DBS checked mentor"
     ],
     bestFor: "Best for ongoing behavioural needs and deeper intervention.",
-    packagesPageCtaLabel: "Select Package",
-    packagesPageCtaHref: "/sign-in",
+    packagesPageCtaLabel: "Request a Consultation",
+    packagesPageCtaHref: "/contact",
     homeCtaLabel: "View packages",
     homeCtaHref: "/packages",
     homeCtaVariant: "secondary"
@@ -244,7 +237,6 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     featured: false,
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
-    price: "£1,050",
     programmeSubtitle: "Premium Intensive Support",
     frequencyLine: "21 Hours",
     homeDurationLine: "21 Hours",
@@ -263,8 +255,8 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
       "DBS checked mentor"
     ],
     bestFor: "Best for complex cases needing consistency and priority support.",
-    packagesPageCtaLabel: "Select Package",
-    packagesPageCtaHref: "/sign-in",
+    packagesPageCtaLabel: "Request a Consultation",
+    packagesPageCtaHref: "/contact",
     homeCtaLabel: "View packages",
     homeCtaHref: "/packages",
     homeCtaVariant: "secondary"
@@ -276,7 +268,6 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     featured: false,
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
-    price: "£1,200",
     programmeSubtitle: "Flagship Programme",
     frequencyLine: "24 Hours",
     homeDurationLine: "24 Hours",
@@ -295,8 +286,8 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
       "DBS checked mentor"
     ],
     bestFor: "Best for full support and long-term progression.",
-    packagesPageCtaLabel: "Select Package",
-    packagesPageCtaHref: "/sign-in",
+    packagesPageCtaLabel: "Request a Consultation",
+    packagesPageCtaHref: "/contact",
     homeCtaLabel: "View packages",
     homeCtaHref: "/packages",
     homeCtaVariant: "secondary"
@@ -321,32 +312,6 @@ export const PACKAGE_COMPARISON_ROWS: readonly PackageComparisonRow[] = [
       saturn: { text: "18" },
       uranus: { text: "21" },
       neptune: { text: "24" }
-    }
-  },
-  {
-    feature: "Price",
-    cells: {
-      mercury: { text: "£195" },
-      venus: { text: "£300" },
-      earth: { text: "£450", emphasized: true },
-      mars: { text: "£600" },
-      jupiter: { text: "£750" },
-      saturn: { text: "£900" },
-      uranus: { text: "£1,050" },
-      neptune: { text: "£1,200" }
-    }
-  },
-  {
-    feature: "Cost per Hour",
-    cells: {
-      mercury: { text: "£65" },
-      venus: { text: "£50" },
-      earth: { text: "£50", emphasized: true },
-      mars: { text: "£50" },
-      jupiter: { text: "£50" },
-      saturn: { text: "£50" },
-      uranus: { text: "£50" },
-      neptune: { text: "£50" }
     }
   },
   {

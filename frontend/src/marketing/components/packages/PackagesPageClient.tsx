@@ -19,7 +19,6 @@ import { PAGE_LAYOUT, PAGE_TYPOGRAPHY } from "@/marketing/components/shared/page
 import { PackageBestForCallout } from "@/marketing/components/shared/PackageBestForCallout";
 import { PackageFeaturesCollapsible } from "@/marketing/components/shared/PackageFeaturesCollapsible";
 import { PackageTierHighlightBadge } from "@/marketing/components/shared/PackageTierHighlightBadge";
-import { getPackageSignInHref, getPackageSignUpHref } from "@/marketing/lib/package-checkout-links";
 import { INTERVENTION_PACKAGES, PACKAGE_COMPARISON_ROWS, PACKAGE_FAQ_ITEMS } from "@/marketing/mock/intervention-packages";
 import { fetchPublicApiJson } from "@/marketing/lib/public-api";
 import {
@@ -27,6 +26,7 @@ import {
   type PackageApiItem
 } from "@/marketing/lib/package-api-mappers";
 import { mapPackageFaqs, type FaqApiItem } from "@/marketing/lib/faq-api-mappers";
+import { useAuth } from "@/interfaces/web/hooks/auth/useAuth";
 
 function ComparisonCell({
   emphasized,
@@ -54,6 +54,7 @@ export function PackagesPageClient(): ReactElement {
   const [openFaqIndex, setOpenFaqIndex] = useState<number>(-1);
   const [packages, setPackages] = useState(INTERVENTION_PACKAGES);
   const [faqItems, setFaqItems] = useState(PACKAGE_FAQ_ITEMS);
+  const { isAuthenticated, loading: authLoading } = useAuth();
 
   useEffect(() => {
     void Promise.all([
@@ -75,6 +76,12 @@ export function PackagesPageClient(): ReactElement {
 
   return (
     <PageShell maxWidthClassName="max-w-[1600px]">
+      <div className="mb-8">
+        <p className="text-cams-dark font-medium">Professional & Parent Referrals</p>
+        <p className="text-cams-slate">
+          Our intervention programmes are tailored to the needs, risks and goals of each child or young person. Following an initial consultation, we will recommend the most appropriate package and provide a personalised quotation.
+        </p>
+      </div>
       <PageHeroBand
         title={
           <>
@@ -112,81 +119,131 @@ export function PackagesPageClient(): ReactElement {
           </div>
           <div className="rounded-2xl border border-cams-primary/20 bg-white p-4 sm:p-5 md:p-6">
             <p className={PAGE_TYPOGRAPHY.body}>
-              Buying a package now starts with parent authentication. Existing parents should
-              sign in, and new parents can create an account before checkout.
+              Pricing available to registered parents, professionals and referral partners.
+              All interventions are tailored to the individual needs of the child or young person. Final pricing may vary depending on risk, complexity and support requirements.
             </p>
           </div>
           <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4">
             {packages.map((pkg) => (
-              <article
-                key={pkg.id}
-                className={cn(
-                  "relative flex flex-col rounded-2xl border border-slate-200 bg-[#F1F5FB] p-5 sm:p-6 md:p-10 transition duration-300",
-                  "hover:-translate-y-2 hover:border-cams-primary hover:shadow-md",
-                  pkg.featured &&
-                    "z-10 border-2 border-cams-primary bg-white shadow-md lg:scale-[1.02]",
-                  pkg.packagesPageBadgeStyle === "outline" &&
-                    "bg-white ring-2 ring-cams-secondary/35 ring-offset-2 ring-offset-white"
-                )}
-              >
-                {pkg.packagesPageBadge && pkg.packagesPageBadgeStyle ? (
-                  <PackageTierHighlightBadge
-                    label={pkg.packagesPageBadge}
-                    style={pkg.packagesPageBadgeStyle}
-                  />
-                ) : null}
-                <div className="mt-2 flex items-center">
-                  <InterventionPackageIcon packageId={pkg.id} size={44} />
-                </div>
-                <h3 className="mt-4 font-heading text-xl font-bold text-cams-dark md:text-2xl">
-                  {pkg.name}
-                </h3>
-                <p className={`mt-1 ${PAGE_TYPOGRAPHY.label}`}>{pkg.programmeSubtitle}</p>
-                <p className="mt-3">
-                  <Link
-                    href={packageDetailHref(pkg.id)}
-                    className="text-sm font-semibold text-cams-primary underline-offset-2 hover:underline"
-                  >
-                    View full details
-                  </Link>
-                </p>
-                <p className="mt-4 font-heading text-base font-bold tracking-tight text-cams-dark md:text-lg">
-                  {pkg.frequencyLine}
-                </p>
-                <p className="mt-4 font-heading text-3xl font-bold text-cams-primary sm:text-4xl md:text-5xl">
-                  {pkg.price}
-                </p>
-                <div className="mt-2 border-b border-slate-200 pb-6" />
-                <PackageFeaturesCollapsible features={pkg.features} variant="packages" />
-                <PackageBestForCallout variant="packages">{pkg.bestFor}</PackageBestForCallout>
-                {pkg.featured ? (
-                  <Button
-                    href={getPackageSignInHref(pkg.id)}
-                    className="mt-8 w-full rounded-[10px] py-4 text-base font-semibold shadow-none hover:-translate-y-0.5 hover:shadow-lg"
-                  >
-                    {pkg.packagesPageCtaLabel}
-                  </Button>
-                ) : (
-                  <Button
-                    href={getPackageSignInHref(pkg.id)}
-                    variant="ghost"
-                    className="mt-8 w-full rounded-[10px] border border-slate-200 bg-white py-4 text-base font-semibold text-cams-dark hover:border-cams-primary hover:bg-cams-primary/10 hover:text-cams-dark"
-                  >
-                    {pkg.packagesPageCtaLabel}
-                  </Button>
-                )}
-                <Button
-                  href={getPackageSignUpHref(pkg.id)}
-                  variant="ghost"
-                  className="mt-3 w-full rounded-[10px] border border-transparent py-3 text-sm font-semibold text-cams-slate hover:border-slate-200 hover:bg-white hover:text-cams-dark"
-                >
-                  New parent? Sign up first
-                </Button>
-              </article>
+               <article
+                 key={pkg.id}
+                 className={cn(
+                   "relative flex flex-col rounded-2xl border border-slate-200 bg-[#F1F5FB] p-5 sm:p-6 md:p-10 transition duration-300",
+                   "hover:-translate-y-2 hover:border-cams-primary hover:shadow-md",
+                   pkg.featured &&
+                     "z-10 border-2 border-cams-primary bg-white shadow-md lg:scale-[1.02]",
+                   pkg.packagesPageBadgeStyle === "outline" &&
+                     "bg-white ring-2 ring-cams-secondary/35 ring-offset-2 ring-offset-white"
+                 )}
+               >
+                 {pkg.packagesPageBadge && pkg.packagesPageBadgeStyle ? (
+                   <PackageTierHighlightBadge
+                     label={pkg.packagesPageBadge}
+                     style={pkg.packagesPageBadgeStyle}
+                   />
+                 ) : null}
+                 <div className="mt-2 flex items-center">
+                   <InterventionPackageIcon packageId={pkg.id} size={44} />
+                 </div>
+                 <h3 className="mt-4 font-heading text-xl font-bold text-cams-dark md:text-2xl">
+                   {pkg.name}
+                 </h3>
+                 <p className={`mt-1 ${PAGE_TYPOGRAPHY.label}`}>{pkg.programmeSubtitle}</p>
+                 <p className="mt-3">
+                   <Link
+                     href={packageDetailHref(pkg.id)}
+                     className="text-sm font-semibold text-cams-primary underline-offset-2 hover:underline"
+                   >
+                     View full details
+                   </Link>
+                 </p>
+                 <p className="mt-4 font-heading text-base font-bold tracking-tight text-cams-dark md:text-lg">
+                   {pkg.frequencyLine}
+                 </p>
+                 <div className="mt-4 text-cams-slate text-sm">
+                   Pricing available upon consultation.
+                 </div>
+                 <div className="mt-2 text-cams-slate text-sm mb-4">
+                   Every referral is different. Following consultation and assessment of need, CAMS Services will provide a tailored quotation based on the level of support required.
+                 </div>
+                 <div className="mt-2 border-b border-slate-200 pb-6" />
+                 <PackageFeaturesCollapsible features={pkg.features} variant="packages" />
+                 <PackageBestForCallout variant="packages">{pkg.bestFor}</PackageBestForCallout>
+                 <div className="mt-4">
+                   <Button
+                     href="/contact"
+                     variant="ghost"
+                     className="mt-8 w-full rounded-[10px] border border-slate-200 bg-white py-4 text-base font-semibold text-cams-dark hover:border-cams-primary hover:bg-cams-primary/10 hover:text-cams-dark"
+                   >
+                     Request a Consultation
+                   </Button>
+                 </div>
+                 <div className="mt-2">
+                   <Button
+                     href="/referral"
+                     variant="ghost"
+                     className="mt-3 w-full rounded-[10px] border border-transparent py-3 text-sm font-semibold text-cams-slate hover:border-slate-200 hover:bg-white hover:text-cams-dark"
+                   >
+                     Make a Referral
+                   </Button>
+                 </div>
+               </article>
             ))}
           </div>
-        </div>
-      </section>
+         </div>
+       </section>
+
+      {!authLoading && isAuthenticated && (
+        <section className={`bg-white ${PAGE_LAYOUT.sectionPadding}`}>
+          <div className={PAGE_LAYOUT.container}>
+            <div className="rounded-2xl border border-cams-primary/20 bg-white p-6 sm:p-8 md:p-10">
+              <h2 className={`${PAGE_TYPOGRAPHY.sectionHeading} tracking-tight text-cams-dark mb-6`}>
+                Starting From <span className={CAMS_GRADIENT_ACCENT_TEXT_CLASS}>Prices</span>
+              </h2>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-200">
+                      <th className="px-4 py-3 font-bold text-cams-dark">Package</th>
+                      <th className="px-4 py-3 font-bold text-cams-dark">Starting From</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {packages.map((pkg, index) => {
+                      const startingPrices: Record<string, string> = {
+                        mercury: "From £225",
+                        venus: "From £390",
+                        earth: "From £585",
+                        mars: "From £780",
+                        jupiter: "From £975",
+                        saturn: "From £1,170",
+                        uranus: "From £1,365",
+                        neptune: "From £1,560"
+                      };
+                      const price = startingPrices[pkg.id] ?? "";
+                      return (
+                        <tr
+                          key={pkg.id}
+                          className={cn(
+                            "border-b border-slate-100 transition hover:bg-cams-soft",
+                            index === packages.length - 1 && "border-b-0"
+                          )}
+                        >
+                          <td className="px-4 py-3 font-semibold text-cams-dark">{pkg.name}</td>
+                          <td className="px-4 py-3 text-cams-primary font-bold">{price}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-6 text-sm leading-relaxed text-cams-slate">
+                The prices shown are guide prices. Every child is unique, and interventions may require additional planning, staffing, travel, specialist support, reporting or professional liaison. A final quotation will be confirmed following consultation.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className={`bg-white ${PAGE_LAYOUT.sectionPadding}`}>
         <div className={PAGE_LAYOUT.container}>
@@ -312,19 +369,19 @@ export function PackagesPageClient(): ReactElement {
         </div>
       </section>
 
-      <PageCtaSection
-        heading={
-          <>
-            Ready to <span className="text-cams-accent">Invest in Change</span>?
-          </>
-        }
-        description="Every young person deserves the chance to thrive. Let's find the right package and mentoring approach for your situation."
-        actions={[
-          { href: "/referral", label: "Make a Referral", variant: "primary" },
-          { href: "/contact", label: "Talk to Our Team", variant: "secondary" },
-          { href: "/services", label: "View Services", variant: "secondary" }
-        ]}
-      />
+       <PageCtaSection
+         heading={
+           <>
+             Ready to <span className="text-cams-accent">Invest in Change</span>
+           </>
+         }
+         description="Every young person deserves the chance to thrive. Let's find the right package and mentoring approach for your situation."
+         actions={[
+           { href: "/contact", label: "Request a Consultation", variant: "primary" },
+           { href: "/referral", label: "Make a Referral", variant: "secondary" },
+           { href: "/services", label: "View Services", variant: "secondary" }
+         ]}
+       />
     </PageShell>
   );
 }

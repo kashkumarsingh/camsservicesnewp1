@@ -15,14 +15,6 @@ export type PackageApiItem = {
   popular?: boolean;
 };
 
-function formatGbpPrice(value: number): string {
-  return new Intl.NumberFormat("en-GB", {
-    style: "currency",
-    currency: "GBP",
-    maximumFractionDigits: 0
-  }).format(value);
-}
-
 export function mergePackageWithApi(
   fallback: InterventionPackage,
   apiPackage: PackageApiItem | undefined
@@ -45,7 +37,6 @@ export function mergePackageWithApi(
     featured: typeof apiPackage.popular === "boolean" ? apiPackage.popular : fallback.featured,
     packagesPageBadge: badgeLabel ?? fallback.packagesPageBadge,
     homeBadge: badgeLabel ?? fallback.homeBadge,
-    price: typeof apiPackage.price === "number" ? formatGbpPrice(apiPackage.price) : fallback.price,
     frequencyLine: hours > 0 ? `${hours} Hours` : fallback.frequencyLine,
     homeDurationLine:
       typeof apiPackage.duration === "string" && apiPackage.duration.length > 0

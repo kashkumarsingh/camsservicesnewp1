@@ -77,6 +77,8 @@ class SiteSetting extends Model
      */
     protected static function getDefaults(): array
     {
+        $supportEmail = env('SITE_SUPPORT_EMAILS', 'support@camsservices.co.uk');
+        
         $defaults = [
             'company_name' => 'CAMS Services Ltd.',
             'trust_indicators' => [
@@ -140,6 +142,7 @@ class SiteSetting extends Model
                     'gradient' => 'from-[#00D4FF] to-[#0080FF]',
                 ],
             ],
+            'support_emails' => is_string($supportEmail) && !empty($supportEmail) ? [$supportEmail] : ['support@camsservices.co.uk'],
         ];
         
         return $defaults;
@@ -157,7 +160,8 @@ class SiteSetting extends Model
         // Try to set support_emails if empty (gracefully handle if column doesn't exist)
         if (empty($instance->support_emails)) {
             try {
-                $optionalFields['support_emails'] = ['support@camsservices.co.uk'];
+                $supportEmail = env('SITE_SUPPORT_EMAILS', 'support@camsservices.co.uk');
+                $optionalFields['support_emails'] = is_string($supportEmail) && !empty($supportEmail) ? [$supportEmail] : ['support@camsservices.co.uk'];
             } catch (\Exception $e) {
                 // Column might not exist yet - ignore gracefully
             }

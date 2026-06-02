@@ -296,7 +296,7 @@ export function ReferralPageClient(): ReactElement {
                 <option value="" disabled>Select a package option</option>
                 {INTERVENTION_PACKAGES.map((pkg) => (
                   <option key={pkg.id} value={pkg.id}>
-                    {pkg.name}, {pkg.price} ({pkg.frequencyLine})
+                    {pkg.name} ({pkg.frequencyLine})
                   </option>
                 ))}
                 <option value="unsure">Not sure - I&apos;d like advice</option>
