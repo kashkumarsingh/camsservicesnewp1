@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Actions\Child\RemoveChildAction;
+use App\Contracts\Notifications\INotificationDispatcher;
 use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Api\ErrorCodes;
 use App\Http\Controllers\Controller;
 use App\Models\Child;
+use App\Services\Notifications\NotificationIntentFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -170,8 +172,9 @@ class ChildController extends Controller
             'approval_status' => Child::STATUS_PENDING, // Pending approval
         ]);
 
-        // Do not notify admins here: "Child approval required" / "checklist has been submitted"
-        // is sent only when the parent submits the checklist (ChildChecklistController).
+        app(INotificationDispatcher::class)->dispatch(
+            NotificationIntentFactory::childAddedToAdmin($child)
+        );
 
         return $this->successResponse(
             [

@@ -9,8 +9,12 @@ use App\Models\Booking;
 use App\Models\BookingSchedule;
 use App\Models\Child;
 use App\Models\ContactSubmission;
+use App\Models\NewsletterSubscription;
+use App\Models\ReferralSubmission;
+use App\Models\SafeguardingConcern;
 use App\Models\SiteSetting;
 use App\Models\Trainer;
+use App\Models\TrainerAbsenceRequest;
 use App\Models\TrainerApplication;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -722,10 +726,7 @@ class NotificationIntentFactory
 
     public static function parentRegistrationToAdmin(User $user): NotificationIntent
     {
-        $singleAdminEmail = config('services.admin_notification_email');
-        $recipients = $singleAdminEmail
-            ? NotificationRecipientSet::forEmails([$singleAdminEmail])
-            : NotificationRecipientSet::forAdmins(self::adminEmails());
+        $recipients = NotificationRecipientSet::forAdmins(self::adminEmails());
         return new NotificationIntent(
             intentType: IntentType::PARENT_REGISTRATION_ADMIN,
             entityType: 'user',
@@ -777,12 +778,6 @@ class NotificationIntentFactory
     public static function trainerApplicationSubmittedToAdmin(TrainerApplication $application): NotificationIntent
     {
         $emails = self::adminEmails();
-        if (empty($emails)) {
-            $fallback = config('mail.admin_notification_email') ?: config('mail.from.address');
-            if (filled($fallback)) {
-                $emails = [$fallback];
-            }
-        }
         return new NotificationIntent(
             intentType: IntentType::TRAINER_APPLICATION_SUBMITTED,
             entityType: 'trainer_application',
@@ -872,25 +867,27 @@ class NotificationIntentFactory
         );
     }
 
-    public static function absenceRequestSubmitted(
-        ?string $entityKey = null,
-        ?string $title = null,
-        ?string $message = null,
-        ?string $link = null
-    ): NotificationIntent {
-        $key = $entityKey ?? 'absence:' . now()->format('Y-m-d');
+    public static function absenceRequestSubmitted(TrainerAbsenceRequest $absence): NotificationIntent
+    {
+        $absence->loadMissing('trainer.user');
         $adminIds = User::whereIn('role', ['admin', 'super_admin', 'editor'])->pluck('id')->all();
+        $trainerName = $absence->trainer?->user?->name ?? 'A trainer';
+        $dateRange = $absence->date_from->format('j M Y') . ' – ' . $absence->date_to->format('j M Y');
+
         return new NotificationIntent(
             intentType: IntentType::ABSENCE_REQUEST_SUBMITTED,
-            entityType: 'schedule',
-            entityId: '0',
-            recipients: NotificationRecipientSet::forUsers($adminIds),
+            entityType: 'trainer_absence_request',
+            entityId: (string) $absence->id,
+            recipients: new NotificationRecipientSet(
+                userIds: $adminIds,
+                emails: self::adminEmails(),
+            ),
             payload: [
-                'title' => $title ?? 'Absence request submitted',
-                'message' => $message ?? 'A trainer has submitted an absence request. Review in admin.',
-                'link' => $link ?? '/dashboard/admin/absence-requests',
+                'title' => 'Trainer absence request',
+                'message' => sprintf('%s has requested absence from %s. Approve or reject in Absence requests.', $trainerName, $dateRange),
+                'link' => '/dashboard/admin/absence-requests',
             ],
-            entityKey: $key,
+            entityKey: 'absence:' . $absence->id,
         );
     }
 
@@ -942,6 +939,116 @@ class NotificationIntentFactory
         );
     }
 
+    public static function contactSubmissionThankYou(ContactSubmission $submission): NotificationIntent
+    {
+        return new NotificationIntent(
+            intentType: IntentType::CONTACT_SUBMISSION_THANK_YOU,
+            entityType: 'contact_submission',
+            entityId: (string) $submission->id,
+            recipients: NotificationRecipientSet::forEmails([$submission->email]),
+            payload: [],
+            entityKey: 'contact:thankyou:' . $submission->id,
+        );
+    }
+
+    public static function referralSubmissionThankYou(ReferralSubmission $submission): NotificationIntent
+    {
+        return new NotificationIntent(
+            intentType: IntentType::REFERRAL_SUBMISSION_THANK_YOU,
+            entityType: 'referral_submission',
+            entityId: (string) $submission->id,
+            recipients: NotificationRecipientSet::forEmails([$submission->referrer_email]),
+            payload: [],
+            entityKey: 'referral:thankyou:' . $submission->id,
+        );
+    }
+
+    public static function referralSubmission(ReferralSubmission $submission): NotificationIntent
+    {
+        return new NotificationIntent(
+            intentType: IntentType::REFERRAL_SUBMISSION,
+            entityType: 'referral_submission',
+            entityId: (string) $submission->id,
+            recipients: NotificationRecipientSet::forAdmins(self::adminEmails()),
+            payload: [
+                'title' => 'New referral submission',
+                'message' => sprintf('Referral for %s submitted by %s.', $submission->young_person_name, $submission->referrer_name),
+                'link' => '/dashboard/admin/referrals/' . $submission->id,
+            ],
+            entityKey: 'referral:' . $submission->id,
+        );
+    }
+
+    public static function safeguardingConcernSubmitted(SafeguardingConcern $concern): NotificationIntent
+    {
+        $concern->loadMissing(['user', 'child']);
+        $parentName = $concern->user?->name ?? 'A parent';
+
+        return new NotificationIntent(
+            intentType: IntentType::SAFEGUARDING_CONCERN_SUBMITTED,
+            entityType: 'safeguarding_concern',
+            entityId: (string) $concern->id,
+            recipients: NotificationRecipientSet::forAdmins(self::adminEmails()),
+            payload: [
+                'title' => 'Safeguarding concern reported',
+                'message' => sprintf('%s reported a safeguarding concern. Review immediately.', $parentName),
+                'link' => '/dashboard/admin',
+            ],
+            entityKey: 'safeguarding:' . $concern->id,
+        );
+    }
+
+    public static function newsletterSubscribed(NewsletterSubscription $subscription): NotificationIntent
+    {
+        return new NotificationIntent(
+            intentType: IntentType::NEWSLETTER_SUBSCRIBED,
+            entityType: 'newsletter_subscription',
+            entityId: (string) $subscription->id,
+            recipients: NotificationRecipientSet::forAdmins(self::adminEmails()),
+            payload: [
+                'title' => 'Newsletter subscription',
+                'message' => sprintf('%s subscribed to the newsletter.', $subscription->email),
+                'link' => '/dashboard/admin',
+            ],
+            entityKey: 'newsletter:' . $subscription->id,
+        );
+    }
+
+    public static function trainerApplicationResponseSubmitted(TrainerApplication $application): NotificationIntent
+    {
+        return new NotificationIntent(
+            intentType: IntentType::TRAINER_APPLICATION_RESPONSE_SUBMITTED,
+            entityType: 'trainer_application',
+            entityId: (string) $application->id,
+            recipients: NotificationRecipientSet::forAdmins(self::adminEmails()),
+            payload: [
+                'title' => 'Trainer application response received',
+                'message' => sprintf('%s replied to your information request.', $application->full_name),
+                'link' => '/dashboard/admin/trainer-applications',
+            ],
+            entityKey: 'application:response:' . $application->id,
+        );
+    }
+
+    public static function childAddedToAdmin(Child $child): NotificationIntent
+    {
+        $child->loadMissing('user');
+        $parentName = $child->user?->name ?? 'A parent';
+
+        return new NotificationIntent(
+            intentType: IntentType::CHILD_ADDED_ADMIN,
+            entityType: 'child',
+            entityId: (string) $child->id,
+            recipients: NotificationRecipientSet::forAdmins(self::adminEmails()),
+            payload: [
+                'title' => 'New child added',
+                'message' => sprintf('%s added %s. Safeguarding checklist pending.', $parentName, $child->name),
+                'link' => '/dashboard/admin/children',
+            ],
+            entityKey: 'child:added:' . $child->id,
+        );
+    }
+
     public static function draftBookingReminder(Booking $booking, string $reminderType): NotificationIntent
     {
         $intentType = match ($reminderType) {
@@ -987,13 +1094,6 @@ class NotificationIntentFactory
 
     private static function adminEmails(): array
     {
-        $settings = SiteSetting::instance();
-        $raw = $settings->support_emails ?? [];
-        return collect($raw)
-            ->map(fn ($item) => is_array($item) && isset($item['value']) ? $item['value'] : (is_string($item) ? $item : null))
-            ->filter(fn ($e) => filled($e) && is_string($e))
-            ->unique()
-            ->values()
-            ->all();
+        return SiteSetting::adminNotificationEmails();
     }
 }

@@ -308,8 +308,7 @@ class LaravelEmailNotificationService implements EmailNotificationService
             'booking:' . $booking->id
         );
 
-        $settings = \App\Models\SiteSetting::instance();
-        $emails = $this->extractAdminEmails($settings->support_emails ?? []);
+        $emails = \App\Models\SiteSetting::adminNotificationEmails();
 
         if (empty($emails)) {
             Log::warning('No admin emails configured for new booking notification', [
@@ -352,8 +351,7 @@ class LaravelEmailNotificationService implements EmailNotificationService
             'booking:' . $booking->id
         );
 
-        $settings = \App\Models\SiteSetting::instance();
-        $emails = $this->extractAdminEmails($settings->support_emails ?? []);
+        $emails = \App\Models\SiteSetting::adminNotificationEmails();
 
         if (empty($emails)) {
             Log::warning('No admin emails configured for payment received notification', [
@@ -395,8 +393,7 @@ class LaravelEmailNotificationService implements EmailNotificationService
             'child:' . $child->id
         );
 
-        $settings = \App\Models\SiteSetting::instance();
-        $emails = $this->extractAdminEmails($settings->support_emails ?? []);
+        $emails = \App\Models\SiteSetting::adminNotificationEmails();
 
         if (empty($emails)) {
             Log::warning('No admin emails configured for child approval required notification', [
@@ -615,8 +612,7 @@ class LaravelEmailNotificationService implements EmailNotificationService
             'schedule:' . $schedule->id
         );
 
-        $settings = \App\Models\SiteSetting::instance();
-        $emails = $this->extractAdminEmails($settings->support_emails ?? []);
+        $emails = \App\Models\SiteSetting::adminNotificationEmails();
 
         if (empty($emails)) {
             Log::warning('No admin emails configured for session needs trainer notification', [
@@ -722,19 +718,7 @@ class LaravelEmailNotificationService implements EmailNotificationService
             'application:' . $application->id
         );
 
-        $settings = \App\Models\SiteSetting::instance();
-        $emails = $this->extractAdminEmails($settings->support_emails ?? []);
-
-        // Fallback so admin is notified when support_emails not set in site settings (e.g. fresh install)
-        if (empty($emails)) {
-            $fallback = config('mail.admin_notification_email') ?: env('ADMIN_EMAIL') ?: config('mail.from.address');
-            if (filled($fallback)) {
-                $emails = [$fallback];
-                Log::info('Trainer application notification using fallback admin email (support_emails not set)', [
-                    'application_id' => $application->id,
-                ]);
-            }
-        }
+        $emails = \App\Models\SiteSetting::adminNotificationEmails();
 
         if (empty($emails)) {
             Log::warning('No admin emails configured for trainer application notification', [

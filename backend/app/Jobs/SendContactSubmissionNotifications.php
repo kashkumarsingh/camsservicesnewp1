@@ -35,6 +35,9 @@ class SendContactSubmissionNotifications implements ShouldQueue
     public function handle(INotificationDispatcher $dispatcher): void
     {
         $dispatcher->dispatch(NotificationIntentFactory::contactSubmission($this->submission));
+        if (filled($this->submission->email)) {
+            $dispatcher->dispatch(NotificationIntentFactory::contactSubmissionThankYou($this->submission));
+        }
     }
 }
 

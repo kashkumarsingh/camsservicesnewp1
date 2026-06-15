@@ -42,15 +42,15 @@ This sends **12 test emails** to `info@camsservices.co.uk` for:
   `php artisan check:email-config`  
   (or `docker compose exec backend php /var/www/html/artisan check:email-config`)
 
-- **Quick Mailtrap-style test (direct + contact submission):**  
-  `php artisan test:mailtrap`  
-  (Uses support emails from Site Settings, or falls back to test@example.com)
+- **Quick SMTP test (direct send + contact submission):**  
+  `php artisan test:mail`  
+  (Uses admin notification emails from Site Settings / .env, or falls back to test@example.com)
 
 - **Run queue worker** (if notifications are queued):  
   `php artisan queue:work`
 
 ## Requirements
 
-- `.env` must have valid `MAIL_*` settings (e.g. Mailtrap SMTP or your SMTP server).
+- `.env` must have valid `MAIL_*` settings (e.g. Office 365 SMTP or your mail server).
 - If using queues, run `php artisan queue:work` so queued notifications are sent.
-- For Mailtrap: check the inbox at https://mailtrap.io/inboxes.
+- Check the recipient inbox for delivered messages.

@@ -77,7 +77,7 @@ class SiteSetting extends Model
      */
     protected static function getDefaults(): array
     {
-        $supportEmail = env('SITE_SUPPORT_EMAILS', 'support@camsservices.co.uk');
+        $supportEmail = env('SITE_SUPPORT_EMAILS', 'info@camsservices.co.uk');
         
         $defaults = [
             'company_name' => 'CAMS Services Ltd.',
@@ -142,7 +142,7 @@ class SiteSetting extends Model
                     'gradient' => 'from-[#00D4FF] to-[#0080FF]',
                 ],
             ],
-            'support_emails' => is_string($supportEmail) && !empty($supportEmail) ? [$supportEmail] : ['support@camsservices.co.uk'],
+            'support_emails' => is_string($supportEmail) && !empty($supportEmail) ? [$supportEmail] : ['info@camsservices.co.uk'],
         ];
         
         return $defaults;
@@ -160,8 +160,8 @@ class SiteSetting extends Model
         // Try to set support_emails if empty (gracefully handle if column doesn't exist)
         if (empty($instance->support_emails)) {
             try {
-                $supportEmail = env('SITE_SUPPORT_EMAILS', 'support@camsservices.co.uk');
-                $optionalFields['support_emails'] = is_string($supportEmail) && !empty($supportEmail) ? [$supportEmail] : ['support@camsservices.co.uk'];
+                $supportEmail = env('SITE_SUPPORT_EMAILS', 'info@camsservices.co.uk');
+                $optionalFields['support_emails'] = is_string($supportEmail) && !empty($supportEmail) ? [$supportEmail] : ['info@camsservices.co.uk'];
             } catch (\Exception $e) {
                 // Column might not exist yet - ignore gracefully
             }
@@ -184,5 +184,33 @@ class SiteSetting extends Model
                 // Columns might not exist yet - ignore gracefully (migrations will handle defaults)
             }
         }
+    }
+
+    /**
+     * Email addresses for admin/support notifications (contact form, bookings, applications, etc.).
+     * ADMIN_NOTIFICATION_EMAIL in .env takes precedence when set.
+     */
+    public static function adminNotificationEmails(): array
+    {
+        $override = config('services.admin_notification_email');
+        if (filled($override)) {
+            return [trim($override)];
+        }
+
+        $raw = static::instance()->support_emails ?? [];
+        $emails = collect($raw)
+            ->map(fn ($item) => is_array($item) && isset($item['value']) ? $item['value'] : (is_string($item) ? $item : null))
+            ->filter(fn ($email) => filled($email) && is_string($email))
+            ->unique()
+            ->values()
+            ->all();
+
+        if (!empty($emails)) {
+            return $emails;
+        }
+
+        $fallback = env('SITE_SUPPORT_EMAILS', 'info@camsservices.co.uk');
+
+        return filled($fallback) ? [trim($fallback)] : ['info@camsservices.co.uk'];
     }
 }

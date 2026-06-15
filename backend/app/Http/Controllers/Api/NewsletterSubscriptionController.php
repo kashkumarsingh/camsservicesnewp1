@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SubscribeNewsletterRequest;
 use App\Http\Requests\UnsubscribeNewsletterRequest;
 use App\Models\NewsletterSubscription;
+use App\Contracts\Notifications\INotificationDispatcher;
+use App\Services\Notifications\NotificationIntentFactory;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 
@@ -23,6 +25,8 @@ class NewsletterSubscriptionController extends Controller
             'email' => $request->string('email'),
         ]);
 
+        $wasActive = (bool) $subscription->active;
+
         $subscription->fill([
             'name' => $request->input('name'),
             'active' => true,
@@ -31,6 +35,12 @@ class NewsletterSubscriptionController extends Controller
             'ip_address' => $request->ip(),
             'source' => $request->input('source', 'contact-page'),
         ])->save();
+
+        if (! $wasActive) {
+            app(INotificationDispatcher::class)->dispatch(
+                NotificationIntentFactory::newsletterSubscribed($subscription)
+            );
+        }
 
         return $this->successResponse(
             $subscription,

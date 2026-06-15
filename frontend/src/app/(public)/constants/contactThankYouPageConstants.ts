@@ -1,18 +1,8 @@
 /**
- * Contact thank-you page — metadata and all UI copy.
+ * Contact thank-you page — shared layout copy (hero/meta variants live in thankYouPage.ts).
  */
 
 export const CONTACT_THANK_YOU_PAGE = {
-  META_TITLE: "Thank You – We'll Be in Touch | CAMS Services",
-  META_DESCRIPTION:
-    "Your enquiry has been received. Our team will review your request and get back to you within 24 hours.",
-
-  BADGE: 'Message Received Successfully',
-  HEADING_SMALL: "We've Got Your Message",
-  HERO_TITLE: 'Thank you for sharing your story with us.',
-  HERO_DESCRIPTION:
-    "Our safeguarding team is reviewing your enquiry right now. We'll be in touch within 24 hours with your next steps. While you wait, explore our programmes or jump straight to a free discovery call.",
-
   TRUST_4_9: '4.9/5 Rating',
   TRUST_DBS: 'DBS Checked',
   TRUST_OFSTED: 'Ofsted Registered',
@@ -23,8 +13,6 @@ export const CONTACT_THANK_YOU_PAGE = {
 
   NEXT_STEPS_LABEL: 'What happens next',
   NEXT_STEPS_TITLE: 'A guided next step for every family',
-  NEXT_STEPS_INTRO:
-    'Your enquiry is routed to our specialist mentors instantly. We follow a simple three-step process so you always know what comes next.',
   NEXT_STEP_1_TITLE: 'Dedicated Review',
   NEXT_STEP_1_DESC: 'A programme lead reviews your enquiry and matches you with the best mentor or psychologist.',
   NEXT_STEP_2_TITLE: 'Personal Contact',

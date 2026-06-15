@@ -86,6 +86,11 @@ class TrainerApplicationController extends Controller
         } catch (\InvalidArgumentException $e) {
             return $this->errorResponse($e->getMessage(), null, [], 422);
         }
+
+        app(\App\Contracts\Notifications\INotificationDispatcher::class)->dispatch(
+            \App\Services\Notifications\NotificationIntentFactory::trainerApplicationResponseSubmitted($application->fresh())
+        );
+
         return $this->successResponse([
             'id' => (string) $application->id,
             'status' => $application->status,

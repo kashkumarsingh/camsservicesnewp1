@@ -1,6 +1,7 @@
 "use client";
 
 import type { FormEvent, ReactElement } from "react";
+import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { Button } from "@/marketing/components/ui/button";
 import { PageShell } from "@/marketing/components/shared/PageShell";
@@ -10,6 +11,7 @@ import { CamsIcon, type CamsIconName } from "@/marketing/components/shared/CamsI
 import { PAGE_LAYOUT } from "@/marketing/components/shared/page-layout";
 import { INTERVENTION_PACKAGES } from "@/marketing/mock/intervention-packages";
 import { useReferralForm } from "@/interfaces/web/hooks/referrals/useReferralForm";
+import { thankYouPageUrl } from "@/shared/utils/thankYouPage";
 
 const PROCESS_STEPS: ReadonlyArray<{
   number: string;
@@ -92,8 +94,8 @@ const SERVICE_STANDARDS: ReadonlyArray<{
 
 export function ReferralPageClient(): ReactElement {
   const baseId = useId();
+  const router = useRouter();
   const { submit, loading, error } = useReferralForm();
-  const [submitted, setSubmitted] = useState(false);
   const [values, setValues] = useState({
     referrerName: "",
     referrerRole: "",
@@ -134,23 +136,9 @@ export function ReferralPageClient(): ReactElement {
         preferred_package: values.preferredPackage.trim(),
         additional_info: values.additionalInfo.trim() || undefined,
       });
-      setSubmitted(true);
-      setValues({
-        referrerName: "",
-        referrerRole: "",
-        referrerEmail: "",
-        referrerPhone: "",
-        youngPersonName: "",
-        youngPersonAge: "",
-        schoolSetting: "",
-        primaryConcern: "",
-        backgroundContext: "",
-        successOutcome: "",
-        preferredPackage: "",
-        additionalInfo: "",
-      });
+      router.push(thankYouPageUrl('referral'));
     } catch {
-      setSubmitted(false);
+      // Error surfaced via useReferralForm
     }
   }
 
@@ -210,17 +198,11 @@ export function ReferralPageClient(): ReactElement {
         <p className="mx-auto mt-4 max-w-4xl text-center text-sm leading-7 text-cams-slate">
           Please complete the key details below. Required fields are marked with an asterisk, and our team will contact you with next steps after review.
         </p>
-        {submitted ? (
-          <div className="mx-auto mt-8 max-w-4xl space-y-4">
-            <p className="rounded-lg border border-cams-primary/30 bg-cams-primary/5 px-4 py-3 text-sm text-cams-dark">
-              Thank you. Your referral request has been submitted. A CAMS team member will contact you
-              within one working day.
-            </p>
-            <Button type="button" variant="secondary" onClick={() => setSubmitted(false)}>
-              Submit another referral
-            </Button>
-          </div>
-        ) : (
+        {error ? (
+          <p className="mx-auto mt-6 max-w-4xl rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
+            {error.message}
+          </p>
+        ) : null}
         <form className="mx-auto mt-8 max-w-4xl space-y-8" onSubmit={handleSubmit}>
           <fieldset className="space-y-4">
             <legend className="text-xl font-bold">Your Information</legend>
@@ -334,7 +316,6 @@ export function ReferralPageClient(): ReactElement {
             </p>
           ) : null}
         </form>
-        )}
       </section>
 
       <section className="relative isolate overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-sky-50/40 to-white p-6 shadow-[0_20px_80px_-40px_rgba(15,23,42,0.45)] sm:p-8 lg:p-10">

@@ -1,10 +1,12 @@
 'use client';
 
 import { FormEvent, useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { CreateTrainerApplicationDTO } from '@/core/application/trainerApplications';
 import { useTrainerApplicationForm } from '@/interfaces/web/hooks/trainerApplications/useTrainerApplicationForm';
 import { useActivities } from '@/interfaces/web/hooks/activities/useActivities';
 import { validateName, validateEmail, validatePhone } from '@/shared/utils/validation';
+import { thankYouPageUrl } from '@/shared/utils/thankYouPage';
 import { AlertCircle, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 
 const AVAILABILITY_OPTIONS = [
@@ -65,6 +67,7 @@ const INITIAL_FORM: CreateTrainerApplicationDTO = {
 };
 
 export function TrainerApplicationForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState<CreateTrainerApplicationDTO>(INITIAL_FORM);
   const [certificationsInput, setCertificationsInput] = useState('');
   const [attachmentsInput, setAttachmentsInput] = useState('');
@@ -259,6 +262,7 @@ export function TrainerApplicationForm() {
           : formData.attachments,
       };
       await submit(payload);
+      router.push(thankYouPageUrl('trainer'));
     } catch {
       // API errors are already shown via the hook's error state; avoid duplicating in formMessage
     } finally {

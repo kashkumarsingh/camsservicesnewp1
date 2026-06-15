@@ -66,7 +66,7 @@ function buildFallbackSiteSettings(): SiteSetting {
       ],
     },
     support: {
-      emails: ['support@camsservices.co.uk'],
+      emails: ['info@camsservices.co.uk'],
       whatsappNumbers: ['+442012345678'],
     },
     packageBenefits: [

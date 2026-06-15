@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreSafeguardingConcernRequest;
 use App\Models\SafeguardingConcern;
+use App\Contracts\Notifications\INotificationDispatcher;
+use App\Services\Notifications\NotificationIntentFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -41,6 +43,10 @@ class ParentSafeguardingConcernController extends Controller
             $data['user_agent'] = $request->userAgent();
 
             $concern = SafeguardingConcern::create($data);
+
+            app(INotificationDispatcher::class)->dispatch(
+                NotificationIntentFactory::safeguardingConcernSubmitted($concern)
+            );
 
             return $this->successResponse(
                 ['id' => $concern->id],

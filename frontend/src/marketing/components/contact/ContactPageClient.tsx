@@ -1,7 +1,8 @@
 "use client";
 
-import type { FormEvent, ReactElement } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import type { FormEvent, ReactElement } from "react";
 import { useId, useState } from "react";
 import { Button } from "@/marketing/components/ui/button";
 import { PageShell } from "@/marketing/components/shared/PageShell";
@@ -10,6 +11,7 @@ import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
 import { CamsIcon, type CamsIconName } from "@/marketing/components/shared/CamsIcon";
 import { PAGE_LAYOUT, PAGE_SURFACES } from "@/marketing/components/shared/page-layout";
 import { useContactForm } from "@/interfaces/web/hooks/contact/useContactForm";
+import { thankYouPageUrl } from "@/shared/utils/thankYouPage";
 
 const CONTACT_CHANNELS: ReadonlyArray<{
   icon: CamsIconName;
@@ -109,8 +111,8 @@ const emptyForm: FormState = {
 
 export function ContactPageClient(): ReactElement {
   const baseId = useId();
+  const router = useRouter();
   const [values, setValues] = useState<FormState>(emptyForm);
-  const [submitted, setSubmitted] = useState(false);
   const { submit, loading, error } = useContactForm();
 
   const mapInquiryType = (value: string): "package" | "service" | "general" | "other" => {
@@ -158,16 +160,10 @@ export function ContactPageClient(): ReactElement {
         newsletter: false,
         sourcePage: "/contact",
       });
-      setSubmitted(true);
-      setValues(emptyForm);
+      router.push(thankYouPageUrl('contact'));
     } catch {
-      setSubmitted(false);
+      // Error surfaced via useContactForm
     }
-  }
-
-  function handleResetEnquiry(): void {
-    setSubmitted(false);
-    setValues(emptyForm);
   }
 
   const field = (name: keyof FormState): string => `${baseId}-${name}`;
@@ -229,18 +225,13 @@ export function ContactPageClient(): ReactElement {
             right response type.
           </p>
 
-          {submitted ? (
-            <div className="mt-6 space-y-4" role="status">
-              <p className="rounded-lg border border-cams-primary/30 bg-cams-primary/5 px-4 py-3 text-sm text-cams-dark">
-                Thank you. Your enquiry has been logged. A CAMS team member will respond with next steps
-                within one working day.
-              </p>
-              <Button type="button" variant="secondary" onClick={handleResetEnquiry}>
-                Send another message
-              </Button>
-            </div>
-          ) : (
-            <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+          {error ? (
+            <p className="mt-6 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
+              {error.message}
+            </p>
+          ) : null}
+
+          <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-sm font-semibold" htmlFor={field("fullName")}>
@@ -420,7 +411,6 @@ export function ContactPageClient(): ReactElement {
                 </p>
               ) : null}
             </form>
-          )}
         </section>
 
         <div className="space-y-6">

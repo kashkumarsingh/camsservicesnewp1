@@ -13,12 +13,10 @@ import {
   validatePassword,
 } from '@/shared/utils/validation';
 import { ROUTES } from '@/shared/utils/routes';
+import { thankYouPageUrl } from '@/shared/utils/thankYouPage';
 import { RegisterFormSection } from '@/components/register';
 import type { RegisterFormData } from '@/components/register';
 import { REGISTER_VALIDATION_FALLBACKS } from '@/components/register/constants';
-import MarketingButton from '@/design-system/components/Button/MarketingButton';
-import { AlertCircle } from 'lucide-react';
-
 const INITIAL_FORM_DATA: RegisterFormData = {
   name: '',
   email: '',
@@ -44,8 +42,6 @@ export default function RegisterPageClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
-  /** After parent registration: no token until approved; show this instead of form. */
-  const [showPendingApproval, setShowPendingApproval] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && !loading && user) {
@@ -211,7 +207,8 @@ export default function RegisterPageClient() {
       });
       // Parent registration returns no token until approved; show pending message (no redirect, no sign out)
       if (authData && !authData.accessToken && authData.user?.approvalStatus === 'pending') {
-        setShowPendingApproval(true);
+        router.push(thankYouPageUrl('register'));
+        return;
       }
     } catch (err: unknown) {
       const errorData =
@@ -249,25 +246,6 @@ export default function RegisterPageClient() {
       setIsSubmitting(false);
     }
   };
-
-  if (showPendingApproval) {
-    return (
-      <div className="bg-cams-soft px-4 py-12 sm:px-6 md:py-16">
-        <div className="mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-[0_18px_55px_rgba(15,23,42,0.08)]">
-          <AlertCircle className="mx-auto mb-4 h-16 w-16 text-amber-500" aria-hidden />
-          <h1 className="mb-2 text-xl font-semibold text-slate-900">
-            Account Pending Approval
-          </h1>
-          <p className="mb-6 text-sm text-slate-600">
-            Your registration is pending admin approval. You&apos;ll be notified once approved. You can sign in only after your account is approved.
-          </p>
-          <MarketingButton onClick={() => router.push(ROUTES.HOME)} className="w-full rounded-full bg-gcal-primary px-6 py-2 text-sm font-medium text-white hover:bg-gcal-primary-hover sm:w-auto">
-            Go to Homepage
-          </MarketingButton>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-cams-soft">

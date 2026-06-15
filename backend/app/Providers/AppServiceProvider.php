@@ -45,8 +45,11 @@ use App\Services\Notifications\DashboardNotificationService;
 use App\Services\Notifications\EmailNotificationService;
 use App\Services\Notifications\LaravelEmailNotificationService;
 use App\Services\Notifications\WhatsappNotificationService;
+use App\Listeners\ApplyMailDeliverabilityHeaders;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Events\MessageSending;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
@@ -162,6 +165,8 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perDay(50)->by($request->ip()),
             ];
         });
+
+        Event::listen(MessageSending::class, ApplyMailDeliverabilityHeaders::class);
     }
 
     /**

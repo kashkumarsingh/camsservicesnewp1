@@ -109,16 +109,8 @@ class TrainerAbsenceRequestController extends Controller
             'reason' => $request->input('reason'),
         ]);
 
-        $trainer->load('user');
-        $trainerName = $trainer->user?->name ?? 'A trainer';
-        $dateRange = $dateFrom->format('j M Y') . ' – ' . $dateTo->format('j M Y');
         app(\App\Contracts\Notifications\INotificationDispatcher::class)->dispatch(
-            \App\Services\Notifications\NotificationIntentFactory::absenceRequestSubmitted(
-                'absence_request:' . $absence->id,
-                'Trainer absence request',
-                sprintf('%s has requested absence from %s. Approve or reject in Absence requests.', $trainerName, $dateRange),
-                '/dashboard/admin/absence-requests'
-            )
+            \App\Services\Notifications\NotificationIntentFactory::absenceRequestSubmitted($absence)
         );
 
         return $this->successResponse([

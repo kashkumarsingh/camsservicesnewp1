@@ -71,6 +71,6 @@ class ParentRegisteredNotification extends Notification implements ShouldQueue
             ->filter(fn ($email) => filled($email) && is_string($email))
             ->first();
 
-        return $email ?? 'support@camsservices.co.uk';
+        return $email ?? config('services.admin_notification_email', 'info@camsservices.co.uk');
     }
 }

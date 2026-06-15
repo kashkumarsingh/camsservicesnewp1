@@ -51,16 +51,23 @@ class EmailChannel implements INotificationChannel
 
         $notification = new $notificationClass(...$this->notificationConstructorArgs($notificationClass, $subject, $intent));
 
-        $sentUserIds = [];
+        $adminEmailsLower = collect($intent->recipients->emails)
+            ->filter(fn ($e) => filled($e))
+            ->map(fn ($e) => strtolower(trim($e)))
+            ->unique()
+            ->all();
+
         foreach ($intent->recipients->userIds as $userId) {
             $user = User::find($userId);
             if (!$user || blank($user->email)) {
                 continue;
             }
+            if (in_array(strtolower(trim($user->email)), $adminEmailsLower, true)) {
+                continue;
+            }
             try {
                 $user->notify($notification);
                 $this->logSuccess($intent, $userId, $user->email);
-                $sentUserIds[] = $userId;
             } catch (\Throwable $e) {
                 Log::error('EmailChannel send failed (user)', [
                     'user_id' => $userId,

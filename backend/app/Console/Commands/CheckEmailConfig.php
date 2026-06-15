@@ -50,7 +50,7 @@ class CheckEmailConfig extends Command
         $this->info('  MAILER: ' . config('mail.default'));
         $this->info('  HOST: ' . config('mail.mailers.smtp.host'));
         $this->info('  PORT: ' . config('mail.mailers.smtp.port'));
-        $this->info('  ENCRYPTION: ' . (config('mail.mailers.smtp.encryption') ?: 'null'));
+        $this->info('  SCHEME: ' . (config('mail.mailers.smtp.scheme') ?: 'null'));
         $this->info('  USERNAME: ' . config('mail.mailers.smtp.username'));
         $this->info('  FROM: ' . config('mail.from.address'));
 

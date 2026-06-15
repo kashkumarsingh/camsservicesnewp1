@@ -7,6 +7,7 @@ import Card from '@/components/ui/Card/Card';
 import IconList from '@/components/ui/IconList/IconList';
 import { CheckCircle2, Calendar, Phone, MessageSquare, Award, Shield, Sparkles, Star, Users, Clock } from 'lucide-react';
 import { ROUTES } from '@/shared/utils/routes';
+import { getThankYouPageVariant, resolveThankYouPageType } from '@/shared/utils/thankYouPage';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
 import { CONTACT_THANK_YOU_PAGE as C } from '@/app/(public)/constants/contactThankYouPageConstants';
 
@@ -15,12 +16,17 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https:
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;
 
-export async function generateMetadata() {
+type ThankYouSearchParams = Promise<{ type?: string }>;
+
+export async function generateMetadata({ searchParams }: { searchParams: ThankYouSearchParams }) {
+  const { type } = await searchParams;
+  const variant = getThankYouPageVariant(type);
+
   return buildPublicMetadata(
     {
-      title: C.META_TITLE,
-      description: C.META_DESCRIPTION,
-      path: ROUTES.CONTACT_THANK_YOU,
+      title: variant.metaTitle,
+      description: variant.metaDescription,
+      path: `${ROUTES.CONTACT_THANK_YOU}?type=${resolveThankYouPageType(type)}`,
       imageAlt: 'CAMS Services',
     },
     BASE_URL
@@ -41,7 +47,13 @@ const reassuranceHighlights = [
 ];
 
 
-export default async function ContactThankYouPage() {
+export default async function ContactThankYouPage({
+  searchParams,
+}: {
+  searchParams: ThankYouSearchParams;
+}) {
+  const { type } = await searchParams;
+  const variant = getThankYouPageVariant(type);
   const settings = await getSiteSettings().catch(() => null);
   const contact = settings?.contact;
   const phone = contact?.phone || C.PHONE_FALLBACK;
@@ -72,21 +84,21 @@ export default async function ContactThankYouPage() {
           <div className="inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full">
             <p className="text-sm font-semibold flex items-center justify-center gap-2">
               <Sparkles size={18} />
-              {C.BADGE}
+              {variant.badge}
             </p>
           </div>
           
           {/* Heading */}
           <div>
-            <p className="mb-4 text-sm uppercase tracking-[0.3em] text-white/90 font-semibold">{C.HEADING_SMALL}</p>
+            <p className="mb-4 text-sm uppercase tracking-[0.3em] text-white/90 font-semibold">{variant.headingSmall}</p>
             <h1 className="text-5xl md:text-7xl font-heading font-extrabold mb-6 leading-tight tracking-tight heading-text-shadow">
-              {C.HERO_TITLE}
+              {variant.heroTitle}
             </h1>
           </div>
           
           {/* Description */}
           <p className="mx-auto max-w-3xl text-xl md:text-2xl text-white/90 font-light">
-            {C.HERO_DESCRIPTION}
+            {variant.heroDescription}
           </p>
           
           {/* Trust Badges */}
@@ -133,7 +145,7 @@ export default async function ContactThankYouPage() {
             </div>
             <h2 className="mt-2 text-3xl font-heading font-bold text-navy-blue">{C.NEXT_STEPS_TITLE}</h2>
             <p className="mt-4 text-lg text-navy-blue/80">
-              {C.NEXT_STEPS_INTRO}
+              {variant.nextStepsIntro}
             </p>
             <div className="mt-8 space-y-5">
               {nextSteps.map((step, index) => (

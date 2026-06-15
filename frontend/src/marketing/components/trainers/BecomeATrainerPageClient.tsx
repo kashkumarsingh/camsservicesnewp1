@@ -2,6 +2,7 @@
 
 import type { ReactElement } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/marketing/components/ui/button";
 import { PageShell } from "@/marketing/components/shared/PageShell";
@@ -10,6 +11,7 @@ import { CamsIcon, type CamsIconName } from "@/marketing/components/shared/CamsI
 import { PAGE_LAYOUT, PAGE_SURFACES } from "@/marketing/components/shared/page-layout";
 import { camsUnsplashPhotoUrl } from "@/marketing/mock/cams-unsplash";
 import { useTrainerApplicationForm } from "@/interfaces/web/hooks/trainerApplications/useTrainerApplicationForm";
+import { thankYouPageUrl } from "@/shared/utils/thankYouPage";
 
 const TRAINER_PROMO_IMAGE = camsUnsplashPhotoUrl("1575800542980-4753fe7fd72e", 1400, 900);
 
@@ -182,6 +184,7 @@ function isAtLeast18(dateOfBirthIso: string): boolean {
 }
 
 export function BecomeATrainerPageClient(): ReactElement {
+  const router = useRouter();
   const [currentWizardStep, setCurrentWizardStep] = useState<number>(1);
   const [wizardValues, setWizardValues] = useState<TrainerWizardValues>(INITIAL_WIZARD_VALUES);
   const [wizardSubmitted, setWizardSubmitted] = useState<boolean>(false);
@@ -300,7 +303,7 @@ export function BecomeATrainerPageClient(): ReactElement {
               ? "Insurance in progress"
               : undefined,
       });
-      setApplicationSubmitted(true);
+      router.push(thankYouPageUrl('trainer'));
     } catch {
       setApplicationSubmitted(false);
     }

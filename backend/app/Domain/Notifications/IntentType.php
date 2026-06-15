@@ -65,7 +65,14 @@ final class IntentType
     public const ABSENCE_REQUEST_SUBMITTED = 'absence_request_submitted';
     public const TRAINER_AVAILABILITY_UPDATED = 'trainer_availability_updated';
     public const CONTACT_SUBMISSION = 'contact_submission';
+    public const CONTACT_SUBMISSION_THANK_YOU = 'contact_submission_thank_you';
+    public const REFERRAL_SUBMISSION_THANK_YOU = 'referral_submission_thank_you';
     public const CHILD_CHECKLIST_SUBMITTED_ADMIN = 'child_checklist_submitted_admin';
+    public const REFERRAL_SUBMISSION = 'referral_submission';
+    public const SAFEGUARDING_CONCERN_SUBMITTED = 'safeguarding_concern_submitted';
+    public const NEWSLETTER_SUBSCRIBED = 'newsletter_subscribed';
+    public const TRAINER_APPLICATION_RESPONSE_SUBMITTED = 'trainer_application_response_submitted';
+    public const CHILD_ADDED_ADMIN = 'child_added_admin';
 
     /**
      * Intent types that must only be sent once per entity per recipient (strong deduplication).
@@ -89,7 +96,11 @@ final class IntentType
             self::CHILD_APPROVAL_REQUIRED, self::SESSION_NEEDS_TRAINER,
             self::SESSION_BOOKED_ADMIN, self::TRAINER_APPLICATION_SUBMITTED,
             self::ABSENCE_REQUEST_SUBMITTED, self::TRAINER_AVAILABILITY_UPDATED, self::CONTACT_SUBMISSION,
-            self::CHILD_CHECKLIST_SUBMITTED, self::CHILD_CHECKLIST_SUBMITTED_ADMIN => 60,
+            self::CHILD_CHECKLIST_SUBMITTED, self::CHILD_CHECKLIST_SUBMITTED_ADMIN,
+            self::REFERRAL_SUBMISSION, self::SAFEGUARDING_CONCERN_SUBMITTED,
+            self::NEWSLETTER_SUBSCRIBED, self::TRAINER_APPLICATION_RESPONSE_SUBMITTED,
+            self::CHILD_ADDED_ADMIN, self::CONTACT_SUBMISSION_THANK_YOU,
+            self::REFERRAL_SUBMISSION_THANK_YOU => 60,
             self::SESSION_TODAY, self::SESSION_OVER, self::SESSION_STARTED, self::SESSION_STARTED_ADMIN,
             self::SESSION_ENDING_SOON_PARENT, self::SESSION_ENDING_SOON_ADMIN, self::SESSION_REMINDER_24H => 1440, // 24h
             self::DRAFT_BOOKING_REMINDER_30M => 30,

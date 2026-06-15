@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreReferralSubmissionRequest;
 use App\Models\ReferralSubmission;
+use App\Services\Notifications\NotificationIntentFactory;
+use App\Contracts\Notifications\INotificationDispatcher;
 use Illuminate\Http\JsonResponse;
 
 class ReferralSubmissionController extends Controller
@@ -25,6 +27,15 @@ class ReferralSubmissionController extends Controller
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
         ]);
+
+        app(INotificationDispatcher::class)->dispatch(
+            NotificationIntentFactory::referralSubmission($submission)
+        );
+        if (filled($submission->referrer_email)) {
+            app(INotificationDispatcher::class)->dispatch(
+                NotificationIntentFactory::referralSubmissionThankYou($submission)
+            );
+        }
 
         return $this->successResponse([
             'id' => (string) $submission->id,
