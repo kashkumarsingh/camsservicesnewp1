@@ -71,6 +71,7 @@ export const ROUTES = {
   /** Legacy notification link; redirects to DASHBOARD_ADMIN_BOOKINGS with schedule_id. */
   DASHBOARD_ADMIN_BOOKING_SCHEDULES: '/dashboard/admin/booking-schedules',
   DASHBOARD_ADMIN_TRAINERS: '/dashboard/admin/trainers',
+  DASHBOARD_ADMIN_STAFF: '/dashboard/admin/staff',
   DASHBOARD_ADMIN_PARENTS: '/dashboard/admin/parents',
   DASHBOARD_ADMIN_CHILDREN: '/dashboard/admin/children',
   DASHBOARD_ADMIN_PACKAGES: '/dashboard/admin/packages',

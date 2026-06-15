@@ -79,6 +79,11 @@ export const API_ENDPOINTS = {
   ADMIN_USER_APPROVE: (id: string | number) => `/admin/users/${id}/approve`,
   ADMIN_USER_REJECT: (id: string | number) => `/admin/users/${id}/reject`,
 
+  // Admin Staff (internal onboarding records — distinct from trainers)
+  ADMIN_STAFF: '/admin/staff',
+  ADMIN_STAFF_BY_ID: (id: string | number) => `/admin/staff/${id}`,
+  ADMIN_STAFF_EXPORT: '/admin/staff/export',
+
   // Admin Children
   ADMIN_CHILDREN: '/admin/children',
   ADMIN_CHILD_APPROVE: (id: string | number) => `/admin/children/${id}/approve`,

@@ -124,6 +124,14 @@ Route::prefix('v1')->group(function () {
             Route::post('admin/users/{id}/approve', [\App\Http\Controllers\Api\AdminUserController::class, 'approve']);
             Route::post('admin/users/{id}/reject', [\App\Http\Controllers\Api\AdminUserController::class, 'reject']);
 
+            // Admin staff (internal onboarding records — distinct from trainers)
+            Route::get('admin/staff/export', [\App\Http\Controllers\Api\AdminStaffController::class, 'export']);
+            Route::get('admin/staff', [\App\Http\Controllers\Api\AdminStaffController::class, 'index']);
+            Route::get('admin/staff/{id}', [\App\Http\Controllers\Api\AdminStaffController::class, 'show']);
+            Route::post('admin/staff', [\App\Http\Controllers\Api\AdminStaffController::class, 'store']);
+            Route::put('admin/staff/{id}', [\App\Http\Controllers\Api\AdminStaffController::class, 'update']);
+            Route::delete('admin/staff/{id}', [\App\Http\Controllers\Api\AdminStaffController::class, 'destroy']);
+
             // Admin children (full CRUD + approve/reject + link parent + notify parent)
             Route::apiResource('admin/children', \App\Http\Controllers\Api\AdminChildController::class)->names('admin.children');
             Route::post('admin/children/{id}/approve', [\App\Http\Controllers\Api\AdminChildController::class, 'approve']);

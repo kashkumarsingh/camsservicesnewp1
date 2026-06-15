@@ -104,6 +104,7 @@ const ROLE_SECTIONS: RoleSection[] = [
       { label: "Parents", href: "/dashboard/admin/parents", icon: Users },
       { label: "Children", href: "/dashboard/admin/children", icon: Users },
       { label: "Trainers", href: "/dashboard/admin/trainers", icon: UserCheck },
+      { label: "Staff", href: "/dashboard/admin/staff", icon: Briefcase },
       { label: "Activities", href: "/dashboard/admin/activities", icon: Activity },
       { label: "Services", href: "/dashboard/admin/services", icon: Briefcase },
       { label: "Packages", href: "/dashboard/admin/packages", icon: Package },
