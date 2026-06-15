@@ -4,7 +4,8 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
-watchPatterns = ["composer.json", "composer.lock", "*.php", "docker-entrypoint.sh", "nginx.conf", "railway.toml"]
+# Paths are relative to the repo root (not the service root directory).
+watchPatterns = ["backend/**"]
 
 [deploy]
 # Healthcheck omitted: cams-reverb (RUN_MODE=reverb) does not serve HTTP, so /health would fail.

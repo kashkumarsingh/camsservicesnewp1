@@ -5,7 +5,8 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
-watchPatterns = ["composer.json", "composer.lock", "*.php", "docker-entrypoint.sh", "railway.toml", "railway-reverb.toml"]
+# Paths are relative to the repo root (not the service root directory).
+watchPatterns = ["backend/**"]
 
 [deploy]
 restartPolicyType = "ALWAYS"
