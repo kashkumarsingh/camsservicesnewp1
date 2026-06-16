@@ -21,7 +21,7 @@ export type QuickReply = {
 
 export type GeneralTopic = "packages" | "how" | "start" | "schools" | "other";
 
-type EnquiryIntent = "general" | "referral" | "trainer" | "";
+type EnquiryIntent = "general" | "referral" | "trainer" | "contact" | "call" | "";
 
 type IntakeData = {
   intent: EnquiryIntent;
@@ -78,6 +78,8 @@ const INTENT_LABELS: Record<Exclude<EnquiryIntent, "">, string> = {
   general: "General question",
   referral: "Refer a young person",
   trainer: "Become a trainer",
+  contact: "Contact us",
+  call: "Call us",
 };
 
 function createMessage(role: ChatRole, text: string): ChatMessage {
@@ -145,6 +147,8 @@ export function useGuidedIntakeChat() {
         { id: "general", label: "General question" },
         { id: "referral", label: "Refer a young person" },
         { id: "trainer", label: "Become a trainer" },
+        { id: "contact", label: "Contact us" },
+        { id: "call", label: "Call us" },
       ];
     }
 
@@ -169,6 +173,26 @@ export function useGuidedIntakeChat() {
             id: "referral-page",
             label: "Go to referral form",
             href: ROUTES.REFERRAL,
+            variant: "primary",
+          },
+        ];
+      }
+      if (state.data.intent === "contact") {
+        return [
+          {
+            id: "contact-page",
+            label: "Go to contact page",
+            href: ROUTES.CONTACT,
+            variant: "primary",
+          },
+        ];
+      }
+      if (state.data.intent === "call") {
+        return [
+          {
+            id: "contact-page",
+            label: "Phone & contact options",
+            href: ROUTES.CONTACT,
             variant: "primary",
           },
         ];
@@ -204,6 +228,24 @@ export function useGuidedIntakeChat() {
       return;
     }
 
+    if (intent === "contact") {
+      dispatch({ type: "SET_STEP", step: "redirect" });
+      dispatch({
+        type: "ADD_ASSISTANT",
+        text: "Our contact page has the full enquiry form — tell us what you need and we'll come back within one working day.",
+      });
+      return;
+    }
+
+    if (intent === "call") {
+      dispatch({ type: "SET_STEP", step: "redirect" });
+      dispatch({
+        type: "ADD_ASSISTANT",
+        text: "You can call us or send a message from our contact page — phone numbers and the enquiry form are all in one place.",
+      });
+      return;
+    }
+
     dispatch({ type: "SET_STEP", step: "topic" });
     dispatch({
       type: "ADD_ASSISTANT",
@@ -233,7 +275,13 @@ export function useGuidedIntakeChat() {
   const submitQuickReply = useCallback(
     (replyId: string) => {
       if (state.step === "intent") {
-        if (replyId === "general" || replyId === "referral" || replyId === "trainer") {
+        if (
+          replyId === "general" ||
+          replyId === "referral" ||
+          replyId === "trainer" ||
+          replyId === "contact" ||
+          replyId === "call"
+        ) {
           handleIntentChoice(replyId);
         }
         return;

@@ -165,7 +165,7 @@ export function ReceptionistChatPanel({ open, onClose }: ReceptionistChatPanelPr
         onClick={onClose}
       />
 
-      <section className="pointer-events-auto relative flex w-full flex-col overflow-hidden bg-white shadow-2xl ring-1 ring-slate-200/80 md:fixed md:bottom-[12.5rem] md:right-8 md:max-h-[min(440px,calc(100dvh-14rem))] md:w-[360px] md:rounded-2xl max-md:mb-[4.5rem] max-md:h-[min(78dvh,560px)] max-md:rounded-t-2xl">
+      <section className="pointer-events-auto relative flex w-full flex-col overflow-hidden bg-white shadow-2xl ring-1 ring-slate-200/80 md:fixed md:bottom-24 md:right-8 md:max-h-[min(480px,calc(100dvh-8rem))] md:w-[360px] md:rounded-2xl max-md:mb-[4.5rem] max-md:h-[min(78dvh,560px)] max-md:rounded-t-2xl">
         <header className="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-3">
           <div className="flex items-center gap-2.5">
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-cams-primary/10 text-cams-primary">

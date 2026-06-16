@@ -1,20 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState, type ReactElement } from "react";
-import { ArrowUp, MessageCircle, PhoneCall, X } from "lucide-react";
-import { ROUTES } from "@/shared/utils/routes";
+import { ArrowUp, MessageCircle, X } from "lucide-react";
 import { ReceptionistChatPanel } from "@/components/layout/receptionist/ReceptionistChatPanel";
 
 const FAB_HINT_KEY = "cams_enquiries_fab_seen_v1";
 const AUTO_OPEN_KEY = "cams_enquiries_auto_opened_v1";
 /** First visit nudge — opens once per browser session after delay. */
 const AUTO_OPEN_DELAY_MS = 8000;
-
-const SECONDARY_ACTIONS = [
-  { id: "contact", href: ROUTES.CONTACT, label: "Contact us", icon: MessageCircle },
-  { id: "call", href: ROUTES.CONTACT, label: "Call us", icon: PhoneCall },
-] as const;
 
 export function SiteFloatingActions(): ReactElement {
   const [chatOpen, setChatOpen] = useState(false);
@@ -103,43 +96,26 @@ export function SiteFloatingActions(): ReactElement {
         ) : null}
 
         {!chatOpen ? (
-          <>
-            {SECONDARY_ACTIONS.map((action) => {
-              const Icon = action.icon;
-              return (
-                <Link
-                  key={action.id}
-                  href={action.href}
-                  onClick={markEngaged}
-                  className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/80 bg-white/95 px-3.5 py-2 text-sm font-semibold text-cams-ink shadow-[0_8px_24px_-16px_rgba(2,12,27,0.45)] transition hover:border-cams-primary/40 hover:text-cams-primary"
-                >
-                  <Icon size={15} className="shrink-0 text-cams-primary" aria-hidden />
-                  {action.label}
-                </Link>
-              );
-            })}
+          <div className="relative">
+            {showHint ? (
+              <span
+                className="pointer-events-none absolute -top-1.5 right-1 inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-cams-secondary ring-4 ring-cams-secondary/25"
+                aria-hidden
+              />
+            ) : null}
 
-            <div className="relative">
-              {showHint ? (
-                <span
-                  className="pointer-events-none absolute -top-1.5 right-1 inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-cams-secondary ring-4 ring-cams-secondary/25"
-                  aria-hidden
-                />
-              ) : null}
-
-              <button
-                type="button"
-                onClick={openChat}
-                aria-label="Ask CAMS a question"
-                className="inline-flex min-h-[52px] items-center gap-2.5 rounded-full bg-gradient-to-r from-cams-primary to-cams-secondary py-3 pl-4 pr-5 text-white shadow-[0_16px_40px_-20px_rgba(0,102,255,0.85)] transition hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-cams-primary/60 focus-visible:ring-offset-2"
-              >
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/15">
-                  <MessageCircle size={18} aria-hidden />
-                </span>
-                <span className="font-heading text-sm font-bold">Ask CAMS</span>
-              </button>
-            </div>
-          </>
+            <button
+              type="button"
+              onClick={openChat}
+              aria-label="Ask CAMS a question"
+              className="inline-flex min-h-[52px] items-center gap-2.5 rounded-full bg-gradient-to-r from-cams-primary to-cams-secondary py-3 pl-4 pr-5 text-white shadow-[0_16px_40px_-20px_rgba(0,102,255,0.85)] transition hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-cams-primary/60 focus-visible:ring-offset-2"
+            >
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/15">
+                <MessageCircle size={18} aria-hidden />
+              </span>
+              <span className="font-heading text-sm font-bold">Ask CAMS</span>
+            </button>
+          </div>
         ) : (
           <button
             type="button"
