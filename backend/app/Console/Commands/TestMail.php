@@ -11,11 +11,16 @@ use Illuminate\Support\Facades\Mail;
 class TestMail extends Command
 {
     protected $signature = 'test:mail';
-    protected $description = 'Test SMTP mail delivery (direct send + contact submission notification)';
+    protected $description = 'Test mail delivery (direct send + contact submission notification)';
 
     public function handle(): int
     {
         $this->info('Testing mail delivery...');
+        $mailer = config('mail.default');
+        $this->info('Mailer: ' . $mailer);
+        if ($mailer === 'resend') {
+            $this->info('Resend API key: ' . (filled(config('services.resend.key')) ? 'set' : 'MISSING — set RESEND_API_KEY'));
+        }
         $this->newLine();
 
         $this->info('Test 1: Sending direct email...');
@@ -32,10 +37,14 @@ class TestMail extends Command
 
         try {
             $this->info('Mail config:');
-            $this->info('  Host: ' . config('mail.mailers.smtp.host'));
-            $this->info('  Port: ' . config('mail.mailers.smtp.port'));
-            $this->info('  Scheme: ' . (config('mail.mailers.smtp.scheme') ?: 'null'));
-            $this->info('  Username: ' . config('mail.mailers.smtp.username'));
+            if ($mailer === 'resend') {
+                $this->info('  Transport: Resend API (HTTPS — works on Railway Hobby)');
+            } else {
+                $this->info('  Host: ' . config('mail.mailers.smtp.host'));
+                $this->info('  Port: ' . config('mail.mailers.smtp.port'));
+                $this->info('  Scheme: ' . (config('mail.mailers.smtp.scheme') ?: 'null'));
+                $this->info('  Username: ' . config('mail.mailers.smtp.username'));
+            }
             $this->info('  From: ' . config('mail.from.address'));
             $this->newLine();
 
@@ -49,9 +58,16 @@ class TestMail extends Command
             $this->error('✗ Direct email failed: ' . $e->getMessage());
             $this->newLine();
             $this->warn('Troubleshooting:');
-            $this->warn('  1. Verify MAIL_* settings in .env (host, port, username, password, encryption)');
-            $this->warn('  2. For Office 365 on port 587, set MAIL_SCHEME=smtp');
-            $this->warn('  3. Ensure MAIL_FROM_ADDRESS matches the authenticated mailbox');
+            if ($mailer === 'resend') {
+                $this->warn('  1. Set RESEND_API_KEY and MAIL_MAILER=resend on Railway');
+                $this->warn('  2. Verify camsservices.co.uk domain in Resend dashboard (DNS records)');
+                $this->warn('  3. MAIL_FROM_ADDRESS must use your verified domain');
+            } else {
+                $this->warn('  1. Verify MAIL_* settings (host, port, username, password, scheme)');
+                $this->warn('  2. Railway Hobby blocks SMTP — use MAIL_MAILER=resend + RESEND_API_KEY instead');
+                $this->warn('  3. For Office 365 on port 587 locally, set MAIL_SCHEME=smtp');
+                $this->warn('  4. Ensure MAIL_FROM_ADDRESS matches the authenticated mailbox');
+            }
             return 1;
         }
 

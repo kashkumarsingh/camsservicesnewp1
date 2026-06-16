@@ -63,7 +63,7 @@ class CreateContactSubmissionAction
 
         try {
             // Use database transaction with row-level locking as additional protection
-            return DB::transaction(function () use ($data, $email, $ipAddress) {
+            $submission = DB::transaction(function () use ($data, $email, $ipAddress) {
                 // Double-check for duplicates within transaction (5 min window for email, 3 min for IP)
                 $emailDuplicate = ContactSubmission::where('email', $email)
                     ->where('created_at', '>=', now()->subMinutes(5))
@@ -89,7 +89,7 @@ class CreateContactSubmissionAction
                 // Create submission within the transaction
                 // If another request tries to create at the same time, it will wait for this transaction
                 // Note: duplicate_prevention_hash is auto-populated by database trigger (if migration applied)
-                $submission = ContactSubmission::create([
+                return ContactSubmission::create([
                     'name' => $data['name'],
                     'email' => $email,
                     'phone' => $data['phone'] ?? null,
@@ -107,17 +107,25 @@ class CreateContactSubmissionAction
                     'ip_address' => $ipAddress,
                     'user_agent' => $data['user_agent'] ?? null,
                 ]);
-
-                Log::info('Contact submission created', [
-                    'submission_id' => $submission->id,
-                    'email' => $submission->email,
-                    'inquiry_type' => $submission->inquiry_type,
-                ]);
-
-                event(new ContactSubmissionCreated($submission));
-
-                return $submission;
             });
+
+            Log::info('Contact submission created', [
+                'submission_id' => $submission->id,
+                'email' => $submission->email,
+                'inquiry_type' => $submission->inquiry_type,
+            ]);
+
+            // After commit: send notifications synchronously (SMTP errors are logged, submission is kept).
+            try {
+                event(new ContactSubmissionCreated($submission));
+            } catch (\Throwable $e) {
+                Log::error('Contact submission notifications failed after save', [
+                    'submission_id' => $submission->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
+            return $submission;
         } finally {
             // Always release locks, even if transaction fails
             $emailLock->release();

@@ -177,7 +177,8 @@ echo "Web mode → starting bootstrap in background, then Nginx in foreground (d
         (while true; do php artisan schedule:run --verbose --no-interaction >> /var/log/scheduler.log 2>&1; sleep 60; done) &
     fi
     if [ "${RUN_QUEUE_IN_CONTAINER:-true}" = "true" ]; then
-        (while true; do php artisan queue:work database --sleep=3 --tries=3 --max-time=3600 --verbose --no-interaction >> /var/log/queue.log 2>&1; sleep 5; done) &
+        echo "[background] Starting queue worker (database)..."
+        (while true; do php artisan queue:work database --sleep=3 --tries=3 --max-time=3600 --verbose --no-interaction 2>&1 | tee -a /var/log/queue.log; sleep 5; done) &
     fi
     echo "[background] Bootstrap complete."
 ) &

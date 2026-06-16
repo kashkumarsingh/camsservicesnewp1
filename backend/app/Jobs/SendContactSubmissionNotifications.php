@@ -10,12 +10,13 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * Contact submission notifications via central dispatcher (email + WhatsApp; dedupe and rate limit there).
- * Not using ShouldBeUnique to avoid "aborted transaction" errors when CACHE_STORE=database: a failed
- * query in the job aborts the PostgreSQL transaction and Laravel's unique lock release then fails.
- * Dedupe is handled by the central notification layer (entity key).
+ * Invoked synchronously from QueueContactSubmissionNotifications listener (dispatchSync) so mail is
+ * not dependent on a background queue worker on Railway.
  */
 class SendContactSubmissionNotifications implements ShouldQueue
 {
@@ -38,6 +39,19 @@ class SendContactSubmissionNotifications implements ShouldQueue
         if (filled($this->submission->email)) {
             $dispatcher->dispatch(NotificationIntentFactory::contactSubmissionThankYou($this->submission));
         }
+
+        Log::info('Contact submission notifications sent', [
+            'submission_id' => $this->submission->id,
+            'email' => $this->submission->email,
+        ]);
+    }
+
+    public function failed(Throwable $exception): void
+    {
+        Log::error('Contact submission notifications failed', [
+            'submission_id' => $this->submission->id,
+            'error' => $exception->getMessage(),
+        ]);
     }
 }
 

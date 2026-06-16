@@ -66,11 +66,12 @@
 #   LOG_CHANNEL = errorlog
 #   LOG_LEVEL = error
 #
-# Mail (set your SMTP provider)
-#   MAIL_MAILER = smtp
-#   MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_ENCRYPTION
-#   MAIL_FROM_ADDRESS = noreply@camsservice.co.uk
+# Mail — Railway Hobby blocks SMTP (587/465). Use Resend free tier (HTTPS API):
+#   MAIL_MAILER = resend
+#   RESEND_API_KEY = re_xxxxxxxx  (free: 3,000 emails/month at resend.com)
+#   MAIL_FROM_ADDRESS = info@camsservices.co.uk  (after verifying domain in Resend)
 #   MAIL_FROM_NAME = CAMS Services
+# Local Docker can still use MAIL_MAILER=smtp + Mailhog or Office 365.
 #
 # Frontend integration (Vercel app URL)
 #   FRONTEND_URL = https://<your-app>.vercel.app
@@ -129,6 +130,10 @@
 #   NEXT_PUBLIC_STRIPE_PUBLIC_KEY
 #   NEXT_PUBLIC_IDEAL_POSTCODES_API_KEY (optional)
 #   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY (optional)
+#
+# AI receptionist FAB (optional — n8n Chat Trigger production webhook URL)
+#   NEXT_PUBLIC_N8N_CHAT_WEBHOOK_URL = https://<your-n8n-host>/webhook/<chat-id>
+# Without this, the FAB uses guided intake and posts to the existing contact API (email notifications).
 
 # =============================================================================
 # DEPLOYMENT OPTIONS (Backend)

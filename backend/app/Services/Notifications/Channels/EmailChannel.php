@@ -66,7 +66,9 @@ class EmailChannel implements INotificationChannel
                 continue;
             }
             try {
-                $user->notify($notification);
+                // Send immediately — many notification classes implement ShouldQueue; notify() would
+                // re-queue and silently fail when no worker processes nested jobs (e.g. Railway).
+                $user->notifyNow($notification);
                 $this->logSuccess($intent, $userId, $user->email);
             } catch (\Throwable $e) {
                 Log::error('EmailChannel send failed (user)', [
@@ -83,7 +85,7 @@ class EmailChannel implements INotificationChannel
                 continue;
             }
             try {
-                NotificationFacade::route('mail', $email)->notify($notification);
+                NotificationFacade::route('mail', $email)->notifyNow($notification);
                 $this->logSuccess($intent, null, $email);
             } catch (\Throwable $e) {
                 Log::error('EmailChannel send failed (email)', [

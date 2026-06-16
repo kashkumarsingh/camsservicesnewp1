@@ -34,7 +34,7 @@ class SendContactSubmissionWebhook implements ShouldQueue
     {
         $config = config('services.zapier');
 
-        if (! ($config['enabled'] ?? false) || empty($config['url']) || empty($config['secret'])) {
+        if (! ($config['enabled'] ?? false) || empty($config['url'])) {
             return;
         }
 
@@ -55,16 +55,19 @@ class SendContactSubmissionWebhook implements ShouldQueue
         ];
 
         $timestamp = (string) now()->timestamp;
-        $signaturePayload = $timestamp . '.' . json_encode($payload);
-        $signature = hash_hmac('sha256', $signaturePayload, $config['secret']);
+        $headers = [
+            'User-Agent' => 'CAMS Services Webhook/' . Str::uuid(),
+            'Accept' => 'application/json',
+        ];
+
+        if (filled($config['secret'] ?? null)) {
+            $signaturePayload = $timestamp . '.' . json_encode($payload);
+            $headers['X-CAMS-Timestamp'] = $timestamp;
+            $headers['X-CAMS-Signature'] = hash_hmac('sha256', $signaturePayload, $config['secret']);
+        }
 
         try {
-            Http::withHeaders([
-                'X-CAMS-Timestamp' => $timestamp,
-                'X-CAMS-Signature' => $signature,
-                'User-Agent' => 'CAMS Services Webhook/' . Str::uuid(),
-                'Accept' => 'application/json',
-            ])->post($config['url'], $payload)->throw();
+            Http::withHeaders($headers)->post($config['url'], $payload)->throw();
         } catch (\Throwable $exception) {
             Log::error('Failed to send contact submission webhook', [
                 'error' => $exception->getMessage(),

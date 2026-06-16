@@ -13,10 +13,11 @@ class QueueContactSubmissionNotifications
      */
     public function handle(ContactSubmissionCreated $event): void
     {
-        SendContactSubmissionNotifications::dispatch($event->submission);
+        // Send during the request — async queue jobs were not reliably processed on Railway.
+        SendContactSubmissionNotifications::dispatchSync($event->submission);
 
         if (config('services.zapier.enabled')) {
-            SendContactSubmissionWebhook::dispatch($event->submission);
+            SendContactSubmissionWebhook::dispatchSync($event->submission);
         }
     }
 }
