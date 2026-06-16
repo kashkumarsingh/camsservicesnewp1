@@ -16,28 +16,23 @@ export type QuickReply = {
   id: string;
   label: string;
   href?: string;
+  variant?: "primary" | "default";
 };
+
+export type GeneralTopic = "packages" | "how" | "start" | "schools" | "other";
 
 type EnquiryIntent = "general" | "referral" | "trainer" | "";
 
 type IntakeData = {
   intent: EnquiryIntent;
+  topic: GeneralTopic | "";
   name: string;
   email: string;
   message: string;
   phone: string;
 };
 
-type IntakeStep =
-  | "intent"
-  | "name"
-  | "email"
-  | "message"
-  | "phone"
-  | "confirm"
-  | "submitting"
-  | "done"
-  | "redirect";
+type IntakeStep = "intent" | "topic" | "capture" | "redirect" | "submitting" | "done";
 
 type IntakeState = {
   step: IntakeStep;
@@ -54,8 +49,17 @@ type IntakeAction =
   | { type: "SET_ERROR"; error: string | null }
   | { type: "RESET" };
 
+export const GENERAL_TOPICS: ReadonlyArray<{ id: GeneralTopic; label: string; message: string }> = [
+  { id: "packages", label: "Packages & pricing", message: "I'd like to know about packages and pricing." },
+  { id: "how", label: "How CAMS works", message: "I'd like to understand how CAMS works." },
+  { id: "start", label: "Getting started", message: "I'd like to know about availability and getting started." },
+  { id: "schools", label: "Schools & partners", message: "Enquiry from a school or partner organisation." },
+  { id: "other", label: "Something else", message: "" },
+];
+
 const INITIAL_DATA: IntakeData = {
   intent: "",
+  topic: "",
   name: "",
   email: "",
   message: "",
@@ -64,21 +68,16 @@ const INITIAL_DATA: IntakeData = {
 
 const INITIAL_MESSAGES: ChatMessage[] = [
   {
-    id: "welcome-1",
+    id: "welcome",
     role: "assistant",
-    text: "Hi — thanks for getting in touch with CAMS.",
-  },
-  {
-    id: "welcome-2",
-    role: "assistant",
-    text: "What can we help you with today?",
+    text: "Hi — how can we help you today?",
   },
 ];
 
 const INTENT_LABELS: Record<Exclude<EnquiryIntent, "">, string> = {
-  general: "A general question",
+  general: "General question",
   referral: "Refer a young person",
-  trainer: "Apply to become a trainer",
+  trainer: "Become a trainer",
 };
 
 function createMessage(role: ChatRole, text: string): ChatMessage {
@@ -89,24 +88,16 @@ function createMessage(role: ChatRole, text: string): ChatMessage {
   };
 }
 
-function firstName(fullName: string): string {
-  const trimmed = fullName.trim();
-  if (!trimmed) return "there";
-  return trimmed.split(/\s+/)[0] ?? "there";
+function topicLabel(topic: GeneralTopic): string {
+  return GENERAL_TOPICS.find((item) => item.id === topic)?.label ?? "General question";
 }
 
 function intakeReducer(state: IntakeState, action: IntakeAction): IntakeState {
   switch (action.type) {
     case "ADD_ASSISTANT":
-      return {
-        ...state,
-        messages: [...state.messages, createMessage("assistant", action.text)],
-      };
+      return { ...state, messages: [...state.messages, createMessage("assistant", action.text)] };
     case "ADD_USER":
-      return {
-        ...state,
-        messages: [...state.messages, createMessage("user", action.text)],
-      };
+      return { ...state, messages: [...state.messages, createMessage("user", action.text)] };
     case "SET_STEP":
       return { ...state, step: action.step };
     case "PATCH_DATA":
@@ -114,31 +105,27 @@ function intakeReducer(state: IntakeState, action: IntakeAction): IntakeState {
     case "SET_ERROR":
       return { ...state, error: action.error };
     case "RESET":
-      return {
-        step: "intent",
-        data: INITIAL_DATA,
-        messages: INITIAL_MESSAGES,
-        error: null,
-      };
+      return { step: "intent", data: INITIAL_DATA, messages: INITIAL_MESSAGES, error: null };
     default:
       return state;
   }
 }
 
-function isValidEmail(value: string): boolean {
+export function isValidEnquiryEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
 
 function buildSubmissionPayload(data: IntakeData): CreateContactSubmissionDTO {
+  const topic = data.topic as GeneralTopic;
   return {
     name: data.name.trim(),
     email: data.email.trim(),
     phone: data.phone.trim() || undefined,
-    inquiryType: "general",
-    inquiryDetails: "General enquiry via site chat",
+    inquiryType: topic === "schools" ? "other" : topic === "packages" ? "package" : "general",
+    inquiryDetails: `Topic: ${topicLabel(topic)}`,
     urgency: "exploring",
     preferredContact: data.phone.trim() ? "phone" : "email",
-    message: data.message.trim(),
+    message: data.message.trim() || GENERAL_TOPICS.find((item) => item.id === topic)?.message || "General enquiry",
     newsletter: false,
     sourcePage: "receptionist-fab",
   };
@@ -161,24 +148,35 @@ export function useGuidedIntakeChat() {
       ];
     }
 
+    if (state.step === "topic") {
+      return GENERAL_TOPICS.map((topic) => ({ id: topic.id, label: topic.label }));
+    }
+
     if (state.step === "redirect") {
       if (state.data.intent === "trainer") {
-        return [{ id: "trainer-page", label: "Open trainer application", href: ROUTES.BECOME_A_TRAINER }];
+        return [
+          {
+            id: "trainer-page",
+            label: "Go to trainer application",
+            href: ROUTES.BECOME_A_TRAINER,
+            variant: "primary",
+          },
+        ];
       }
       if (state.data.intent === "referral") {
-        return [{ id: "referral-page", label: "Open referral form", href: ROUTES.REFERRAL }];
+        return [
+          {
+            id: "referral-page",
+            label: "Go to referral form",
+            href: ROUTES.REFERRAL,
+            variant: "primary",
+          },
+        ];
       }
     }
 
-    if (state.step === "phone") {
-      return [{ id: "skip", label: "Skip for now" }];
-    }
-
-    if (state.step === "confirm") {
-      return [
-        { id: "send", label: "Yes, send it" },
-        { id: "edit", label: "Start again" },
-      ];
+    if (state.step === "done") {
+      return [{ id: "close", label: "Close", variant: "primary" }];
     }
 
     return [];
@@ -192,11 +190,7 @@ export function useGuidedIntakeChat() {
       dispatch({ type: "SET_STEP", step: "redirect" });
       dispatch({
         type: "ADD_ASSISTANT",
-        text: "Lovely — mentor applications go through a short form on our website (about 10 minutes). That way we get the details our recruitment team needs.",
-      });
-      dispatch({
-        type: "ADD_ASSISTANT",
-        text: "Tap below when you're ready and we'll take you there.",
+        text: "Trainer applications are handled on a dedicated page — takes about 10 minutes and goes straight to our recruitment team.",
       });
       return;
     }
@@ -205,19 +199,34 @@ export function useGuidedIntakeChat() {
       dispatch({ type: "SET_STEP", step: "redirect" });
       dispatch({
         type: "ADD_ASSISTANT",
-        text: "For referrals we use a dedicated form so we can capture the young person's needs properly and come back to you within one working day.",
-      });
-      dispatch({
-        type: "ADD_ASSISTANT",
-        text: "Tap below to open the referral form — it only takes a few minutes.",
+        text: "Referrals need a few details about the young person. Our referral form is the quickest way — we aim to come back within one working day.",
       });
       return;
     }
 
-    dispatch({ type: "SET_STEP", step: "name" });
+    dispatch({ type: "SET_STEP", step: "topic" });
     dispatch({
       type: "ADD_ASSISTANT",
-      text: "No problem — I'll pass this to the team. What's your name?",
+      text: "What would you like to know about?",
+    });
+  }, []);
+
+  const handleTopicChoice = useCallback((topicId: GeneralTopic) => {
+    const topic = GENERAL_TOPICS.find((item) => item.id === topicId);
+    if (!topic) return;
+
+    dispatch({ type: "ADD_USER", text: topic.label });
+    dispatch({
+      type: "PATCH_DATA",
+      patch: {
+        topic: topicId,
+        message: topic.message,
+      },
+    });
+    dispatch({ type: "SET_STEP", step: "capture" });
+    dispatch({
+      type: "ADD_ASSISTANT",
+      text: "Pop your details below and we'll email you back — usually within one working day.",
     });
   }, []);
 
@@ -230,99 +239,55 @@ export function useGuidedIntakeChat() {
         return;
       }
 
-      if (state.step === "phone" && replyId === "skip") {
-        dispatch({ type: "ADD_USER", text: "Skip for now" });
-        dispatch({ type: "SET_STEP", step: "confirm" });
-        dispatch({
-          type: "ADD_ASSISTANT",
-          text: `Thanks, ${firstName(state.data.name)}. Shall I send this through to the team?`,
-        });
-        return;
-      }
-
-      if (state.step === "confirm" && replyId === "edit") {
-        dispatch({ type: "RESET" });
+      if (state.step === "topic") {
+        handleTopicChoice(replyId as GeneralTopic);
       }
     },
-    [handleIntentChoice, state.data.name, state.step]
+    [handleIntentChoice, handleTopicChoice, state.step]
   );
 
-  const submitText = useCallback(
-    (rawInput: string): CreateContactSubmissionDTO | null => {
-      const input = rawInput.trim();
-      if (!input || state.step === "submitting" || state.step === "done" || state.step === "redirect") {
-        return null;
-      }
-
+  const submitCapture = useCallback(
+    (fields: { name: string; email: string; phone: string; note: string }): CreateContactSubmissionDTO | null => {
       dispatch({ type: "SET_ERROR", error: null });
-      dispatch({ type: "ADD_USER", text: input });
 
-      if (state.step === "name") {
-        if (input.length < 2) {
-          dispatch({ type: "SET_ERROR", error: "Please pop in your name so we know who to reply to." });
-          return null;
-        }
-        dispatch({ type: "PATCH_DATA", patch: { name: input } });
-        dispatch({ type: "SET_STEP", step: "email" });
-        dispatch({ type: "ADD_ASSISTANT", text: "And the best email to reach you on?" });
+      const name = fields.name.trim();
+      const email = fields.email.trim();
+      const phone = fields.phone.trim();
+      const note = fields.note.trim();
+
+      if (name.length < 2) {
+        dispatch({ type: "SET_ERROR", error: "Please add your name." });
         return null;
       }
 
-      if (state.step === "email") {
-        if (!isValidEmail(input)) {
-          dispatch({ type: "SET_ERROR", error: "That email doesn't look quite right — could you check it?" });
-          return null;
-        }
-        dispatch({ type: "PATCH_DATA", patch: { email: input } });
-        dispatch({ type: "SET_STEP", step: "message" });
-        dispatch({
-          type: "ADD_ASSISTANT",
-          text: "What would you like to ask? Packages, how we work, availability — whatever's on your mind.",
-        });
+      if (!isValidEnquiryEmail(email)) {
+        dispatch({ type: "SET_ERROR", error: "Please check your email address." });
         return null;
       }
 
-      if (state.step === "message") {
-        if (input.length < 8) {
-          dispatch({ type: "SET_ERROR", error: "A little more detail helps us point you to the right person." });
-          return null;
-        }
-        dispatch({ type: "PATCH_DATA", patch: { message: input } });
-        dispatch({ type: "SET_STEP", step: "phone" });
-        dispatch({
-          type: "ADD_ASSISTANT",
-          text: "Want to leave a phone number in case we need to call? You can skip this if you'd rather email only.",
-        });
+      const topic = state.data.topic as GeneralTopic;
+      const baseMessage = GENERAL_TOPICS.find((item) => item.id === topic)?.message ?? "General enquiry";
+      const message = topic === "other" && note ? note : baseMessage;
+
+      const nextData: IntakeData = {
+        ...state.data,
+        name,
+        email,
+        phone,
+        message,
+      };
+
+      dispatch({ type: "PATCH_DATA", patch: nextData });
+
+      if (topic === "other" && note.length > 0 && note.length < 4) {
+        dispatch({ type: "SET_ERROR", error: "Please add a little more detail, or leave the note blank." });
         return null;
       }
 
-      if (state.step === "phone") {
-        dispatch({ type: "PATCH_DATA", patch: { phone: input } });
-        dispatch({ type: "SET_STEP", step: "confirm" });
-        dispatch({
-          type: "ADD_ASSISTANT",
-          text: `Thanks, ${firstName(state.data.name)}. Shall I send this through to the team?`,
-        });
-        return null;
-      }
-
-      return null;
+      return buildSubmissionPayload(nextData);
     },
-    [state.data.name, state.step]
+    [state.data]
   );
-
-  const buildSubmission = useCallback((): CreateContactSubmissionDTO | null => {
-    if (state.step !== "confirm" || state.data.intent !== "general") {
-      return null;
-    }
-
-    if (!state.data.name || !state.data.email || !state.data.message) {
-      dispatch({ type: "SET_ERROR", error: "Something's missing — tap Start again and we'll run through it." });
-      return null;
-    }
-
-    return buildSubmissionPayload(state.data);
-  }, [state.data, state.step]);
 
   const markSubmitting = useCallback(() => {
     dispatch({ type: "SET_STEP", step: "submitting" });
@@ -332,26 +297,39 @@ export function useGuidedIntakeChat() {
     dispatch({ type: "SET_STEP", step: "done" });
     dispatch({
       type: "ADD_ASSISTANT",
-      text: "Done — we've got your message. Someone from the team will email you back within one working day (Mon–Fri).",
+      text: "Thanks — we've got that. Someone from the team will be in touch by email soon.",
     });
   }, []);
 
   const markFailed = useCallback((message: string) => {
-    dispatch({ type: "SET_STEP", step: "confirm" });
+    dispatch({ type: "SET_STEP", step: "capture" });
     dispatch({ type: "SET_ERROR", error: message });
   }, []);
+
+  const goBack = useCallback(() => {
+    dispatch({ type: "SET_ERROR", error: null });
+    if (state.step === "capture") {
+      dispatch({ type: "SET_STEP", step: "topic" });
+      dispatch({ type: "PATCH_DATA", patch: { topic: "", message: "" } });
+      return;
+    }
+    if (state.step === "topic") {
+      dispatch({ type: "RESET" });
+    }
+  }, [state.step]);
 
   return {
     messages: state.messages,
     step: state.step,
+    data: state.data,
     error: state.error,
     quickReplies,
-    submitText,
     submitQuickReply,
-    buildSubmission,
+    submitCapture,
     markSubmitting,
     markDone,
     markFailed,
+    goBack,
     reset: () => dispatch({ type: "RESET" }),
   };
 }

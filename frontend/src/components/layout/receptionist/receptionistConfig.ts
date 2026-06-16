@@ -9,7 +9,4 @@ export function isN8nReceptionistEnabled(): boolean {
   return getN8nChatWebhookUrl() !== null;
 }
 
-export const RECEPTIONIST_INITIAL_MESSAGES = [
-  "Hi — thanks for getting in touch with CAMS.",
-  "What can we help you with today?",
-] as const;
+export const RECEPTIONIST_INITIAL_MESSAGES = ["Hi — how can we help you today?"] as const;

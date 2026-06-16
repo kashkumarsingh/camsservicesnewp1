@@ -1,18 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, MessageCircle, Send, X } from "lucide-react";
-import { ROUTES } from "@/shared/utils/routes";
 import { useContactForm } from "@/interfaces/web/hooks/contact/useContactForm";
+import { EnquiryCaptureForm } from "./EnquiryCaptureForm";
 import { sendN8nReceptionistMessage } from "./n8nChatClient";
 import {
   isN8nReceptionistEnabled,
   RECEPTIONIST_INITIAL_MESSAGES,
   getN8nChatWebhookUrl,
 } from "./receptionistConfig";
-import { useGuidedIntakeChat, type ChatMessage } from "./useGuidedIntakeChat";
+import { useGuidedIntakeChat, type ChatMessage, type GeneralTopic } from "./useGuidedIntakeChat";
 
 type ReceptionistChatPanelProps = {
   open: boolean;
@@ -25,34 +24,15 @@ function MessageBubble({ message }: { message: ChatMessage }): ReactElement {
   return (
     <div className={`flex ${isAssistant ? "justify-start" : "justify-end"}`}>
       <div
-        className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 shadow-sm ${
+        className={`max-w-[92%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 ${
           isAssistant
-            ? "rounded-bl-md border border-slate-200/90 bg-white text-cams-ink"
-            : "rounded-br-md bg-gradient-to-r from-cams-primary to-cams-secondary text-white"
+            ? "rounded-bl-md bg-white text-cams-ink shadow-sm ring-1 ring-slate-200/80"
+            : "rounded-br-md bg-cams-primary text-white"
         }`}
       >
         {message.text}
       </div>
     </div>
-  );
-}
-
-function ChatFooterLinks({ onNavigate }: { onNavigate: () => void }): ReactElement {
-  return (
-    <p className="border-t border-slate-200/80 bg-slate-50/80 px-4 py-2.5 text-center text-[11px] leading-5 text-cams-ink-secondary">
-      Prefer a form?{" "}
-      <Link href={ROUTES.CONTACT} onClick={onNavigate} className="font-semibold text-cams-primary hover:underline">
-        Contact
-      </Link>
-      {" · "}
-      <Link href={ROUTES.REFERRAL} onClick={onNavigate} className="font-semibold text-cams-primary hover:underline">
-        Referral
-      </Link>
-      {" · "}
-      <Link href={ROUTES.BECOME_A_TRAINER} onClick={onNavigate} className="font-semibold text-cams-primary hover:underline">
-        Become a trainer
-      </Link>
-    </p>
   );
 }
 
@@ -78,49 +58,54 @@ export function ReceptionistChatPanel({ open, onClose }: ReceptionistChatPanelPr
 
   const messages = n8nEnabled ? n8nMessages : guided.messages;
   const busy = n8nEnabled ? n8nSending : submitting || guided.step === "submitting";
-  const error = n8nEnabled ? n8nError : guided.error;
-  const hideTextInput =
-    !n8nEnabled &&
-    (guided.step === "intent" ||
-      guided.step === "confirm" ||
-      guided.step === "redirect" ||
-      guided.step === "done");
+  const showCaptureForm = !n8nEnabled && guided.step === "capture";
+  const showQuickReplies = !n8nEnabled && guided.quickReplies.length > 0 && guided.step !== "capture";
 
   useEffect(() => {
     if (!open) return;
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, open, busy]);
+  }, [messages, open, busy, showCaptureForm]);
 
   useEffect(() => {
-    if (!open || hideTextInput) return;
+    if (!open || !n8nEnabled) return;
     const timer = window.setTimeout(() => inputRef.current?.focus(), 120);
     return () => window.clearTimeout(timer);
-  }, [hideTextInput, open, guided.step]);
+  }, [n8nEnabled, open]);
 
   useEffect(() => {
     if (!open) return;
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+    if (!isMobile) return;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "";
     };
   }, [open]);
 
-  const handleGuidedConfirm = useCallback(async () => {
-    const payload = guided.buildSubmission();
-    if (!payload) return;
+  const handleCaptureSubmit = useCallback(
+    async (fields: { name: string; email: string; phone: string; note: string }) => {
+      const payload = guided.submitCapture(fields);
+      if (!payload) return;
 
-    guided.markSubmitting();
-    try {
-      await submit(payload);
-      guided.markDone();
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "We couldn't send that just now — please try again.";
-      guided.markFailed(message);
-    }
-  }, [guided, submit]);
+      guided.markSubmitting();
+      try {
+        await submit(payload);
+        guided.markDone();
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "We couldn't send that just now — please try again.";
+        guided.markFailed(message);
+      }
+    },
+    [guided, submit]
+  );
 
   const handleQuickReply = useCallback(
     (replyId: string) => {
+      if (replyId === "close") {
+        onClose();
+        return;
+      }
+
       const reply = guided.quickReplies.find((item) => item.id === replyId);
       if (reply?.href) {
         guided.submitQuickReply(replyId);
@@ -129,14 +114,9 @@ export function ReceptionistChatPanel({ open, onClose }: ReceptionistChatPanelPr
         return;
       }
 
-      if (!n8nEnabled && guided.step === "confirm" && replyId === "send") {
-        void handleGuidedConfirm();
-        return;
-      }
-
       guided.submitQuickReply(replyId);
     },
-    [guided, handleGuidedConfirm, n8nEnabled, onClose, router]
+    [guided, onClose, router]
   );
 
   const handleN8nSend = useCallback(async (text: string) => {
@@ -145,17 +125,11 @@ export function ReceptionistChatPanel({ open, onClose }: ReceptionistChatPanelPr
 
     setN8nError(null);
     setN8nSending(true);
-    setN8nMessages((prev) => [
-      ...prev,
-      { id: `user-${Date.now()}`, role: "user", text },
-    ]);
+    setN8nMessages((prev) => [...prev, { id: `user-${Date.now()}`, role: "user", text }]);
 
     try {
       const reply = await sendN8nReceptionistMessage(webhookUrl, text);
-      setN8nMessages((prev) => [
-        ...prev,
-        { id: `assistant-${Date.now()}`, role: "assistant", text: reply },
-      ]);
+      setN8nMessages((prev) => [...prev, { id: `assistant-${Date.now()}`, role: "assistant", text: reply }]);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Something went wrong — please try again.";
       setN8nError(message);
@@ -164,125 +138,128 @@ export function ReceptionistChatPanel({ open, onClose }: ReceptionistChatPanelPr
     }
   }, []);
 
-  const handleSubmit = useCallback(
+  const handleN8nSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const text = input.trim();
       if (!text || busy) return;
-
       setInput("");
-
-      if (n8nEnabled) {
-        void handleN8nSend(text);
-        return;
-      }
-
-      guided.submitText(text);
+      void handleN8nSend(text);
     },
-    [busy, guided, handleN8nSend, input, n8nEnabled]
+    [busy, handleN8nSend, input]
   );
 
   if (!open) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-end justify-end p-0 sm:p-4 md:p-5"
+      className="fixed inset-0 z-[70] flex items-end justify-end md:pointer-events-none"
       role="dialog"
       aria-modal="true"
-      aria-label="CAMS enquiries chat"
+      aria-label="CAMS enquiries"
     >
       <button
         type="button"
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] sm:bg-slate-900/25 md:bg-transparent md:backdrop-blur-none"
-        aria-label="Close chat"
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px] md:hidden"
+        aria-label="Close"
         onClick={onClose}
       />
 
-      <section
-        className="relative flex h-[min(100dvh,680px)] w-full max-w-md flex-col overflow-hidden border border-white/70 bg-white shadow-[0_24px_60px_-28px_rgba(2,12,27,0.55)] sm:h-[min(640px,calc(100dvh-6rem))] sm:rounded-2xl md:mb-20 md:mr-2 md:animate-in md:fade-in md:slide-in-from-bottom-4 md:duration-200"
-      >
-        <header className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white px-4 py-3.5">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-cams-primary/[0.12] text-cams-primary">
-              <MessageCircle size={20} aria-hidden />
+      <section className="pointer-events-auto relative flex w-full flex-col overflow-hidden bg-white shadow-2xl ring-1 ring-slate-200/80 md:fixed md:bottom-[12.5rem] md:right-8 md:max-h-[min(440px,calc(100dvh-14rem))] md:w-[360px] md:rounded-2xl max-md:mb-[4.5rem] max-md:h-[min(78dvh,560px)] max-md:rounded-t-2xl">
+        <header className="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-3">
+          <div className="flex items-center gap-2.5">
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-cams-primary/10 text-cams-primary">
+              <MessageCircle size={18} aria-hidden />
             </span>
             <div>
-              <p className="font-heading text-base font-bold text-cams-ink">Ask CAMS</p>
-              <p className="text-xs text-cams-ink-secondary">We usually reply within one working day</p>
+              <p className="font-heading text-sm font-bold text-cams-ink">Ask CAMS</p>
+              <p className="text-[11px] text-cams-ink-secondary">Reply within one working day</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-cams-ink-secondary transition hover:bg-slate-100 hover:text-cams-ink"
-            aria-label="Close chat"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-cams-ink-secondary transition hover:bg-slate-100 hover:text-cams-ink"
+            aria-label="Close"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </header>
 
-        <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-slate-50/70 px-3 py-4 sm:px-4">
+        <div ref={scrollRef} className="min-h-0 flex-1 space-y-2.5 overflow-y-auto bg-slate-50/60 px-3 py-3">
           {messages.map((message) => (
             <MessageBubble key={message.id} message={message} />
           ))}
           {busy ? (
             <div className="flex justify-start">
-              <div className="inline-flex items-center gap-2 rounded-2xl rounded-bl-md border border-slate-200/90 bg-white px-3 py-2 text-sm text-cams-ink-secondary">
-                <Loader2 size={16} className="animate-spin text-cams-primary" aria-hidden />
+              <div className="inline-flex items-center gap-2 rounded-2xl rounded-bl-md bg-white px-3 py-2 text-sm text-cams-ink-secondary ring-1 ring-slate-200/80">
+                <Loader2 size={15} className="animate-spin text-cams-primary" aria-hidden />
                 One moment…
               </div>
             </div>
           ) : null}
         </div>
 
-        {!n8nEnabled && guided.quickReplies.length > 0 ? (
-          <div className="flex flex-col gap-2 border-t border-slate-200/80 bg-white px-3 py-3 sm:flex-row sm:flex-wrap">
-            {guided.quickReplies.map((reply) => (
-              <button
-                key={reply.id}
-                type="button"
-                disabled={busy}
-                onClick={() => handleQuickReply(reply.id)}
-                className="min-h-11 flex-1 rounded-xl border border-cams-primary/25 bg-cams-primary/[0.06] px-4 py-2.5 text-sm font-semibold text-cams-primary transition hover:border-cams-primary/45 hover:bg-cams-primary/[0.12] disabled:opacity-60 sm:flex-none sm:rounded-full sm:px-3.5 sm:py-1.5 sm:text-xs"
-              >
-                {reply.label}
-              </button>
-            ))}
-          </div>
-        ) : null}
+        <div className="shrink-0 border-t border-slate-100 bg-white px-3 py-3">
+          {showCaptureForm ? (
+            <EnquiryCaptureForm
+              topic={guided.data.topic as GeneralTopic}
+              loading={busy}
+              error={guided.error}
+              onBack={guided.goBack}
+              onSubmit={(fields) => void handleCaptureSubmit(fields)}
+            />
+          ) : null}
 
-        {error ? (
-          <p className="border-t border-red-100 bg-red-50 px-4 py-2.5 text-xs text-red-700" role="alert">
-            {error}
-          </p>
-        ) : null}
-
-        {!hideTextInput ? (
-          <form onSubmit={handleSubmit} className="shrink-0 border-t border-slate-200/90 bg-white p-3 sm:p-4">
-            <div className="flex items-center gap-2">
-              <input
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={(event) => setInput(event.target.value)}
-                placeholder="Type your reply…"
-                disabled={busy}
-                className="min-h-11 flex-1 rounded-full border border-slate-200 bg-white px-4 text-sm text-cams-ink outline-none transition placeholder:text-slate-400 focus:border-cams-primary/50 focus:ring-2 focus:ring-cams-primary/20 disabled:opacity-60"
-                autoComplete="off"
-              />
-              <button
-                type="submit"
-                disabled={busy || !input.trim()}
-                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-cams-primary to-cams-secondary text-white transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label="Send message"
-              >
-                <Send size={18} />
-              </button>
+          {showQuickReplies ? (
+            <div className="flex flex-col gap-2">
+              {guided.quickReplies.map((reply) => (
+                <button
+                  key={reply.id}
+                  type="button"
+                  disabled={busy}
+                  onClick={() => handleQuickReply(reply.id)}
+                  className={
+                    reply.variant === "primary"
+                      ? "min-h-11 w-full rounded-xl bg-gradient-to-r from-cams-primary to-cams-secondary px-4 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60"
+                      : "min-h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-cams-ink transition hover:border-cams-primary/35 hover:text-cams-primary disabled:opacity-60"
+                  }
+                >
+                  {reply.label}
+                </button>
+              ))}
             </div>
-          </form>
-        ) : null}
+          ) : null}
 
-        <ChatFooterLinks onNavigate={onClose} />
+          {n8nEnabled ? (
+            <>
+              {n8nError ? (
+                <p className="mb-2 text-xs text-red-600" role="alert">
+                  {n8nError}
+                </p>
+              ) : null}
+              <form onSubmit={handleN8nSubmit} className="flex items-center gap-2">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={input}
+                  onChange={(event) => setInput(event.target.value)}
+                  placeholder="Type your message…"
+                  disabled={busy}
+                  className="min-h-11 flex-1 rounded-xl border border-slate-200 px-3.5 text-sm outline-none focus:border-cams-primary/50 focus:ring-2 focus:ring-cams-primary/15"
+                />
+                <button
+                  type="submit"
+                  disabled={busy || !input.trim()}
+                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cams-primary text-white disabled:opacity-50"
+                  aria-label="Send"
+                >
+                  <Send size={17} />
+                </button>
+              </form>
+            </>
+          ) : null}
+        </div>
       </section>
     </div>
   );

@@ -1,17 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactElement } from "react";
-import { ArrowUp, MessageCircle } from "lucide-react";
+import { useEffect, useRef, useState, type ReactElement } from "react";
+import { ArrowUp, MessageCircle, PhoneCall, X } from "lucide-react";
 import { ROUTES } from "@/shared/utils/routes";
 import { ReceptionistChatPanel } from "@/components/layout/receptionist/ReceptionistChatPanel";
 
 const FAB_HINT_KEY = "cams_enquiries_fab_seen_v1";
+const AUTO_OPEN_KEY = "cams_enquiries_auto_opened_v1";
+/** First visit nudge — opens once per browser session after delay. */
+const AUTO_OPEN_DELAY_MS = 8000;
+
+const SECONDARY_ACTIONS = [
+  { id: "contact", href: ROUTES.CONTACT, label: "Contact us", icon: MessageCircle },
+  { id: "call", href: ROUTES.CONTACT, label: "Call us", icon: PhoneCall },
+] as const;
 
 export function SiteFloatingActions(): ReactElement {
   const [chatOpen, setChatOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const autoOpenTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const onScroll = () => setShowScrollTop(window.scrollY > 520);
@@ -26,6 +35,24 @@ export function SiteFloatingActions(): ReactElement {
   }, []);
 
   useEffect(() => {
+    if (window.sessionStorage.getItem(AUTO_OPEN_KEY)) return;
+
+    autoOpenTimerRef.current = window.setTimeout(() => {
+      if (window.sessionStorage.getItem(AUTO_OPEN_KEY)) return;
+      window.sessionStorage.setItem(AUTO_OPEN_KEY, "1");
+      window.sessionStorage.setItem(FAB_HINT_KEY, "1");
+      setShowHint(false);
+      setChatOpen(true);
+    }, AUTO_OPEN_DELAY_MS);
+
+    return () => {
+      if (autoOpenTimerRef.current !== null) {
+        window.clearTimeout(autoOpenTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (!chatOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -36,57 +63,94 @@ export function SiteFloatingActions(): ReactElement {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [chatOpen]);
 
-  const openChat = () => {
+  const markEngaged = () => {
     window.sessionStorage.setItem(FAB_HINT_KEY, "1");
+    window.sessionStorage.setItem(AUTO_OPEN_KEY, "1");
+    if (autoOpenTimerRef.current !== null) {
+      window.clearTimeout(autoOpenTimerRef.current);
+      autoOpenTimerRef.current = null;
+    }
+  };
+
+  const openChat = () => {
+    markEngaged();
     setShowHint(false);
     setChatOpen(true);
   };
 
+  const closeChat = () => {
+    markEngaged();
+    setChatOpen(false);
+  };
+
   return (
     <>
-      <ReceptionistChatPanel open={chatOpen} onClose={() => setChatOpen(false)} />
+      <ReceptionistChatPanel open={chatOpen} onClose={closeChat} />
 
-      {!chatOpen ? (
-        <div
-          className="fixed bottom-24 right-4 z-[65] flex flex-col items-end gap-3 sm:right-6 md:bottom-8 md:right-8"
-          aria-label="Site help actions"
-        >
-          {showScrollTop ? (
-            <button
-              type="button"
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200/90 bg-white/95 text-cams-ink shadow-md transition hover:border-cams-primary/40 hover:text-cams-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-cams-primary/50"
-              aria-label="Back to top"
-            >
-              <ArrowUp size={18} aria-hidden />
-            </button>
-          ) : null}
+      <div
+        className="fixed bottom-24 right-4 z-[65] flex flex-col items-end gap-2 sm:right-6 md:bottom-8 md:right-8"
+        aria-label="Site help actions"
+      >
+        {showScrollTop && !chatOpen ? (
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200/90 bg-white/95 text-cams-ink shadow-md transition hover:border-cams-primary/40 hover:text-cams-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-cams-primary/50"
+            aria-label="Back to top"
+          >
+            <ArrowUp size={18} aria-hidden />
+          </button>
+        ) : null}
 
-          <div className="relative">
-            {showHint ? (
-              <span
-                className="pointer-events-none absolute -top-2 right-0 inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-cams-secondary ring-4 ring-cams-secondary/25"
-                aria-hidden
-              />
-            ) : null}
+        {!chatOpen ? (
+          <>
+            {SECONDARY_ACTIONS.map((action) => {
+              const Icon = action.icon;
+              return (
+                <Link
+                  key={action.id}
+                  href={action.href}
+                  onClick={markEngaged}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/80 bg-white/95 px-3.5 py-2 text-sm font-semibold text-cams-ink shadow-[0_8px_24px_-16px_rgba(2,12,27,0.45)] transition hover:border-cams-primary/40 hover:text-cams-primary"
+                >
+                  <Icon size={15} className="shrink-0 text-cams-primary" aria-hidden />
+                  {action.label}
+                </Link>
+              );
+            })}
 
-            <button
-              type="button"
-              onClick={openChat}
-              aria-label="Ask CAMS a question"
-              className="group inline-flex min-h-[52px] items-center gap-2.5 rounded-full bg-gradient-to-r from-cams-primary to-cams-secondary py-3 pl-4 pr-5 text-white shadow-[0_16px_40px_-20px_rgba(0,102,255,0.85)] transition hover:scale-[1.02] hover:shadow-[0_20px_44px_-18px_rgba(0,102,255,0.9)] focus:outline-none focus-visible:ring-2 focus-visible:ring-cams-primary/60 focus-visible:ring-offset-2"
-            >
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/15">
-                <MessageCircle size={18} aria-hidden />
-              </span>
-              <span className="flex flex-col items-start leading-tight">
+            <div className="relative">
+              {showHint ? (
+                <span
+                  className="pointer-events-none absolute -top-1.5 right-1 inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-cams-secondary ring-4 ring-cams-secondary/25"
+                  aria-hidden
+                />
+              ) : null}
+
+              <button
+                type="button"
+                onClick={openChat}
+                aria-label="Ask CAMS a question"
+                className="inline-flex min-h-[52px] items-center gap-2.5 rounded-full bg-gradient-to-r from-cams-primary to-cams-secondary py-3 pl-4 pr-5 text-white shadow-[0_16px_40px_-20px_rgba(0,102,255,0.85)] transition hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-cams-primary/60 focus-visible:ring-offset-2"
+              >
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/15">
+                  <MessageCircle size={18} aria-hidden />
+                </span>
                 <span className="font-heading text-sm font-bold">Ask CAMS</span>
-                <span className="hidden text-[11px] font-medium text-white/85 sm:block">Questions · referrals · trainers</span>
-              </span>
-            </button>
-          </div>
-        </div>
-      ) : null}
+              </button>
+            </div>
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={closeChat}
+            aria-label="Close Ask CAMS"
+            className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-cams-primary to-cams-secondary text-white shadow-[0_16px_40px_-20px_rgba(0,102,255,0.85)] transition hover:scale-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-cams-primary/60 focus-visible:ring-offset-2"
+          >
+            <X size={24} aria-hidden />
+          </button>
+        )}
+      </div>
     </>
   );
 }
