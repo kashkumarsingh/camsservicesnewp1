@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, type ReactElement } from "react";
-import { ArrowUp, Bot, MessageCircle, PhoneCall, X } from "lucide-react";
+import { ArrowUp, MessageCircle, PhoneCall, X } from "lucide-react";
 import { ROUTES } from "@/shared/utils/routes";
 import { ReceptionistChatPanel } from "@/components/layout/receptionist/ReceptionistChatPanel";
 
@@ -97,11 +97,11 @@ export function SiteFloatingActions(): ReactElement {
             <button
               type="button"
               onClick={toggleChat}
-              aria-label={chatOpen ? "Close receptionist chat" : "Open CAMS receptionist"}
+              aria-label={chatOpen ? "Close enquiries chat" : "Open CAMS enquiries chat"}
               aria-expanded={chatOpen}
               className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-cams-primary to-cams-secondary text-white shadow-[0_20px_40px_-24px_rgba(10,99,255,0.8)] transition hover:scale-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-cams-primary/60"
             >
-              {chatOpen ? <X size={22} /> : <Bot size={22} />}
+              {chatOpen ? <X size={22} /> : <MessageCircle size={22} />}
             </button>
           </div>
         </div>

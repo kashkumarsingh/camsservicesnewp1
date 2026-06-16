@@ -10,7 +10,6 @@ export function isN8nReceptionistEnabled(): boolean {
 }
 
 export const RECEPTIONIST_INITIAL_MESSAGES = [
-  "Hello — I'm the CAMS Services assistant.",
-  "I can help with enquiries about behaviour support, SEN, and referrals.",
-  "What brings you here today?",
+  "Hi — thanks for getting in touch with CAMS.",
+  "What can we help you with today?",
 ] as const;
