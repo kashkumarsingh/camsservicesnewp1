@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, MessageCircle, Send, X } from "lucide-react";
+import { ROUTES } from "@/shared/utils/routes";
 import { useContactForm } from "@/interfaces/web/hooks/contact/useContactForm";
 import { sendN8nReceptionistMessage } from "./n8nChatClient";
 import {
@@ -23,7 +25,7 @@ function MessageBubble({ message }: { message: ChatMessage }): ReactElement {
   return (
     <div className={`flex ${isAssistant ? "justify-start" : "justify-end"}`}>
       <div
-        className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 shadow-sm ${
+        className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 shadow-sm ${
           isAssistant
             ? "rounded-bl-md border border-slate-200/90 bg-white text-cams-ink"
             : "rounded-br-md bg-gradient-to-r from-cams-primary to-cams-secondary text-white"
@@ -32,6 +34,25 @@ function MessageBubble({ message }: { message: ChatMessage }): ReactElement {
         {message.text}
       </div>
     </div>
+  );
+}
+
+function ChatFooterLinks({ onNavigate }: { onNavigate: () => void }): ReactElement {
+  return (
+    <p className="border-t border-slate-200/80 bg-slate-50/80 px-4 py-2.5 text-center text-[11px] leading-5 text-cams-ink-secondary">
+      Prefer a form?{" "}
+      <Link href={ROUTES.CONTACT} onClick={onNavigate} className="font-semibold text-cams-primary hover:underline">
+        Contact
+      </Link>
+      {" · "}
+      <Link href={ROUTES.REFERRAL} onClick={onNavigate} className="font-semibold text-cams-primary hover:underline">
+        Referral
+      </Link>
+      {" · "}
+      <Link href={ROUTES.BECOME_A_TRAINER} onClick={onNavigate} className="font-semibold text-cams-primary hover:underline">
+        Become a trainer
+      </Link>
+    </p>
   );
 }
 
@@ -75,6 +96,14 @@ export function ReceptionistChatPanel({ open, onClose }: ReceptionistChatPanelPr
     const timer = window.setTimeout(() => inputRef.current?.focus(), 120);
     return () => window.clearTimeout(timer);
   }, [hideTextInput, open, guided.step]);
+
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   const handleGuidedConfirm = useCallback(async () => {
     const payload = guided.buildSubmission();
@@ -157,40 +186,42 @@ export function ReceptionistChatPanel({ open, onClose }: ReceptionistChatPanelPr
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-end justify-end p-3 sm:p-5"
+      className="fixed inset-0 z-[70] flex items-end justify-end p-0 sm:p-4 md:p-5"
       role="dialog"
       aria-modal="true"
       aria-label="CAMS enquiries chat"
     >
       <button
         type="button"
-        className="absolute inset-0 bg-slate-900/25 backdrop-blur-[1px]"
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] sm:bg-slate-900/25 md:bg-transparent md:backdrop-blur-none"
         aria-label="Close chat"
         onClick={onClose}
       />
 
-      <section className="relative flex h-[min(640px,calc(100dvh-6rem))] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-white/70 bg-white shadow-[0_24px_60px_-28px_rgba(2,12,27,0.55)]">
-        <header className="flex items-center justify-between border-b border-slate-200/90 bg-gradient-to-r from-cams-primary/10 to-cams-secondary/10 px-4 py-3">
-          <div className="flex items-center gap-2.5">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-r from-cams-primary to-cams-secondary text-white">
-              <MessageCircle size={18} aria-hidden />
+      <section
+        className="relative flex h-[min(100dvh,680px)] w-full max-w-md flex-col overflow-hidden border border-white/70 bg-white shadow-[0_24px_60px_-28px_rgba(2,12,27,0.55)] sm:h-[min(640px,calc(100dvh-6rem))] sm:rounded-2xl md:mb-20 md:mr-2 md:animate-in md:fade-in md:slide-in-from-bottom-4 md:duration-200"
+      >
+        <header className="flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white px-4 py-3.5">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-cams-primary/[0.12] text-cams-primary">
+              <MessageCircle size={20} aria-hidden />
             </span>
             <div>
-              <p className="font-heading text-sm font-bold text-cams-ink">CAMS Enquiries</p>
+              <p className="font-heading text-base font-bold text-cams-ink">Ask CAMS</p>
               <p className="text-xs text-cams-ink-secondary">We usually reply within one working day</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-cams-ink transition hover:border-cams-primary/40 hover:text-cams-primary"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-cams-ink-secondary transition hover:bg-slate-100 hover:text-cams-ink"
             aria-label="Close chat"
           >
-            <X size={18} />
+            <X size={20} />
           </button>
         </header>
 
-        <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-slate-50/70 px-3 py-4">
+        <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-slate-50/70 px-3 py-4 sm:px-4">
           {messages.map((message) => (
             <MessageBubble key={message.id} message={message} />
           ))}
@@ -205,14 +236,14 @@ export function ReceptionistChatPanel({ open, onClose }: ReceptionistChatPanelPr
         </div>
 
         {!n8nEnabled && guided.quickReplies.length > 0 ? (
-          <div className="flex flex-wrap gap-2 border-t border-slate-200/80 bg-white px-3 py-2.5">
+          <div className="flex flex-col gap-2 border-t border-slate-200/80 bg-white px-3 py-3 sm:flex-row sm:flex-wrap">
             {guided.quickReplies.map((reply) => (
               <button
                 key={reply.id}
                 type="button"
                 disabled={busy}
                 onClick={() => handleQuickReply(reply.id)}
-                className="rounded-full border border-cams-primary/30 bg-cams-primary/[0.06] px-3 py-1.5 text-xs font-semibold text-cams-primary transition hover:border-cams-primary/50 hover:bg-cams-primary/[0.12] disabled:opacity-60"
+                className="min-h-11 flex-1 rounded-xl border border-cams-primary/25 bg-cams-primary/[0.06] px-4 py-2.5 text-sm font-semibold text-cams-primary transition hover:border-cams-primary/45 hover:bg-cams-primary/[0.12] disabled:opacity-60 sm:flex-none sm:rounded-full sm:px-3.5 sm:py-1.5 sm:text-xs"
               >
                 {reply.label}
               </button>
@@ -221,13 +252,13 @@ export function ReceptionistChatPanel({ open, onClose }: ReceptionistChatPanelPr
         ) : null}
 
         {error ? (
-          <p className="border-t border-red-100 bg-red-50 px-4 py-2 text-xs text-red-700" role="alert">
+          <p className="border-t border-red-100 bg-red-50 px-4 py-2.5 text-xs text-red-700" role="alert">
             {error}
           </p>
         ) : null}
 
         {!hideTextInput ? (
-          <form onSubmit={handleSubmit} className="border-t border-slate-200/90 bg-white p-3">
+          <form onSubmit={handleSubmit} className="shrink-0 border-t border-slate-200/90 bg-white p-3 sm:p-4">
             <div className="flex items-center gap-2">
               <input
                 ref={inputRef}
@@ -242,7 +273,7 @@ export function ReceptionistChatPanel({ open, onClose }: ReceptionistChatPanelPr
               <button
                 type="submit"
                 disabled={busy || !input.trim()}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-cams-primary to-cams-secondary text-white transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-cams-primary to-cams-secondary text-white transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label="Send message"
               >
                 <Send size={18} />
@@ -250,6 +281,8 @@ export function ReceptionistChatPanel({ open, onClose }: ReceptionistChatPanelPr
             </div>
           </form>
         ) : null}
+
+        <ChatFooterLinks onNavigate={onClose} />
       </section>
     </div>
   );
