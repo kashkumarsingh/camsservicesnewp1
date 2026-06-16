@@ -95,7 +95,7 @@ export default async function PublicLayout({ children }: { children: React.React
           description={footerDescription}
           copyrightText={footerCopyrightText}
         />
-        <SiteFloatingActions />
+        <SiteFloatingActions contactPhone={dto?.contact?.phone} />
         <CookieConsent />
       </div>
     </>

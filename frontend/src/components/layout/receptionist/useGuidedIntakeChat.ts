@@ -133,7 +133,18 @@ function buildSubmissionPayload(data: IntakeData): CreateContactSubmissionDTO {
   };
 }
 
-export function useGuidedIntakeChat() {
+function toTelHref(phone: string): string {
+  return `tel:${phone.replace(/[^\d+]/g, "")}`;
+}
+
+export type GuidedIntakeChatOptions = {
+  /** Site contact phone from admin settings — used for Call us → tel: link */
+  contactPhone?: string;
+};
+
+export function useGuidedIntakeChat(options: GuidedIntakeChatOptions = {}) {
+  const contactPhone = options.contactPhone?.trim() ?? "";
+
   const [state, dispatch] = useReducer(intakeReducer, {
     step: "intent",
     data: INITIAL_DATA,
@@ -188,6 +199,21 @@ export function useGuidedIntakeChat() {
         ];
       }
       if (state.data.intent === "call") {
+        if (contactPhone) {
+          return [
+            {
+              id: "call-now",
+              label: `Call ${contactPhone}`,
+              href: toTelHref(contactPhone),
+              variant: "primary",
+            },
+            {
+              id: "contact-page",
+              label: "Use contact form instead",
+              href: ROUTES.CONTACT,
+            },
+          ];
+        }
         return [
           {
             id: "contact-page",
@@ -204,7 +230,7 @@ export function useGuidedIntakeChat() {
     }
 
     return [];
-  }, [state.data.intent, state.step]);
+  }, [contactPhone, state.data.intent, state.step]);
 
   const handleIntentChoice = useCallback((intent: Exclude<EnquiryIntent, "">) => {
     dispatch({ type: "ADD_USER", text: INTENT_LABELS[intent] });
@@ -241,7 +267,9 @@ export function useGuidedIntakeChat() {
       dispatch({ type: "SET_STEP", step: "redirect" });
       dispatch({
         type: "ADD_ASSISTANT",
-        text: "You can call us or send a message from our contact page — phone numbers and the enquiry form are all in one place.",
+        text: contactPhone
+          ? `Tap below to call us on ${contactPhone}, or use the contact form if you prefer email.`
+          : "You can call us or send a message from our contact page — phone numbers and the enquiry form are all in one place.",
       });
       return;
     }
@@ -251,7 +279,7 @@ export function useGuidedIntakeChat() {
       type: "ADD_ASSISTANT",
       text: "What would you like to know about?",
     });
-  }, []);
+  }, [contactPhone]);
 
   const handleTopicChoice = useCallback((topicId: GeneralTopic) => {
     const topic = GENERAL_TOPICS.find((item) => item.id === topicId);

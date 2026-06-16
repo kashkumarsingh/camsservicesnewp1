@@ -16,6 +16,7 @@ import { useGuidedIntakeChat, type ChatMessage, type GeneralTopic } from "./useG
 type ReceptionistChatPanelProps = {
   open: boolean;
   onClose: () => void;
+  contactPhone?: string;
 };
 
 function MessageBubble({ message }: { message: ChatMessage }): ReactElement {
@@ -36,10 +37,14 @@ function MessageBubble({ message }: { message: ChatMessage }): ReactElement {
   );
 }
 
-export function ReceptionistChatPanel({ open, onClose }: ReceptionistChatPanelProps): ReactElement | null {
+export function ReceptionistChatPanel({
+  open,
+  onClose,
+  contactPhone,
+}: ReceptionistChatPanelProps): ReactElement | null {
   const router = useRouter();
   const n8nEnabled = isN8nReceptionistEnabled();
-  const guided = useGuidedIntakeChat();
+  const guided = useGuidedIntakeChat({ contactPhone });
   const { submit, loading: submitting } = useContactForm();
 
   const [n8nMessages, setN8nMessages] = useState<ChatMessage[]>(
@@ -109,7 +114,11 @@ export function ReceptionistChatPanel({ open, onClose }: ReceptionistChatPanelPr
       const reply = guided.quickReplies.find((item) => item.id === replyId);
       if (reply?.href) {
         guided.submitQuickReply(replyId);
-        router.push(reply.href);
+        if (reply.href.startsWith("tel:")) {
+          window.location.href = reply.href;
+        } else {
+          router.push(reply.href);
+        }
         onClose();
         return;
       }

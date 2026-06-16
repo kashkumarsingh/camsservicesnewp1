@@ -9,7 +9,11 @@ const AUTO_OPEN_KEY = "cams_enquiries_auto_opened_v1";
 /** First visit nudge — opens once per browser session after delay. */
 const AUTO_OPEN_DELAY_MS = 8000;
 
-export function SiteFloatingActions(): ReactElement {
+type SiteFloatingActionsProps = {
+  contactPhone?: string;
+};
+
+export function SiteFloatingActions({ contactPhone }: SiteFloatingActionsProps): ReactElement {
   const [chatOpen, setChatOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showHint, setShowHint] = useState(false);
@@ -78,7 +82,7 @@ export function SiteFloatingActions(): ReactElement {
 
   return (
     <>
-      <ReceptionistChatPanel open={chatOpen} onClose={closeChat} />
+      <ReceptionistChatPanel open={chatOpen} onClose={closeChat} contactPhone={contactPhone} />
 
       <div
         className="fixed bottom-24 right-4 z-[65] flex flex-col items-end gap-2 sm:right-6 md:bottom-8 md:right-8"
