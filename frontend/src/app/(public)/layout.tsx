@@ -20,9 +20,9 @@ function getBaseUrl(): string {
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
     {
-      title: 'CAMS Services - Chaperone, Activity, Mentoring & Support for Young People',
+      title: 'CAMS Services - Trusted Chaperone, Transport, Mentoring & Support',
       description:
-        'Specialist support for children with SEN, trauma, and additional needs. Book trauma-informed activities and packages with CAMS Services today.',
+        'Tailored chaperone, transport, mentoring and support services for children, young people, families, and vulnerable adults.',
       path: '/',
     },
     getBaseUrl()
@@ -46,7 +46,7 @@ export default async function PublicLayout({ children }: { children: React.React
           links: [
             { href: '/login', label: 'Parent sign in' },
             { href: '/register', label: 'Parent sign up' },
-            { href: '/contact', label: 'Make a referral' },
+            { href: '/referral', label: 'Make a referral' },
             { href: '/contact', label: 'Contact' },
           ],
         },

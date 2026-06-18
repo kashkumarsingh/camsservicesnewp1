@@ -1,20 +1,24 @@
 import { INTERVENTION_PACKAGES } from "@/marketing/mock/intervention-packages";
 
 const DEFAULT_SUMMARY =
-  "Structured mentoring and intervention for young people across the UK.";
+  "Trusted chaperone, transport, mentoring and support services tailored to individual needs.";
 
 const PAGE_FALLBACKS: Record<string, { title: string; summary: string }> = {
   "": {
     title: "CAMS Services",
-    summary: "Trauma-informed mentoring and intervention support for children and young people.",
+    summary: "Tailored support services for children, young people, families, and vulnerable adults.",
   },
   about: {
     title: "About CAMS Services",
-    summary: "Learn about our team, mission, and child-centred support model.",
+    summary: "Learn about our team, mission, and person-centred support model.",
   },
   services: {
-    title: "Services",
-    summary: "Explore programmes designed to build confidence, regulation, and progress.",
+    title: "Our Services",
+    summary: "Chaperone, transport, mentoring, SEND support, and tailored one-to-one packages.",
+  },
+  referral: {
+    title: "Referral Partners",
+    summary: "We welcome referrals from local authorities, schools, nurseries, and families.",
   },
   packages: {
     title: "Packages",

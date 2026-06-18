@@ -10,6 +10,13 @@ import { PAGE_LAYOUT, PAGE_SURFACES } from "@/marketing/components/shared/page-l
 import { ServiceProgrammeJumpNav } from "@/marketing/components/services/ServiceProgrammeJumpNav";
 import { ServicesProgrammeArticle } from "@/marketing/components/services/ServicesProgrammeArticle";
 import { SERVICE_PROGRAMME_LIST } from "@/marketing/mock/services-programmes";
+import {
+  CAMS_CONTACT,
+  CAMS_SERVICES_LIST,
+  TRANSPORT_SUPPORT_FOOTNOTE,
+  TRANSPORT_SUPPORT_INTRO,
+  TRANSPORT_SUPPORT_ITEMS,
+} from "@/marketing/mock/cams-services-catalog";
 import { fetchPublicApiJson } from "@/marketing/lib/public-api";
 import {
   mapServiceListWithFallbacks,
@@ -87,11 +94,64 @@ export function ServicesPageClient(): ReactElement {
         }
         description={
           <>
-            Seven one-to-one programmes — sport, mentoring, community, education support, family, behaviour and
-            fitness — designed to build confidence, engagement, and real change in young people&apos;s lives.
+            Chaperone, transport, mentoring, and tailored support services for children, young people, families, and
+            vulnerable adults — designed around individual needs and delivered with safeguarding at the centre.
           </>
         }
       />
+
+      <section
+        aria-labelledby="services-catalog-heading"
+        className={`relative mt-10 overflow-hidden ${PAGE_LAYOUT.panel} p-5 md:p-8`}
+      >
+        <header className="max-w-3xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">What we offer</p>
+          <h2 id="services-catalog-heading" className="mt-3 font-heading text-3xl font-bold md:text-4xl">
+            Our <span className="text-cams-primary">Services</span>
+          </h2>
+          <p className="mt-4 text-sm leading-7 text-cams-ink-secondary md:text-base">
+            Each service is planned around the individual&apos;s needs, circumstances, and goals.
+          </p>
+        </header>
+        <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {CAMS_SERVICES_LIST.map((service) => (
+            <li
+              key={service}
+              className="flex items-start gap-3 rounded-2xl border border-slate-200/90 bg-white/90 p-4 shadow-sm"
+            >
+              <span className="mt-1 size-2 shrink-0 rounded-full bg-cams-primary" aria-hidden />
+              <span className="text-sm font-semibold leading-relaxed text-cams-ink">{service}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section
+        aria-labelledby="services-transport-heading"
+        className={`relative mt-10 overflow-hidden ${PAGE_LAYOUT.panel} p-5 md:p-8`}
+      >
+        <header className="max-w-3xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Transport</p>
+          <h2 id="services-transport-heading" className="mt-3 font-heading text-3xl font-bold md:text-4xl">
+            Specialist Transport and <span className="text-cams-primary">Chaperone Services</span>
+          </h2>
+          <p className="mt-4 text-sm leading-7 text-cams-ink-secondary md:text-base">{TRANSPORT_SUPPORT_INTRO}</p>
+        </header>
+        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-cams-ink-secondary">
+          Support may include
+        </p>
+        <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+          {TRANSPORT_SUPPORT_ITEMS.map((item) => (
+            <li
+              key={item}
+              className="rounded-xl border border-slate-200/90 bg-cams-soft/40 px-4 py-3 text-sm font-semibold text-cams-ink"
+            >
+              {item}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-6 text-sm leading-7 text-cams-ink-secondary">{TRANSPORT_SUPPORT_FOOTNOTE}</p>
+      </section>
 
       <section
         aria-labelledby="services-model-heading"
@@ -185,13 +245,12 @@ export function ServicesPageClient(): ReactElement {
       </section>
 
       <PageCtaSection
-        heading="Ready to get started?"
-        description="Tell us about your context and we will recommend the best support path for your young person."
+        heading="Need support for a child, young person, family member, or vulnerable adult?"
+        description="Contact CAMS Services today to discuss a tailored support package."
+        contactInfo={CAMS_CONTACT}
         actions={[
-          { href: "/risk-assessment", label: "Check risk suitability", variant: "secondary" },
           { href: "/referral", label: "Make a referral", variant: "primary" },
-          { href: "/packages", label: "View packages", variant: "secondary" },
-          { href: "/contact", label: "Book a consultation", variant: "secondary" }
+          { href: "/contact", label: "Contact us", variant: "secondary" }
         ]}
       />
     </PageShell>

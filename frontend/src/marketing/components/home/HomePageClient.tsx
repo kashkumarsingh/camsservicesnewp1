@@ -5,9 +5,11 @@ import { CamsStarRating, InterventionPackageIcon } from "@/marketing/components/
 import { HomeHeroSection } from "@/marketing/components/home/HomeHeroSection";
 import { HomeMethodSection } from "@/marketing/components/home/HomeMethodSection";
 import { HomeServicesGridSection } from "@/marketing/components/home/HomeServicesGridSection";
+import { HomeTransportSupportSection } from "@/marketing/components/home/HomeTransportSupportSection";
 import { HomeWhoWeSupportSection } from "@/marketing/components/home/HomeWhoWeSupportSection";
 import { PAGE_LAYOUT } from "@/marketing/components/shared/page-layout";
 import { INTERVENTION_PACKAGES } from "@/marketing/mock/intervention-packages";
+import { CAMS_CONTACT } from "@/marketing/mock/cams-services-catalog";
 
 const sectionShell = "overflow-hidden px-4 py-20 md:py-28";
 const container = PAGE_LAYOUT.container;
@@ -57,6 +59,8 @@ export function HomePageClient(): ReactElement {
       </section>
 
       <HomeServicesGridSection />
+
+      <HomeTransportSupportSection />
 
       <section className={`${sectionShell} bg-white`}>
         <div className={container}>
@@ -143,7 +147,7 @@ export function HomePageClient(): ReactElement {
               },
               {
                 text: "I finally have real friends and I am not scared anymore. My mentor helped me see I am not alone.",
-                author: "Emma, age 12",
+                author: "Emma",
                 role: "Confidence & social anxiety"
               },
               {
@@ -167,17 +171,12 @@ export function HomePageClient(): ReactElement {
       </section>
 
       <PageCtaSection
-        heading={
-          <>
-            Ready to open the door for a{" "}
-            <span className="text-cams-secondary">young person you care about</span>?
-          </>
-        }
-        description="Tell us the story in a referral or book a call, and we will match intensity, programme mix, and safeguarding steps with honesty about what is realistic."
+        heading="Need support for a child, young person, family member, or vulnerable adult?"
+        description="Contact CAMS Services today to discuss a tailored support package."
+        contactInfo={CAMS_CONTACT}
         actions={[
-          { href: "/risk-assessment", label: "Check Risk Assessment", variant: "secondary" },
           { href: "/referral", label: "Make a Referral", variant: "primary" },
-          { href: "/contact", label: "Book a Free Consultation", variant: "secondary" }
+          { href: "/contact", label: "Contact Us", variant: "secondary" }
         ]}
       />
     </div>

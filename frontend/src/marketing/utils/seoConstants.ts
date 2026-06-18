@@ -4,9 +4,9 @@
  */
 export const SEO_DEFAULTS = {
   siteName: 'CAMS Services',
-  title: 'CAMS Services | Specialist SEN & Trauma-Informed Care',
+  title: 'CAMS Services | Chaperone, Transport, Mentoring & Support',
   description:
-    'Specialist SEN and trauma-informed care programmes with DBS-checked professionals, personalised plans, and proven results.',
+    'Trusted chaperone, transport, mentoring and support services — safe, reliable, and tailored to individual needs.',
   /** Default OG image path (relative to site origin) */
   ogImagePath: '/og-images/og-image.jpg',
   ogImageWidth: 1200,

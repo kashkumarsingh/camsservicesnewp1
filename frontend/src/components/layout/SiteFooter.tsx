@@ -23,7 +23,7 @@ export const DEFAULT_FOOTER_SECTIONS: ReadonlyArray<SiteFooterSection> = [
     links: [
       { href: ROUTES.LOGIN, label: "Parent sign in" },
       { href: ROUTES.REGISTER, label: "Parent sign up" },
-      { href: ROUTES.CONTACT, label: "Make a referral" },
+      { href: ROUTES.REFERRAL, label: "Make a referral" },
       { href: ROUTES.CONTACT, label: "Contact" },
     ],
   },
@@ -55,7 +55,7 @@ type SiteFooterProps = {
 
 export function SiteFooter({
   sections = DEFAULT_FOOTER_SECTIONS,
-  description = "Structured mentoring and intervention for young people across the UK, safeguarding-led, relationship-first, and built for real-world progress.",
+  description = "Trusted chaperone, transport, mentoring and support services — safe, reliable, and tailored to individual needs.",
   copyrightText = "© 2026 CAMS Services Ltd. All rights reserved.",
 }: SiteFooterProps): ReactElement {
   return (

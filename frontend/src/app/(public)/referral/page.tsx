@@ -8,8 +8,9 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https:
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
     {
-      title: 'Referral - CAMS Services',
-      description: 'Start a referral with CAMS and we will route your case to the right support pathway.',
+      title: 'Referral Partners - CAMS Services',
+      description:
+        'We welcome referrals from local authorities, schools, nurseries, foster agencies, family support teams, and parents or guardians.',
       path: ROUTES.REFERRAL,
       imageAlt: 'Referral with CAMS Services',
     },

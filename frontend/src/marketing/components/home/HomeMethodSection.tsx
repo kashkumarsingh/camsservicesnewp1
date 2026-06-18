@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import Link from "next/link";
 import { HomeEditorialParallaxImage } from "@/marketing/components/home/HomeEditorialParallaxImage";
 import { CAMS_UNSPLASH_PHOTO, camsUnsplashPhotoUrl } from "@/marketing/mock/cams-unsplash";
+import { COMPANY_KEY_MESSAGE, COMPANY_TAGLINE } from "@/marketing/mock/cams-services-catalog";
 
 export function HomeMethodSection(): ReactElement {
   return (
@@ -65,20 +66,25 @@ export function HomeMethodSection(): ReactElement {
         <article className="flex flex-col justify-center lg:col-span-6 lg:col-start-7 lg:max-w-xl lg:justify-center xl:max-w-none">
           <div className="flex items-center gap-4">
             <span className="h-px w-10 shrink-0 bg-gradient-to-r from-cams-secondary to-transparent md:w-14" aria-hidden />
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cams-secondary/95">Method</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cams-secondary/95">Our approach</p>
           </div>
           <h2
             id="home-method-heading"
             className="mt-6 font-heading text-3xl font-bold leading-[1.08] tracking-tight md:text-[2.65rem] lg:max-w-[20ch]"
           >
-            Connect first.
+            {COMPANY_TAGLINE.split(",")[0]}.
             <span className="mt-3 block bg-gradient-to-r from-cams-secondary via-white/95 to-cams-accent bg-clip-text text-transparent">
-              Then support change.
+              {COMPANY_TAGLINE.split(",").slice(1).join(",").trim()}
             </span>
           </h2>
+          <ul className="mt-8 space-y-2 text-base font-semibold text-cams-accent md:text-lg">
+            {COMPANY_KEY_MESSAGE.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
           <p className="mt-8 max-w-prose text-base leading-[1.75] text-slate-200/95 md:text-lg">
-            Behaviour shifts when trust lands first. We invest in rapport, predictable boundaries, and shared
-            language with families and schools before we expect big moves on goals or attendance.
+            We combine chaperone and transport support with mentoring and tailored one-to-one packages, planned around
+            each person&apos;s needs and carried out in line with safeguarding procedures.
           </p>
           <Link
             href="/about"

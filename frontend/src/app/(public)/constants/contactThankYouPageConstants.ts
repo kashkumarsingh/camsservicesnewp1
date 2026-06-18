@@ -25,8 +25,8 @@ export const CONTACT_THANK_YOU_PAGE = {
   URGENT_DESC:
     'Choose the channel that suits you best. Safeguarding mentors respond quickly, including evenings and weekends.',
   /** Fallbacks when site settings contact is missing (single source for thank-you page only). */
-  PHONE_FALLBACK: '+44 20 1234 5678',
-  WHATSAPP_URL_FALLBACK: 'https://wa.me/442012345678',
+  PHONE_FALLBACK: '+44 7939 990587',
+  WHATSAPP_URL_FALLBACK: 'https://wa.me/447939990587',
   CALL_US: 'Call us directly',
   WHATSAPP: 'WhatsApp Support',
   WHATSAPP_SUB: 'Secure chat',

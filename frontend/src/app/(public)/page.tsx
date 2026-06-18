@@ -7,9 +7,9 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https:
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
     {
-      title: 'CAMS Services - Structured Mentoring & Intervention',
+      title: 'CAMS Services - Trusted Chaperone, Transport, Mentoring & Support',
       description:
-        'Premium mentoring and intervention for young people with evidence-based programmes, DBS-checked mentors, and transparent support pathways.',
+        'Tailored support services for children, young people, families, and vulnerable adults. Safe, reliable, and person-centred.',
       path: '/',
       imageAlt: 'CAMS Services',
     },

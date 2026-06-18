@@ -37,10 +37,16 @@ export function SiteHeader({ navItems }: SiteHeaderProps): ReactElement {
             Become a Trainer
           </Link>
           <Link
+            href={ROUTES.REFERRAL}
+            className="inline-flex min-h-10 items-center justify-center rounded-md border border-cams-primary px-4 py-2 text-sm font-semibold text-cams-primary transition hover:bg-cams-primary/10"
+          >
+            Make a Referral
+          </Link>
+          <Link
             href={ROUTES.CONTACT}
             className="inline-flex min-h-10 items-center justify-center rounded-md bg-gradient-to-r from-cams-primary to-cams-secondary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
           >
-            Book Free Call
+            Contact Us
           </Link>
         </div>
       </nav>

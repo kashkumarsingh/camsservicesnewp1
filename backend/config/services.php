@@ -71,6 +71,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Referral notification email (optional)
+    |--------------------------------------------------------------------------
+    |
+    | When set, new referral form submissions are sent only to this address.
+    | Other admin notifications (contact form, bookings, etc.) use
+    | ADMIN_NOTIFICATION_EMAIL / SITE_SUPPORT_EMAILS instead.
+    |
+    */
+
+    'referral_notification_email' => env('REFERRAL_NOTIFICATION_EMAIL'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Google Maps Embed API (optional)
     |--------------------------------------------------------------------------
     |

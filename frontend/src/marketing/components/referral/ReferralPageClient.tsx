@@ -10,6 +10,7 @@ import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
 import { CamsIcon, type CamsIconName } from "@/marketing/components/shared/CamsIcon";
 import { PAGE_LAYOUT } from "@/marketing/components/shared/page-layout";
 import { INTERVENTION_PACKAGES } from "@/marketing/mock/intervention-packages";
+import { REFERRAL_PARTNERS_LIST } from "@/marketing/mock/cams-services-catalog";
 import { useReferralForm } from "@/interfaces/web/hooks/referrals/useReferralForm";
 import { thankYouPageUrl } from "@/shared/utils/thankYouPage";
 
@@ -45,15 +46,7 @@ const PROCESS_STEPS: ReadonlyArray<{
   }
 ];
 
-const ELIGIBILITY_POINTS: ReadonlyArray<string> = [
-  "Young people aged 5-18",
-  "Those struggling with engagement",
-  "Challenging behaviour concerns",
-  "Emotional regulation difficulties",
-  "SEN & additional needs",
-  "Looked after children",
-  "Young people in schools & settings"
-];
+const ELIGIBILITY_POINTS: ReadonlyArray<string> = [...REFERRAL_PARTNERS_LIST];
 
 const QUICK_ANSWER_POINTS: ReadonlyArray<string> = [
   "Referral assessment within 24 hours",
@@ -147,11 +140,37 @@ export function ReferralPageClient(): ReactElement {
       <PageHeroBand
         title={
           <>
-            Make a <span className="text-cams-primary">Referral</span>
+            Referral <span className="text-cams-primary">Partners</span>
           </>
         }
-        description="Simple 4-step process to get a young person the support they need. We handle the rest."
+        description="We welcome referrals from local authorities, schools, nurseries, foster agencies, family support teams, and parents or guardians. Submit a referral and we will respond within one working day."
       />
+
+      <section className={`${PAGE_LAYOUT.panelCompact} p-6 sm:p-8`}>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 className="font-mono text-2xl font-bold text-cams-navy sm:text-3xl">We welcome referrals from</h2>
+            <p className="mt-2 text-sm text-cams-slate">
+              Professionals, organisations, and families can refer for tailored chaperone, transport, mentoring, and
+              support packages.
+            </p>
+          </div>
+          <Button href="#referral-form" size="lg" className="shrink-0">
+            Make a Referral
+          </Button>
+        </div>
+        <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {REFERRAL_PARTNERS_LIST.map((partner) => (
+            <li
+              key={partner}
+              className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm font-semibold text-cams-navy"
+            >
+              <span className="size-2 shrink-0 rounded-full bg-cams-primary" aria-hidden />
+              {partner}
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section className={`${PAGE_LAYOUT.panelCompact} p-6 sm:p-8`}>
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -191,7 +210,7 @@ export function ReferralPageClient(): ReactElement {
         </div>
       </section>
 
-      <section className={`${PAGE_LAYOUT.panelCompact} p-8`}>
+      <section id="referral-form" className={`${PAGE_LAYOUT.panelCompact} p-8`}>
         <h2 className="text-center font-mono text-4xl font-bold">
           Referral <span className="text-cams-primary">Form</span>
         </h2>
@@ -346,7 +365,7 @@ export function ReferralPageClient(): ReactElement {
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-cams-primary/10 text-cams-primary">
                 <CamsIcon name="listChecks" size={24} />
               </span>
-              We Work With
+              We Welcome Referrals From
             </h3>
             <ul className="mt-6 space-y-3 text-sm text-cams-slate sm:text-base">
               {ELIGIBILITY_POINTS.map((item) => (

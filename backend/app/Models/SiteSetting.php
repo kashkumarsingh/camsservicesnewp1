@@ -170,7 +170,7 @@ class SiteSetting extends Model
         // Try to set support_whatsapp_numbers if empty (gracefully handle if column doesn't exist)
         if (empty($instance->support_whatsapp_numbers)) {
             try {
-                $optionalFields['support_whatsapp_numbers'] = ['+44 20 1234 5678'];
+                $optionalFields['support_whatsapp_numbers'] = ['+44 7939 990587'];
             } catch (\Exception $e) {
                 // Column might not exist yet - ignore gracefully
             }
@@ -212,5 +212,19 @@ class SiteSetting extends Model
         $fallback = env('SITE_SUPPORT_EMAILS', 'info@camsservices.co.uk');
 
         return filled($fallback) ? [trim($fallback)] : ['info@camsservices.co.uk'];
+    }
+
+    /**
+     * Email addresses for referral form submissions (admin inbox).
+     * REFERRAL_NOTIFICATION_EMAIL in .env takes precedence when set.
+     */
+    public static function referralNotificationEmails(): array
+    {
+        $override = config('services.referral_notification_email');
+        if (filled($override)) {
+            return [trim($override)];
+        }
+
+        return ['admin@camsservices.co.uk'];
     }
 }

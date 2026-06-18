@@ -12,11 +12,11 @@ function buildFallbackSiteSettings(): SiteSetting {
   const dto: SiteSettingsDTO = {
     id: 'fallback-site-settings',
     contact: {
-      phone: '+44 20 1234 5678',
+      phone: '+44 7939 990587',
       email: 'info@camsservices.co.uk',
       address: 'Buckhurst Hill, England',
       fullAddress: '123 Example Street, Buckhurst Hill, England, IG9 1AB',
-      whatsappUrl: 'https://wa.me/442012345678',
+      whatsappUrl: 'https://wa.me/447939990587',
       mapEmbedUrl: undefined,
     },
     social: {
@@ -28,7 +28,7 @@ function buildFallbackSiteSettings(): SiteSetting {
     },
     company: {
       name: 'CAMS Services Ltd.',
-      description: 'Specialist SEN & trauma-informed care supporting families across the UK.',
+      description: 'Trusted chaperone, transport, mentoring and support services — safe, reliable, and tailored to individual needs.',
       registrationNumber: '12345678',
     },
     trustIndicators: [
@@ -51,7 +51,7 @@ function buildFallbackSiteSettings(): SiteSetting {
         { href: ROUTES.PACKAGES, label: 'Our Packages' },
         { href: ROUTES.TRAINERS, label: 'Meet Our Team' },
         { href: ROUTES.BLOG, label: 'Blog' },
-        { href: ROUTES.CONTACT, label: "Let's Connect" },
+        { href: ROUTES.REFERRAL, label: 'Make a Referral' },
       ],
       logoPath: '/logos/cams-services-logo.webp',
     },
@@ -63,11 +63,12 @@ function buildFallbackSiteSettings(): SiteSetting {
         { href: ROUTES.TRAINERS, label: 'Our Team' },
         { href: ROUTES.BLOG, label: 'Blog & Resources' },
         { href: ROUTES.FAQ, label: 'FAQs' },
+        { href: ROUTES.REFERRAL, label: 'Referrals' },
       ],
     },
     support: {
       emails: ['info@camsservices.co.uk'],
-      whatsappNumbers: ['+442012345678'],
+      whatsappNumbers: ['+447939990587'],
     },
     packageBenefits: [
       {

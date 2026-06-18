@@ -8,6 +8,11 @@ export type PageCtaAction = {
   variant?: "primary" | "secondary";
 };
 
+export type PageCtaContactInfo = {
+  phone: string;
+  email: string;
+};
+
 /** Gradient clipped text for CTA titles and marketing headings (aligned with static HTML references). */
 export const CAMS_GRADIENT_ACCENT_TEXT_CLASS =
   "bg-gradient-to-br from-cams-primary to-cams-secondary bg-clip-text text-transparent";
@@ -16,6 +21,7 @@ type PageCtaSectionProps = {
   heading: ReactNode;
   description: string;
   actions: readonly PageCtaAction[];
+  contactInfo?: PageCtaContactInfo;
   className?: string;
 };
 
@@ -23,6 +29,7 @@ export function PageCtaSection({
   heading,
   description,
   actions,
+  contactInfo,
   className
 }: PageCtaSectionProps): ReactElement {
   const actionCount = actions.length;
@@ -75,6 +82,22 @@ export function PageCtaSection({
               <p className="text-left text-base leading-relaxed text-slate-200/95 md:text-lg">
                 {description}
               </p>
+              {contactInfo ? (
+                <div className="space-y-2 text-left text-sm text-slate-200/90">
+                  <p>
+                    <span className="font-semibold text-white">Phone:</span>{" "}
+                    <a href={`tel:${contactInfo.phone.replace(/\s/g, "")}`} className="underline-offset-2 hover:underline">
+                      {contactInfo.phone}
+                    </a>
+                  </p>
+                  <p>
+                    <span className="font-semibold text-white">Email:</span>{" "}
+                    <a href={`mailto:${contactInfo.email}`} className="underline-offset-2 hover:underline">
+                      {contactInfo.email}
+                    </a>
+                  </p>
+                </div>
+              ) : null}
               <div className={actionsLayoutClass}>
                 {actions.map((action, index) => (
                   <Button

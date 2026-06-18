@@ -25,7 +25,7 @@ export const ABOUT_STATS = [
 ] as const;
 
 export const ABOUT_MISSION =
-  "To provide structured, activity-based mentoring that builds confidence, engagement, and real change in young people's lives.";
+  "To provide trusted chaperone, transport, mentoring and support services that are safe, reliable, and tailored to individual needs.";
 
 export const ABOUT_VALUES = [
   {

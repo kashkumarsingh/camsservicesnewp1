@@ -63,7 +63,7 @@ export const pagesData: StaticPageData[] = [
 
 ## Get in Touch
 - Email: **info@camsservices.co.uk**
-- Phone: **+44 (0) 20 1234 5678**
+- Phone: **+44 7939 990587**
 - Office Hours: Monday–Friday / 9:00 AM – 6:00 PM (UK)
     `.trim(),
     lastUpdated: today,

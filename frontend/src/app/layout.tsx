@@ -30,9 +30,9 @@ export const viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.camsservices.co.uk'),
-  title: 'CAMS Services - Chaperone, Activity, Mentoring & Support for Young People',
+  title: 'CAMS Services - Trusted Chaperone, Transport, Mentoring & Support',
   description:
-    'Specialist support for children with SEN, trauma, and additional needs. Book trauma-informed activities and packages with CAMS Services today.',
+    'Tailored chaperone, transport, mentoring and support services for children, young people, families, and vulnerable adults. Safe, reliable, and person-centred.',
   keywords: ['SEN support', 'trauma-informed care', 'child mentoring', 'activities for children', 'Buckhurst Hill', 'CAMS Services'],
   icons: {
     icon: {
@@ -43,8 +43,8 @@ export const metadata: Metadata = {
     apple: '/favicon.ico',
   },
   openGraph: {
-    title: 'CAMS Services - Support for Young People',
-    description: 'Trauma-informed care and activities for children with SEN and additional needs in Buckhurst Hill, England.',
+    title: 'CAMS Services - Chaperone, Transport, Mentoring & Support',
+    description: 'Tailored support services for children, young people, families, and vulnerable adults across the UK.',
     url: 'https://www.camsservices.co.uk',
     type: 'website',
     images: [
@@ -52,14 +52,14 @@ export const metadata: Metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'CAMS Services - Supporting Young People',
+        alt: 'CAMS Services - Trusted Support Services',
       }
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CAMS Services - Support for Young People',
-    description: 'Trauma-informed care and activities for children with SEN and additional needs.',
+    title: 'CAMS Services - Chaperone, Transport, Mentoring & Support',
+    description: 'Tailored support services for children, young people, families, and vulnerable adults.',
     images: ['/og-image.jpg'],
   },
 };

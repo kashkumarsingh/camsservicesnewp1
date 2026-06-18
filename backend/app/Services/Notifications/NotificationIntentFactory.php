@@ -969,7 +969,7 @@ class NotificationIntentFactory
             intentType: IntentType::REFERRAL_SUBMISSION,
             entityType: 'referral_submission',
             entityId: (string) $submission->id,
-            recipients: NotificationRecipientSet::forAdmins(self::adminEmails()),
+            recipients: NotificationRecipientSet::forAdmins(self::referralEmails()),
             payload: [
                 'title' => 'New referral submission',
                 'message' => sprintf('Referral for %s submitted by %s.', $submission->young_person_name, $submission->referrer_name),
@@ -1095,5 +1095,10 @@ class NotificationIntentFactory
     private static function adminEmails(): array
     {
         return SiteSetting::adminNotificationEmails();
+    }
+
+    private static function referralEmails(): array
+    {
+        return SiteSetting::referralNotificationEmails();
     }
 }

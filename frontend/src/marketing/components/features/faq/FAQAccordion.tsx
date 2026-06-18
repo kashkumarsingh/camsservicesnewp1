@@ -129,10 +129,10 @@ const FAQAccordion: React.FC<FAQAccordionProps> = ({
           </a>{' '}
           or call{' '}
           <a
-            href="tel:+441234567890"
+            href="tel:+447939990587"
             className="text-primary-blue font-bold hover:underline"
           >
-            +44 123 456 7890
+            +44 7939 990587
           </a>
         </p>
       </div>

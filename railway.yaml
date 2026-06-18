@@ -73,6 +73,11 @@
 #   MAIL_FROM_NAME = CAMS Services
 # Local Docker can still use MAIL_MAILER=smtp + Mailhog or Office 365.
 #
+# Notification recipients (outgoing mail still uses MAIL_* above):
+#   ADMIN_NOTIFICATION_EMAIL = info@camsservices.co.uk   (contact, bookings, safeguarding, etc.)
+#   SITE_SUPPORT_EMAILS = info@camsservices.co.uk
+#   REFERRAL_NOTIFICATION_EMAIL = admin@camsservices.co.uk   (referral form only)
+#
 # Frontend integration (Vercel app URL)
 #   FRONTEND_URL = https://<your-app>.vercel.app
 #   SANCTUM_STATEFUL_DOMAINS = <your-app>.vercel.app,<backend-host>

@@ -36,6 +36,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
         heading: "Programmes",
         links: [
           { href: "/services", label: "Services overview", description: "How delivery fits together." },
+          { href: "/referral", label: "Make a referral", description: "Submit a professional or family referral." },
           { href: "/packages", label: "Intervention packages", description: "Tiers, duration, and fit." },
           { href: "/book/retrieve", label: "Retrieve booking", description: "Check an existing booking." },
           { href: "/contact", label: "Book a call", description: "Speak with the team." },
@@ -52,6 +53,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
       },
     ],
   },
+  { kind: "link", href: "/referral", label: "Referrals" },
   { kind: "link", href: "/packages", label: "Packages" },
   { kind: "link", href: "/become-a-trainer", label: "Become a Trainer" },
   { kind: "link", href: "/blog", label: "Blog" },
