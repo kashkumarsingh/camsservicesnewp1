@@ -9,7 +9,7 @@ import { HomeTransportSupportSection } from "@/marketing/components/home/HomeTra
 import { HomeWhoWeSupportSection } from "@/marketing/components/home/HomeWhoWeSupportSection";
 import { PAGE_LAYOUT } from "@/marketing/components/shared/page-layout";
 import { INTERVENTION_PACKAGES } from "@/marketing/mock/intervention-packages";
-import { CAMS_CONTACT } from "@/marketing/mock/cams-services-catalog";
+import { CAMS_CONTACT, camsTelHref } from "@/marketing/mock/cams-services-catalog";
 
 const sectionShell = "overflow-hidden px-4 py-20 md:py-28";
 const container = PAGE_LAYOUT.container;
@@ -173,8 +173,11 @@ export function HomePageClient(): ReactElement {
       <PageCtaSection
         heading="Need support for a child, young person, family member, or vulnerable adult?"
         description="Contact CAMS Services today to discuss a tailored support package."
-        contactInfo={CAMS_CONTACT}
-        actions={[{ href: "/referral", label: "Make a Referral", variant: "primary" }]}
+        actions={[
+          { href: "/referral", label: "Make a Referral", variant: "primary" },
+          { href: camsTelHref(CAMS_CONTACT.phone), label: "Call us", variant: "secondary" },
+          { href: `mailto:${CAMS_CONTACT.email}`, label: "Email us", variant: "secondary" },
+        ]}
       />
     </div>
   );

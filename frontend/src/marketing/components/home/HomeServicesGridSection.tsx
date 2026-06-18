@@ -19,13 +19,13 @@ export function HomeServicesGridSection(): ReactElement {
           eyebrow="Our services"
           title={
             <>
-              Tailored support across{" "}
+              Chaperone, child transport,{" "}
               <span className="bg-gradient-to-r from-cams-primary to-cams-secondary bg-clip-text text-transparent">
-                transport, mentoring, and care
+                mentoring & care services
               </span>
             </>
           }
-          description="From chaperone and transport services to mentoring, SEND support, and tailored one-to-one packages, all designed around individual needs, circumstances, and goals."
+          description="Family support services, community support services, SEND support services, foster placement support, residential care support, and mentoring services, all tailored to individual needs, circumstances, and goals."
         />
 
         <div className="mt-10 w-full md:mt-12">

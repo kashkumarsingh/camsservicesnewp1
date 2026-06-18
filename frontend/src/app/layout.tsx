@@ -30,10 +30,9 @@ export const viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.camsservices.co.uk'),
-  title: 'CAMS Services - Trusted Chaperone, Transport, Mentoring & Support',
+  title: 'Chaperone Services UK | Child Transport & Family Support | CAMS Services',
   description:
-    'Tailored chaperone, transport, mentoring and support services for children, young people, families, and vulnerable adults. Safe, reliable, and person-centred.',
-  keywords: ['SEN support', 'trauma-informed care', 'child mentoring', 'activities for children', 'Buckhurst Hill', 'CAMS Services'],
+    'Chaperone services UK, child transport services, school transport support, family support services, SEND support services, foster placement support, mentoring services, and local authority support services.',
   icons: {
     icon: {
       url: '/favicon.ico',
@@ -43,8 +42,8 @@ export const metadata: Metadata = {
     apple: '/favicon.ico',
   },
   openGraph: {
-    title: 'CAMS Services - Chaperone, Transport, Mentoring & Support',
-    description: 'Tailored support services for children, young people, families, and vulnerable adults across the UK.',
+    title: 'Chaperone Services UK | Child Transport & Family Support',
+    description: 'Chaperone services UK, child transport services, family support services, SEND support services, and mentoring services across the UK.',
     url: 'https://www.camsservices.co.uk',
     type: 'website',
     images: [
@@ -58,8 +57,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CAMS Services - Chaperone, Transport, Mentoring & Support',
-    description: 'Tailored support services for children, young people, families, and vulnerable adults.',
+    title: 'Chaperone Services UK | Child Transport & Family Support',
+    description: 'Chaperone services UK, child transport services, family support services, SEND support services, and mentoring services.',
     images: ['/og-image.jpg'],
   },
 };

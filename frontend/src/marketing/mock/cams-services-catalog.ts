@@ -10,16 +10,32 @@ export const COMPANY_KEY_MESSAGE = [
   "Tailored to individual needs.",
 ] as const;
 
+/** Priority search terms for titles and on-page copy (not meta keywords tags). */
+export const CAMS_GOOGLE_SEARCH_TERMS = [
+  "Chaperone Services UK",
+  "Child Transport Services",
+  "Family Support Services",
+  "Community Support Services",
+  "SEND Support Services",
+  "Foster Placement Support",
+  "Contact Centre Transport",
+  "Child Escort Services",
+  "Mentoring Services",
+  "Local Authority Support Services",
+  "School Transport Support",
+  "Residential Care Support",
+] as const;
+
 export const CAMS_SERVICES_LIST: readonly string[] = [
   "Chaperone and Transport Support",
-  "School and Nursery Transport",
-  "Community Access Support",
+  "School Transport Support",
+  "Community Support Services",
   "Contact Centre Transport",
-  "Family Time and Contact Support",
-  "Mentoring and Positive Engagement",
-  "SEND Support",
+  "Family Support Services",
+  "Mentoring Services",
+  "SEND Support Services",
   "Foster Placement Support",
-  "Residential Home Support",
+  "Residential Care Support",
   "Accompanied Appointments",
   "Respite and Short Break Support",
   "Emergency Transport Arrangements",
@@ -45,15 +61,15 @@ export const WHO_WE_SUPPORT_LIST: readonly string[] = [
 ] as const;
 
 export const TRANSPORT_SUPPORT_INTRO =
-  "CAMS Services provides safe and reliable transport support for children, young people, and vulnerable individuals." as const;
+  "CAMS Services provides safe and reliable child transport services across the UK, including school transport support, contact centre transport, foster placement journeys, and child escort services for children, young people, and vulnerable individuals." as const;
 
 export const TRANSPORT_SUPPORT_ITEMS: readonly string[] = [
-  "Home to School Transport",
+  "School Transport Support",
   "Home to Nursery Transport",
   "Contact Centre Transport",
   "Foster Placement Transport",
   "Community Access Transport",
-  "Accompanied Appointments",
+  "Child Escort Services",
   "Supported Travel and Transition Services",
 ] as const;
 
@@ -74,9 +90,9 @@ export const REFERRAL_PARTNERS_LIST: readonly string[] = [
 ] as const;
 
 export const HOME_INTRO_PARAGRAPHS: readonly string[] = [
-  "CAMS Services Ltd provides tailored support services for children, young people, families, and vulnerable adults.",
-  "We work alongside local authorities, schools, nurseries, foster carers, residential homes, families, and community organisations to provide safe, reliable, and person-centred support.",
-  "Our services are designed around the individual's needs, circumstances, and goals.",
+  "CAMS Services Ltd provides chaperone services UK-wide for children, young people, families, and vulnerable adults.",
+  "We work alongside local authorities, schools, nurseries, foster carers, residential homes, and community organisations to deliver family support services, community support services, and local authority support services that are safe, reliable, and person-centred.",
+  "From child transport services and school transport support to SEND support services, foster placement support, residential care support, and mentoring services, every package is designed around the individual's needs, circumstances, and goals.",
 ] as const;
 
 export const CAMS_CONTACT = {

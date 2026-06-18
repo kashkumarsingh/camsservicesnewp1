@@ -32,9 +32,9 @@ export function HomeTransportSupportSection(): ReactElement {
             eyebrow="Specialist transport"
             title={
               <>
-                Specialist Transport and{" "}
+                Child transport services &{" "}
                 <span className="bg-gradient-to-r from-cams-primary to-cams-secondary bg-clip-text text-transparent">
-                  Chaperone Services
+                  school transport support
                 </span>
               </>
             }

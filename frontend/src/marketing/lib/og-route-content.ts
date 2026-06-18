@@ -1,24 +1,27 @@
 import { INTERVENTION_PACKAGES } from "@/marketing/mock/intervention-packages";
 
 const DEFAULT_SUMMARY =
-  "Trusted chaperone, transport, mentoring and support services tailored to individual needs.";
+  "Chaperone services UK, child transport services, family support services, and mentoring services tailored to individual needs.";
 
 const PAGE_FALLBACKS: Record<string, { title: string; summary: string }> = {
   "": {
-    title: "CAMS Services",
-    summary: "Tailored support services for children, young people, families, and vulnerable adults.",
+    title: "Chaperone Services UK | CAMS Services",
+    summary:
+      "Chaperone services UK, child transport services, family support services, SEND support services, and mentoring services.",
   },
   about: {
     title: "About CAMS Services",
     summary: "Learn about our team, mission, and person-centred support model.",
   },
   services: {
-    title: "Our Services",
-    summary: "Chaperone, transport, mentoring, SEND support, and tailored one-to-one packages.",
+    title: "Chaperone Services UK | Child Transport & SEND Support",
+    summary:
+      "Child transport services, school transport support, family support services, community support services, and residential care support.",
   },
   referral: {
-    title: "Referral Partners",
-    summary: "We welcome referrals from local authorities, schools, nurseries, and families.",
+    title: "Referral Partners | Local Authority Support Services",
+    summary:
+      "Referrals welcome from local authorities, schools, nurseries, foster agencies, and family support teams.",
   },
   packages: {
     title: "Packages",

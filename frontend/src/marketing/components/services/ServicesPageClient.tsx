@@ -15,6 +15,7 @@ import { SERVICE_PROGRAMME_LIST } from "@/marketing/mock/services-programmes";
 import {
   CAMS_CONTACT,
   CAMS_SERVICES_LIST,
+  camsTelHref,
   TRANSPORT_SUPPORT_FOOTNOTE,
   TRANSPORT_SUPPORT_INTRO,
   TRANSPORT_SUPPORT_ITEMS,
@@ -91,13 +92,15 @@ export function ServicesPageClient(): ReactElement {
       <PageHeroBand
         title={
           <>
-            Our <span className="text-cams-primary">Services</span>
+            Chaperone Services <span className="text-cams-primary">UK</span>
           </>
         }
         description={
           <>
-            Chaperone, transport, mentoring, and tailored support services for children, young people, families, and
-            vulnerable adults, designed around individual needs and delivered with safeguarding at the centre.
+            Child transport services, school transport support, contact centre transport, child escort services,
+            family support services, community support services, SEND support services, foster placement support,
+            residential care support, mentoring services, and local authority support services, tailored to individual
+            needs and delivered with safeguarding at the centre.
           </>
         }
       />
@@ -118,7 +121,7 @@ export function ServicesPageClient(): ReactElement {
               Our <span className="text-cams-primary">Services</span>
             </>
           }
-          description="Each service is planned around the individual's needs, circumstances, and goals."
+          description="Each service is planned around the individual's needs, including chaperone services UK, child transport services, family support services, and local authority support services."
         />
         <div className="mt-8">
           <MarketingBulletGrid items={CAMS_SERVICES_LIST} icon="heartHandshake" />
@@ -139,7 +142,7 @@ export function ServicesPageClient(): ReactElement {
             eyebrow="Transport"
             title={
               <>
-                Specialist Transport and <span className="text-cams-primary">Chaperone Services</span>
+                Child transport & <span className="text-cams-primary">contact centre transport</span>
               </>
             }
             description={TRANSPORT_SUPPORT_INTRO}
@@ -252,8 +255,11 @@ export function ServicesPageClient(): ReactElement {
       <PageCtaSection
         heading="Need support for a child, young person, family member, or vulnerable adult?"
         description="Contact CAMS Services today to discuss a tailored support package."
-        contactInfo={CAMS_CONTACT}
-        actions={[{ href: "/referral", label: "Make a referral", variant: "primary" }]}
+        actions={[
+          { href: "/referral", label: "Make a referral", variant: "primary" },
+          { href: camsTelHref(CAMS_CONTACT.phone), label: "Call us", variant: "secondary" },
+          { href: `mailto:${CAMS_CONTACT.email}`, label: "Email us", variant: "secondary" },
+        ]}
       />
     </PageShell>
   );

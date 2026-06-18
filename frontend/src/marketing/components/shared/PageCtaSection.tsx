@@ -1,17 +1,11 @@
 import type { ReactElement, ReactNode } from "react";
 import { Button } from "@/marketing/components/ui/button";
 import { cn } from "@/marketing/lib/utils";
-import { camsTelHref } from "@/marketing/mock/cams-services-catalog";
 
 export type PageCtaAction = {
   href: string;
   label: string;
   variant?: "primary" | "secondary";
-};
-
-export type PageCtaContactInfo = {
-  phone: string;
-  email: string;
 };
 
 /** Gradient clipped text for CTA titles and marketing headings (aligned with static HTML references). */
@@ -22,7 +16,6 @@ type PageCtaSectionProps = {
   heading: ReactNode;
   description: string;
   actions: readonly PageCtaAction[];
-  contactInfo?: PageCtaContactInfo;
   className?: string;
 };
 
@@ -30,7 +23,6 @@ export function PageCtaSection({
   heading,
   description,
   actions,
-  contactInfo,
   className
 }: PageCtaSectionProps): ReactElement {
   const actionCount = actions.length;
@@ -38,9 +30,9 @@ export function PageCtaSection({
   const actionsLayoutClass = cn(
     "grid gap-3",
     actionCount === 1 && "grid-cols-1",
-    actionCount === 2 &&
-      "grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2",
-    actionCount >= 3 &&
+    actionCount === 2 && "grid-cols-1 sm:grid-cols-2",
+    actionCount === 3 && "grid-cols-1 sm:grid-cols-3",
+    actionCount >= 4 &&
       "grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3"
   );
 
@@ -83,24 +75,6 @@ export function PageCtaSection({
               <p className="text-left text-base leading-relaxed text-slate-200/95 md:text-lg">
                 {description}
               </p>
-              {contactInfo ? (
-                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  <Button
-                    href={camsTelHref(contactInfo.phone)}
-                    variant="ctaSecondary"
-                    className="min-h-[52px] w-full justify-center px-6 text-sm font-semibold sm:w-auto sm:px-8"
-                  >
-                    Call us
-                  </Button>
-                  <Button
-                    href={`mailto:${contactInfo.email}`}
-                    variant="ctaSecondary"
-                    className="min-h-[52px] w-full justify-center px-6 text-sm font-semibold sm:w-auto sm:px-8"
-                  >
-                    Email us
-                  </Button>
-                </div>
-              ) : null}
               <div className={actionsLayoutClass}>
                 {actions.map((action, index) => (
                   <Button
@@ -111,7 +85,7 @@ export function PageCtaSection({
                     }
                     className={cn(
                       "min-h-[52px] w-full justify-center px-6 text-sm font-semibold sm:px-8",
-                      actionCount >= 3 &&
+                      actionCount >= 4 &&
                         index === 2 &&
                         "sm:col-span-2 sm:max-w-md sm:justify-self-center lg:col-span-1 lg:max-w-none lg:justify-self-stretch xl:col-span-2 xl:max-w-lg xl:justify-self-center 2xl:col-span-1 2xl:max-w-none 2xl:justify-self-stretch"
                     )}
