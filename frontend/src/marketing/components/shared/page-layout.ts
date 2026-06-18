@@ -1,6 +1,10 @@
 export const PAGE_LAYOUT = {
   sectionPadding: "py-16 md:py-24",
   container: "mx-auto max-w-[1600px] px-4 md:px-6",
+  homeSection: "relative overflow-hidden px-4 py-20 md:px-10 md:py-28",
+  homeSectionSoft: "relative overflow-hidden bg-cams-soft px-4 py-20 md:px-10 md:py-28",
+  homeSectionWhite: "relative overflow-hidden bg-white px-4 py-20 md:px-10 md:py-28",
+  homeContainer: "relative mx-auto w-full max-w-[1600px]",
   contentContainer: "mx-auto max-w-[1500px]",
   panel: "rounded-3xl border border-slate-200/80 bg-white shadow-sm",
   panelFrame: "rounded-3xl border border-slate-200/80 shadow-sm",

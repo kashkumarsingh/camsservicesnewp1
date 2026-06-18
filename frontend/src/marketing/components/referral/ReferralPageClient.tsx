@@ -8,6 +8,7 @@ import { PageShell } from "@/marketing/components/shared/PageShell";
 import { PageHeroBand } from "@/marketing/components/shared/PageHeroBand";
 import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
 import { CamsIcon, type CamsIconName } from "@/marketing/components/shared/CamsIcon";
+import { MarketingBulletGrid } from "@/marketing/components/shared/MarketingBulletGrid";
 import { PAGE_LAYOUT } from "@/marketing/components/shared/page-layout";
 import { INTERVENTION_PACKAGES } from "@/marketing/mock/intervention-packages";
 import { REFERRAL_PARTNERS_LIST } from "@/marketing/mock/cams-services-catalog";
@@ -147,29 +148,21 @@ export function ReferralPageClient(): ReactElement {
       />
 
       <section className={`${PAGE_LAYOUT.panelCompact} p-6 sm:p-8`}>
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <div className="min-w-0 flex-1">
             <h2 className="font-mono text-2xl font-bold text-cams-navy sm:text-3xl">We welcome referrals from</h2>
-            <p className="mt-2 text-sm text-cams-slate">
+            <p className="mt-2 text-sm leading-6 text-cams-slate sm:text-base">
               Professionals, organisations, and families can refer for tailored chaperone, transport, mentoring, and
               support packages.
             </p>
           </div>
-          <Button href="#referral-form" size="lg" className="shrink-0">
+          <Button href="#referral-form" size="lg" className="w-full shrink-0 sm:w-auto">
             Make a Referral
           </Button>
         </div>
-        <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {REFERRAL_PARTNERS_LIST.map((partner) => (
-            <li
-              key={partner}
-              className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm font-semibold text-cams-navy"
-            >
-              <span className="size-2 shrink-0 rounded-full bg-cams-primary" aria-hidden />
-              {partner}
-            </li>
-          ))}
-        </ul>
+        <div className="mt-6">
+          <MarketingBulletGrid items={REFERRAL_PARTNERS_LIST} columnsClassName="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" />
+        </div>
       </section>
 
       <section className={`${PAGE_LAYOUT.panelCompact} p-6 sm:p-8`}>

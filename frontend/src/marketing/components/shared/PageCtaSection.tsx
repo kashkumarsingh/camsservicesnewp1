@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from "react";
 import { Button } from "@/marketing/components/ui/button";
 import { cn } from "@/marketing/lib/utils";
+import { camsTelHref } from "@/marketing/mock/cams-services-catalog";
 
 export type PageCtaAction = {
   href: string;
@@ -83,19 +84,21 @@ export function PageCtaSection({
                 {description}
               </p>
               {contactInfo ? (
-                <div className="space-y-2 text-left text-sm text-slate-200/90">
-                  <p>
-                    <span className="font-semibold text-white">Phone:</span>{" "}
-                    <a href={`tel:${contactInfo.phone.replace(/\s/g, "")}`} className="underline-offset-2 hover:underline">
-                      {contactInfo.phone}
-                    </a>
-                  </p>
-                  <p>
-                    <span className="font-semibold text-white">Email:</span>{" "}
-                    <a href={`mailto:${contactInfo.email}`} className="underline-offset-2 hover:underline">
-                      {contactInfo.email}
-                    </a>
-                  </p>
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                  <Button
+                    href={camsTelHref(contactInfo.phone)}
+                    variant="ctaSecondary"
+                    className="min-h-[52px] w-full justify-center px-6 text-sm font-semibold sm:w-auto sm:px-8"
+                  >
+                    Call us
+                  </Button>
+                  <Button
+                    href={`mailto:${contactInfo.email}`}
+                    variant="ctaSecondary"
+                    className="min-h-[52px] w-full justify-center px-6 text-sm font-semibold sm:w-auto sm:px-8"
+                  >
+                    Email us
+                  </Button>
                 </div>
               ) : null}
               <div className={actionsLayoutClass}>

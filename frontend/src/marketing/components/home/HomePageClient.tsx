@@ -174,10 +174,7 @@ export function HomePageClient(): ReactElement {
         heading="Need support for a child, young person, family member, or vulnerable adult?"
         description="Contact CAMS Services today to discuss a tailored support package."
         contactInfo={CAMS_CONTACT}
-        actions={[
-          { href: "/referral", label: "Make a Referral", variant: "primary" },
-          { href: "/contact", label: "Contact Us", variant: "secondary" }
-        ]}
+        actions={[{ href: "/referral", label: "Make a Referral", variant: "primary" }]}
       />
     </div>
   );

@@ -339,6 +339,9 @@ docs/.vitepress/dist/
 # ============================================
 # Repository-Specific Exclusions
 # ============================================
+# Weekly progress reports (local only)
+report/
+
 # Documentation
 docs/
 DOCS/

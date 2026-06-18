@@ -1,6 +1,8 @@
 import type { ReactElement } from "react";
 import Link from "next/link";
-import { CamsIcon } from "@/marketing/components/shared/CamsIcon";
+import { Button } from "@/marketing/components/ui/button";
+import { MarketingBulletGrid } from "@/marketing/components/shared/MarketingBulletGrid";
+import { MarketingSectionHeader } from "@/marketing/components/shared/MarketingSectionHeader";
 import { PAGE_LAYOUT } from "@/marketing/components/shared/page-layout";
 import {
   TRANSPORT_SUPPORT_FOOTNOTE,
@@ -11,57 +13,59 @@ import {
 export function HomeTransportSupportSection(): ReactElement {
   return (
     <section
-      className="relative overflow-hidden bg-white px-4 py-20 md:py-28"
+      className={PAGE_LAYOUT.homeSectionWhite}
       aria-labelledby="home-transport-heading"
     >
       <div
         className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-cams-secondary/[0.08] blur-3xl"
         aria-hidden
       />
-      <div className={PAGE_LAYOUT.container}>
-        <div className="grid gap-12 lg:grid-cols-12 lg:items-start">
-          <header className="lg:col-span-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cams-primary">
-              Specialist transport
-            </p>
-            <h2
-              id="home-transport-heading"
-              className="mt-4 font-heading text-3xl font-bold tracking-tight text-cams-ink md:text-5xl"
-            >
-              Specialist Transport and{" "}
-              <span className="text-cams-primary">Chaperone Services</span>
-            </h2>
-            <p className="mt-6 text-lg leading-relaxed text-cams-ink-secondary">{TRANSPORT_SUPPORT_INTRO}</p>
-            <p className="mt-6 text-sm leading-relaxed text-cams-ink-secondary">{TRANSPORT_SUPPORT_FOOTNOTE}</p>
-            <Link
-              href="/services"
-              className="group mt-8 inline-flex items-center gap-2 text-sm font-semibold text-cams-primary transition hover:text-cams-secondary"
-            >
-              View all services
-              <span aria-hidden className="transition group-hover:translate-x-0.5">
-                →
-              </span>
-            </Link>
-          </header>
+      <div
+        className="pointer-events-none absolute -left-32 bottom-0 h-64 w-64 rounded-full bg-cams-primary/[0.06] blur-3xl"
+        aria-hidden
+      />
 
-          <div className="lg:col-span-7">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-cams-ink-secondary">
-              Support may include
-            </p>
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {TRANSPORT_SUPPORT_ITEMS.map((item) => (
-                <li
-                  key={item}
-                  className="flex items-start gap-3 rounded-2xl border border-slate-200/90 bg-cams-soft/40 p-4 transition hover:border-cams-primary/25 hover:bg-white hover:shadow-sm"
-                >
-                  <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-cams-primary/20 bg-white">
-                    <CamsIcon name="mapPin" surface="muted" size={18} />
-                  </span>
-                  <span className="text-sm font-semibold leading-relaxed text-cams-ink">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+      <div className={`${PAGE_LAYOUT.homeContainer} grid gap-12 lg:grid-cols-12 lg:items-start lg:gap-16`}>
+        <header className="lg:col-span-5">
+          <MarketingSectionHeader
+            id="home-transport-heading"
+            eyebrow="Specialist transport"
+            title={
+              <>
+                Specialist Transport and{" "}
+                <span className="bg-gradient-to-r from-cams-primary to-cams-secondary bg-clip-text text-transparent">
+                  Chaperone Services
+                </span>
+              </>
+            }
+            description={TRANSPORT_SUPPORT_INTRO}
+          />
+          <p className="mt-6 text-sm leading-relaxed text-cams-ink-secondary md:text-base">
+            {TRANSPORT_SUPPORT_FOOTNOTE}
+          </p>
+          <Link
+            href="/services"
+            className="group mt-8 inline-flex w-full items-center justify-center gap-3 rounded-full border border-cams-primary/25 bg-white px-6 py-3 text-sm font-semibold text-cams-ink shadow-sm transition hover:border-cams-primary/45 hover:shadow-md sm:w-fit"
+          >
+            View all services
+            <span
+              aria-hidden
+              className="inline-flex size-8 items-center justify-center rounded-full bg-cams-soft text-cams-primary transition group-hover:translate-x-0.5"
+            >
+              →
+            </span>
+          </Link>
+        </header>
+
+        <div className="lg:col-span-7">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-cams-ink-secondary">
+            Support may include
+          </p>
+          <MarketingBulletGrid
+            items={TRANSPORT_SUPPORT_ITEMS}
+            icon="mapPin"
+            columnsClassName="grid-cols-1 sm:grid-cols-2"
+          />
         </div>
       </div>
     </section>

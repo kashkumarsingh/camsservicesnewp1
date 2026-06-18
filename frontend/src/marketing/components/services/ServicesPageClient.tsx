@@ -6,6 +6,8 @@ import { CamsIcon, type CamsIconName } from "@/marketing/components/shared/CamsI
 import { PageShell } from "@/marketing/components/shared/PageShell";
 import { PageHeroBand } from "@/marketing/components/shared/PageHeroBand";
 import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
+import { MarketingBulletGrid } from "@/marketing/components/shared/MarketingBulletGrid";
+import { MarketingSectionHeader } from "@/marketing/components/shared/MarketingSectionHeader";
 import { PAGE_LAYOUT, PAGE_SURFACES } from "@/marketing/components/shared/page-layout";
 import { ServiceProgrammeJumpNav } from "@/marketing/components/services/ServiceProgrammeJumpNav";
 import { ServicesProgrammeArticle } from "@/marketing/components/services/ServicesProgrammeArticle";
@@ -95,7 +97,7 @@ export function ServicesPageClient(): ReactElement {
         description={
           <>
             Chaperone, transport, mentoring, and tailored support services for children, young people, families, and
-            vulnerable adults — designed around individual needs and delivered with safeguarding at the centre.
+            vulnerable adults, designed around individual needs and delivered with safeguarding at the centre.
           </>
         }
       />
@@ -104,53 +106,56 @@ export function ServicesPageClient(): ReactElement {
         aria-labelledby="services-catalog-heading"
         className={`relative mt-10 overflow-hidden ${PAGE_LAYOUT.panel} p-5 md:p-8`}
       >
-        <header className="max-w-3xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">What we offer</p>
-          <h2 id="services-catalog-heading" className="mt-3 font-heading text-3xl font-bold md:text-4xl">
-            Our <span className="text-cams-primary">Services</span>
-          </h2>
-          <p className="mt-4 text-sm leading-7 text-cams-ink-secondary md:text-base">
-            Each service is planned around the individual&apos;s needs, circumstances, and goals.
-          </p>
-        </header>
-        <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {CAMS_SERVICES_LIST.map((service) => (
-            <li
-              key={service}
-              className="flex items-start gap-3 rounded-2xl border border-slate-200/90 bg-white/90 p-4 shadow-sm"
-            >
-              <span className="mt-1 size-2 shrink-0 rounded-full bg-cams-primary" aria-hidden />
-              <span className="text-sm font-semibold leading-relaxed text-cams-ink">{service}</span>
-            </li>
-          ))}
-        </ul>
+        <div
+          className="pointer-events-none absolute -right-14 -top-16 h-52 w-52 rounded-full bg-cams-primary/[0.08] blur-3xl"
+          aria-hidden
+        />
+        <MarketingSectionHeader
+          id="services-catalog-heading"
+          eyebrow="What we offer"
+          title={
+            <>
+              Our <span className="text-cams-primary">Services</span>
+            </>
+          }
+          description="Each service is planned around the individual's needs, circumstances, and goals."
+        />
+        <div className="mt-8">
+          <MarketingBulletGrid items={CAMS_SERVICES_LIST} icon="heartHandshake" />
+        </div>
       </section>
 
       <section
         aria-labelledby="services-transport-heading"
         className={`relative mt-10 overflow-hidden ${PAGE_LAYOUT.panel} p-5 md:p-8`}
       >
-        <header className="max-w-3xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Transport</p>
-          <h2 id="services-transport-heading" className="mt-3 font-heading text-3xl font-bold md:text-4xl">
-            Specialist Transport and <span className="text-cams-primary">Chaperone Services</span>
-          </h2>
-          <p className="mt-4 text-sm leading-7 text-cams-ink-secondary md:text-base">{TRANSPORT_SUPPORT_INTRO}</p>
-        </header>
-        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-cams-ink-secondary">
-          Support may include
-        </p>
-        <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-          {TRANSPORT_SUPPORT_ITEMS.map((item) => (
-            <li
-              key={item}
-              className="rounded-xl border border-slate-200/90 bg-cams-soft/40 px-4 py-3 text-sm font-semibold text-cams-ink"
-            >
-              {item}
-            </li>
-          ))}
-        </ul>
-        <p className="mt-6 text-sm leading-7 text-cams-ink-secondary">{TRANSPORT_SUPPORT_FOOTNOTE}</p>
+        <div
+          className="pointer-events-none absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-cams-secondary/[0.08] blur-3xl"
+          aria-hidden
+        />
+        <div className={`${PAGE_LAYOUT.splitGrid} items-start`}>
+          <MarketingSectionHeader
+            id="services-transport-heading"
+            eyebrow="Transport"
+            title={
+              <>
+                Specialist Transport and <span className="text-cams-primary">Chaperone Services</span>
+              </>
+            }
+            description={TRANSPORT_SUPPORT_INTRO}
+          />
+          <div>
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-cams-ink-secondary">
+              Support may include
+            </p>
+            <MarketingBulletGrid
+              items={TRANSPORT_SUPPORT_ITEMS}
+              icon="mapPin"
+              columnsClassName="grid-cols-1 sm:grid-cols-2"
+            />
+            <p className="mt-6 text-sm leading-7 text-cams-ink-secondary md:text-base">{TRANSPORT_SUPPORT_FOOTNOTE}</p>
+          </div>
+        </div>
       </section>
 
       <section
@@ -248,10 +253,7 @@ export function ServicesPageClient(): ReactElement {
         heading="Need support for a child, young person, family member, or vulnerable adult?"
         description="Contact CAMS Services today to discuss a tailored support package."
         contactInfo={CAMS_CONTACT}
-        actions={[
-          { href: "/referral", label: "Make a referral", variant: "primary" },
-          { href: "/contact", label: "Contact us", variant: "secondary" }
-        ]}
+        actions={[{ href: "/referral", label: "Make a referral", variant: "primary" }]}
       />
     </PageShell>
   );

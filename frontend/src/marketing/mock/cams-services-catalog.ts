@@ -83,3 +83,7 @@ export const CAMS_CONTACT = {
   phone: "+44 7939 990587",
   email: "info@camsservices.co.uk",
 } as const;
+
+export function camsTelHref(phone: string): string {
+  return `tel:${phone.replace(/\s/g, "")}`;
+}
