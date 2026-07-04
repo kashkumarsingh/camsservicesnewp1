@@ -11,9 +11,9 @@ const BASE_URL = getMetadataBaseUrl();
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
     {
-      title: 'Referral Partners | Local Authority Support Services | CAMS',
+      title: 'Refer Chaperone Services UK | Chaperone Service | CAMS',
       description:
-        'Refer chaperone services UK, child transport services, family support services, and SEND support services. Local authorities, schools, nurseries, foster agencies, and parents welcome.',
+        'Refer chaperone services and chaperone service UK for contact transport, school runs and foster moves. Local authorities, schools, foster agencies and parents welcome.',
       path: ROUTES.REFERRAL,
       imageAlt: 'Referral with CAMS services',
     },

@@ -40,11 +40,11 @@
     </div>
 
     <p style="margin:24px 0 0 0;font-size:15px;color:#374151;">
-        We'd love to welcome {{ $childNames }} to CAMS Services. Complete your booking today!
+        We'd love to welcome {{ $childNames }} to CAMS services. Complete your booking today!
     </p>
 
     <p style="margin:16px 0 0 0;font-size:15px;color:#374151;">
         Kind regards,<br>
-        The CAMS Services Team
+        The CAMS services Team
     </p>
 @endcomponent

@@ -5,6 +5,7 @@ import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteFloatingActions } from '@/components/layout/SiteFloatingActions';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
 import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
+import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
 import { getSiteSettings } from '@/marketing/server/siteSettings/getSiteSettings';
 import { SiteSettingsMapper } from '@/core/application/siteSettings/mappers/SiteSettingsMapper';
 import { policiesData } from '@/data/policiesData';
@@ -14,9 +15,8 @@ import { PACKAGE_TIER_LINKS } from '@/marketing/lib/package-footer-links';
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
     {
-      title: 'Chaperone Services UK | Child Transport & Family Support | CAMS services',
-      description:
-        'Chaperone services UK, child transport services, school transport support, family support services, SEND support services, foster placement support, and mentoring services.',
+      title: SEO_DEFAULTS.title,
+      description: SEO_DEFAULTS.description,
       path: '/',
     },
     getMetadataBaseUrl()

@@ -1,7 +1,7 @@
 /** Central catalogue for CAMS service offerings, audiences, and referral partners. */
 
 export const COMPANY_TAGLINE =
-  "Trusted Chaperone, Transport, Mentoring and Support Services" as const;
+  "Chaperone Services UK, Transport, Mentoring & Support" as const;
 
 export const COMPANY_KEY_MESSAGE = [
   "Safe.",
@@ -12,6 +12,8 @@ export const COMPANY_KEY_MESSAGE = [
 
 /** Priority search terms for titles and on-page copy (not meta keywords tags). */
 export const CAMS_GOOGLE_SEARCH_TERMS = [
+  "Chaperone Service",
+  "Chaperone Services",
   "Chaperone Services UK",
   "Child Transport Services",
   "Family Support Services",
@@ -90,9 +92,9 @@ export const REFERRAL_PARTNERS_LIST: readonly string[] = [
 ] as const;
 
 export const HOME_INTRO_PARAGRAPHS: readonly string[] = [
-  "CAMS services Ltd provides chaperone services UK-wide for children, young people, families, and vulnerable adults.",
-  "We work alongside local authorities, schools, nurseries, foster carers, residential homes, and community organisations to deliver family support services, community support services, and local authority support services that are safe, reliable, and person-centred.",
-  "From child transport services and school transport support to SEND support services, foster placement support, residential care support, and mentoring services, every package is designed around the individual's needs, circumstances, and goals.",
+  "CAMS Services Ltd is a UK chaperone service provider. We deliver chaperone services for children, young people, families and vulnerable adults who need safeguarding-led travel and accompaniment.",
+  "Local authorities, schools, nurseries, foster carers and residential homes commission our chaperone services alongside child transport services, school transport support, SEND support and mentoring.",
+  "Every chaperone service assignment is planned around the individual: contact centre handovers, foster moves, SEMH-friendly school runs and community access with the same DBS-checked practitioner where possible.",
 ] as const;
 
 export const CAMS_CONTACT = {

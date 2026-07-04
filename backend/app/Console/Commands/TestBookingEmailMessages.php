@@ -61,7 +61,7 @@ class TestBookingEmailMessages extends Command
             $this->info('⏳ Status: DRAFT or PENDING');
             $this->newLine();
             $this->line('📧 Expected Parent Email Message:');
-            $this->line('  Thank you for choosing CAMS Services! We have received your booking request.');
+            $this->line('  Thank you for choosing CAMS services! We have received your booking request.');
             $this->line('  Our team will review the details and confirm trainer availability shortly.');
             $this->newLine();
             $this->line('📧 Expected Admin Email Message:');

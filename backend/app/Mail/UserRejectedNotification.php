@@ -33,7 +33,7 @@ class UserRejectedNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'CAMS Services Account Registration Update',
+            subject: 'CAMS services Account Registration Update',
         );
     }
 

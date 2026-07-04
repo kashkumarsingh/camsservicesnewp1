@@ -1,10 +1,10 @@
 @component('mail.layouts.cams', [
     'title' => 'Trainer Application Update',
-    'preview' => 'Thank you for your interest in joining CAMS Services.',
+    'preview' => 'Thank you for your interest in joining CAMS services.',
 ])
     <p style="margin:0 0 16px 0;font-size:16px;color:#111827;">Hi {{ $applicantName }},</p>
     <p style="margin:0 0 16px 0;font-size:15px;color:#374151;">
-        Thank you for taking the time to apply for a trainer position with CAMS Services. We really appreciate your interest in joining our team.
+        Thank you for taking the time to apply for a trainer position with CAMS services. We really appreciate your interest in joining our team.
     </p>
 
     <div style="margin:24px 0;padding:20px;background-color:#fee2e2;border-radius:8px;border-left:4px solid:#ef4444;">
@@ -46,6 +46,6 @@
     
     <p style="margin:0;font-size:15px;color:#374151;">
         Best wishes for your future endeavours,<br>
-        — Team CAMS Services
+        — Team CAMS services
     </p>
 @endcomponent

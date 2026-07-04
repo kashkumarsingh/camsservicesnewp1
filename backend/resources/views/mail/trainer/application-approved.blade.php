@@ -1,10 +1,10 @@
 @component('mail.layouts.cams', [
-    'title' => 'Application Approved - Welcome to CAMS Services!',
+    'title' => 'Application Approved - Welcome to CAMS services!',
     'preview' => 'Congratulations! Your trainer application has been approved.',
 ])
     <p style="margin:0 0 16px 0;font-size:16px;color:#111827;">Hi {{ $applicantName }},</p>
     <p style="margin:0 0 16px 0;font-size:15px;color:#374151;">
-        Brilliant news! Your trainer application has been approved, and we're delighted to welcome you to the CAMS Services team.
+        Brilliant news! Your trainer application has been approved, and we're delighted to welcome you to the CAMS services team.
     </p>
 
     <div style="margin:24px 0;padding:20px;background-color:#d1fae5;border-radius:8px;border-left:4px solid:#10b981;">
@@ -93,6 +93,6 @@
     
     <p style="margin:0;font-size:15px;color:#374151;">
         Welcome to the team! 🎉<br>
-        — Team CAMS Services
+        — Team CAMS services
     </p>
 @endcomponent

@@ -56,7 +56,7 @@ class SendContactSubmissionWebhook implements ShouldQueue
 
         $timestamp = (string) now()->timestamp;
         $headers = [
-            'User-Agent' => 'CAMS Services Webhook/' . Str::uuid(),
+            'User-Agent' => 'CAMS services Webhook/' . Str::uuid(),
             'Accept' => 'application/json',
         ];
 

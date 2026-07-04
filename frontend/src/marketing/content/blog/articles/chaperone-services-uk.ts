@@ -11,6 +11,10 @@ import {
 
 const faqItems = [
   {
+    q: "What is a chaperone service for children?",
+    a: "A chaperone service provides a trained, DBS-checked adult to accompany a child or young person on journeys or during supervised contact. The chaperone supports handovers, emotional regulation and safeguarding. It is not the same as a taxi or medical chaperoning in a GP clinic.",
+  },
+  {
     q: "What is the difference between a chaperone and an escort?",
     a: 'In UK children\'s services language, both terms describe a trained adult accompanying a child. "Chaperone" often implies supervised contact or community access; "escort" is common in transport paperwork. CAMS uses both labels to match local authority templates. The safeguarding standard is the same.',
   },
@@ -29,11 +33,11 @@ const faqItems = [
 ];
 
 const content = `
-**Chaperone services UK** help children and young people travel safely between homes, schools, contact centres, foster placements and appointments.
+**Chaperone services** and our **chaperone service** help children and young people travel safely between homes, schools, contact centres, foster placements and appointments.
 
-Local authorities, schools and families use chaperones when a child cannot travel alone. Reasons include care proceedings, SEND needs, court-ordered contact or placement instability.
+Local authorities, schools and families book chaperone services when a child cannot travel alone. Reasons include care proceedings, SEND needs, court-ordered contact or placement instability.
 
-Commissioners need more than a driver. They need a trained adult who understands de-escalation, handover protocols and the stress of transitions. This guide explains what professional **chaperone services UK** include, who they serve, and the standards you should expect.
+Commissioners need more than a driver. They need a trained adult who understands de-escalation, handover protocols and the stress of transitions. This guide explains what a professional chaperone service includes, how chaperone services UK providers work, and the standards you should expect.
 
 ${articleToc([
   { label: "What chaperone services UK include", anchor: "what-chaperone-services-uk-include" },
@@ -193,13 +197,13 @@ ${faqSection(faqItems)}
 
 export const chaperoneServicesUkArticle: MarketingBlogPostDTO = {
   slug: "blog/chaperone-services-uk",
-  focusKeyword: "chaperone services UK",
-  metaTitle: "Chaperone Services UK: Safe Escort & Transport Guide",
+  focusKeyword: "chaperone services",
+  metaTitle: "Chaperone Services UK | Professional Chaperone Service",
   metaDescription:
-    "Chaperone services UK for children in care, SEND and contact transport. Safeguarding-first escorts for local authorities, schools and families. Refer CAMS today.",
-  title: "Chaperone Services UK: What Local Authorities and Families Should Know",
+    "Chaperone services and chaperone service UK for children in care, SEND and contact transport. DBS-checked escorts for schools and local authorities. Refer CAMS Services.",
+  title: "Chaperone Services UK: Professional Chaperone Service for Children",
   excerpt:
-    "How professional chaperone services UK keep children safe on contact, school and placement journeys, and what safeguarding standards to expect from your provider.",
+    "What chaperone services and a professional chaperone service include for children in care, contact transport and school journeys, and how to commission safeguarding-first escorts.",
   category: "Chaperone Services",
   publishedLabel: "June 12, 2026",
   publishedAt: "2026-06-12T09:00:00.000Z",
@@ -209,6 +213,8 @@ export const chaperoneServicesUkArticle: MarketingBlogPostDTO = {
   coverImageAlt: "Professional chaperone accompanying a young person on a safe community journey in the UK",
   content,
   tags: [
+    "chaperone services",
+    "chaperone service",
     "chaperone services UK",
     "child escort services",
     "local authority support",

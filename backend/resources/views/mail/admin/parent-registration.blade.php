@@ -32,6 +32,6 @@ Review Parent Account
 **Important:** Parents cannot book sessions until their account has been approved. Please review this registration within 24-48 hours to ensure a positive experience.
 
 Best regards,  
-**CAMS Services System**
+**CAMS services System**
 
 @endcomponent

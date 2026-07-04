@@ -1,4 +1,4 @@
-# CAMS Services (camsservicep1) – Role-Based Dashboard (Independent of Public Pages)
+# CAMS services (camsservicep1) – Role-Based Dashboard (Independent of Public Pages)
 
 ## Summary
 

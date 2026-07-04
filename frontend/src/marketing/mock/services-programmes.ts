@@ -56,9 +56,9 @@ export const SERVICE_PROGRAMME_LIST: readonly ServiceProgrammeListItem[] = [
   {
     anchorId: "programme-community",
     numberLabel: "03, Community pathway",
-    title: "Community Access and Transport Services",
+    title: "Chaperone & Community Transport Services",
     description:
-      "One-to-one support to safely access the community, activities and appointments, reducing isolation and building real-world confidence step by step.",
+      "Professional chaperone service and chaperone services for safe community access, contact centre transport, school runs and appointments. One-to-one escorts reduce isolation and build confidence step by step.",
     features: [
       "Safe community access and travel",
       "Activities and appointments supported in person",

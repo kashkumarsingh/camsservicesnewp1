@@ -19,7 +19,7 @@ class ApplyMailDeliverabilityHeaders
         }
 
         $fromAddress = config('mail.from.address');
-        $fromName = config('mail.from.name', 'CAMS Services');
+        $fromName = config('mail.from.name', 'CAMS services');
         $replyTo = env('MAIL_REPLY_TO') ?: $fromAddress;
 
         if (filled($replyTo)) {

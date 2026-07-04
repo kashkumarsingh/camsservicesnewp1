@@ -34,9 +34,9 @@ export const viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.camsservices.co.uk'),
-  title: 'Chaperone Services UK | Child Transport & Family Support | CAMS services',
+  title: 'Chaperone & Child Transport Services UK | CAMS',
   description:
-    'Chaperone services UK, child transport services, school transport support, family support services, SEND support services, foster placement support, mentoring services, and local authority support services.',
+    'UK chaperone and child transport for families, schools and local authorities. SEND support, foster placement help, mentoring and tailored family support.',
   ...getSearchVerificationMetadata(),
   openGraph: {
     title: 'Chaperone Services UK | Child Transport & Family Support',

@@ -20,7 +20,7 @@
         If this payment was unexpected or you need to discuss your plan, reply with your booking reference and we’ll get back to you shortly.
     </p>
     <p style="margin:0;font-size:15px;color:#374151;">
-        — Team CAMS Services
+        — Team CAMS services
     </p>
 @endcomponent
 

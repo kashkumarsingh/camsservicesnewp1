@@ -16,7 +16,7 @@ export function ServiceSeoOverview({ programme }: ServiceSeoOverviewProps): Reac
     <section className="border-b border-primary-blue/10 bg-white py-12" aria-labelledby="service-seo-heading">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <h2 id="service-seo-heading" className="font-heading text-2xl font-bold text-navy-blue md:text-3xl">
-          About {programme.title} at CAMS services
+          About {programme.title} at CAMS Services
         </h2>
         <p className="mt-4 text-base leading-7 text-navy-blue/85">{copy.overview}</p>
         <p className="mt-4 text-base leading-7 text-navy-blue/85">{copy.delivery}</p>
@@ -27,7 +27,7 @@ export function ServiceSeoOverview({ programme }: ServiceSeoOverviewProps): Reac
             <li key={feature}>{feature}</li>
           ))}
         </ul>
-        <h3 className="mt-8 text-lg font-bold text-navy-blue">Commissioning with CAMS services</h3>
+        <h3 className="mt-8 text-lg font-bold text-navy-blue">Commissioning with CAMS Services</h3>
         <p className="mt-3 text-base leading-7 text-navy-blue/85">{copy.commissioning}</p>
         <p className="mt-6 text-sm leading-6 text-navy-blue/75">
           Explore{' '}
@@ -40,7 +40,7 @@ export function ServiceSeoOverview({ programme }: ServiceSeoOverviewProps): Reac
           </Link>
           , or{' '}
           <Link href={ROUTES.CONTACT} className="font-semibold text-primary-blue underline underline-offset-2">
-            contact CAMS services
+            contact CAMS Services
           </Link>{' '}
           about {programme.title}.
         </p>

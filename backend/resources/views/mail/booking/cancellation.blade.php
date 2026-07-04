@@ -19,7 +19,7 @@
         If you’d like to reschedule or rebook, reply with your booking reference and preferred dates—we’ll be happy to help.
     </p>
     <p style="margin:0;font-size:15px;color:#374151;">
-        — Team CAMS Services
+        — Team CAMS services
     </p>
 @endcomponent
 

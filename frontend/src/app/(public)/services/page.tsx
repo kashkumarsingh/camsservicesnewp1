@@ -10,9 +10,9 @@ const BASE_URL = getMetadataBaseUrl();
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
     {
-      title: 'Chaperone Services UK, Child Transport & SEND Support | CAMS services',
+      title: 'Chaperone Services UK | Chaperone Service | CAMS Services',
       description:
-        'Child transport services, school transport support, contact centre transport, child escort services, family support services, community support services, SEND support services, foster placement support, and residential care support.',
+        'Chaperone services and chaperone service UK for children in care, contact transport and SEND. Child transport, school runs, contact centre escorts and mentoring.',
       path: ROUTES.SERVICES,
       imageAlt: 'CAMS services Programmes',
     },

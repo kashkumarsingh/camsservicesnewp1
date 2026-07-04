@@ -26,7 +26,7 @@
     @else
         {{-- DRAFT/PENDING: Pending message --}}
         <p style="margin:0 0 16px 0;font-size:15px;color:#374151;">
-            Thank you for choosing CAMS Services! We have received your booking request for
+            Thank you for choosing CAMS services! We have received your booking request for
             <strong>{{ $packageName }}</strong>.
         </p>
         <p style="margin:0 0 16px 0;font-size:15px;color:#374151;">
@@ -42,7 +42,7 @@
         Need to update anything? Just reply to this email with your booking reference and we’ll take it from there.
     </p>
     <p style="margin:0;font-size:15px;color:#374151;">
-        — Team CAMS Services
+        — Team CAMS services
     </p>
 @endcomponent
 

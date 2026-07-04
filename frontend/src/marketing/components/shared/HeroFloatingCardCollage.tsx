@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import Image from "next/image";
 import { PROGRAMME_COVER_IMAGE_LAYOUT } from "@/marketing/constants/programmeCoverImageLayout";
-import { HOME_HERO_CARD_IMAGES } from "@/marketing/mock/home-services";
+import { HOME_HERO_CARD_ALTS, HOME_HERO_CARD_IMAGES } from "@/marketing/mock/home-services";
 import { cn } from "@/marketing/lib/utils";
 
 type HeroFloatingCardCollageProps = {
@@ -42,6 +42,7 @@ export function HeroFloatingCardCollage({
 }: HeroFloatingCardCollageProps): ReactElement {
   const resolved = resolveThreeImages(images);
   const [imgA, imgB, imgC] = resolved;
+  const [altA, altB, altC] = HOME_HERO_CARD_ALTS;
   const isBand = variant === "band";
   const { width: collageW, height: collageH } = PROGRAMME_COVER_IMAGE_LAYOUT.heroCollage;
 
@@ -53,7 +54,6 @@ export function HeroFloatingCardCollage({
           ? "h-[220px] sm:h-[240px] md:h-[260px] lg:h-[280px]"
           : "h-[min(580px,64vh)] lg:h-[min(640px,74vh)]"
       )}
-      aria-hidden
     >
       <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-tr from-cams-primary/25 to-transparent blur-3xl" />
       {imgA ? (
@@ -65,7 +65,7 @@ export function HeroFloatingCardCollage({
         >
           <Image
             src={imgA}
-            alt=""
+            alt={altA}
             className={cn(
               "w-full object-cover",
               isBand ? "h-28 sm:h-32 md:h-36" : "h-48 sm:h-56 md:h-60"
@@ -85,7 +85,7 @@ export function HeroFloatingCardCollage({
         >
           <Image
             src={imgB}
-            alt=""
+            alt={altB}
             className={cn(
               "w-full object-cover",
               isBand ? "h-24 sm:h-28 md:h-32" : "h-44 sm:h-52 md:h-56"
@@ -105,7 +105,7 @@ export function HeroFloatingCardCollage({
         >
           <Image
             src={imgC}
-            alt=""
+            alt={altC}
             className={cn(
               "w-full object-cover",
               isBand ? "h-24 sm:h-28 md:h-32" : "h-44 sm:h-52 md:h-56"

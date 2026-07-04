@@ -110,7 +110,7 @@
   - After **trainer login**, redirect to the trainer dashboard route; do not show public marketing pages.
   - If an authenticated parent/trainer visits the public home page, redirect them back to their dashboard.
 - **Layout separation**
-  - **Public layout**: CAMS Services logo, Who We Are, What We Do, Our Packages, Blog, Let’s Connect.
+  - **Public layout**: CAMS services logo, Who We Are, What We Do, Our Packages, Blog, Let’s Connect.
   - **Authenticated layout(s)**: dashboard navigation + profile/logout only (no public marketing links).
 
 #### Phase 5 – Parallel Run & Filament Decommissioning (3–5 days)

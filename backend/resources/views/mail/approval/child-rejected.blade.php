@@ -9,7 +9,7 @@
     </h2>
 
     <p style="margin:0 0 16px 0;font-size:15px;color:#374151;">
-        Thank you for registering {{ $child->name }} with CAMS Services. Unfortunately, we are unable to approve this registration at this time.
+        Thank you for registering {{ $child->name }} with CAMS services. Unfortunately, we are unable to approve this registration at this time.
     </p>
 
     <div style="background-color:#FEF2F2;border-left:4px solid #EF4444;padding:16px;margin:20px 0;border-radius:4px;">
@@ -35,7 +35,7 @@
         Best regards,
     </p>
     <p style="margin:0;font-size:15px;color:#374151;">
-        — Team CAMS Services
+        — Team CAMS services
     </p>
 @endcomponent
 

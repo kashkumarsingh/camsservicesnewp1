@@ -361,7 +361,7 @@ class TrainerApplication extends Model
                     'name' => $this->fullName(),
                     'slug' => Str::slug($this->fullName()) . '-' . Str::lower(Str::random(4)),
                     'role' => 'Activity Coach',
-                    'bio' => $this->bio ?? 'Trainer at CAMS Services',
+                    'bio' => $this->bio ?? 'Trainer at CAMS services',
                     'full_description' => $this->bio,
                     'image' => null,
                     'rating' => 0,

@@ -1,36 +1,32 @@
-# CAMS services Ltd
+# CAMS Services Ltd
+# https://www.camsservices.co.uk
 
-> Trusted chaperone, transport, mentoring and SEND support for children, young people and families across the UK. Site: https://www.camsservices.co.uk
+> UK chaperone service and chaperone services for children in care, contact transport, school runs and SEND support.
 
-CAMS services Ltd provides safeguarding-first chaperone services, child transport, youth mentoring, family support and SEND support for local authorities, schools, foster agencies and families.
+CAMS Services Ltd provides professional chaperone services and a safeguarding-first chaperone service for local authorities, schools, foster agencies and families. We also deliver child transport, youth mentoring, family support and SEND support across the UK.
 
-## Services
+## Chaperone services (priority)
 
-- [Chaperone and transport](https://www.camsservices.co.uk/services/community): Community access, school runs and contact centre transport
+- [Chaperone services UK guide](https://www.camsservices.co.uk/blog/chaperone-services-uk): What chaperone services include, commissioning and safeguarding standards
+- [Chaperone & community transport](https://www.camsservices.co.uk/services/community): Contact centre transport, school runs and community access
+- [Make a referral](https://www.camsservices.co.uk/referral): Commission chaperone service cover
+
+## Other services
+
 - [Mentoring and coaching](https://www.camsservices.co.uk/services/mentoring): One-to-one youth mentoring
 - [SEN and education support](https://www.camsservices.co.uk/services/sen): SEND and school engagement support
 - [Family support](https://www.camsservices.co.uk/services/routine): Family communication and routines
-- [All services](https://www.camsservices.co.uk/services): Full service catalogue
-
-## Referral and contact
-
-- [Make a referral](https://www.camsservices.co.uk/referral): Submit a child or family referral online
-- [Contact CAMS](https://www.camsservices.co.uk/contact): Speak to the commissioning team
-- [Intervention packages](https://www.camsservices.co.uk/packages): Compare Mercury through Neptune tiers
+- [All services](https://www.camsservices.co.uk/services)
 
 ## Insights
 
-- [Chaperone services UK](https://www.camsservices.co.uk/blog/chaperone-services-uk): Guide to professional chaperone and escort provision
 - [Child transport services](https://www.camsservices.co.uk/blog/child-transport-services-uk): Safe transport for children in care and SEND
-- [SEND support services](https://www.camsservices.co.uk/blog/send-support-services): One-to-one SEND learning support
-- [Foster placement support](https://www.camsservices.co.uk/blog/foster-placement-support): Stabilising foster placements
 - [Contact centre transport](https://www.camsservices.co.uk/blog/contact-centre-transport): Court-ordered contact journeys
-- [Youth mentoring services UK](https://www.camsservices.co.uk/blog/youth-mentoring-services-uk): One-to-one mentoring outcomes and commissioning
 - [School transport support](https://www.camsservices.co.uk/blog/school-transport-support-semh): SEMH-friendly school runs
-- [Family support services UK](https://www.camsservices.co.uk/blog/family-support-services-uk): Family coaching and communication
-- [Blog index](https://www.camsservices.co.uk/blog): All commissioning guides and articles
+- [Blog index](https://www.camsservices.co.uk/blog): All commissioning guides
 
 ## Policies
 
-- [Policies and safeguarding](https://www.camsservices.co.uk/policies): Privacy, safeguarding and service policies
-- [FAQ](https://www.camsservices.co.uk/faq): Frequently asked questions for families and referrers
+- [Policies and safeguarding](https://www.camsservices.co.uk/policies)
+- [FAQ](https://www.camsservices.co.uk/faq)
+- [Contact](https://www.camsservices.co.uk/contact)

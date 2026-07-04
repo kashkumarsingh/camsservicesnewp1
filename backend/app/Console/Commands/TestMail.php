@@ -48,9 +48,9 @@ class TestMail extends Command
             $this->info('  From: ' . config('mail.from.address'));
             $this->newLine();
 
-            Mail::raw('This is a direct test email from CAMS Services to verify SMTP delivery.', function ($message) use ($emails) {
+            Mail::raw('This is a direct test email from CAMS services to verify SMTP delivery.', function ($message) use ($emails) {
                 $message->to($emails[0])
-                        ->subject('SMTP Direct Test - CAMS Services')
+                        ->subject('SMTP Direct Test - CAMS services')
                         ->from(config('mail.from.address'), config('mail.from.name'));
             });
             $this->info('✓ Direct email sent successfully!');
@@ -107,7 +107,7 @@ class TestMail extends Command
         $this->newLine();
         $this->info('✅ All tests complete!');
         $this->info('Check the recipient inbox for:');
-        $this->info('  1. "SMTP Direct Test - CAMS Services"');
+        $this->info('  1. "SMTP Direct Test - CAMS services"');
         $this->info('  2. "New Contact Request: Test User"');
 
         return 0;

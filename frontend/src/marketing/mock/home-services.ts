@@ -67,3 +67,9 @@ export const HOME_SERVICE_PROGRAMMES: readonly HomeServiceProgramme[] = [
 export const HOME_HERO_CARD_IMAGES: readonly string[] = [
   ...CAMS_HERO_CARD_IMAGES
 ].filter((src) => src.length > 0);
+
+export const HOME_HERO_CARD_ALTS: readonly [string, string, string] = [
+  "Young person taking part in a sports support programme",
+  "One-to-one fitness and wellbeing session with a CAMS mentor",
+  "Supported community access and transport for a young person",
+];

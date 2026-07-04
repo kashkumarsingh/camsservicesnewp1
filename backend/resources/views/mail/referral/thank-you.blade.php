@@ -3,7 +3,7 @@
 
 Dear {{ $name }},
 
-Thank you for referring **{{ $youngPersonName }}** to CAMS Services. We have received your referral and our team will review it promptly.
+Thank you for referring **{{ $youngPersonName }}** to CAMS services. We have received your referral and our team will review it promptly.
 
 ## What happens next?
 

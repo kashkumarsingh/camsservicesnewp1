@@ -32,7 +32,7 @@ class UserApprovedNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your CAMS Services Account Has Been Approved',
+            subject: 'Your CAMS services Account Has Been Approved',
         );
     }
 

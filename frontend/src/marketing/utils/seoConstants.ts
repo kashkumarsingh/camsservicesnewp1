@@ -3,13 +3,19 @@
  * Use for public page generateMetadata() fallbacks — never leave title or description blank.
  */
 export const SEO_DEFAULTS = {
-  siteName: 'CAMS services',
-  title: 'Chaperone Services UK | Child Transport & Family Support | CAMS services',
+  siteName: 'CAMS Services',
+  title: 'Chaperone Services UK | Chaperone Service | CAMS Services',
   description:
-    'Chaperone services UK, child transport services, school transport support, family support services, SEND support services, foster placement support, mentoring services, and local authority support services tailored to individual needs.',
-  /** Default OG image path — dynamic `/og` route is used by buildPublicMetadata */
+    'Professional chaperone service and chaperone services UK for children in care, contact transport and SEND. DBS-checked child chaperones for schools and local authorities.',
   ogImagePath: '/og',
   ogImageWidth: 1200,
   ogImageHeight: 630,
-  ogImageAlt: 'CAMS services - Chaperone and Child Transport Services UK',
+  ogImageAlt: 'CAMS Services - Chaperone services UK and child transport',
+} as const;
+
+/** Priority commercial terms (children's services only — not medical/dance/molecular). */
+export const CHAPERONE_SEO_TERMS = {
+  primary: 'chaperone services',
+  secondary: 'chaperone service',
+  branded: 'chaperone services UK',
 } as const;

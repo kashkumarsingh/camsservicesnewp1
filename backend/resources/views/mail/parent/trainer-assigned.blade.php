@@ -22,6 +22,6 @@
     </p>
 
     <p style="margin:0;font-size:15px;color:#374151;">
-        — Team CAMS Services
+        — Team CAMS services
     </p>
 @endcomponent

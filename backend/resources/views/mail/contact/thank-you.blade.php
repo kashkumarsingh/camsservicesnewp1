@@ -3,7 +3,7 @@
 
 Dear {{ $name }},
 
-Thank you for getting in touch with CAMS Services. We have received your enquiry and a member of our team will respond within **one working day**.
+Thank you for getting in touch with CAMS services. We have received your enquiry and a member of our team will respond within **one working day**.
 
 ## What happens next?
 

@@ -5,15 +5,16 @@ import { PageSeoProse } from '@/marketing/components/seo/PageSeoProse';
 import { HOME_SEO_PROSE } from '@/marketing/content/page-seo-intros';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
 import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
+import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
     {
-      title: 'Chaperone Services UK | Child Transport & Family Support | CAMS services',
+      title: 'Chaperone Services UK | Chaperone Service | CAMS Services',
       description:
-        'Chaperone services UK, child transport services, family support services, community support services, SEND support services, foster placement support, residential care support, and mentoring services.',
+        'Chaperone services and chaperone service UK for children in care, contact transport and SEND. DBS-checked escorts for schools and local authorities.',
       path: '/',
-      imageAlt: 'CAMS services',
+      imageAlt: SEO_DEFAULTS.ogImageAlt,
     },
     getMetadataBaseUrl()
   );

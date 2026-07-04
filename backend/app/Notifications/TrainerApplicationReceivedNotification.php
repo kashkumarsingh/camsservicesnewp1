@@ -32,12 +32,12 @@ class TrainerApplicationReceivedNotification extends Notification implements Sho
         $name = $this->application->first_name ?: 'there';
 
         return (new MailMessage())
-            ->subject('Trainer Application Received - CAMS Services')
+            ->subject('Trainer Application Received - CAMS services')
             ->greeting('Hello ' . $name . ',')
             ->line('Thank you for submitting your trainer application.')
             ->line('A member of our team will review it and be in touch shortly.')
             ->action('View confirmation page', frontend_url('/contact/thank-you?type=trainer'))
             ->line('If you have any questions in the meantime, please contact us.')
-            ->salutation('Kind regards, The CAMS Services Team');
+            ->salutation('Kind regards, The CAMS services Team');
     }
 }

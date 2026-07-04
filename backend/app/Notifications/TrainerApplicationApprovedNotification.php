@@ -36,7 +36,7 @@ class TrainerApplicationApprovedNotification extends Notification implements Sho
         $applicantName = $this->application->first_name;
 
         return (new MailMessage())
-            ->subject('Trainer Application Approved - Welcome to CAMS Services!')
+            ->subject('Trainer Application Approved - Welcome to CAMS services!')
             ->markdown('mail.trainer.application-approved', [
                 'application' => $this->application,
                 'applicantName' => $applicantName,

@@ -56,6 +56,6 @@
     </p>
 
     <p style="margin:0;font-size:15px;color:#374151;">
-        — CAMS Services Admin
+        — CAMS services Admin
     </p>
 @endcomponent

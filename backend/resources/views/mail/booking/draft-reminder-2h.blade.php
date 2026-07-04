@@ -26,7 +26,7 @@
             👨‍👩‍👧‍👦 Join 500+ Happy Families
         </p>
         <p style="margin:0;font-size:14px;color:#6b7280;">
-            "CAMS Services helped my child build confidence and make new friends. Highly recommend!" — Sarah M.
+            "CAMS services helped my child build confidence and make new friends. Highly recommend!" — Sarah M.
         </p>
     </div>
 
@@ -36,6 +36,6 @@
 
     <p style="margin:16px 0 0 0;font-size:15px;color:#374151;">
         Warm regards,<br>
-        The CAMS Services Team
+        The CAMS services Team
     </p>
 @endcomponent

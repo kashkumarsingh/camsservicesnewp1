@@ -1,5 +1,5 @@
 @props([
-    'title' => 'CAMS Services',
+    'title' => 'CAMS services',
     'preview' => null,
 ])
 
@@ -49,13 +49,13 @@
                                 }
                             @endphp
                             @if($logoUrl)
-                                <img src="{{ $logoUrl }}" alt="CAMS Services" style="height:32px;display:block;margin:0 auto 12px auto;max-width:200px;">
+                                <img src="{{ $logoUrl }}" alt="CAMS services" style="height:32px;display:block;margin:0 auto 12px auto;max-width:200px;">
                             @else
                                 <div style="height:32px;margin:0 auto 12px auto;display:flex;align-items:center;justify-content:center;">
                                     <span style="color:#ffffff;font-size:24px;font-weight:700;letter-spacing:0.05em;">CAMS</span>
                                 </div>
                             @endif
-                            <p style="margin:0;color:#cbd5f5;font-size:14px;letter-spacing:0.1em;text-transform:uppercase;">CAMS Services</p>
+                            <p style="margin:0;color:#cbd5f5;font-size:14px;letter-spacing:0.1em;text-transform:uppercase;">CAMS services</p>
                         </td>
                     </tr>
                     <tr>
@@ -65,7 +65,7 @@
                     </tr>
                     <tr>
                         <td style="padding:24px 32px;background-color:#0f172a;color:#cbd5f5;font-size:13px;text-align:center;">
-                            <p style="margin:0 0 8px 0;font-weight:600;">Team CAMS Services</p>
+                            <p style="margin:0 0 8px 0;font-weight:600;">Team CAMS services</p>
                             <p style="margin:0;">KidzRunz Programme · IG9 5BT · support@camsservices.co.uk</p>
                             <p style="margin:8px 0 0 0;">
                                 <a href="{{ config('services.frontend.url', env('FRONTEND_URL', config('app.url'))) }}/privacy-policy" style="color:#93c5fd;text-decoration:none;">Privacy Policy</a> ·

@@ -33,7 +33,7 @@ class ChildRejectedNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Child Registration Update - CAMS Services',
+            subject: 'Child Registration Update - CAMS services',
         );
     }
 

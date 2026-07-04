@@ -26,7 +26,7 @@
         If you have any questions, please don't hesitate to contact us.
     </p>
     <p style="margin:0;font-size:15px;color:#374151;">
-        — Team CAMS Services
+        — Team CAMS services
     </p>
 @endcomponent
 

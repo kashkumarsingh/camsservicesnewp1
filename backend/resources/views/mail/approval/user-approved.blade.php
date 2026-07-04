@@ -1,6 +1,6 @@
 @component('mail.layouts.cams', [
     'title' => 'Account Approved',
-    'preview' => 'Your CAMS Services account has been approved!',
+    'preview' => 'Your CAMS services account has been approved!',
 ])
     <p style="margin:0 0 16px 0;font-size:16px;color:#111827;">Hello {{ $user->name }},</p>
     
@@ -9,7 +9,7 @@
     </h2>
 
     <p style="margin:0 0 16px 0;font-size:15px;color:#374151;">
-        Great news! Your CAMS Services account has been reviewed and approved by our admin team.
+        Great news! Your CAMS services account has been reviewed and approved by our admin team.
     </p>
 
     <p style="margin:0 0 12px 0;font-size:15px;color:#374151;font-weight:600;">
@@ -32,7 +32,7 @@
         If you have any questions, please don't hesitate to contact us.
     </p>
     <p style="margin:0;font-size:15px;color:#374151;">
-        — Team CAMS Services
+        — Team CAMS services
     </p>
 @endcomponent
 

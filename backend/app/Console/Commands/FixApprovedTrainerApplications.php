@@ -52,7 +52,7 @@ class FixApprovedTrainerApplications extends Command
                         'name' => $application->fullName(),
                         'slug' => Str::slug($application->fullName()) . '-' . Str::lower(Str::random(4)),
                         'role' => 'Activity Coach',
-                        'bio' => $application->bio ?? 'Trainer at CAMS Services',
+                        'bio' => $application->bio ?? 'Trainer at CAMS services',
                         'full_description' => $application->bio,
                         'image' => null,
                         'rating' => 0,

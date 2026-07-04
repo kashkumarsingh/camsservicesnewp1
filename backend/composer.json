@@ -1,7 +1,7 @@
 {
     "name": "kidzrunz/backend-api",
     "type": "project",
-    "description": "CAMS Services Backend API - Laravel LTS, API-first backend for universal dashboard",
+    "description": "CAMS services Backend API - Laravel LTS, API-first backend for universal dashboard",
     "keywords": [
         "laravel",
         "api",

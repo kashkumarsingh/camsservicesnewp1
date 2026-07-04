@@ -1,6 +1,6 @@
 Here’s a clean developer brief you can send as-is. It explains your approach, layout, content, and package page structure using professional language that schools, commissioners, and social workers will understand.
 
-🧩 CAMS Services – Front-End Website Brief
+🧩 CAMS services – Front-End Website Brief
 1. Core Message & Positioning
 Tagline (update):
 
@@ -16,10 +16,10 @@ Website tone:
 • Clear and structured
 • Written for schools, local authorities, social workers, and children’s homes
 
-2. What CAMS Services Does (for homepage)
+2. What CAMS services Does (for homepage)
 Add this as a core intro section:
 
-CAMS Services provides structured, activity-based mentoring and intervention for children and young people who present with behavioural, emotional, or engagement needs.
+CAMS services provides structured, activity-based mentoring and intervention for children and young people who present with behavioural, emotional, or engagement needs.
 
 Our approach focuses on building trust first, then using consistent, structured sessions to support positive change, emotional regulation, and improved engagement.
 
@@ -179,7 +179,7 @@ Discuss a Package or Make a Referral
 Buttons:
 • Make a Referral
 • Request Service Overview
-• Speak to CAMS Services
+• Speak to CAMS services
 
 10. Optional Add-Ons (if possible)
 • Downloadable PDF of packages

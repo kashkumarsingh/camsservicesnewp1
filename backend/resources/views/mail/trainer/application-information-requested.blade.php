@@ -29,6 +29,6 @@
 
     <p style="margin:24px 0 0;font-size:15px;color:#374151;">
         Best regards,<br>
-        — Team CAMS Services
+        — Team CAMS services
     </p>
 @endcomponent

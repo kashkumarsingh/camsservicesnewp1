@@ -20,7 +20,7 @@ class ContactSubmissionThankYouNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Thank you for contacting CAMS Services')
+            ->subject('Thank you for contacting CAMS services')
             ->markdown('mail.contact.thank-you', [
                 'name' => $this->submission->name,
                 'thankYouUrl' => frontend_url('/contact/thank-you?type=contact'),

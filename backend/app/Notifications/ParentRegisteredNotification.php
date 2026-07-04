@@ -34,7 +34,7 @@ class ParentRegisteredNotification extends Notification implements ShouldQueue
         $supportEmail = $this->extractFirstEmail($settings->support_emails ?? []);
 
         return (new MailMessage)
-            ->subject('Welcome to CAMS Services - Registration Received')
+            ->subject('Welcome to CAMS services - Registration Received')
             ->markdown('mail.parent.registered', [
                 'userName' => $this->user->name,
                 'userEmail' => $this->user->email,

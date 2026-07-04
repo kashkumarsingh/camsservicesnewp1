@@ -1,9 +1,9 @@
 @component('mail::message')
-# Welcome to CAMS Services!
+# Welcome to CAMS services!
 
 Dear {{ $userName }},
 
-Thank you for registering with CAMS Services. We've received your account application and are delighted to have you join our community.
+Thank you for registering with CAMS services. We've received your account application and are delighted to have you join our community.
 
 ## What Happens Next?
 
@@ -41,9 +41,9 @@ Contact Support
 
 ---
 
-We look forward to welcoming you to the CAMS Services family!
+We look forward to welcoming you to the CAMS services family!
 
 Best regards,  
-**The CAMS Services Team**
+**The CAMS services Team**
 
 @endcomponent

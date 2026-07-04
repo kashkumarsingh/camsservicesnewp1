@@ -80,7 +80,7 @@ class SiteSetting extends Model
         $supportEmail = env('SITE_SUPPORT_EMAILS', 'info@camsservices.co.uk');
         
         $defaults = [
-            'company_name' => 'CAMS Services Ltd.',
+            'company_name' => 'CAMS services Ltd.',
             'trust_indicators' => [
                 [
                     'label' => 'Families',

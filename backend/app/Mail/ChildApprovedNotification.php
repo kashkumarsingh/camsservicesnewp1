@@ -32,7 +32,7 @@ class ChildApprovedNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Child Has Been Approved - CAMS Services',
+            subject: 'Your Child Has Been Approved - CAMS services',
         );
     }
 

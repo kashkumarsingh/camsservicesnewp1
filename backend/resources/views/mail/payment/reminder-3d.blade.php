@@ -44,6 +44,6 @@
 
     <p style="margin:16px 0 0 0;font-size:15px;color:#374151;">
         Warm regards,<br>
-        The CAMS Services Team
+        The CAMS services Team
     </p>
 @endcomponent
