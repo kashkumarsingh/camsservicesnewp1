@@ -77,12 +77,17 @@ export function HomeMethodSection(): ReactElement {
               {COMPANY_TAGLINE.split(",").slice(1).join(",").trim()}
             </span>
           </h2>
-          <ul className="mt-8 space-y-2 text-base font-semibold text-cams-accent md:text-lg">
+          <ul className="mt-6 flex flex-wrap gap-2">
             {COMPANY_KEY_MESSAGE.map((line) => (
-              <li key={line}>{line}</li>
+              <li
+                key={line}
+                className="rounded-full border border-cams-accent/35 bg-cams-accent/[0.1] px-3 py-1 text-xs font-semibold text-cams-accent md:text-sm"
+              >
+                {line}
+              </li>
             ))}
           </ul>
-          <p className="mt-8 max-w-prose text-base leading-[1.75] text-slate-200/95 md:text-lg">
+          <p className="mt-6 max-w-prose text-base leading-[1.75] text-slate-200/95 md:text-lg">
             We combine chaperone and transport support with mentoring and tailored one-to-one packages, planned around
             each person&apos;s needs and carried out in line with safeguarding procedures.
           </p>
