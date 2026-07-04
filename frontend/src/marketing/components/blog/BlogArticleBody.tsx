@@ -4,6 +4,13 @@ import type { ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { BlogInlineCta } from '@/marketing/components/blog/BlogInlineCta';
+import { CTA_BLOCK_END, CTA_BLOCK_START, parseCtaBlock } from '@/marketing/content/blog/article-blocks';
+
+const CTA_PATTERN = new RegExp(
+  `${CTA_BLOCK_START.replace(/[[\]]/g, '\\$&')}\\n([\\s\\S]*?)${CTA_BLOCK_END.replace(/[[\]]/g, '\\$&')}`,
+  'g'
+);
 
 function slugifyHeading(value: string): string {
   return value
@@ -90,26 +97,53 @@ const markdownComponents = {
   td: ({ children }: { children?: ReactNode }) => (
     <td className="border-t border-slate-200 px-4 py-3 text-cams-slate">{children}</td>
   ),
-  blockquote: ({ children }: { children?: ReactNode }) => (
-    <blockquote className="my-8 rounded-2xl border border-cams-primary/20 bg-cams-primary/5 px-6 py-5 text-cams-dark">
-      {children}
-    </blockquote>
-  ),
 };
+
+function MarkdownChunk({ markdown }: { markdown: string }): ReactElement | null {
+  if (!markdown.trim()) return null;
+  return (
+    <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+      {markdown}
+    </ReactMarkdown>
+  );
+}
 
 type BlogArticleBodyProps = {
   content: string;
 };
 
-/** Renders SEO blog markdown with heading anchors, internal/outbound links and CTA blocks. */
+/** Renders SEO blog markdown with heading anchors, links, and button CTAs. */
 export function BlogArticleBody({ content }: BlogArticleBodyProps): ReactElement | null {
   if (!content?.trim()) return null;
 
-  return (
-    <div className="blog-article-body">
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-        {content}
-      </ReactMarkdown>
-    </div>
-  );
+  const segments: ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let segmentKey = 0;
+
+  CTA_PATTERN.lastIndex = 0;
+  while ((match = CTA_PATTERN.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push(
+        <MarkdownChunk key={`md-${segmentKey++}`} markdown={content.slice(lastIndex, match.index)} />
+      );
+    }
+
+    const cta = parseCtaBlock(match[1]);
+    segments.push(
+      <BlogInlineCta
+        key={`cta-${segmentKey++}`}
+        heading={cta.heading}
+        body={cta.body}
+        actions={cta.actions}
+      />
+    );
+    lastIndex = CTA_PATTERN.lastIndex;
+  }
+
+  if (lastIndex < content.length) {
+    segments.push(<MarkdownChunk key={`md-${segmentKey++}`} markdown={content.slice(lastIndex)} />);
+  }
+
+  return <div className="blog-article-body">{segments}</div>;
 }
