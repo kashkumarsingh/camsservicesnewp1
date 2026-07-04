@@ -2,11 +2,7 @@ import type { ReactElement } from "react";
 import { Button } from "@/marketing/components/ui/button";
 import { HeroFloatingCardCollage } from "@/marketing/components/shared/HeroFloatingCardCollage";
 import { camsVideoSrc } from "@/marketing/mock/cams-videos";
-import {
-  COMPANY_KEY_MESSAGE,
-  COMPANY_TAGLINE,
-  HOME_INTRO_PARAGRAPHS,
-} from "@/marketing/mock/cams-services-catalog";
+import { COMPANY_TAGLINE } from "@/marketing/mock/cams-services-catalog";
 
 const STATS: ReadonlyArray<readonly [string, string]> = [
   ["500+", "Families supported"],
@@ -17,7 +13,7 @@ const STATS: ReadonlyArray<readonly [string, string]> = [
 
 export function HomeHeroSection(): ReactElement {
   return (
-    <section className="cams-hero-diagonal-clip relative min-h-[100svh] overflow-hidden px-4 pb-28 pt-20 text-white sm:px-6 sm:pb-32 md:pb-36 lg:px-10 lg:pb-40 lg:pt-24">
+    <section className="cams-hero-diagonal-clip relative overflow-hidden px-4 pb-16 pt-20 text-white sm:px-6 md:pb-20 lg:px-10 lg:pt-24">
       <video
         className="cams-hero-video absolute inset-0 h-full w-full object-cover"
         src={camsVideoSrc("heroBackground")}
@@ -34,28 +30,18 @@ export function HomeHeroSection(): ReactElement {
             "radial-gradient(circle at 20% 30%, rgba(255,255,255,0.35), transparent 45%), radial-gradient(circle at 80% 20%, rgba(204,255,0,0.12), transparent 40%)"
         }}
       />
-      <div className="relative z-10 mx-auto grid w-full max-w-[1600px] gap-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center lg:gap-16">
+      <div className="relative z-10 mx-auto grid w-full max-w-[1600px] gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center lg:gap-14">
         <div className="max-w-2xl lg:max-w-none">
           <p className="inline-flex rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-cams-ink-onHero/95">
             {COMPANY_TAGLINE}
           </p>
-          <h1 className="mt-6 font-heading text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl lg:text-[4.25rem]">
+          <h1 className="mt-5 font-heading text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl lg:text-[3.75rem]">
             Chaperone services &{" "}
             <span className="bg-gradient-to-r from-cams-secondary via-white to-cams-accent bg-clip-text text-transparent">
               professional chaperone service UK
             </span>
           </h1>
-          <div className="mt-6 max-w-xl space-y-4 text-base leading-relaxed text-cams-ink-onHero/95 md:text-lg">
-            {HOME_INTRO_PARAGRAPHS.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
-          <ul className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold text-cams-accent md:text-base">
-            {COMPANY_KEY_MESSAGE.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
-          <div className="mt-10 flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+          <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
             <Button href="/referral" size="lg" variant="ctaPrimary" className="w-full sm:w-auto">
               Make a referral
             </Button>
@@ -63,16 +49,16 @@ export function HomeHeroSection(): ReactElement {
               Book a free call
             </Button>
           </div>
-          <dl className="mt-14 grid grid-cols-2 gap-6 border-t border-white/20 pt-10 sm:grid-cols-4">
+          <dl className="mt-10 grid grid-cols-2 gap-5 border-t border-white/20 pt-8 sm:grid-cols-4">
             {STATS.map(([value, label]) => (
               <div key={label}>
                 <dt className="sr-only">{label}</dt>
-                <dd className="font-heading text-3xl font-bold text-cams-accent md:text-4xl">{value}</dd>
+                <dd className="font-heading text-2xl font-bold text-cams-accent md:text-3xl">{value}</dd>
                 <p className="mt-1 text-xs font-medium uppercase tracking-wide text-cams-ink-onHero/80">{label}</p>
               </div>
             ))}
           </dl>
-          <p className="mt-4 text-xs leading-relaxed text-cams-ink-onHero/75">
+          <p className="mt-3 text-xs leading-relaxed text-cams-ink-onHero/75">
             Illustrative highlights across CAMS delivery, outcomes vary by context and tier of support.
           </p>
         </div>

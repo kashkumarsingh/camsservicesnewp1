@@ -4,6 +4,7 @@ import { Button } from "@/marketing/components/ui/button";
 import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
 import { CamsStarRating, InterventionPackageIcon } from "@/marketing/components/shared/CamsIcon";
 import { HomeHeroSection } from "@/marketing/components/home/HomeHeroSection";
+import { HomeIntroSection } from "@/marketing/components/home/HomeIntroSection";
 import { HomeMethodSection } from "@/marketing/components/home/HomeMethodSection";
 import { HomeServicesGridSection } from "@/marketing/components/home/HomeServicesGridSection";
 import { HomeTransportSupportSection } from "@/marketing/components/home/HomeTransportSupportSection";
@@ -26,6 +27,8 @@ export function HomePageClient(): ReactElement {
   return (
     <div className="w-full bg-cams-soft">
       <HomeHeroSection />
+
+      <HomeIntroSection />
 
       <section
         className={`cams-cta-top-diagonal-clip cams-diagonal-overlap-top relative border-b border-slate-200/80 bg-white pb-10 pt-[calc(var(--cams-diagonal-depth)+5rem)] md:pb-14 md:pt-[calc(var(--cams-diagonal-depth)+7rem)]`}
