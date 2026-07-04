@@ -5,9 +5,7 @@
  * Resolves API_URL for server-side fetches within Docker network.
  */
 
-import { ListBlogPostsUseCase } from '@/core/application/blog/useCases/ListBlogPostsUseCase';
 import { BlogFilterOptions, BlogPostDTO } from '@/core/application/blog';
-import { blogRepository } from '@/infrastructure/persistence/blog';
 import { BLOG_POST_DTOS } from '@/marketing/mock/blog-posts';
 import { marketingBlogPostToDto } from '@/marketing/content/blog/seo-blog-helpers';
 
@@ -37,23 +35,8 @@ function sortPosts(posts: BlogPostDTO[], options?: BlogFilterOptions): BlogPostD
  * @returns Array of blog post DTOs
  */
 export async function getBlogPosts(options?: BlogFilterOptions): Promise<BlogPostDTO[]> {
-  try {
-    const useCase = new ListBlogPostsUseCase(blogRepository);
-    const posts = await useCase.execute(options);
-
-    if (posts.length > 0) {
-      return posts;
-    }
-
-    const mockPosts = marketingPostsAsDtos();
-    const publishedOnly = options?.published !== false;
-    const filtered = publishedOnly ? mockPosts.filter((post) => post.published) : mockPosts;
-    return sortPosts(filtered, options);
-  } catch (error) {
-    console.error('[getBlogPosts] Failed to fetch blog posts:', error);
-    const mockPosts = marketingPostsAsDtos();
-    const publishedOnly = options?.published !== false;
-    const filtered = publishedOnly ? mockPosts.filter((post) => post.published) : mockPosts;
-    return sortPosts(filtered, options);
-  }
+  const mockPosts = marketingPostsAsDtos();
+  const publishedOnly = options?.published !== false;
+  const filtered = publishedOnly ? mockPosts.filter((post) => post.published) : mockPosts;
+  return sortPosts(filtered, options);
 }

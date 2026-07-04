@@ -90,6 +90,20 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         }
       : null;
 
+  const relatedPosts = orderedPosts
+    .filter((candidate) => candidate.slug !== post.slug)
+    .filter((candidate) =>
+      post.category?.slug
+        ? candidate.category?.slug === post.category.slug
+        : true
+    )
+    .slice(0, 3);
+
+  const relatedFallback =
+    relatedPosts.length > 0
+      ? relatedPosts
+      : orderedPosts.filter((candidate) => candidate.slug !== post.slug).slice(0, 3);
+
   // Generate JSON-LD structured data for BlogPosting
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -147,7 +161,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
       ) : null}
-      <BlogPostPageClient post={post} previousPost={previousPost} nextPost={nextPost} />
+      <BlogPostPageClient post={post} relatedPosts={relatedFallback} previousPost={previousPost} nextPost={nextPost} />
     </>
   );
 }

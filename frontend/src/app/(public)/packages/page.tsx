@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { PackagesPageClient } from '@/marketing/components/packages/PackagesPageClient';
+import { PackagesSeoIntro } from '@/marketing/components/packages/PackagesSeoIntro';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
 import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
 import { ROUTES } from '@/shared/utils/routes';
@@ -19,5 +20,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function PackagesPage() {
-  return <PackagesPageClient />;
+  return (
+    <>
+      <PackagesSeoIntro />
+      <PackagesPageClient />
+    </>
+  );
 }

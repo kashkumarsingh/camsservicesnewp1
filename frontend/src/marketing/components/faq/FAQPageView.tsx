@@ -31,6 +31,7 @@ type FAQPageViewProps = {
   ctaSecondaryHref: string;
   contactRoute: string;
   servicesRoute: string;
+  heroTitleAs?: 'h1' | 'h2';
 };
 
 export function FAQPageView({
@@ -56,6 +57,7 @@ export function FAQPageView({
   ctaSecondaryHref,
   contactRoute,
   servicesRoute,
+  heroTitleAs = 'h1',
 }: FAQPageViewProps): ReactElement {
   return (
     <div>
@@ -68,6 +70,7 @@ export function FAQPageView({
         backgroundMedia={heroBackgroundMedia}
         videoSrc={heroVideoSrc}
         imageSrc={heroImageSrc}
+        titleAs={heroTitleAs}
       >
         {heroButtonCount >= 1 && (
           <MarketingButton

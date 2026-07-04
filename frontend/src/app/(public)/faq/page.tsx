@@ -1,4 +1,5 @@
 import { FAQPageView } from '@/marketing/components/faq/FAQPageView';
+import { FAQSeoIntro } from '@/marketing/components/faq/FAQSeoIntro';
 import { Metadata } from 'next';
 import { GetPageUseCase } from '@/core/application/pages/useCases/GetPageUseCase';
 import { pageRepository } from '@/infrastructure/persistence/pages';
@@ -61,8 +62,8 @@ export default async function FAQPage() {
   const heroButtonCount = sc?.hero?.buttonCount ?? 2;
   const heroButtonSize = sc?.hero?.buttonSize ?? 'lg';
 
-  const introHeading = sc?.intro?.heading?.trim();
-  const introBody = sc?.intro?.body?.trim();
+  const introHeading = sc?.intro?.heading?.trim() || FAQ_PAGE.INTRO_HEADING;
+  const introBody = sc?.intro?.body?.trim() || FAQ_PAGE.INTRO_BODY;
 
   const contentItems = Array.isArray(sc?.items) ? sc.items : [];
   const useContentItems = contentItems.length > 0 && contentItems.some((i) => (i.question ?? '').trim() || (i.answer ?? '').trim());
@@ -114,7 +115,9 @@ export default async function FAQPage() {
       : null;
 
   return (
-    <FAQPageView
+    <>
+      <FAQSeoIntro heading={heroTitle} body={introBody} />
+      <FAQPageView
       faqJsonLd={faqJsonLd}
       heroTitle={heroTitle}
       heroSubtitle={heroSubtitle}
@@ -126,7 +129,7 @@ export default async function FAQPage() {
       heroCtaPrimary={heroCtaPrimary}
       heroCtaSecondary={heroCtaSecondary}
       introHeading={introHeading}
-      introBody={introBody}
+      introBody={undefined}
       useContentItems={useContentItems}
       accordionFaqs={accordionFaqs}
       ctaTitle={ctaTitle}
@@ -137,6 +140,8 @@ export default async function FAQPage() {
       ctaSecondaryHref={ctaSecondaryHref}
       contactRoute={ROUTES.CONTACT}
       servicesRoute={ROUTES.SERVICES}
+      heroTitleAs="h2"
     />
+    </>
   );
 }

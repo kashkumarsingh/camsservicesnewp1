@@ -8,12 +8,13 @@
 export const OUTBOUND = {
   childrensServices:
     'https://www.gov.uk/government/organisations/department-for-education/series/statistics-children-in-need',
-  childrenInCare: 'https://www.gov.uk/children-in-care',
+  childrenInCare:
+    'https://www.gov.uk/government/publications/children-act-1989-care-planning-placement-and-case-review',
   sendCode: 'https://www.gov.uk/government/publications/send-code-of-practice-0-to-25',
-  adhdNhs: 'https://www.nhs.uk/conditions/attention-deficit-hyperactivity-disorder-adhd/children-and-teenagers/',
+  adhdNhs: 'https://www.nhs.uk/conditions/attention-deficit-hyperactivity-disorder-adhd/',
   safeguarding: 'https://www.scie.org.uk/children/safeguarding',
   ehcpGuide: 'https://www.ipsea.org.uk/pages/category/ehc-needs-assessments',
-  contactOrders: 'https://www.gov.uk/looking-after-children-council/contact-birth-parents',
+  contactOrders: 'https://www.legislation.gov.uk/ukpga/1989/41/section/34/enacted',
 } as const;
 
 export const CTA_BLOCK_START = '[[CTA]]';

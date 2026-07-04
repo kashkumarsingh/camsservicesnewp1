@@ -3,6 +3,7 @@ import { buildCmsPageMetadata } from '@/marketing/server/metadata/buildCmsPageMe
 import { ROUTES } from '@/shared/utils/routes';
 import { TRAINERS_PAGE, type TrainersPageContentResolved } from '@/app/(public)/constants/trainersPageConstants';
 import { TrainersPageClient } from '@/marketing/components/trainers/TrainersPageClient';
+import { TrainersSeoIntro } from '@/marketing/components/trainers/TrainersSeoIntro';
 import { GetPageUseCase } from '@/core/application/pages/useCases/GetPageUseCase';
 import { pageRepository } from '@/infrastructure/persistence/pages';
 import type { TrainersPageContentDTO } from '@/core/application/pages/dto/PageDTO';
@@ -95,5 +96,10 @@ export default async function TrainersPage() {
       : undefined;
   const content = resolveContent(page, sc);
 
-  return <TrainersPageClient content={content} />;
+  return (
+    <>
+      <TrainersSeoIntro title={content.hero.title} subtitle={content.hero.subtitle} />
+      <TrainersPageClient content={content} />
+    </>
+  );
 }

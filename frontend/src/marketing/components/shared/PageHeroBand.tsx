@@ -9,6 +9,7 @@ type PageHeroBandProps = {
   collageImages?: readonly string[];
   layout?: "split" | "centered";
   height?: "default" | "short";
+  titleAs?: "h1" | "h2";
 };
 
 /**
@@ -20,8 +21,10 @@ export function PageHeroBand({
   description,
   collageImages,
   layout = "centered",
-  height = "short"
+  height = "short",
+  titleAs = "h1",
 }: PageHeroBandProps): ReactElement {
+  const TitleTag = titleAs;
   const sectionHeightClass =
     height === "short"
       ? "min-h-[320px] md:min-h-[380px] lg:min-h-[420px]"
@@ -51,9 +54,9 @@ export function PageHeroBand({
       {layout === "centered" ? (
         <div className="relative z-10 mx-auto w-full max-w-[1600px] text-center">
           <div className="mx-auto max-w-3xl px-1 sm:px-0">
-            <h1 className="font-heading text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
+            <TitleTag className="font-heading text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
               {title}
-            </h1>
+            </TitleTag>
             {description ? (
               <div className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-cams-ink-onHero/95 md:text-lg [&_a]:text-cams-accent [&_a]:underline [&_a]:underline-offset-4">
                 {description}
@@ -64,9 +67,9 @@ export function PageHeroBand({
       ) : (
         <div className="relative z-10 mx-auto grid w-full max-w-[1600px] gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center lg:gap-16">
           <div className="max-w-2xl lg:max-w-none">
-            <h1 className="font-heading text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl lg:text-[4.25rem]">
+            <TitleTag className="font-heading text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl lg:text-[4.25rem]">
               {title}
-            </h1>
+            </TitleTag>
             {description ? (
               <div className="mt-6 max-w-xl text-base leading-relaxed text-cams-ink-onHero/95 md:text-lg [&_a]:text-cams-accent [&_a]:underline [&_a]:underline-offset-4">
                 {description}

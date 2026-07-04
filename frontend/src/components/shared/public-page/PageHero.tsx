@@ -18,6 +18,7 @@ export interface PageHeroProps {
   imageSrc?: string;
   children?: React.ReactNode;
   className?: string;
+  titleAs?: 'h1' | 'h2';
 }
 
 export default function PageHero({
@@ -28,7 +29,9 @@ export default function PageHero({
   imageSrc,
   children,
   className = '',
+  titleAs = 'h1',
 }: PageHeroProps) {
+  const TitleTag = titleAs;
   return (
     <section
       className={`relative flex min-h-[78svh] items-center overflow-hidden px-4 pb-16 pt-20 text-white sm:min-h-[82svh] sm:px-6 sm:pb-20 lg:min-h-screen lg:px-8 lg:pb-24 ${className}`}
@@ -60,9 +63,9 @@ export default function PageHero({
         }}
       />
       <div className="relative mx-auto max-w-4xl text-center">
-        <h1 className="mb-5 font-heading text-4xl font-extrabold leading-tight tracking-tight heading-text-shadow sm:text-5xl md:mb-6 md:text-6xl lg:text-7xl">
+        <TitleTag className="mb-5 font-heading text-4xl font-extrabold leading-tight tracking-tight heading-text-shadow sm:text-5xl md:mb-6 md:text-6xl lg:text-7xl">
           {title}
-        </h1>
+        </TitleTag>
         <p className="mx-auto mb-8 max-w-2xl text-base font-light sm:text-lg md:mb-10 md:text-2xl">{subtitle}</p>
         {children && <div className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-5">{children}</div>}
       </div>

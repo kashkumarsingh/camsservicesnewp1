@@ -6,6 +6,9 @@ import PackageDetailsDisplay from '@/marketing/components/features/packages/Pack
 import PackageBookingCard from '@/marketing/components/features/packages/PackageBookingCard';
 import BookNowStickyFooter from '@/marketing/components/features/common/BookNowStickyFooter';
 import SimilarPackagesSection from '@/marketing/components/features/packages/SimilarPackagesSection';
+import { PackageInternalLinks } from '@/marketing/components/packages/PackageInternalLinks';
+import { PackageSeoOverview } from '@/marketing/components/packages/PackageSeoOverview';
+import { AllPackagesNav } from '@/marketing/components/packages/AllPackagesNav';
 import { Star, Users, Award, TrendingUp, Heart, Shield, Sparkles, ArrowRight, Activity as ActivityIcon, Clock, CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -85,7 +88,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   return buildPublicMetadata(
     {
-      title: `${pkg.name} Package | ${totalWeeksLabel}`,
+      title: `${pkg.name} Package | ${totalWeeksLabel} | CAMS Services`,
       description,
       path: `/packages/${pkg.slug}`,
       imageAlt: `${pkg.name} package overview`,
@@ -98,6 +101,8 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
   const { slug } = await params;
   const getPackageUseCase = new GetPackageUseCase(packageRepository);
   
+  let interventionMeta = getInterventionPackageBySlug(slug);
+
   // Use timeout for fast failure
   let pkg = await withTimeoutFallback(
     getPackageUseCase.execute(slug),
@@ -106,9 +111,8 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
   );
 
   if (!pkg) {
-    const intervention = getInterventionPackageBySlug(slug);
-    if (intervention) {
-      pkg = interventionPackageToFallbackDTO(intervention);
+    if (interventionMeta) {
+      pkg = interventionPackageToFallbackDTO(interventionMeta);
     } else {
       if (process.env.NODE_ENV === 'development') {
         console.warn(`[PackageDetail] Package with slug "${slug}" not found. Returning 404.`);
@@ -215,7 +219,7 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
     url: `${BASE_URL}/packages/${pkg.slug}`,
     provider: {
       '@type': 'Organization',
-      name: 'CAMS services',
+      name: 'CAMS Services',
       url: BASE_URL,
     },
     offers: {
@@ -314,6 +318,17 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
             </div>
           </div>
         </Section>
+
+        {interventionMeta ? (
+          <PackageSeoOverview
+            packageId={interventionMeta.id}
+            packageName={interventionMeta.name}
+            programmeSubtitle={interventionMeta.programmeSubtitle}
+            frequencyLine={interventionMeta.frequencyLine}
+            bestFor={interventionMeta.bestFor}
+            totalWeeks={pkg.totalWeeks ?? 6}
+          />
+        ) : null}
 
         {/* Stats bar */}
         <Section className="py-6 bg-white border-b border-primary-blue/20">
@@ -783,6 +798,13 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
                 })}
               </div>
             )}
+          </div>
+        </Section>
+
+        <Section className="py-12 bg-white border-t border-primary-blue/10">
+          <div className="max-w-4xl mx-auto px-4 space-y-8">
+            <AllPackagesNav currentPackageId={interventionMeta?.id} />
+            <PackageInternalLinks packageName={pkg.name} />
           </div>
         </Section>
 

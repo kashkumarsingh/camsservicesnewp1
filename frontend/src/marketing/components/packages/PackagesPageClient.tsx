@@ -76,13 +76,8 @@ export function PackagesPageClient(): ReactElement {
 
   return (
     <PageShell maxWidthClassName="max-w-[1600px]">
-      <div className="mb-8">
-        <p className="text-cams-dark font-medium">Professional & Parent Referrals</p>
-        <p className="text-cams-slate">
-          Our intervention programmes are tailored to the needs, risks and goals of each child or young person. Following an initial consultation, we will recommend the most appropriate package and provide a personalised quotation.
-        </p>
-      </div>
       <PageHeroBand
+        titleAs="h2"
         title={
           <>
             Intervention <span className="text-cams-primary">Packages</span>

@@ -3,33 +3,15 @@
 import type { ReactElement } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import { CamsIcon } from "@/marketing/components/shared/CamsIcon";
 import { PageShell } from "@/marketing/components/shared/PageShell";
 import { PageHeroBand } from "@/marketing/components/shared/PageHeroBand";
 import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
 import { BLOG_POST_DTOS } from "@/marketing/mock/blog-posts";
 import { resolveBlogCoverImage } from "@/marketing/content/blog/seo-blog-helpers";
-import { fetchPublicApiJson } from "@/marketing/lib/public-api";
-import { mapBlogApiPostToDto, type BlogApiPost } from "@/marketing/lib/blog-api-mappers";
 
 export function BlogPageClient(): ReactElement {
-  const [posts, setPosts] = useState(BLOG_POST_DTOS);
-
-  useEffect(() => {
-    void fetchPublicApiJson<{ success: boolean; data?: BlogApiPost[] }>("/api/v1/blog/posts")
-      .then((response) => {
-        const rows = response.data ?? [];
-        if (rows.length === 0) {
-          return;
-        }
-
-        setPosts(rows.map((row) => mapBlogApiPostToDto(row, String(row.slug ?? ""))));
-      })
-      .catch(() => {
-        // Keep mock fallback when API is unavailable.
-      });
-  }, []);
+  const posts = BLOG_POST_DTOS;
 
   return (
     <PageShell maxWidthClassName="max-w-[1600px]">

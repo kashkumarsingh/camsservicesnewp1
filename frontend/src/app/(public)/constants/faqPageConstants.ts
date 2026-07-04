@@ -4,15 +4,16 @@
  */
 
 export const FAQ_PAGE = {
-  META_TITLE: 'Frequently Asked Questions - CAMS Services',
+  META_TITLE: 'Frequently Asked Questions',
   META_DESCRIPTION:
     'Find answers to common questions about CAMS Services, our packages, and support.',
   HERO_TITLE: 'Frequently Asked Questions',
   HERO_SUBTITLE: 'Find answers to common questions about CAMS Services, our packages, and support.',
   HERO_CTA_QUESTIONS: 'Still Have Questions?',
   HERO_CTA_SERVICES: 'Explore Our Services',
-  INTRO_HEADING: '',
-  INTRO_BODY: '',
+  INTRO_HEADING: 'How CAMS Services works for families and referrers',
+  INTRO_BODY:
+    'CAMS Services provides chaperone, transport, mentoring, and SEND support for children and young people across the UK. On this page you will find answers about referrals, intervention packages, safeguarding, payments, and how we work with schools, local authorities, and families. If your question is not listed, contact our team and we will respond within one working day.',
   CTA_TITLE: "Didn't Find What You're Looking For?",
   CTA_SUBTITLE: "Our team is here to help! Contact us and we'll answer any questions you have.",
   CTA_PRIMARY: 'Contact Us Today',

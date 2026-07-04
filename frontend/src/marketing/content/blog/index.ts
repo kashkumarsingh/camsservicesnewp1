@@ -22,9 +22,26 @@ export const SEO_BLOG_ARTICLES: ReadonlyArray<MarketingBlogPostDTO> = [
 
 const bySlug = new Map(SEO_BLOG_ARTICLES.map((post) => [post.slug, post]));
 
+/** Normalise `/blog/foo`, `blog/foo`, or `foo` to `foo`. */
+export function normalizePublicBlogSlug(slug: string): string {
+  return slug.replace(/^\/+/, "").replace(/^blog\//, "");
+}
+
+const publicSeoBlogSlugs = new Set(
+  SEO_BLOG_ARTICLES.map((post) => normalizePublicBlogSlug(post.slug))
+);
+
+/** Only these slugs are published on the marketing site (sitemap, listing, detail). */
+export function isPublicSeoBlogSlug(slug: string): boolean {
+  return publicSeoBlogSlugs.has(normalizePublicBlogSlug(slug));
+}
+
 export function getSeoBlogPostBySlug(slug: string): MarketingBlogPostDTO | null {
-  const normalized = slug.startsWith("blog/") ? slug : `blog/${slug.replace(/^\/+/, "")}`;
-  return bySlug.get(normalized) ?? bySlug.get(slug) ?? null;
+  const normalized = normalizePublicBlogSlug(slug);
+  if (!isPublicSeoBlogSlug(normalized)) {
+    return null;
+  }
+  return bySlug.get(normalized) ?? bySlug.get(`blog/${normalized}`) ?? null;
 }
 
 /** Blog URLs for sitemap.xml — SEO articles only (no legacy demo slugs). */
@@ -35,5 +52,13 @@ export function getSeoBlogSitemapEntries(): ReadonlyArray<{
   return SEO_BLOG_ARTICLES.map((post) => ({
     path: `blog/${post.slug.replace(/^blog\//, "")}`,
     lastModified: new Date(post.publishedAt),
+  }));
+}
+
+/** Internal footer/nav links — helps crawlers discover sitemap blog URLs. */
+export function getSeoBlogFooterLinks(): ReadonlyArray<{ href: string; label: string }> {
+  return SEO_BLOG_ARTICLES.map((post) => ({
+    href: `/blog/${post.slug.replace(/^blog\//, "")}`,
+    label: post.title.length > 52 ? `${post.title.slice(0, 49)}…` : post.title,
   }));
 }

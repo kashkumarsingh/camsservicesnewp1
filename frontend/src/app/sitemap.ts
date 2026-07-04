@@ -1,8 +1,4 @@
 import type { MetadataRoute } from "next";
-import { ListFAQItemsUseCase } from "@/core/application/faq/useCases/ListFAQItemsUseCase";
-import { ListTrainersUseCase } from "@/core/application/trainers/useCases/ListTrainersUseCase";
-import { faqRepository } from "@/infrastructure/persistence/faq";
-import { trainerRepository } from "@/infrastructure/persistence/trainers";
 import { policiesData } from "@/data/policiesData";
 import { getCanonicalUrlForSiteSlug } from "@/marketing/lib/public-site-url";
 import { getSeoBlogSitemapEntries } from "@/marketing/content/blog";
@@ -72,31 +68,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry(post.path, 0.7, "weekly", post.lastModified)
   );
 
-  let trainerEntries: MetadataRoute.Sitemap = [];
-  try {
-    const trainersUseCase = new ListTrainersUseCase(trainerRepository);
-    const trainers = await trainersUseCase.execute();
-    trainerEntries = trainers.map((trainer) => entry(`trainers/${trainer.slug}`, 0.6));
-  } catch {
-    trainerEntries = [];
-  }
-
-  let faqEntries: MetadataRoute.Sitemap = [];
-  try {
-    const faqUseCase = new ListFAQItemsUseCase(faqRepository);
-    const faqItems = await faqUseCase.execute();
-    faqEntries = faqItems.map((item) => entry(`faq/${item.slug}`, 0.6));
-  } catch {
-    faqEntries = [];
-  }
-
   return [
     ...pageEntries,
     ...packageEntries,
     ...serviceEntries,
     ...policyEntries,
     ...blogEntries,
-    ...trainerEntries,
-    ...faqEntries,
   ];
 }

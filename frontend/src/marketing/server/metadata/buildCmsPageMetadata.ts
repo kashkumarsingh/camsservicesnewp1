@@ -11,6 +11,17 @@ export interface CmsPageSeoSource {
   ogImage?: string | null;
 }
 
+function titleIncludesSiteName(rawTitle: string, siteName: string): boolean {
+  const title = rawTitle.trim().toLowerCase();
+  const site = siteName.trim().toLowerCase();
+  return (
+    title.endsWith(`| ${site}`) ||
+    title.endsWith(site) ||
+    title.includes(`- ${site}`) ||
+    title.includes(`| ${site}`)
+  );
+}
+
 export function buildCmsPageMetadata(
   page: CmsPageSeoSource,
   path: string,
@@ -22,10 +33,13 @@ export function buildCmsPageMetadata(
 ): Metadata {
   const baseUrl = options?.baseUrl ?? getMetadataBaseUrl();
   const rawTitle = page.metaTitle?.trim() || page.title?.trim() || SEO_DEFAULTS.title;
+  const siteName = SEO_DEFAULTS.siteName;
   const title =
-    options?.titleSuffix === false || page.metaTitle?.trim()
+    options?.titleSuffix === false ||
+    page.metaTitle?.trim() ||
+    titleIncludesSiteName(rawTitle, siteName)
       ? rawTitle
-      : `${rawTitle} | ${SEO_DEFAULTS.siteName}`;
+      : `${rawTitle} | ${siteName}`;
   const description =
     page.metaDescription?.trim() || page.summary?.trim() || SEO_DEFAULTS.description;
 

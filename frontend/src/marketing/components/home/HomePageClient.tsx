@@ -7,6 +7,7 @@ import { HomeMethodSection } from "@/marketing/components/home/HomeMethodSection
 import { HomeServicesGridSection } from "@/marketing/components/home/HomeServicesGridSection";
 import { HomeTransportSupportSection } from "@/marketing/components/home/HomeTransportSupportSection";
 import { HomeWhoWeSupportSection } from "@/marketing/components/home/HomeWhoWeSupportSection";
+import { HomeBlogInsightsSection } from "@/marketing/components/home/HomeBlogInsightsSection";
 import { PAGE_LAYOUT } from "@/marketing/components/shared/page-layout";
 import { INTERVENTION_PACKAGES } from "@/marketing/mock/intervention-packages";
 import { CAMS_CONTACT, camsTelHref } from "@/marketing/mock/cams-services-catalog";
@@ -169,6 +170,8 @@ export function HomePageClient(): ReactElement {
           </div>
         </div>
       </section>
+
+      <HomeBlogInsightsSection />
 
       <PageCtaSection
         heading="Need support for a child, young person, family member, or vulnerable adult?"

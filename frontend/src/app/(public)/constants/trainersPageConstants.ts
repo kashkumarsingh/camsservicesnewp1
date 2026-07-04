@@ -4,7 +4,7 @@
  */
 
 export const TRAINERS_PAGE = {
-  META_TITLE: 'Our Trainers - CAMS Services',
+  META_TITLE: 'Our Trainers',
   META_DESCRIPTION:
     'Meet our team of DBS-checked, specialist trainers delivering trauma-informed support across London and Essex.',
   HERO_TITLE: 'Meet Our Trainers',

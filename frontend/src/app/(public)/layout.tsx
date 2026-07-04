@@ -1,13 +1,14 @@
 import { Metadata } from 'next';
-import React, { Suspense } from 'react';
+import React from 'react';
 import { FooterImageRail } from '@/components/layout/FooterImageRail';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteFloatingActions } from '@/components/layout/SiteFloatingActions';
-import Loading from '@/components/ui/Loading/Loading';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
 import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
 import { getSiteSettings } from '@/marketing/server/siteSettings/getSiteSettings';
 import { SiteSettingsMapper } from '@/core/application/siteSettings/mappers/SiteSettingsMapper';
+import { policiesData } from '@/data/policiesData';
+import { ROUTES } from '@/shared/utils/routes';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
@@ -27,6 +28,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const settings = await getSiteSettings().catch(() => null);
   const dto = settings ? SiteSettingsMapper.toDTO(settings) : null;
+  const policyFooterLinks = policiesData.map((policy) => ({
+    href: ROUTES.POLICIES_BY_SLUG(policy.slug),
+    label: policy.title,
+  }));
+
   const footerSections = dto?.footer?.quickLinks?.length
     ? [
         {
@@ -52,6 +58,10 @@ export default async function PublicLayout({ children }: { children: React.React
           ],
         },
         {
+          title: 'Legal',
+          links: policyFooterLinks,
+        },
+        {
           title: 'Organisation',
           links: [
             { href: '/become-a-trainer', label: 'Become a trainer' },
@@ -69,9 +79,7 @@ export default async function PublicLayout({ children }: { children: React.React
   return (
     <>
       <div className="min-h-screen overflow-x-clip bg-white">
-        <Suspense fallback={<Loading />}>
-          {children}
-        </Suspense>
+        {children}
         <FooterImageRail />
         <SiteFooter
           sections={footerSections}

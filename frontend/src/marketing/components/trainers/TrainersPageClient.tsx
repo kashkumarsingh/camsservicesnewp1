@@ -31,7 +31,7 @@ export function TrainersPageClient({ content }: TrainersPageClientProps) {
         <video className="absolute inset-0 w-full h-full object-cover" src="/videos/space-bg-2.webm" loop autoPlay muted playsInline />
         <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/50 to-light-blue-cyan/30" />
         <div className="relative text-center max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-heading font-extrabold mb-6 leading-tight tracking-tight heading-text-shadow">{content.hero.title}</h1>
+          <h2 className="text-5xl md:text-7xl font-heading font-extrabold mb-6 leading-tight tracking-tight heading-text-shadow">{content.hero.title}</h2>
           <p className="text-xl md:text-2xl mb-10 max-w-2xl mx-auto font-sans font-light">{content.hero.subtitle}</p>
           <div className="flex flex-col sm:flex-row justify-center gap-5">
             <MarketingButton href={content.hero.ctaPrimaryHref} variant="superPlayful" size="lg" className="shadow-lg" withArrow>

@@ -2,6 +2,15 @@ import Link from "next/link";
 import Image from "next/image";
 import type { ReactElement } from "react";
 import { ROUTES } from "@/shared/utils/routes";
+import { getSeoBlogFooterLinks } from "@/marketing/content/blog";
+import { policiesData } from "@/data/policiesData";
+
+const BLOG_FOOTER_LINKS = getSeoBlogFooterLinks();
+
+const POLICY_FOOTER_LINKS = policiesData.map((policy) => ({
+  href: ROUTES.POLICIES_BY_SLUG(policy.slug),
+  label: policy.title,
+}));
 
 export type SiteFooterSection = {
   title: string;
@@ -35,6 +44,14 @@ export const DEFAULT_FOOTER_SECTIONS: ReadonlyArray<SiteFooterSection> = [
       { href: ROUTES.PACKAGES, label: "Intervention packages" },
       { href: ROUTES.ABOUT, label: "About CAMS" },
     ],
+  },
+  {
+    title: "Insights",
+    links: BLOG_FOOTER_LINKS,
+  },
+  {
+    title: "Legal",
+    links: POLICY_FOOTER_LINKS,
   },
   {
     title: "Organisation",
@@ -74,7 +91,7 @@ export function SiteFooter({
             </Link>
             <p className="mt-5 text-sm leading-relaxed text-slate-400">{description}</p>
           </div>
-          <div className="grid flex-1 grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 lg:max-w-3xl lg:gap-x-10">
+          <div className="grid flex-1 grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-5 lg:max-w-5xl lg:gap-x-8">
             {sections.map((section) => (
               <div key={section.title}>
                 <h4 className="font-heading text-[0.7rem] font-bold uppercase tracking-[0.22em] text-white">
@@ -100,8 +117,17 @@ export function SiteFooter({
         <div className="flex flex-col gap-6 pt-10 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
           <p>{copyrightText}</p>
           <nav aria-label="Legal" className="flex flex-wrap gap-x-6 gap-y-2 md:justify-end">
+            {POLICY_FOOTER_LINKS.slice(0, 4).map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-slate-400 transition hover:text-cams-secondary"
+              >
+                {link.label}
+              </Link>
+            ))}
             <Link href={ROUTES.POLICIES} className="text-slate-400 transition hover:text-cams-secondary">
-              Policies
+              All policies
             </Link>
             <Link href={ROUTES.FAQ} className="text-slate-400 transition hover:text-cams-secondary">
               FAQ
