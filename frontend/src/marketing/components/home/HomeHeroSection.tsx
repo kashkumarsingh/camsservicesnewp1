@@ -36,9 +36,9 @@ export function HomeHeroSection(): ReactElement {
             {COMPANY_TAGLINE}
           </p>
           <h1 className="mt-5 font-heading text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl lg:text-[3.75rem]">
-            Chaperone services &{" "}
+            Chaperone services UK,{" "}
             <span className="bg-gradient-to-r from-cams-secondary via-white to-cams-accent bg-clip-text text-transparent">
-              professional chaperone service UK
+              child transport & family support
             </span>
           </h1>
           <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
