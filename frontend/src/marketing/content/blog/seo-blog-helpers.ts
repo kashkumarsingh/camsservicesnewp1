@@ -1,5 +1,6 @@
 import type { MarketingBlogPostDTO } from '@/marketing/types/blog';
 import type { BlogPostDTO } from '@/core/application/blog';
+import { camsUnsplashPhotoUrl } from '@/marketing/mock/cams-unsplash';
 
 const WORDS_PER_MINUTE = 200;
 
@@ -12,9 +13,14 @@ export function formatReadTimeLabel(content: string): string {
   return `${estimateReadingTimeMinutes(content)} min read`;
 }
 
+export function resolveBlogCoverImage(post: MarketingBlogPostDTO): string {
+  return post.coverImageUrl ?? camsUnsplashPhotoUrl(post.coverPhotoId, 1600, 720);
+}
+
 export function marketingBlogPostToDto(post: MarketingBlogPostDTO): BlogPostDTO {
   const publicSlug = post.slug.replace(/^blog\//, '');
   const readingTime = estimateReadingTimeMinutes(post.content);
+  const coverImage = resolveBlogCoverImage(post);
 
   return {
     id: `seo-${publicSlug}`,
@@ -39,7 +45,7 @@ export function marketingBlogPostToDto(post: MarketingBlogPostDTO): BlogPostDTO 
       name,
       slug: name.toLowerCase().replace(/\s+/g, '-'),
     })),
-    featuredImage: post.coverImageUrl,
+    featuredImage: coverImage,
     featuredImageAlt: post.coverImageAlt,
     published: true,
     publishedAt: post.publishedAt,
@@ -49,7 +55,7 @@ export function marketingBlogPostToDto(post: MarketingBlogPostDTO): BlogPostDTO 
     seo: {
       title: post.metaTitle,
       description: post.metaDescription,
-      og_image: post.coverImageUrl,
+      og_image: coverImage,
     },
     createdAt: post.publishedAt,
     updatedAt: post.publishedAt,

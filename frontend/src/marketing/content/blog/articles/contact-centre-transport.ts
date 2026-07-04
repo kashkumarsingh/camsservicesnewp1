@@ -1,45 +1,69 @@
 import type { MarketingBlogPostDTO } from "@/marketing/types/blog";
 import { CAMS_UNSPLASH_PHOTO } from "@/marketing/mock/cams-unsplash";
 import { formatReadTimeLabel } from "@/marketing/content/blog/seo-blog-helpers";
+import {
+  articleToc,
+  midArticleCta,
+  endArticleCta,
+  faqSection,
+  OUTBOUND,
+} from "@/marketing/content/blog/article-blocks";
+
+const faqItems = [
+  {
+    q: "Is contact centre transport always one-to-one?",
+    a: "Usually yes for high-conflict cases. Siblings or lower-risk plans may share transport when assessments allow.",
+  },
+  {
+    q: "Can parents ever travel in the same vehicle as the child?",
+    a: "Only when explicitly directed by court order and risk-assessed. Default practice is separate transport to maintain neutrality.",
+  },
+  {
+    q: "What if contact is cancelled at short notice?",
+    a: "Staff follow referrer instruction — return home, remain on standby or stand down. Cancellation policies are agreed at commissioning.",
+  },
+  {
+    q: "Do you transport to supervised and supported contact?",
+    a: "Yes. We coordinate with centres offering different supervision levels and adapt handover accordingly.",
+  },
+];
 
 const content = `
-**Contact centre transport** is one of the most sensitive journeys in children's services. Court-ordered family time only works when children arrive calm, on time and without witnessing adult conflict. This guide explains how commissioners plan **contact centre transport**, what safeguarding looks like on the ground, and how CAMS protects children at handover.
+**Contact centre transport** is one of the most sensitive journeys in children's services. Court-ordered family time only works when children arrive calm, on time and without witnessing adult conflict. For supervising social workers, children's guardians and contact centre managers, **contact centre transport** is safeguarding infrastructure — not a taxi booking with a different label.
 
-## In this article
+When parents meet children at a supervised centre, the journey shapes the session before anyone enters the room. Poor transport can expose children to arguments in car parks, cause late arrival that shortens precious contact time, trigger dysregulation that ruins the session, and create evidence gaps when incidents are disputed. This guide explains how commissioners plan neutral escorts, what documentation standards apply, and how CAMS protects children at every handover.
 
-- [Why contact centre transport matters](#why-contact-centre-transport-matters)
-- [Planning neutral handovers](#planning-neutral-handovers)
-- [Documentation and referrer updates](#documentation-and-referrer-updates)
-- [Behaviour and emotional regulation after contact](#behaviour-and-emotional-regulation-after-contact)
-- [Choosing a contact transport provider](#choosing-a-contact-transport-provider)
-- [Frequently asked questions](#frequently-asked-questions)
+${articleToc([
+  { label: "Why contact centre transport matters", anchor: "why-contact-centre-transport-matters" },
+  { label: "Planning neutral handovers", anchor: "planning-neutral-handovers" },
+  { label: "Documentation and referrer updates", anchor: "documentation-and-referrer-updates" },
+  { label: "Behaviour and emotional regulation after contact", anchor: "behaviour-and-emotional-regulation-after-contact" },
+  { label: "Choosing a contact transport provider", anchor: "choosing-a-contact-transport-provider" },
+  { label: "Integrating transport with wider support", anchor: "integrating-transport-with-wider-support" },
+  { label: "Frequently asked questions", anchor: "frequently-asked-questions" },
+])}
 
-<h2 id="why-contact-centre-transport-matters">Why contact centre transport matters</h2>
+## Why contact centre transport matters
 
-When parents meet children at a contact centre, the journey is part of the safeguarding story. Poor **contact centre transport** can:
+When parents meet children at a contact centre, the journey is part of the safeguarding story. Professional child escort services treat punctuality and neutrality as non-negotiable. CAMS aligns with local authority contact protocols and centre rules — including who may approach the vehicle and where handover occurs.
 
-- Expose children to arguments in car parks or doorsteps
-- Cause late arrival, shortening precious contact time
-- Trigger dysregulation that ruins the session for everyone
-- Create evidence gaps when incidents are disputed
+The [GOV.UK guidance on contact between children and birth parents](${OUTBOUND.contactOrders}) clarifies local authority duties around supervised family time. Transport sits within that framework: the escort is often the last professional the child sees before contact and the first after it ends.
 
-Professional **child escort services** treat punctuality and neutrality as non-negotiable. CAMS aligns with local authority contact protocols and centre rules — including who may approach the vehicle and where handover occurs.
+Related reading: [chaperone services UK](/blog/chaperone-services-uk) and [child transport services](/blog/child-transport-services-uk). For children in foster care, contact transport connects directly to [foster placement support](/blog/foster-placement-support) packages that stabilise placements around contact cycles.
 
-Related reading: [chaperone services UK](/blog/chaperone-services-uk) and [child transport services](/blog/child-transport-services-uk).
+### What goes wrong without professional transport
 
-<h2 id="planning-neutral-handovers">Planning neutral handovers</h2>
+Common failures include parents attempting collection from the foster home instead of the centre; arguments at centre reception that the child witnesses; late arrival shortening court-ordered minutes; and escorts who lack training to manage refusal or dysregulation. Each failure can become evidence in proceedings and harm the child regardless of legal outcomes.
+
+## Planning neutral handovers
+
+Neutral handovers require planning before the first journey — not improvisation when a parent arrives unexpectedly.
 
 ### Before the first journey
 
-Commissioners should share:
+Commissioners should share court order or contact plan summary (times, frequency, supervision level); prohibited contact persons and any non-molestation orders; the child's communication needs and comfort items; centre address, room number and on-site contact; and escalation path if a parent attends unexpectedly or appears intoxicated.
 
-1. Court order or contact plan summary (times, frequency, supervision level)
-2. Prohibited contact persons and any non-molestation orders
-3. Child's communication needs and comfort items
-4. Centre address, room number and on-site contact
-5. Escalation path if a parent attends unexpectedly
-
-CAMS completes a risk assessment and agrees handover zones — often centre reception rather than street collection.
+CAMS completes a risk assessment and agrees handover zones — often centre reception rather than street collection. Staff know which adults are authorised to approach the vehicle and which must remain at distance.
 
 ### During handover
 
@@ -47,63 +71,82 @@ Staff use calm, child-focused language. They do not facilitate adult arguments. 
 
 ### Sibling groups
 
-Where siblings travel together, vehicle layout and seating plans are agreed in advance. Shared **contact centre transport** is only used when risk assessments support it.
+Where siblings travel together, vehicle layout and seating plans are agreed in advance. Shared **contact centre transport** is only used when risk assessments support it — never assumed because siblings share a surname.
 
-<h2 id="documentation-and-referrer-updates">Documentation and referrer updates</h2>
+## Documentation and referrer updates
 
-Semrush and Yoast both recommend content that demonstrates expertise (E-E-A-T). For contact transport, expertise means **clear records**:
+For contact transport, expertise means clear records that professionals can rely on in proceedings and reviews. CAMS journey summaries include pick-up and drop-off times; who received the child; behaviour observations that are factual and non-judgemental; incidents or near-misses; and contact centre feedback where shared.
 
-- Pick-up and drop-off times
-- Who received the child
-- Behaviour observations (factual, non-judgemental)
-- Incidents or near-misses
-- Contact centre feedback where shared
+Social workers and children's guardians rely on these notes for proceedings and review hearings. Vague entries — "journey fine" — help nobody. Good notes describe punctuality, mood on arrival, any refusal or distress, and handover recipient by name and role.
 
-Social workers and children's guardians rely on these notes for proceedings and review hearings. CAMS journey summaries are written for professional audiences — not casual chat.
+The [SCIE safeguarding resources](${OUTBOUND.safeguarding}) emphasise accurate record-keeping as a core safeguarding practice. Contact transport providers should treat every journey as potentially scrutinised.
 
-<h2 id="behaviour-and-emotional-regulation-after-contact">Behaviour and emotional regulation after contact</h2>
+${midArticleCta(
+  "Need contact centre transport cover?",
+  "CAMS delivers neutral, safeguarding-first contact centre transport UK-wide. Submit a referral with court dates, centre details and handover instructions.",
+)}
 
-Contact can be joyful, confusing or distressing. The journey home matters as much as the journey there.
+## Behaviour and emotional regulation after contact
 
-CAMS staff are trained to:
+Contact can be joyful, confusing or distressing. The journey home matters as much as the journey there — sometimes more, when a child must return to a foster home and process mixed feelings without feeling disloyal to any adult.
 
-- Allow silence or light conversation based on the child's preference
-- Use regulation strategies agreed in the risk plan
-- Avoid probing questions that force the child to report on parents
-- Signal foster carers or residential staff about emotional state at handover
+CAMS staff are trained to allow silence or light conversation based on the child's preference; use regulation strategies agreed in the risk plan; avoid probing questions that force the child to report on parents; and signal foster carers or residential staff about emotional state at handover.
 
-Where commissioners agree, follow-up [mentoring sessions](/services/mentoring) help children process contact without feeling disloyal to any adult.
+Where commissioners agree, follow-up [mentoring sessions](/services/mentoring) help children process contact without shame. A mentor who knows the contact schedule can plan low-demand sessions after difficult weekends.
 
-<h2 id="choosing-a-contact-transport-provider">Choosing a contact transport provider</h2>
+### Refusal to travel
 
-Ask providers:
+Some children refuse to leave for contact or refuse to leave the centre afterwards. Risk assessments include contingency plans: who to call, whether to stand down, whether a mentor should attend pickup. Staff use de-escalation; they do not use physical force except where law and training explicitly permit — which is rare.
+
+## Choosing a contact transport provider
+
+Commissioners should ask structured questions before awarding contracts or approving spot purchases.
 
 | Question | What good looks like |
 |---|---|
 | DBS and safeguarding training? | Enhanced DBS, regular refreshers, incident reporting |
 | Experience with care proceedings? | Familiarity with contact centres and court timetables |
 | Coverage at weekends? | Reliable cover for family-time peaks |
-| Integration with mentoring? | Option to blend transport with [foster placement support](/blog/foster-placement-support) |
+| Integration with mentoring? | Option to blend transport with foster placement support |
+| Cancellation policy? | Clear terms for short-notice contact changes |
+| Reporting format? | Professional journey summaries suitable for proceedings |
 
-CAMS delivers **contact centre transport** UK-wide. [Make a referral](/referral) with court dates and centre details, or [contact us](/contact) for panel submissions.
+Default practice is separate neutral transport — parents do not travel in the same vehicle as the child unless a court order explicitly requires it and a risk assessment approves.
 
-<h2 id="frequently-asked-questions">Frequently asked questions</h2>
+## Integrating transport with wider support
 
-### Is contact centre transport always one-to-one?
+Contact transport in isolation solves one journey. Integrated packages solve the cycle: transport to contact, mentoring after contact, [family support](/services/routine) for carers managing dysregulation, and [school transport support](/blog/school-transport-support-semh) so Monday attendance survives the weekend.
 
-Usually yes for high-conflict cases. Siblings or lower-risk plans may share transport when assessments allow.
+Explore combined options via our [Community Access and Transport Services](/services/community) programme and [intervention packages](/packages) catalogue. The [children in care framework](${OUTBOUND.childrenInCare}) reminds commissioners that corporate parenting extends beyond the contact session itself.
 
-### Can parents ever travel in the same vehicle as the child?
+### Weekend and holiday peaks
 
-Only when explicitly directed by court order and risk-assessed. Default practice is separate transport to maintain neutrality.
+Contact often concentrates at weekends and school holidays when mainstream services are closed. Providers must demonstrate reliable out-of-hours cover and escalation paths when centres call to cancel or shorten sessions.
 
-### What if contact is cancelled at short notice?
+### High-conflict proceedings
 
-Staff follow referrer instruction — return home, remain on standby or stand down. Cancellation policies are agreed at commissioning.
+In high-conflict proceedings, **contact centre transport** becomes evidential. Children's guardians may scrutinise journey notes for patterns — repeated lateness attributable to one parent, allegations about escort conduct, or children arriving distressed consistently after one direction of travel. CAMS writes notes knowing they may be disclosed. Neutrality is not passive — it is active protection of the child's experience regardless of adult litigation strategy.
 
-### Do you transport to supervised and supported contact?
+### Supported and supervised contact levels
 
-Yes. We coordinate with centres offering different supervision levels and adapt handover accordingly.
+Centres offer different supervision levels — supported contact with lighter monitoring, fully supervised contact with observation throughout, and occasionally direct contact in the community with escort oversight. Transport plans must match the centre's model: a child attending supported contact may have different handover zones than one in a fully supervised room. Escorts coordinate with centre staff before the first journey so nobody improvises at reception.
+
+### Technology and tracking
+
+Commissioners sometimes ask about live tracking or GPS. CAMS uses journey confirmation and time-stamped records; intrusive tracking of children is avoided unless a specific risk assessment and referrer authorisation require it. The child's dignity matters as much as the court timetable.
+
+### Panel submissions and court timetables
+
+Local authority panels and court hearings often require evidence that transport is arranged before contact can proceed. CAMS provides written confirmations of capacity, staffing and schedule for panel submissions where requested. When court timetables shift — a direction brought forward, contact suspended pending investigation — transport plans must flex without leaving the child without cover or with an untrained standby. Named contacts at CAMS reduce the admin burden on social workers already managing multiple proceedings.
+
+${endArticleCta(
+  "Commission contact centre transport",
+  "CAMS Services Ltd provides safeguarding-first contact centre transport UK-wide for local authorities, IFAs and families. Make a referral with court dates and centre details, or contact our team for panel submissions.",
+)}
+
+## Frequently asked questions
+
+${faqSection(faqItems)}
 `.trim();
 
 export const contactCentreTransportArticle: MarketingBlogPostDTO = {
@@ -130,26 +173,5 @@ export const contactCentreTransportArticle: MarketingBlogPostDTO = {
     "safeguarding",
     "children in care",
   ],
-  faq: [
-    {
-      question: "Is contact centre transport always one-to-one?",
-      answer:
-        "Usually yes for high-conflict cases. Siblings may share transport when individual risk assessments support it.",
-    },
-    {
-      question: "Can parents travel in the same vehicle as the child?",
-      answer:
-        "Only when a court order explicitly requires it and a risk assessment approves. Default practice is separate neutral transport.",
-    },
-    {
-      question: "What if contact is cancelled at short notice?",
-      answer:
-        "Staff follow referrer instructions to return home, stand by or stand down. Cancellation terms are agreed at commissioning.",
-    },
-    {
-      question: "Do you transport to supervised and supported contact?",
-      answer:
-        "Yes. CAMS coordinates with centres offering different supervision levels and adapts handover procedures accordingly.",
-    },
-  ],
+  faq: faqItems.map((item) => ({ question: item.q, answer: item.a })),
 };

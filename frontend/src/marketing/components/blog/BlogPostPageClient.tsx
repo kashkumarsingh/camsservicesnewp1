@@ -4,12 +4,11 @@ import Image from "next/image";
 import { Calendar, Clock, User } from "lucide-react";
 import { PageShell } from "@/marketing/components/shared/PageShell";
 import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
-import { RichTextBlock } from "@/components/shared/public-page";
+import { BlogArticleBody } from "@/marketing/components/blog/BlogArticleBody";
 import type { BlogPostDTO } from "@/core/application/blog";
 import { ROUTES } from "@/shared/utils/routes";
 import { formatDate } from "@/shared/utils/formatDate";
 import { DATE_FORMAT_LONG } from "@/shared/utils/appConstants";
-import { camsPageImagePath } from "@/marketing/mock/cams-public-images";
 
 type BlogPostPageClientProps = {
   post: BlogPostDTO;
@@ -28,7 +27,7 @@ export function BlogPostPageClient({
   previousPost = null,
   nextPost = null,
 }: BlogPostPageClientProps): ReactElement {
-  const heroSrc = post.featuredImage || camsPageImagePath("ogDefault");
+  const heroSrc = post.featuredImage ?? "";
   const heroAlt = post.featuredImageAlt || `Illustration for ${post.title}`;
 
   return (
@@ -66,12 +65,14 @@ export function BlogPostPageClient({
           </div>
         </header>
 
-        <div className="brand-image-frame mt-10 overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
-          <Image src={heroSrc} alt={heroAlt} className="h-auto w-full object-cover" width={1600} height={720} />
-        </div>
+        {heroSrc ? (
+          <div className="brand-image-frame mt-10 overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+            <Image src={heroSrc} alt={heroAlt} className="h-auto w-full object-cover" width={1600} height={720} />
+          </div>
+        ) : null}
 
         <div className="mt-10 text-base leading-8 text-cams-slate md:text-lg">
-          <RichTextBlock content={post.content} />
+          <BlogArticleBody content={post.content} />
         </div>
 
         <footer className="mt-12 rounded-2xl border border-slate-200 bg-slate-50 p-6">

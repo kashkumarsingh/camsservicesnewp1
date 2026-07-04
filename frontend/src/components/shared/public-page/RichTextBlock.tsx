@@ -5,7 +5,10 @@ import { renderHtml } from '@/shared/utils/htmlRenderer';
 import ReactMarkdown from 'react-markdown';
 
 function isHtmlContent(content: string): boolean {
-  return /<[a-z][\s\S]*>/i.test(content);
+  const trimmed = content.trim();
+  if (!trimmed.startsWith('<')) return false;
+  const markdownSignals = (trimmed.match(/(^|\n)(#{1,6}\s|\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g) ?? []).length;
+  return markdownSignals === 0;
 }
 
 /**

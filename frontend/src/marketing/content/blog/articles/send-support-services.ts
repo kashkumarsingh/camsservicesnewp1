@@ -1,93 +1,151 @@
 import type { MarketingBlogPostDTO } from "@/marketing/types/blog";
 import { CAMS_UNSPLASH_PHOTO } from "@/marketing/mock/cams-unsplash";
 import { formatReadTimeLabel } from "@/marketing/content/blog/seo-blog-helpers";
+import {
+  articleToc,
+  midArticleCta,
+  endArticleCta,
+  faqSection,
+  OUTBOUND,
+} from "@/marketing/content/blog/article-blocks";
+
+const faqItems = [
+  {
+    q: "Can SEND support services be funded through an EHCP?",
+    a: "Often yes — via Section F provision or personal budgets depending on local policy. We work with SEND teams and parents to scope hours that match the plan.",
+  },
+  {
+    q: "Do you support children not yet on an EHCP?",
+    a: "Yes. Schools and early-help teams commission support while assessments are in progress, especially when attendance is at risk.",
+  },
+  {
+    q: "Can the same worker provide transport and SEND support?",
+    a: "Yes, where risk assessments support it. A consistent adult across transport and mentoring can accelerate trust.",
+  },
+  {
+    q: "What qualifications do SEND practitioners hold?",
+    a: "Team members bring youth work, education support and safeguarding experience; role-specific training covers autism, ADHD and trauma-informed practice. Enhanced DBS clearance is standard.",
+  },
+];
 
 const content = `
-**SEND support services** help children and young people with special educational needs and disabilities access learning, regulate emotions and participate in school life. For parents, SENCOs and local authority SEND teams, the right one-to-one support can prevent placement breakdown and reduce crisis interventions.
+**SEND support services** help children and young people with special educational needs and disabilities access learning, regulate emotions and participate in school life. For parents, SENCOs and local authority SEND teams, the right one-to-one support can prevent placement breakdown, reduce crisis interventions and turn an EHCP from a document into daily practice.
 
-## In this article
+When a child with autism, ADHD or SEMH needs struggles to engage in class, refuses mornings, or melts down after unstructured break times, generic teaching assistants may not suffice. Commissioned **SEND support services** provide a trained adult who understands sensory profiles, trauma histories and the difference between defiance and overwhelm. This guide explains what those services include, how they align with EHCPs, and why transport and mentoring often belong in the same package.
 
-- [What SEND support services include](#what-send-support-services-include)
-- [Autism, ADHD and SEMH-informed practice](#autism-adhd-and-semh-informed-practice)
-- [School engagement and attendance](#school-engagement-and-attendance)
-- [Working with EHCP outcomes](#working-with-ehcp-outcomes)
-- [Transport and community access for SEND](#transport-and-community-access-for-send)
-- [Frequently asked questions](#frequently-asked-questions)
+${articleToc([
+  { label: "What SEND support services include", anchor: "what-send-support-services-include" },
+  { label: "Autism, ADHD and SEMH-informed practice", anchor: "autism-adhd-and-semh-informed-practice" },
+  { label: "School engagement and attendance", anchor: "school-engagement-and-attendance" },
+  { label: "Working with EHCP outcomes", anchor: "working-with-ehcp-outcomes" },
+  { label: "Transport and community access for SEND", anchor: "transport-and-community-access-for-send" },
+  { label: "Commissioning SEND support effectively", anchor: "commissioning-send-support-effectively" },
+  { label: "Frequently asked questions", anchor: "frequently-asked-questions" },
+])}
 
-<h2 id="what-send-support-services-include">What SEND support services include</h2>
+## What SEND support services include
 
-**SEND support services** at CAMS are delivered one-to-one through our [SEN and Education Support](/services/sen) programme. Typical elements include:
+**SEND support services** at CAMS are delivered one-to-one through our [SEN and Education Support](/services/sen) programme. Typical elements include learning support aligned with school targets and EHCP outcomes; sensory-aware session structure with movement breaks and visual planning; communication and advocacy so the young person can express needs safely; transition support between classes, schools or key stages; and collaboration with families, SENCOs and external therapists.
 
-- **Learning support** aligned with school targets and EHCP outcomes
-- **Sensory-aware session structure** with movement breaks and visual planning
-- **Communication and advocacy** so the young person can express needs safely
-- **Transition support** between classes, schools or key stages
-- **Collaboration** with families, SENCOs and external therapists
+Unlike generic tuition, SEND support services recognise that behaviour is often communication. A child refusing literacy work may be overwhelmed by noise, hungry, or carrying shame from yesterday's exclusion. Practitioners start with curiosity — what is this behaviour protecting the child from? — rather than compliance at any cost.
 
-Unlike generic tuition, SEND support services recognise that behaviour is often communication. A child refusing literacy work may be overwhelmed by noise, hungry, or carrying shame from yesterday's exclusion.
+The [SEND Code of Practice 0 to 25](${OUTBOUND.sendCode}) sets the statutory framework within which one-to-one provision should align. CAMS welcomes multi-agency coordination and provides progress summaries where commissioned.
 
-<h2 id="autism-adhd-and-semh-informed-practice">Autism, ADHD and SEMH-informed practice</h2>
+### Session structure
+
+Effective sessions combine predictable opening routines, chunked tasks with clear finish points, movement breaks where needed, and calm closure that previews the next meeting. Visual timetables and now-next boards support autistic learners; immediate feedback and short bursts suit many ADHD profiles.
+
+## Autism, ADHD and SEMH-informed practice
+
+Diagnosis labels help commissioners scope provision, but support must match the individual profile — not the label alone. CAMS practitioners adapt practice across three common referral presentations.
 
 ### Autism
 
-Predictable routines, literal language and advance warning of changes reduce anxiety. Our practitioners use social stories, timers and low-arousal environments where possible.
+Predictable routines, literal language and advance warning of changes reduce anxiety. Practitioners use social stories, timers and low-arousal environments where possible. Unexpected fire drills, supply teachers or room changes should be flagged early so the young person can prepare.
 
 ### ADHD
 
-Shorter task chunks, immediate feedback and movement integrated into sessions improve engagement. We avoid framing restlessness as defiance.
+Shorter task chunks, immediate feedback and movement integrated into sessions improve engagement. Restlessness is not treated as defiance. The [NHS ADHD guidance for children and teenagers](${OUTBOUND.adhdNhs}) offers helpful context on how attention and impulsivity present in educational settings — our practitioners align with clinical language without overstepping into diagnosis.
 
 ### SEMH
 
-Many children with SEMH needs have experienced adversity. Trauma-informed practice — calm tone, choice, repair after conflict — sits at the core of our [behavioural management](/services/goals) pathway.
+Many children with SEMH needs have experienced adversity. Trauma-informed practice — calm tone, choice, repair after conflict — sits at the core of our [behavioural management](/services/goals) pathway. Shame-based correction rarely works; relationship and regulation come first.
 
-Yoast-style readability means short paragraphs and clear headings. Semrush topical depth means we go beyond labels: support must match the **individual** profile, not a diagnosis alone.
+| Presentation | Common barriers | Support strategies |
+|---|---|---|
+| Autism | Sensory overload, unexpected change | Visual schedules, quiet spaces, literal language |
+| ADHD | Sustained attention, impulsivity | Chunked tasks, movement breaks, immediate feedback |
+| SEMH | Trust, hypervigilance | Predictable adult, repair scripts, low-arousal responses |
 
-<h2 id="school-engagement-and-attendance">School engagement and attendance</h2>
+## School engagement and attendance
 
-School avoidance is rising. **SEND support services** can:
+School avoidance is rising across the UK. **SEND support services** can meet the young person at home to rebuild morning routines before returning to site; accompany them on [school transport support](/blog/school-transport-support-semh) so the day starts with a trusted adult; provide in-school shadowing where commissioners agree partial timetable reintegration; and debrief with parents through [family support services](/blog/family-support-services-uk).
 
-1. Meet the young person at home to rebuild morning routines before returning to site
-2. Accompany them on [school transport](/blog/school-transport-support-semh) so the day starts with a trusted adult
-3. Provide in-school shadowing where commissioners agree partial timetable reintegration
-4. Debrief with parents through [family support services](/blog/family-support-services-uk)
+Attendance improves when the child feels safe — not when pressure increases without support. A phased return might begin with one hour on site, building to full days over weeks. SENCOs and CAMS practitioners should agree gate protocols, quiet spaces and exit plans if dysregulation occurs.
 
-Attendance improves when the child feels safe — not when pressure increases without support.
+### Partial timetables
 
-<h2 id="working-with-ehcp-outcomes">Working with EHCP outcomes</h2>
+Some EHCPs specify reduced hours during reintegration. Support workers help the young person navigate the periods they attend — and homework, regulation and preparation for the periods they do not. The goal is sustainable full-time attendance where possible, not permanent part-time placement without review.
 
-Commissioners often ask how one-to-one hours map to EHCP sections. CAMS aligns session goals with:
+${midArticleCta(
+  "Need SEND support in place this term?",
+  "CAMS provides one-to-one SEND support services UK-wide — school engagement, EHCP-aligned sessions and safe transport. Submit a referral with the young person's profile and school contact.",
+)}
 
-- **Section B** — special educational needs descriptions
-- **Section F** — provision such as hours, grouping and delivery model
-- **Outcome targets** — measurable steps reviewed termly
+## Working with EHCP outcomes
 
-We welcome multi-agency meetings and provide progress summaries where commissioned. Transparent reporting helps local authorities defend provision at annual reviews.
+Commissioners often ask how one-to-one hours map to EHCP sections. CAMS aligns session goals with Section B special educational needs descriptions; Section F provision such as hours, grouping and delivery model; and outcome targets with measurable steps reviewed termly.
 
-<h2 id="transport-and-community-access-for-send">Transport and community access for SEND</h2>
+The [IPSEA guide to EHC needs assessments](${OUTBOUND.ehcpGuide}) offers independent parent-facing context that complements our commissioner-focused practice. Transparent reporting helps local authorities defend provision at annual reviews and tribunals.
+
+### Progress reporting
+
+Good reports describe what was attempted, what worked, what did not, and what should change next term. They avoid vague praise — "good session" — in favour of observable progress linked to outcomes. Where the young person assents, self-report scales can capture confidence and readiness.
+
+### Annual review preparation
+
+CAMS practitioners can contribute to annual review meetings where commissioned, summarising engagement, attendance correlation and recommended provision adjustments. Early conversation prevents last-minute scrambling when Section F hours are challenged.
+
+## Transport and community access for SEND
 
 SEND is not only a classroom issue. Community trips build independence, social confidence and life skills. Our [Community Access and Transport Services](/services/community) combine safe travel with coached community participation — practising bus skills, shopping routines or leisure activities with an adult who knows the young person's triggers.
 
-For wider transport commissioning context, see [child transport services](/blog/child-transport-services-uk).
+For wider transport commissioning context, see [child transport services](/blog/child-transport-services-uk). A consistent adult across transport and SEND support accelerates trust — the same practitioner who understands morning sensory needs may also deliver after-school learning support.
 
-**Start a conversation:** [Make a referral](/referral) or view [packages](/packages) that combine SEND hours with mentoring.
+### Life skills beyond the curriculum
 
-<h2 id="frequently-asked-questions">Frequently asked questions</h2>
+EHCP outcomes often include independence targets: using public transport, managing money, joining a leisure activity. Community-based SEND support practises these skills in real environments rather than role-play alone.
 
-### Can SEND support services be funded through an EHCP?
+## Commissioning SEND support effectively
 
-Often yes — via Section F provision or personal budgets depending on local policy. We work with SEND teams and parents to scope hours that match the plan.
+Referrers include local authority SEND teams, schools, parents and early-help services. Strong referrals describe the child's profile, current placement, EHCP status, behaviour triggers, and what success looks like in six and twelve weeks.
 
-### Do you support children not yet on an EHCP?
+Explore combined packages via our [intervention packages](/packages) page — SEND hours with [mentoring](/services/mentoring) and [fitness and wellbeing](/services/boxing-fitness) support regulation through movement as well as talk.
 
-Yes. Schools and early-help teams commission support while assessments are in progress, especially when attendance is at risk.
+### Hours and intensity
 
-### Can the same worker provide transport and SEND support?
+Most packages range from three to fifteen hours weekly depending on Section F specification and risk. Intensity should match outcomes — a child reintegrating after long-term absence may need daily short sessions initially, tapering as confidence grows.
 
-Yes, where risk assessments support it. A consistent adult across transport and mentoring can accelerate trust.
+### Multi-agency working
 
-### What qualifications do SEND practitioners hold?
+**SEND support services** succeed when the one-to-one practitioner is visible in the team around the child. CAMS practitioners contribute to Team Around the Child meetings where commissioned, sharing engagement patterns without breaching the young person's trust. Speech and language therapists, occupational therapists and CAMHS colleagues offer specialist input CAMS does not duplicate — our role is consistent relational support that makes their strategies survivable in a busy classroom.
 
-Team members bring youth work, education support and safeguarding experience; role-specific training covers autism, ADHD and trauma-informed practice. Enhanced DBS clearance is standard.
+### Parent and carer partnership
+
+Parents and foster carers often hold crucial insight about triggers, sleep patterns and what language works at home. Good SEND support invites that knowledge without making carers responsible for delivering the provision. Short carer check-ins at collection or handover — where the young person assents — keep home and school aligned without turning every session into a parental debrief.
+
+### Tribunal and annual review season
+
+**SEND support services** evidence becomes critical at annual review and tribunal. CAMS progress summaries describe provision delivered against Section F wording — hours, setting, focus — so local authorities can defend or adjust plans with facts rather than assumptions. When tribunals order provision, rapid mobilisation matters; CAMS confirms capacity and start dates in writing for case officers managing tight deadlines.
+
+${endArticleCta(
+  "Start SEND support with CAMS",
+  "CAMS Services Ltd delivers EHCP-aligned SEND support services UK-wide for local authorities, schools and families. Make a referral with the young person's plan and school contact, or speak to our team about combined transport and learning packages.",
+)}
+
+## Frequently asked questions
+
+${faqSection(faqItems)}
 `.trim();
 
 export const sendSupportServicesArticle: MarketingBlogPostDTO = {
@@ -114,26 +172,5 @@ export const sendSupportServicesArticle: MarketingBlogPostDTO = {
     "ADHD mentoring",
     "school engagement",
   ],
-  faq: [
-    {
-      question: "Can SEND support services be funded through an EHCP?",
-      answer:
-        "Often yes, via Section F provision or personal budgets depending on local policy. CAMS scopes hours to match the plan and outcomes.",
-    },
-    {
-      question: "Do you support children not yet on an EHCP?",
-      answer:
-        "Yes. Early-help and school teams commission support during assessment, especially when attendance or placement stability is at risk.",
-    },
-    {
-      question: "Can the same worker provide transport and SEND support?",
-      answer:
-        "Yes, where risk assessments support a blended role. Consistency across transport and mentoring can build trust faster.",
-    },
-    {
-      question: "What qualifications do SEND practitioners hold?",
-      answer:
-        "Practitioners bring youth work and education support experience with autism, ADHD and trauma-informed training. Enhanced DBS clearance is standard.",
-    },
-  ],
+  faq: faqItems.map((item) => ({ question: item.q, answer: item.a })),
 };

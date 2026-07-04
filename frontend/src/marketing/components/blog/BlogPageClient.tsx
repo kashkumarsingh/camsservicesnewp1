@@ -9,7 +9,7 @@ import { PageShell } from "@/marketing/components/shared/PageShell";
 import { PageHeroBand } from "@/marketing/components/shared/PageHeroBand";
 import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
 import { BLOG_POST_DTOS } from "@/marketing/mock/blog-posts";
-import { camsUnsplashPhotoUrl } from "@/marketing/mock/cams-unsplash";
+import { resolveBlogCoverImage } from "@/marketing/content/blog/seo-blog-helpers";
 import { fetchPublicApiJson } from "@/marketing/lib/public-api";
 import { mapBlogApiPostToDto, type BlogApiPost } from "@/marketing/lib/blog-api-mappers";
 
@@ -65,7 +65,7 @@ export function BlogPageClient(): ReactElement {
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {posts.map((post) => {
-            const cardSrc = post.coverImageUrl ?? camsUnsplashPhotoUrl(post.coverPhotoId, 700, 520);
+            const cardSrc = resolveBlogCoverImage(post);
             const cardAlt = post.coverImageAlt ?? `Cover image for ${post.title}`;
 
             return (
