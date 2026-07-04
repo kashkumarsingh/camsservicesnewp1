@@ -3,7 +3,7 @@ import React from "react";
 import ParentDashboardPageClient from "./ParentDashboardPageClient";
 
 export const metadata: Metadata = {
-  title: "Parent Dashboard - CAMS Services",
+  title: "Parent Dashboard - CAMS services",
   description: "Overview of bookings, children and progress for parents.",
 };
 

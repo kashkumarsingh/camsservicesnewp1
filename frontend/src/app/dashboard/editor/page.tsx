@@ -3,7 +3,7 @@ import React from "react";
 import { EditorDashboardPageClient } from "./EditorDashboardPageClient";
 
 export const metadata: Metadata = {
-  title: "Editor Dashboard - CAMS Services",
+  title: "Editor Dashboard - CAMS services",
   description: "Workspace for managing public pages and website content.",
 };
 

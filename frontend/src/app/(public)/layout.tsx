@@ -4,7 +4,6 @@ import { FooterImageRail } from '@/components/layout/FooterImageRail';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteFloatingActions } from '@/components/layout/SiteFloatingActions';
 import { CookieConsent } from '@/components/layout/CookieConsent';
-import { SiteCursor } from '@/components/layout/SiteCursor';
 import Loading from '@/components/ui/Loading/Loading';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
 import { getSiteSettings } from '@/marketing/server/siteSettings/getSiteSettings';
@@ -77,7 +76,6 @@ export default async function PublicLayout({ children }: { children: React.React
   return (
     <>
       <div className="min-h-screen overflow-x-clip bg-white">
-        <SiteCursor />
         {/* Google Tag Manager (noscript) */}
         <noscript
           dangerouslySetInnerHTML={{

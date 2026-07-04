@@ -3,7 +3,7 @@ import React from "react";
 import TrainerDashboardPageClient from "./TrainerDashboardPageClient";
 
 export const metadata: Metadata = {
-  title: "Trainer Dashboard - CAMS Services",
+  title: "Trainer Dashboard - CAMS services",
   description: "Overview of trainer schedule, sessions and recent activity.",
 };
 

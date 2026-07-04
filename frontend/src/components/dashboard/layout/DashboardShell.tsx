@@ -551,7 +551,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               <div className="relative h-7 w-[7rem] sm:w-24 shrink-0 flex items-center">
                 <Image
                   src="/logos/cams-services-logo.webp"
-                  alt="CAMS Services"
+                  alt="CAMS services"
                   fill
                   sizes="112px"
                   style={{ objectFit: "contain", objectPosition: "left center" }}
@@ -568,7 +568,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
                 <div className="relative h-7 w-[7rem] sm:w-24 shrink-0 flex items-center">
                   <Image
                     src="/logos/cams-services-logo.webp"
-                    alt="CAMS Services"
+                    alt="CAMS services"
                     fill
                     sizes="112px"
                     style={{ objectFit: "contain", objectPosition: "left center" }}

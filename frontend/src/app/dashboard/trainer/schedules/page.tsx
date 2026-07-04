@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import SchedulesPageClient from './SchedulesPageClient';
 
 export const metadata: Metadata = {
-  title: 'My Schedule - Trainer Dashboard - CAMS Services',
+  title: 'My Schedule - Trainer Dashboard - CAMS services',
   description: 'View and manage your schedule',
 };
 

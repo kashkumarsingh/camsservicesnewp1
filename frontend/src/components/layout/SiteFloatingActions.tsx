@@ -91,7 +91,7 @@ export function SiteFloatingActions({ contactPhone }: SiteFloatingActionsProps):
         {showScrollTop && !chatOpen ? (
           <button
             type="button"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            onClick={() => window.scrollTo({ top: 0 })}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200/90 bg-white/95 text-cams-ink shadow-md transition hover:border-cams-primary/40 hover:text-cams-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-cams-primary/50"
             aria-label="Back to top"
           >

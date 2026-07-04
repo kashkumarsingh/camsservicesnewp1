@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import SettingsPageClient from './SettingsPageClient';
 
 export const metadata: Metadata = {
-  title: 'Settings - Trainer Dashboard - CAMS Services',
+  title: 'Settings - Trainer Dashboard - CAMS services',
   description: 'Manage your trainer profile, availability, and qualifications',
 };
 

@@ -3,7 +3,7 @@ import React from "react";
 import { DashboardSyncLayout } from "@/app/dashboard/DashboardSyncLayout";
 
 export const metadata: Metadata = {
-  title: "Dashboard - CAMS Services",
+  title: "Dashboard - CAMS services",
   description:
     "Role-based dashboard experience for parents, trainers, and admins.",
 };

@@ -25,6 +25,10 @@
   --cams-diagonal-depth: clamp(1.75rem, 6vw, 4.75rem);
 }
 
+html {
+  scroll-behavior: auto;
+}
+
 body {
   font-family: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
   @apply bg-cams-soft text-cams-ink antialiased;
@@ -37,23 +41,6 @@ h4,
 h5,
 h6 {
   font-family: var(--font-outfit), "Outfit", system-ui, sans-serif;
-}
-
-@media (pointer: fine) {
-  html.cams-custom-cursor body {
-    cursor: none;
-  }
-
-  html.cams-custom-cursor a[href],
-  html.cams-custom-cursor button:not(:disabled),
-  html.cams-custom-cursor [role="button"],
-  html.cams-custom-cursor input,
-  html.cams-custom-cursor textarea,
-  html.cams-custom-cursor select,
-  html.cams-custom-cursor label,
-  html.cams-custom-cursor summary {
-    cursor: none;
-  }
 }
 
 .brand-image-frame {

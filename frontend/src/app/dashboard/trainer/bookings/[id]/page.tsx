@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import BookingDetailPageClient from './BookingDetailPageClient';
 
 export const metadata: Metadata = {
-  title: 'Booking Details - Trainer Dashboard - CAMS Services',
+  title: 'Booking Details - Trainer Dashboard - CAMS services',
   description: 'View booking details and manage schedules',
 };
 

@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import BookingsListPageClient from './BookingsListPageClient';
 
 export const metadata: Metadata = {
-  title: 'My Bookings - Trainer Dashboard - CAMS Services',
+  title: 'My Bookings - Trainer Dashboard - CAMS services',
   description: 'View and manage your assigned bookings',
 };
 
