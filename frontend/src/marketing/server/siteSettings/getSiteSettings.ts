@@ -28,7 +28,7 @@ function buildFallbackSiteSettings(): SiteSetting {
     },
     company: {
       name: 'CAMS Services Ltd.',
-      description: 'Trusted chaperone, transport, mentoring and support services — safe, reliable, and tailored to individual needs.',
+      description: 'Trusted chaperone, transport, mentoring and support services, safe, reliable, and tailored to individual needs.',
       registrationNumber: '12345678',
     },
     trustIndicators: [

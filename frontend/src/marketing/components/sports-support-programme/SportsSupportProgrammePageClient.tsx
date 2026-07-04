@@ -292,7 +292,7 @@ export function SportsSupportProgrammePageClient(): ReactElement {
     distanceProvider === "osrm"
       ? "Based on a typical driving route between these postcodes."
       : distanceProvider === "straight_line"
-        ? "Straight-line estimate — actual roads are often a little longer."
+        ? "Straight-line estimate, actual roads are often a little longer."
         : null;
 
   return (
@@ -321,7 +321,7 @@ export function SportsSupportProgrammePageClient(): ReactElement {
             Session travel estimate
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-cams-ink-secondary md:text-base">
-            A quick, indicative figure for fuel between pick-up and session — useful when you are
+            A quick, indicative figure for fuel between pick-up and session, useful when you are
             budgeting ahead. It is not a quote; roads and costs vary day to day.
           </p>
         </div>
@@ -335,7 +335,7 @@ export function SportsSupportProgrammePageClient(): ReactElement {
               <Field
                 htmlFor="travel-from-pc"
                 label="Pick-up postcode"
-                hint="Where the young person is usually collected from. UK postcode — type with or without a space; we tidy it when you leave the box."
+                hint="Where the young person is usually collected from. UK postcode, type with or without a space; we tidy it when you leave the box."
                 help="Full UK postcode (e.g. SW1A 1AA). This tool only works for UK addresses."
               >
                 <input
@@ -350,7 +350,7 @@ export function SportsSupportProgrammePageClient(): ReactElement {
               <Field
                 htmlFor="travel-to-pc"
                 label="Session postcode"
-                hint="Venue or usual meeting point. UK postcode — same spacing note as pick-up."
+                hint="Venue or usual meeting point. UK postcode, same spacing note as pick-up."
                 help="Use the postcode for the place sessions normally happen, not your office unless that is the session venue."
               >
                 <input
@@ -368,8 +368,8 @@ export function SportsSupportProgrammePageClient(): ReactElement {
               <div className="flex flex-col gap-3 rounded-xl border border-amber-200/90 bg-amber-50/95 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <p className="text-sm leading-relaxed text-cams-ink">
                   <span className="font-semibold">Manual miles are on.</span> The optional distance
-                  box further down is filled in, so we are using that number — not your postcodes or
-                  the map — until you switch back.
+                  box further down is filled in, so we are using that number, not your postcodes or
+                  the map, until you switch back.
                 </p>
                 <Button
                   type="button"
@@ -444,8 +444,8 @@ export function SportsSupportProgrammePageClient(): ReactElement {
                   <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                     <p className="text-xs leading-relaxed text-cams-ink-secondary">
                       {USE_GOOGLE_EMBEDDED_MAP
-                        ? "Map data © Google. The blue line follows our distance estimate (OpenStreetMap routing where available) — not Google’s own directions engine."
-                        : "© OpenStreetMap — simple preview on this page. The blue line guides distance; it is not live sat-nav."}
+                        ? "Map data © Google. The blue line follows our distance estimate (OpenStreetMap routing where available), not Google’s own directions engine."
+                        : "© OpenStreetMap, simple preview on this page. The blue line guides distance; it is not live sat-nav."}
                     </p>
                     {!USE_GOOGLE_EMBEDDED_MAP &&
                     fromPostcode.trim() !== "" &&
@@ -466,7 +466,7 @@ export function SportsSupportProgrammePageClient(): ReactElement {
                   <p className="font-mono text-sm font-bold text-cams-ink">Map preview</p>
                   <p className="mt-2 max-w-md text-sm text-cams-ink-secondary">
                     Add your pick-up and session postcodes above, then tap{" "}
-                    <span className="font-semibold text-cams-ink">Work out distance</span> — we will
+                    <span className="font-semibold text-cams-ink">Work out distance</span>, we will
                     show the journey here so you can see it, not just read numbers.
                   </p>
                 </div>
@@ -498,7 +498,7 @@ export function SportsSupportProgrammePageClient(): ReactElement {
                 htmlFor="travel-weeks"
                 label="Programme length"
                 hint="Total weeks you are planning for."
-                help="School year is often around 39 weeks — change this to match your plan."
+                help="School year is often around 39 weeks, change this to match your plan."
               >
                 <input
                   type="number"
@@ -524,7 +524,7 @@ export function SportsSupportProgrammePageClient(): ReactElement {
                   Include return travel each session
                 </span>
                 <span className="mt-0.5 block text-xs leading-relaxed text-cams-ink-secondary">
-                  Turn this on when each visit includes the journey back — we double one-way miles
+                  Turn this on when each visit includes the journey back, we double one-way miles
                   before estimating fuel.
                 </span>
               </span>
@@ -599,7 +599,7 @@ export function SportsSupportProgrammePageClient(): ReactElement {
                 your costs differ.
               </p>
               <p className="mt-3 text-xs leading-relaxed text-cams-ink-secondary/90">
-                Illustrative only — not a bill or quote. Traffic, routes, and vehicle efficiency will
+                Illustrative only, not a bill or quote. Traffic, routes, and vehicle efficiency will
                 change the real number.
               </p>
             </div>
@@ -615,7 +615,7 @@ export function SportsSupportProgrammePageClient(): ReactElement {
                 a straight-line fallback if routing is unavailable.
               </p>
               <p className="text-cams-ink-secondary/85">
-                No personal data is stored on our servers for this tool — your browser may remember
+                No personal data is stored on our servers for this tool, your browser may remember
                 what you typed so you can come back to it.
               </p>
             </div>

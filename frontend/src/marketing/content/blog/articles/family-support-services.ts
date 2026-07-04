@@ -24,14 +24,14 @@ const faqItems = [
   },
   {
     q: "How do you measure success?",
-    a: "Agreed goals might include reduced police callouts, improved attendance, fewer residential crises or carer confidence scores — defined at referral.",
+    a: "Agreed goals might include reduced police callouts, improved attendance, fewer residential crises or carer confidence scores, defined at referral.",
   },
 ];
 
 const content = `
-**Family support services** help households communicate, coordinate and respond calmly when a young person is struggling. For parents, foster carers and kinship carers, the right **family support services** reduce crisis calls, align adults around boundaries and keep children out of unnecessary care proceedings — not by pretending problems do not exist, but by giving adults shared language when emotions run high.
+**Family support services** help households communicate, coordinate and respond calmly when a young person is struggling. For parents, foster carers and kinship carers. The right **family support services** reduce crisis calls, align adults around boundaries and keep children out of unnecessary care proceedings, not by pretending problems do not exist, but by giving adults shared language when emotions run high.
 
-Early help teams, schools and IFAs commission family support when home conflict drives school avoidance, when foster carers need coaching after contact weekends, or when separated parents receive contradictory advice from different professionals. This guide explains what CAMS family support includes, who can refer, and how it bridges home, school and mentoring.
+Early help teams, schools and IFAs commission family support when home conflict drives school avoidance. When foster carers need coaching after contact weekends, or when separated parents receive contradictory advice from different professionals. This guide explains what CAMS family support includes, who can refer, and how it bridges home, school and mentoring.
 
 ${articleToc([
   { label: "What family support services include", anchor: "what-family-support-services-include" },
@@ -47,9 +47,9 @@ ${articleToc([
 
 CAMS delivers **family support services** through our [Family Support Service](/services/routine) programme. Work is always tailored, but common elements include communication coaching between carers and young people; routine and boundary planning that everyone can follow; joint sessions with the young person and key adults; alignment with schools where attendance or behaviour is a concern; and signposting to wider community resources without duplicating statutory social work.
 
-Family support is not about blaming parents. It is about giving adults shared language and predictable responses when emotions run high. A shouting match at bedtime is rarely only about bedtime — it is about accumulated stress, contact anxiety, school shame and adults who disagree on consequences.
+Family support is not about blaming parents. It is about giving adults shared language and predictable responses when emotions run high. A shouting match at bedtime is rarely only about bedtime. It is about accumulated stress, contact anxiety, school shame and adults who disagree on consequences.
 
-The [Department for Education children in need statistics](${OUTBOUND.childrensServices}) contextualises how many families sit below child protection thresholds but still need structured help — family support occupies that critical space.
+The [Department for Education children in need statistics](${OUTBOUND.childrensServices}) contextualises how many families sit below child protection thresholds but still need structured help, family support occupies that critical space.
 
 ### What sessions look like
 
@@ -59,13 +59,13 @@ Practitioners might facilitate a household meeting to agree screen-time rules; r
 
 Referrers include local authority early-help and children-in-need teams; schools and pastoral leads; independent fostering agencies; residential children's homes; and parents and kinship carers making direct enquiries.
 
-If you are unsure whether your situation fits, [contact CAMS](/contact) — we will be honest about whether our model matches your need or whether another agency should lead.
+If you are unsure whether your situation fits, [contact CAMS](/contact). We will be honest about whether our model matches your need or whether another agency should lead.
 
 Related programmes: [youth mentoring services](/blog/youth-mentoring-services-uk) and [foster placement support](/blog/foster-placement-support). Family support often sits alongside [mentoring](/services/mentoring) when the young person needs a trusted adult outside the home triangle as well as better communication inside it.
 
 ### Kinship and special guardianship
 
-Kinship carers and special guardians often step in with love but without the training pathway foster carers receive. **Family support services** provide practical coaching — boundaries, contact management, school liaison — without implying carers are failing.
+Kinship carers and special guardians often step in with love but without the training pathway foster carers receive. **Family support services** provide practical coaching, boundaries, contact management, school liaison, without implying carers are failing.
 
 ## Bridging home, school and mentoring
 
@@ -90,7 +90,7 @@ ${midArticleCta(
 
 ## Practical strategies that stick
 
-Good family support answers "how do we actually do this?" — not only "communication matters."
+Good family support answers "how do we actually do this?", not only "communication matters."
 
 ### Curiosity over interrogation
 
@@ -102,17 +102,17 @@ Shared visibility of contact, mentoring and school events reduces surprises that
 
 ### Repair scripts
 
-When adults apologise for shouting, children learn relationships survive imperfection — a core theme in our [behavioural management](/services/goals) pathway. Repair is not weakness; it models accountability.
+When adults apologise for shouting, children learn relationships survive imperfection, a core theme in our [behavioural management](/services/goals) pathway. Repair is not weakness; it models accountability.
 
 ### Sleep and screens
 
-Basic wellbeing blocks are not boring — they are foundations. Family support names sleep and screen boundaries without moralising. A dysregulated teenager at 11pm cannot attend school calmly at 8am regardless of transport quality.
+Basic wellbeing blocks are not boring. They are foundations. Family support names sleep and screen boundaries without moralising. A dysregulated teenager at 11pm cannot attend school calmly at 8am regardless of transport quality.
 
 ## Early help vs statutory intervention
 
-**Family support services** often sit in Tier 2 early help — before child protection plans. Timely support can reduce A&E mental health crises driven by home conflict; prevent school exclusion cascades; and support foster carers to request help before placement breakdown.
+**Family support services** often sit in Tier 2 early help, before child protection plans. Timely support can reduce A&E mental health crises driven by home conflict; prevent school exclusion cascades; and support foster carers to request help before placement breakdown.
 
-CAMS does not replace statutory social workers. We complement plans with hours, reporting and practical coaching where commissioned. The [SCIE safeguarding hub](${OUTBOUND.safeguarding}) reminds all practitioners that early help and statutory services must coordinate — family support providers should know when to escalate concerns.
+CAMS does not replace statutory social workers. We complement plans with hours, reporting and practical coaching where commissioned. The [SCIE safeguarding hub](${OUTBOUND.safeguarding}) reminds all practitioners that early help and statutory services must coordinate, family support providers should know when to escalate concerns.
 
 ### When to escalate
 
@@ -122,7 +122,7 @@ Practitioners must escalate when they observe injuries, disclosure of abuse, or 
 
 Commissioners can bundle family hours with [community support services](/services/community) and [mentoring](/services/mentoring) via [packages](/packages). Typical packages range from six to twelve weeks with weekly sessions, though intensity varies by risk.
 
-Goals are agreed at referral — reduced police callouts, improved attendance, fewer residential crises, or carer confidence scores — and reviewed with commissioners. Success might look like a foster carer managing post-contact dysregulation without a crisis call, or separated parents using the same consequence language at both houses.
+Goals are agreed at referral, reduced police callouts, improved attendance, fewer residential crises, or carer confidence scores, and reviewed with commissioners. Success might look like a foster carer managing post-contact dysregulation without a crisis call, or separated parents using the same consequence language at both houses.
 
 ### Delivery settings
 
@@ -132,11 +132,11 @@ For children in care, family support connects naturally to [foster placement sup
 
 ### Domestic tension and separated parents
 
-**Family support services** do not require parents to reunite or agree on everything. The goal is safe, predictable responses for the child. Where domestic abuse history exists, practitioners follow local authority guidance — family support may work with one safe parent or carer only. Court orders governing contact and residence are respected without exception.
+**Family support services** do not require parents to reunite or agree on everything. The goal is safe, predictable responses for the child. Where domestic abuse history exists, practitioners follow local authority guidance, family support may work with one safe parent or carer only. Court orders governing contact and residence are respected without exception.
 
 ### Neurodivergent children at home
 
-When a young person is autistic or ADHD-presenting, family support adapts — visual routines, reduced verbal demand during meltdown, and realistic expectations about eye contact and affection. Carers learn that behaviour is communication, aligning with [SEND support services](/blog/send-support-services) practice in school so the child hears one message everywhere.
+When a young person is autistic or ADHD-presenting, family support adapts, visual routines, reduced verbal demand during meltdown, and realistic expectations about eye contact and affection. Carers learn that behaviour is communication, aligning with [SEND support services](/blog/send-support-services) practice in school so the child hears one message everywhere.
 
 ### Recording and confidentiality
 
@@ -144,11 +144,11 @@ Session notes support commissioners and reviews where agreed. CAMS does not shar
 
 ### Length of intervention
 
-Family support is time-limited by design — typically six to twelve weeks — with clear goals and extension criteria. Permanent dependency on external coaching is not the aim; carers should feel more confident, not more reliant, as packages end.
+Family support is time-limited by design, typically six to twelve weeks, with clear goals and extension criteria. Permanent dependency on external coaching is not the aim; carers should feel more confident, not more reliant, as packages end.
 
 ### Referral conversations that help
 
-The strongest family support referrals describe what happens at 6pm on a Tuesday, not only diagnostic labels. Which adult escalates first? Where does the child go when overwhelmed? What happened after the last exclusion? CAMS uses that detail to design sessions that fit real households — not textbook families that do not exist.
+The strongest family support referrals describe what happens at 6pm on a Tuesday, not only diagnostic labels. Which adult escalates first? Where does the child go when overwhelmed? What happened after the last exclusion? CAMS uses that detail to design sessions that fit real households, not textbook families that do not exist.
 
 ${endArticleCta(
   "Start family support with CAMS",

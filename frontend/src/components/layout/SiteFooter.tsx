@@ -72,7 +72,7 @@ type SiteFooterProps = {
 
 export function SiteFooter({
   sections = DEFAULT_FOOTER_SECTIONS,
-  description = "Trusted chaperone, transport, mentoring and support services — safe, reliable, and tailored to individual needs.",
+  description = "Trusted chaperone, transport, mentoring and support services, safe, reliable, and tailored to individual needs.",
   copyrightText = "© 2026 CAMS Services Ltd. All rights reserved.",
 }: SiteFooterProps): ReactElement {
   return (

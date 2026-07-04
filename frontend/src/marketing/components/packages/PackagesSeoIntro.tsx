@@ -15,7 +15,7 @@ export function PackagesSeoIntro(): ReactElement {
       </h1>
       <div className="mt-4 max-w-3xl space-y-4 text-base leading-7 text-cams-slate">
         <p>
-          CAMS Services offers eight graduated intervention packages — from a short Mercury assessment block
+          CAMS Services offers eight graduated intervention packages, from a short Mercury assessment block
           through to our Neptune flagship programme. Each tier combines structured one-to-one mentoring,
           activity-based engagement, and clear reporting so families, schools, and local authorities can match
           hours and intensity to the young person&apos;s needs.

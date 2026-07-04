@@ -16,7 +16,7 @@ export function HomeBlogInsightsSection(): ReactElement {
             Guides for commissioners, schools and families
           </h2>
           <p className="mt-4 text-base leading-8 text-cams-ink-secondary">
-            Practical articles on chaperone services, child transport, SEND support, mentoring and family support —
+            Practical articles on chaperone services, child transport, SEND support, mentoring and family support,
             written for local authorities, schools and parents navigating referrals.
           </p>
         </header>

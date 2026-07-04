@@ -17,11 +17,11 @@ export type ServiceProgrammeListItem = {
   readonly tagline: string;
 };
 
-/** Order matches services jump nav / home pathways — one-to-one delivery, same detail routes. */
+/** Order matches services jump nav / home pathways, one-to-one delivery, same detail routes. */
 export const SERVICE_PROGRAMME_LIST: readonly ServiceProgrammeListItem[] = [
   {
     anchorId: "programme-sports-support-programme",
-    numberLabel: "01 — Sports pathway",
+    numberLabel: "01, Sports pathway",
     title: "Sports Support Programme",
     description:
       "One-to-one support across training, development and participation in sport, with mentoring woven through sessions so confidence and consistency build together.",
@@ -38,7 +38,7 @@ export const SERVICE_PROGRAMME_LIST: readonly ServiceProgrammeListItem[] = [
   },
   {
     anchorId: "programme-boxing-fitness",
-    numberLabel: "02 — Fitness pathway",
+    numberLabel: "02, Fitness pathway",
     title: "Fitness and Wellbeing",
     description:
       "One-to-one support to improve physical health, routine and overall wellbeing through activity-led mentoring and achievable weekly habits.",
@@ -55,7 +55,7 @@ export const SERVICE_PROGRAMME_LIST: readonly ServiceProgrammeListItem[] = [
   },
   {
     anchorId: "programme-community",
-    numberLabel: "03 — Community pathway",
+    numberLabel: "03, Community pathway",
     title: "Community Access and Transport Services",
     description:
       "One-to-one support to safely access the community, activities and appointments, reducing isolation and building real-world confidence step by step.",
@@ -72,7 +72,7 @@ export const SERVICE_PROGRAMME_LIST: readonly ServiceProgrammeListItem[] = [
   },
   {
     anchorId: "programme-goals",
-    numberLabel: "04 — Behaviour & goals",
+    numberLabel: "04, Behaviour & goals",
     title: "Behavioural Management and Conflict Resolution",
     description:
       "One-to-one strategies to manage behaviour, reduce conflict and improve responses, with goals and reviews everyone can understand.",
@@ -89,7 +89,7 @@ export const SERVICE_PROGRAMME_LIST: readonly ServiceProgrammeListItem[] = [
   },
   {
     anchorId: "programme-mentoring",
-    numberLabel: "05 — Core pathway",
+    numberLabel: "05, Core pathway",
     title: "Mentoring and Coaching",
     description:
       "One-to-one guidance to build confidence, decision making and personal growth, with clear boundaries and safeguarding so trust can deepen safely.",
@@ -106,7 +106,7 @@ export const SERVICE_PROGRAMME_LIST: readonly ServiceProgrammeListItem[] = [
   },
   {
     anchorId: "programme-routine",
-    numberLabel: "06 — Family & life skills",
+    numberLabel: "06, Family & life skills",
     title: "Family Support Service",
     description:
       "One-to-one support to strengthen communication and build healthier relationships between the young person, family and other key adults.",
@@ -123,7 +123,7 @@ export const SERVICE_PROGRAMME_LIST: readonly ServiceProgrammeListItem[] = [
   },
   {
     anchorId: "programme-sen",
-    numberLabel: "07 — Specialist pathway",
+    numberLabel: "07, Specialist pathway",
     title: "SEN and Education Support",
     description:
       "One-to-one tailored support for additional needs, learning and school engagement, paced for neurodivergent young people and their contexts.",

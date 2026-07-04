@@ -23,8 +23,8 @@ export function TrainersSeoIntro({ title, subtitle }: TrainersSeoIntroProps): Re
           </p>
           <p>
             Families and referrers work with the same mentor wherever possible so young people build trust
-            and consistency. Trainers lead activities that match each child&apos;s interests — from sports and
-            fitness to community outings — while tracking goals agreed at the start of an intervention package.
+            and consistency. Trainers lead activities that match each child&apos;s interests, from sports and
+            fitness to community outings, while tracking goals agreed at the start of an intervention package.
           </p>
           <p>
             Interested in joining the team? Visit{" "}
