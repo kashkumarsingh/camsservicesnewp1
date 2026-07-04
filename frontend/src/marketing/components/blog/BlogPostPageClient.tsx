@@ -29,7 +29,7 @@ export function BlogPostPageClient({
   nextPost = null,
 }: BlogPostPageClientProps): ReactElement {
   const heroSrc = post.featuredImage || camsPageImagePath("ogDefault");
-  const heroAlt = `Illustration for ${post.title}`;
+  const heroAlt = post.featuredImageAlt || `Illustration for ${post.title}`;
 
   return (
     <PageShell maxWidthClassName="max-w-3xl">

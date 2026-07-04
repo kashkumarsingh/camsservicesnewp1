@@ -1,33 +1,35 @@
 /**
  * Static Blog Repository
- * 
- * Infrastructure implementation using static data.
+ *
+ * Infrastructure implementation using published SEO articles when static mode is enabled.
  */
 
 import { IBlogRepository } from '@/core/application/blog/ports/IBlogRepository';
 import { BlogPost } from '@/core/domain/blog/entities/BlogPost';
 import { BlogSlug } from '@/core/domain/blog/valueObjects/BlogSlug';
-import { blogPostsData } from '@/data/blogData';
+import { BLOG_POST_DTOS } from '@/marketing/mock/blog-posts';
+import { marketingBlogPostToDto } from '@/marketing/content/blog/seo-blog-helpers';
 
 export class StaticBlogRepository implements IBlogRepository {
   private postsList: BlogPost[] = [];
 
   constructor() {
-    // Initialize from static data
-    this.postsList = blogPostsData.map((item) => {
-      const slug = BlogSlug.fromString(item.slug);
-      
+    this.postsList = BLOG_POST_DTOS.map((item) => {
+      const dto = marketingBlogPostToDto(item);
+      const slug = BlogSlug.fromString(dto.slug);
+
       return BlogPost.create(
-        item.id,
-        item.title,
-        item.excerpt,
-        item.content,
-        item.author,
+        dto.id,
+        dto.title,
+        dto.excerpt,
+        dto.content,
+        dto.author,
         slug,
-        item.category,
-        item.tags,
-        item.featuredImage,
-        item.published
+        dto.category,
+        dto.tags,
+        dto.featuredImage,
+        dto.published,
+        dto.seo
       );
     });
   }
@@ -82,5 +84,3 @@ export class StaticBlogRepository implements IBlogRepository {
     this.postsList = this.postsList.filter(p => p.id !== id);
   }
 }
-
-

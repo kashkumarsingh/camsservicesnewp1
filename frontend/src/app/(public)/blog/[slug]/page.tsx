@@ -4,7 +4,6 @@ import { getBlogPost } from '@/marketing/server/blog/getBlogPost';
 import { BlogPostPageClient } from '@/marketing/components/blog/BlogPostPageClient';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
 import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
-import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
 import { BLOG_DETAIL_PAGE } from '@/app/(public)/constants/blogDetailPageConstants';
 import { getBlogPosts } from '@/marketing/server/blog/getBlogPosts';
 
@@ -40,7 +39,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
   return buildPublicMetadata(
     {
-      title: `${seoTitle} | ${SEO_DEFAULTS.siteName} Blog`,
+      title: seoTitle,
       description: seoDescription,
       path: `/blog/${slug}`,
       type: 'article',
@@ -120,12 +119,34 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     timeRequired: post.readingTime ? `PT${post.readingTime}M` : undefined,
   };
 
+  const faqJsonLd =
+    post.faq && post.faq.length > 0
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: post.faq.map((item) => ({
+            '@type': 'Question',
+            name: item.question,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: item.answer,
+            },
+          })),
+        }
+      : null;
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {faqJsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      ) : null}
       <BlogPostPageClient post={post} previousPost={previousPost} nextPost={nextPost} />
     </>
   );

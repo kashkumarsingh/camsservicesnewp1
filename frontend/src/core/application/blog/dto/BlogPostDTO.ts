@@ -16,10 +16,12 @@ export interface BlogPostDTO {
   category?: BlogCategory;
   tags: BlogTag[];
   featuredImage?: string;
+  featuredImageAlt?: string;
   published: boolean;
   publishedAt?: string;
   views: number;
   readingTime?: number;
+  faq?: Array<{ question: string; answer: string }>;
   seo?: {
     title?: string;
     description?: string;

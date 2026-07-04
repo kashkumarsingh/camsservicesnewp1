@@ -138,6 +138,7 @@
 #   NEXT_PUBLIC_GTM_ID = GTM-KP4HDR4X
 #   NEXT_PUBLIC_ENABLE_ANALYTICS = true
 #   NEXT_PUBLIC_BING_VERIFICATION = (meta tag content from Bing Webmaster Tools)
+#   NEXT_PUBLIC_BING_SITE_AUTH_USER = (XML <user> code — serves /BingSiteAuth.xml)
 #
 # AI receptionist FAB (optional — n8n Chat Trigger production webhook URL)
 #   NEXT_PUBLIC_N8N_CHAT_WEBHOOK_URL = https://<your-n8n-host>/webhook/<chat-id>

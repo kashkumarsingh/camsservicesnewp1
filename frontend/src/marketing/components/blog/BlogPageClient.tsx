@@ -66,7 +66,7 @@ export function BlogPageClient(): ReactElement {
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {posts.map((post) => {
             const cardSrc = post.coverImageUrl ?? camsUnsplashPhotoUrl(post.coverPhotoId, 700, 520);
-            const cardAlt = `Cover image for ${post.title}`;
+            const cardAlt = post.coverImageAlt ?? `Cover image for ${post.title}`;
 
             return (
               <article

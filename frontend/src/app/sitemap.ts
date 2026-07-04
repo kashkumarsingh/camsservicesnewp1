@@ -5,12 +5,12 @@ import { faqRepository } from "@/infrastructure/persistence/faq";
 import { trainerRepository } from "@/infrastructure/persistence/trainers";
 import { policiesData } from "@/data/policiesData";
 import { getCanonicalUrlForSiteSlug } from "@/marketing/lib/public-site-url";
+import { getSeoBlogSitemapEntries } from "@/marketing/content/blog";
 import { INTERVENTION_PACKAGE_IDS } from "@/marketing/mock/intervention-packages";
 import {
   SERVICE_PROGRAMME_LIST,
   serviceSlugFromProgramme,
 } from "@/marketing/mock/services-programmes";
-import { getBlogPosts } from "@/marketing/server/blog/getBlogPosts";
 import { shouldIndexSite } from "@/marketing/lib/site-indexing";
 
 const STATIC_SLUGS = [
@@ -34,11 +34,12 @@ const HIGH_PRIORITY_SLUGS = new Set(["", "about", "services", "packages", "conta
 function entry(
   slug: string,
   priority: number,
-  changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] = "monthly"
+  changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] = "monthly",
+  lastModified: Date = new Date()
 ): MetadataRoute.Sitemap[number] {
   return {
     url: getCanonicalUrlForSiteSlug(slug),
-    lastModified: new Date(),
+    lastModified,
     changeFrequency,
     priority,
   };
@@ -67,13 +68,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const policyEntries = policiesData.map((policy) => entry(`policies/${policy.slug}`, 0.5));
 
-  let blogEntries: MetadataRoute.Sitemap = [];
-  try {
-    const posts = await getBlogPosts({ published: true });
-    blogEntries = posts.map((post) => entry(`blog/${post.slug}`, 0.7, "weekly"));
-  } catch {
-    blogEntries = [];
-  }
+  const blogEntries: MetadataRoute.Sitemap = getSeoBlogSitemapEntries().map((post) =>
+    entry(post.path, 0.7, "weekly", post.lastModified)
+  );
 
   let trainerEntries: MetadataRoute.Sitemap = [];
   try {
