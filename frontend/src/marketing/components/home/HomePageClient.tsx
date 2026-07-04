@@ -17,11 +17,6 @@ import { CAMS_CONTACT, camsTelHref } from "@/marketing/mock/cams-services-catalo
 
 const sectionShell = "overflow-hidden px-4 py-20 md:py-28";
 const container = PAGE_LAYOUT.container;
-const TRUST_PROOF_POINTS = [
-  { label: "Safeguarding-first", detail: "DBS-checked mentors and clear escalation routes" },
-  { label: "Joined-up communication", detail: "Families, schools, and referrers stay aligned" },
-  { label: "Measured progression", detail: "Session goals, review points, and practical next steps" }
-] as const;
 
 export function HomePageClient(): ReactElement {
   return (
@@ -29,40 +24,6 @@ export function HomePageClient(): ReactElement {
       <HomeHeroSection />
 
       <HomeIntroSection />
-
-      <section
-        className={`cams-cta-top-diagonal-clip cams-diagonal-overlap-top relative border-b border-slate-200/80 bg-white pb-10 pt-[calc(var(--cams-diagonal-depth)+5rem)] md:pb-14 md:pt-[calc(var(--cams-diagonal-depth)+7rem)]`}
-      >
-        <div className={`${container} relative overflow-hidden rounded-3xl border border-slate-200/90 bg-gradient-to-br from-white to-slate-50/80 p-6 shadow-sm md:p-10`}>
-          <div
-            className="pointer-events-none absolute -right-20 -top-16 h-52 w-52 rounded-full bg-cams-primary/[0.08] blur-3xl"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute -left-20 bottom-0 h-56 w-56 rounded-full bg-cams-secondary/[0.08] blur-3xl"
-            aria-hidden
-          />
-          <div className="relative z-10 flex flex-col items-center gap-8 text-center">
-            <div className="max-w-3xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Why CAMS is trusted</p>
-              <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-cams-ink md:text-4xl">
-                Trusted delivery, not just good intentions.
-              </h2>
-            </div>
-            <ul className="mx-auto grid w-full max-w-5xl gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {TRUST_PROOF_POINTS.map((item) => (
-                <li
-                  key={item.label}
-                  className="rounded-2xl border border-slate-200/90 bg-white/90 p-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                >
-                  <p className="text-sm font-bold text-cams-ink">{item.label}</p>
-                  <p className="mt-2 text-xs leading-6 text-cams-ink-secondary md:text-sm">{item.detail}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
 
       <HomeServicesGridSection />
 
