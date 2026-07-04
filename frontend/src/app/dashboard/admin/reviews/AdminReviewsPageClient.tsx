@@ -530,6 +530,7 @@ export default function AdminReviewsPageClient() {
               columns={testimonialColumns}
               data={testimonials}
               isLoading={false}
+              responsive
               searchable={false}
               getRowId={(row) => row.id}
               renderRowActions={(row) => (
@@ -614,6 +615,7 @@ export default function AdminReviewsPageClient() {
                 columns={columns}
                 data={reviews}
                 isLoading={false}
+                responsive
                 searchable={false}
                 getRowId={(row) => row.id}
                 renderRowActions={(row) => (

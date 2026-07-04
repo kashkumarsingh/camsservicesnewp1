@@ -10,11 +10,13 @@ import {
   CALENDAR_PERIOD_OPTIONS,
 } from '@/dashboard/utils/calendarRangeUtils';
 import type { CalendarPeriod } from '@/dashboard/utils/calendarRangeUtils';
+import { MAX_LG_MEDIA, MAX_MD_MEDIA } from '@/shared/utils/breakpoints';
 import { useCalendarRangePopover } from './useCalendarRangePopover';
 import { CalendarRangePopoverContent } from './CalendarRangePopoverContent';
 
-/** Breakpoint max-width (px) below which calendar view (Day/Week/Month + range) collapses into a filter popover. Tailwind lg = 1024 → use 1023. */
-const CALENDAR_VIEW_POPOVER_MAX_WIDTH_LG = 1023;
+/** Breakpoint max-width below which calendar view collapses into a filter popover (Tailwind max-lg / max-md). */
+const CALENDAR_VIEW_POPOVER_MAX_WIDTH_LG = MAX_LG_MEDIA;
+const CALENDAR_VIEW_POPOVER_MAX_WIDTH_MD = MAX_MD_MEDIA;
 
 export interface CalendarRangeToolbarProps {
   /** Current period (1 day, 1 week, 1 month). */
@@ -65,7 +67,8 @@ export function CalendarRangeToolbar({
   const popover = useCalendarRangePopover();
   const { rangeLabel } = getRangeFromPeriodAnchor(period, anchor);
 
-  const maxWidth = collapseToPopoverBelow === 'lg' ? CALENDAR_VIEW_POPOVER_MAX_WIDTH_LG : 767;
+  const maxWidthMedia =
+    collapseToPopoverBelow === 'lg' ? CALENDAR_VIEW_POPOVER_MAX_WIDTH_LG : CALENDAR_VIEW_POPOVER_MAX_WIDTH_MD;
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [viewPopoverOpen, setViewPopoverOpen] = useState(false);
   const viewPopoverTriggerRef = useRef<HTMLButtonElement>(null);
@@ -76,12 +79,12 @@ export function CalendarRangeToolbar({
       setIsCollapsed(false);
       return;
     }
-    const mq = window.matchMedia(`(max-width: ${maxWidth}px)`);
+    const mq = window.matchMedia(maxWidthMedia);
     const update = () => setIsCollapsed(mq.matches);
     update();
     mq.addEventListener('change', update);
     return () => mq.removeEventListener('change', update);
-  }, [collapseToPopoverBelow, maxWidth]);
+  }, [collapseToPopoverBelow, maxWidthMedia]);
 
   useEffect(() => {
     if (!viewPopoverOpen) return;

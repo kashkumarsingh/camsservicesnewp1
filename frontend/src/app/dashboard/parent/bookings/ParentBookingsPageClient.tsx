@@ -180,6 +180,7 @@ export default function ParentBookingsPageClient() {
         columns={columns}
         data={filtered}
         loading={loading}
+        responsive
         error={error}
         onRetry={() => refetch()}
         emptyTitle={EMPTY_STATE.NO_BOOKINGS_YET.title}
@@ -194,7 +195,6 @@ export default function ParentBookingsPageClient() {
         onSortChange={handleSortChange}
         onAddClick={() => router.push('/dashboard/parent?open=booking')}
         addLabel="New booking"
-        responsive
         renderRowActions={(row) => (
           <RowActions>
             <ViewAction

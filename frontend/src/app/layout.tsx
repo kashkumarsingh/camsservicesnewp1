@@ -38,14 +38,6 @@ export const metadata: Metadata = {
   description:
     'Chaperone services UK, child transport services, school transport support, family support services, SEND support services, foster placement support, mentoring services, and local authority support services.',
   ...getSearchVerificationMetadata(),
-  icons: {
-    icon: {
-      url: '/favicon.ico',
-      type: 'image/x-icon',
-    },
-    shortcut: '/favicon.ico',
-    apple: '/favicon.ico',
-  },
   openGraph: {
     title: 'Chaperone Services UK | Child Transport & Family Support',
     description: 'Chaperone services UK, child transport services, family support services, SEND support services, and mentoring services across the UK.',

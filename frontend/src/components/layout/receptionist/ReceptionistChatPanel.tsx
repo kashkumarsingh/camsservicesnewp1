@@ -12,6 +12,7 @@ import {
   getN8nChatWebhookUrl,
 } from "./receptionistConfig";
 import { useGuidedIntakeChat, type ChatMessage, type GeneralTopic } from "./useGuidedIntakeChat";
+import { MAX_MD_MEDIA } from "@/shared/utils/breakpoints";
 
 type ReceptionistChatPanelProps = {
   open: boolean;
@@ -79,7 +80,7 @@ export function ReceptionistChatPanel({
 
   useEffect(() => {
     if (!open) return;
-    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+    const isMobile = window.matchMedia(MAX_MD_MEDIA).matches;
     if (!isMobile) return;
     document.body.style.overflow = "hidden";
     return () => {

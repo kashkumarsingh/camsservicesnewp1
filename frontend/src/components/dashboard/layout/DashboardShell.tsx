@@ -983,7 +983,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
           className="lg:hidden fixed bottom-0 left-0 right-0 z-sticky border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-[0_-1px_3px_0_rgb(0_0_0/0.06)] pb-[env(safe-area-inset-bottom,0px)]"
           aria-label="Parent dashboard navigation"
         >
-          <div className="grid grid-cols-4 h-14">
+          <div className="grid grid-cols-5 h-14">
             <Link
               href={ROUTES.DASHBOARD_PARENT}
               className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors min-h-[44px] min-w-0 touch-manipulation ${
@@ -1028,6 +1028,15 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               <Users className="h-5 w-5 shrink-0" aria-hidden />
               <span>Children</span>
             </Link>
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="flex flex-col items-center justify-center gap-0.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors min-h-[44px] min-w-0 touch-manipulation"
+              aria-label="Open full menu"
+            >
+              <Menu className="h-5 w-5 shrink-0" aria-hidden />
+              <span>More</span>
+            </button>
           </div>
         </nav>
       )}

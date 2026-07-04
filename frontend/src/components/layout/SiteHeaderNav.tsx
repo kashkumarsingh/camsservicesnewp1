@@ -10,6 +10,7 @@ import {
   type NavItem,
   type NavMegaItem,
 } from "@/mock/navigation";
+import { ROUTES } from "@/shared/utils/routes";
 
 function MegaPanel({ item }: { item: NavMegaItem }): ReactElement {
   return (
@@ -210,7 +211,7 @@ export function SiteHeaderNav({ navItems = NAV_ITEMS }: SiteHeaderNavProps): Rea
 
   return (
     <>
-      <ul className="hidden items-center gap-8 lg:flex">
+      <ul className="hidden items-center gap-8 xl:flex">
         {navItems.map((item) => (
           <NavRow
             key={isNavMegaItem(item) ? `${item.kind}-${item.label}` : `${item.kind}-${item.href}`}
@@ -220,7 +221,7 @@ export function SiteHeaderNav({ navItems = NAV_ITEMS }: SiteHeaderNavProps): Rea
         ))}
       </ul>
 
-      <div ref={mobileMenuRef} className="lg:hidden">
+      <div ref={mobileMenuRef} className="xl:hidden">
         <button
           type="button"
           className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 text-cams-ink transition hover:bg-cams-soft"
@@ -335,6 +336,22 @@ export function SiteHeaderNav({ navItems = NAV_ITEMS }: SiteHeaderNavProps): Rea
               );
             })}
           </ul>
+          <div className="mt-4 flex flex-col gap-2 border-t border-slate-200 pt-4 sm:flex-row">
+            <Link
+              href={ROUTES.LOGIN}
+              className="inline-flex min-h-10 flex-1 items-center justify-center rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold text-cams-ink transition hover:bg-cams-soft hover:text-cams-primary"
+              onClick={closeMobileMenu}
+            >
+              Sign in
+            </Link>
+            <Link
+              href={ROUTES.CONTACT}
+              className="inline-flex min-h-10 flex-1 items-center justify-center rounded-md bg-gradient-to-r from-cams-primary to-cams-secondary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
+              onClick={closeMobileMenu}
+            >
+              Contact Us
+            </Link>
+          </div>
         </div>
       </div>
     </>

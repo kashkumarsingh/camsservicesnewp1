@@ -23,7 +23,7 @@ export function SiteHeader({ navItems }: SiteHeaderProps): ReactElement {
           />
         </Link>
         <SiteHeaderNav navItems={navItems} />
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-3 xl:flex">
           <Link
             href={ROUTES.LOGIN}
             className="inline-flex min-h-10 items-center justify-center rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold text-cams-ink transition hover:bg-cams-soft hover:text-cams-primary"

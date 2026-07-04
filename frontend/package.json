@@ -22,6 +22,8 @@
     "typecheck:ci": "tsc --noEmit --pretty",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:responsive": "playwright test e2e/responsive-overflow.spec.ts",
     "postinstall": "node scripts/postinstall.js",
     "validate": "node scripts/validate.js",
     "check-segments": "bash scripts/check-segment-config.sh",

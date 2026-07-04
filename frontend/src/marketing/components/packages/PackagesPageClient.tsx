@@ -54,6 +54,7 @@ export function PackagesPageClient(): ReactElement {
   const [openFaqIndex, setOpenFaqIndex] = useState<number>(-1);
   const [packages, setPackages] = useState(INTERVENTION_PACKAGES);
   const [faqItems, setFaqItems] = useState(PACKAGE_FAQ_ITEMS);
+  const [comparePackageId, setComparePackageId] = useState(INTERVENTION_PACKAGES[0]?.id ?? "mercury");
   const { isAuthenticated, loading: authLoading } = useAuth();
 
   useEffect(() => {
@@ -64,7 +65,11 @@ export function PackagesPageClient(): ReactElement {
       .then(([packagesResponse, faqsResponse]) => {
         const apiPackages = packagesResponse.data ?? [];
         if (apiPackages.length > 0) {
-          setPackages(mapPackageListWithFallbacks(apiPackages, INTERVENTION_PACKAGES));
+          const mapped = mapPackageListWithFallbacks(apiPackages, INTERVENTION_PACKAGES);
+          setPackages(mapped);
+          setComparePackageId((current) =>
+            mapped.some((pkg) => pkg.id === current) ? current : mapped[0]?.id ?? "mercury"
+          );
         }
 
         setFaqItems(mapPackageFaqs(faqsResponse.data ?? [], PACKAGE_FAQ_ITEMS));
@@ -250,11 +255,57 @@ export function PackagesPageClient(): ReactElement {
               Compare features across every tier, Mercury through Neptune, to find the right fit.
             </p>
             <p className="mx-auto mt-2 max-w-[700px] text-sm text-cams-ink-secondary md:hidden">
-              Swipe left/right to view the full comparison table.
+              Select a package below to compare features.
             </p>
           </header>
 
-          <div className="mt-8 -mx-4 overflow-x-auto rounded-xl px-4 shadow-sm sm:mx-0 sm:px-0">
+          <div className="mt-8 space-y-4 md:hidden">
+            <div className="-mx-4 cams-thin-x-scroll flex gap-2 overflow-x-auto px-4 pb-1">
+              {packages.map((pkg) => (
+                <button
+                  key={pkg.id}
+                  type="button"
+                  onClick={() => setComparePackageId(pkg.id)}
+                  className={cn(
+                    "inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition",
+                    comparePackageId === pkg.id
+                      ? "border-cams-primary bg-cams-primary text-white shadow-sm"
+                      : "border-slate-200 bg-white text-cams-dark hover:border-cams-primary/40"
+                  )}
+                >
+                  <InterventionPackageIcon packageId={pkg.id} size={18} className="inline" />
+                  {pkg.name}
+                </button>
+              ))}
+            </div>
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              {PACKAGE_COMPARISON_ROWS.map((row, index) => {
+                const cell = row.cells[comparePackageId];
+                const isLast = index === PACKAGE_COMPARISON_ROWS.length - 1;
+                return (
+                  <div
+                    key={row.feature}
+                    className={cn(
+                      "flex flex-col gap-1 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4",
+                      isLast && "border-b-0"
+                    )}
+                  >
+                    <dt className="text-sm font-bold text-cams-dark">{row.feature}</dt>
+                    <dd
+                      className={cn(
+                        "text-sm text-cams-slate sm:max-w-[55%] sm:text-right",
+                        cell?.emphasized && "font-semibold text-cams-primary"
+                      )}
+                    >
+                      {cell?.text ?? "—"}
+                    </dd>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-8 hidden -mx-4 overflow-x-auto rounded-xl px-4 shadow-sm sm:mx-0 sm:px-0 md:block">
             <table className="w-full min-w-[1040px] border-collapse overflow-hidden rounded-xl bg-white text-left text-sm md:min-w-[1280px] md:text-[0.9375rem]">
               <thead>
                 <tr className="bg-[#F1F5FB]">

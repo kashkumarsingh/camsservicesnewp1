@@ -20,6 +20,19 @@ type BlogPostSidebarProps = {
 export function BlogPostSidebar({ currentPost, relatedPosts }: BlogPostSidebarProps): ReactElement {
   return (
     <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start" aria-label="Blog sidebar">
+      <div className="rounded-2xl border border-cams-primary/20 bg-gradient-to-br from-cams-primary/10 to-cams-secondary/5 p-5">
+        <h2 className="text-base font-bold text-cams-dark">{BLOG_SIDEBAR.REFERRAL_TITLE}</h2>
+        <p className="mt-2 text-sm leading-6 text-cams-slate">{BLOG_SIDEBAR.REFERRAL_DESCRIPTION}</p>
+        <div className="mt-4 flex flex-col gap-2">
+          <Button href={ROUTES.REFERRAL} variant="primary" className="w-full justify-center">
+            {BLOG_SIDEBAR.REFERRAL_BUTTON}
+          </Button>
+          <Button href={ROUTES.PACKAGES} variant="secondary" className="w-full justify-center">
+            {BLOG_SIDEBAR.PACKAGES_BUTTON}
+          </Button>
+        </div>
+      </div>
+
       <BlogContactSidebarForm articleTitle={currentPost.title} articleSlug={currentPost.slug} />
 
       {relatedPosts.length > 0 ? (
@@ -70,19 +83,6 @@ export function BlogPostSidebar({ currentPost, relatedPosts }: BlogPostSidebarPr
           </ul>
         </div>
       ) : null}
-
-      <div className="rounded-2xl border border-cams-primary/20 bg-gradient-to-br from-cams-primary/10 to-cams-secondary/5 p-5">
-        <h2 className="text-base font-bold text-cams-dark">{BLOG_SIDEBAR.REFERRAL_TITLE}</h2>
-        <p className="mt-2 text-sm leading-6 text-cams-slate">{BLOG_SIDEBAR.REFERRAL_DESCRIPTION}</p>
-        <div className="mt-4 flex flex-col gap-2">
-          <Button href={ROUTES.REFERRAL} variant="primary" className="w-full justify-center">
-            {BLOG_SIDEBAR.REFERRAL_BUTTON}
-          </Button>
-          <Button href={ROUTES.PACKAGES} variant="secondary" className="w-full justify-center">
-            {BLOG_SIDEBAR.PACKAGES_BUTTON}
-          </Button>
-        </div>
-      </div>
     </aside>
   );
 }

@@ -454,6 +454,7 @@ export const AdminServicesPageClient: React.FC = () => {
           columns={columns}
           data={sorted}
           isLoading={loading}
+          responsive
           error={error}
           onRetry={() => refetch()}
           emptyTitle={EMPTY_STATE.NO_SERVICES_FOUND.title}
@@ -498,7 +499,6 @@ export const AdminServicesPageClient: React.FC = () => {
             </RowActions>
           )}
           onRowClick={(row) => setSelectedService(row)}
-          responsive
         />
       </div>
 

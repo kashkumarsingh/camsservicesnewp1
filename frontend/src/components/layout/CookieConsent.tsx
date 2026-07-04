@@ -35,7 +35,7 @@ export function CookieConsent(): ReactElement | null {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[60] border-t border-slate-200/90 bg-white/95 p-4 shadow-[0_-8px_40px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:p-5">
+    <div className="fixed bottom-0 left-0 right-0 z-[60] border-t border-slate-200/90 bg-white/95 p-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] shadow-[0_-8px_40px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:p-5 sm:pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))]">
       <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-3xl space-y-2">
           <h2 className="font-heading text-base font-bold text-cams-ink md:text-lg">Cookies and your privacy</h2>

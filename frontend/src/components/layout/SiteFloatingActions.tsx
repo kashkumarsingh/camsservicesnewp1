@@ -85,7 +85,7 @@ export function SiteFloatingActions({ contactPhone }: SiteFloatingActionsProps):
       <ReceptionistChatPanel open={chatOpen} onClose={closeChat} contactPhone={contactPhone} />
 
       <div
-        className="fixed bottom-24 right-4 z-[65] flex flex-col items-end gap-2 sm:right-6 md:bottom-8 md:right-8"
+        className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] right-4 z-[65] flex flex-col items-end gap-2 sm:right-6 md:bottom-8 md:right-8"
         aria-label="Site help actions"
       >
         {showScrollTop && !chatOpen ? (
