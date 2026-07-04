@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * FAANG-Level Post-Install Hook
- * Automatically fixes common issues after npm install
- * Runs automatically after: npm install, npm ci
+ * Automatically fixes common issues after bun install
+ * Runs automatically after: bun install
  */
 
 const fs = require('fs');

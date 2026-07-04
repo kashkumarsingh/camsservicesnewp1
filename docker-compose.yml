@@ -1,6 +1,6 @@
 services:
   # Frontend - Next.js 16 (dev stage for hot-reload)
-  # Profile: only start when requested (e.g. you run frontend locally with npm run dev)
+  # Profile: only start when requested (e.g. you run frontend locally with bun run dev)
   frontend:
     profiles:
       - frontend

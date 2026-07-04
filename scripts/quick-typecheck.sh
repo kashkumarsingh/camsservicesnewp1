@@ -23,10 +23,10 @@ cd "$FRONTEND_DIR"
 # Detect environment
 if docker ps --format "{{.Names}}" | grep -q "^kidzrunz-frontend$" 2>/dev/null; then
     echo -e "${BLUE}📍 Using Docker container${NC}"
-    docker exec kidzrunz-frontend npm run typecheck
+    docker exec kidzrunz-frontend bun run typecheck
 else
     echo -e "${BLUE}📍 Using local environment${NC}"
-    npm run typecheck
+    bun run typecheck
 fi
 
 EXIT_CODE=$?

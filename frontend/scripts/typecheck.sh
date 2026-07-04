@@ -6,14 +6,14 @@ cd "$(dirname "$0")/.." || exit 1
 
 # Check if node_modules exists
 if [ ! -d "node_modules" ]; then
-  echo "❌ node_modules not found. Please run 'npm install' first."
+  echo "❌ node_modules not found. Please run 'bun install' first."
   exit 1
 fi
 
 # Check if TypeScript is installed
 if [ ! -f "node_modules/.bin/tsc" ]; then
   echo "❌ TypeScript not found. Installing..."
-  npm install typescript --save-dev
+  bun add -d typescript
 fi
 
 # Run type checking

@@ -69,14 +69,14 @@ if [ "$ENV" = "docker" ]; then
         print_success "node_modules found in Docker container"
     else
         print_warning "node_modules not found, installing..."
-        docker exec kidzrunz-frontend npm ci
+        docker exec kidzrunz-frontend bun install --frozen-lockfile
     fi
 else
     if [ -d "node_modules" ]; then
         print_success "node_modules found"
     else
         print_warning "node_modules not found, installing..."
-        npm ci
+        bun install --frozen-lockfile
     fi
 fi
 
@@ -87,10 +87,10 @@ print_step "Running TypeScript type checking (tsc --noEmit)..."
 echo ""
 
 if [ "$ENV" = "docker" ]; then
-    TYPE_CHECK_OUTPUT=$(docker exec kidzrunz-frontend npm run typecheck:ci 2>&1)
+    TYPE_CHECK_OUTPUT=$(docker exec kidzrunz-frontend bun run typecheck:ci 2>&1)
     TYPE_CHECK_EXIT=$?
 else
-    TYPE_CHECK_OUTPUT=$(npm run typecheck:ci 2>&1)
+    TYPE_CHECK_OUTPUT=$(bun run typecheck:ci 2>&1)
     TYPE_CHECK_EXIT=$?
 fi
 
@@ -118,12 +118,12 @@ if [ "$ENV" = "docker" ]; then
     # Run next build and capture output, but we'll stop checking after type errors are found
     print_info "Running Next.js build type checking (will show type errors if any, stopping early)..."
     # Run build in background and monitor for type errors
-    BUILD_OUTPUT=$(docker exec kidzrunz-frontend sh -c "cd /app && npx next build 2>&1" 2>&1)
+    BUILD_OUTPUT=$(docker exec kidzrunz-frontend sh -c "cd /app && bunx next build 2>&1" 2>&1)
     BUILD_EXIT=$?
 else
     rm -rf .next 2>/dev/null || true
     print_info "Running Next.js build type checking (will show type errors if any, stopping early)..."
-    BUILD_OUTPUT=$(npx next build 2>&1)
+    BUILD_OUTPUT=$(bunx next build 2>&1)
     BUILD_EXIT=$?
 fi
 
@@ -161,7 +161,7 @@ else
         echo ""
         print_info "This is a known Next.js quirk and doesn't affect the actual build."
         echo ""
-        print_info "To verify, run: docker exec kidzrunz-frontend sh -c 'cd /app && npx next build'"
+        print_info "To verify, run: docker exec kidzrunz-frontend sh -c 'cd /app && bunx next build'"
         ((WARNINGS++))
     else
         print_warning "Next.js build failed (check output for details)"
@@ -201,8 +201,8 @@ else
     print_info "These errors will cause CI/CD build failures."
     echo ""
     print_info "Quick fixes:"
-    echo "  • Run type checking: npm run typecheck"
-    echo "  • Check specific files: npx tsc --noEmit path/to/file.ts"
+    echo "  • Run type checking: bun run typecheck"
+    echo "  • Check specific files: bunx tsc --noEmit path/to/file.ts"
     echo "  • Clear cache: ./scripts/clear-cache-and-restart.sh"
     exit 1
 fi

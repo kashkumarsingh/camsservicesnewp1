@@ -5,7 +5,7 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
-watchPatterns = ["package.json", "package-lock.json", "src/**", "next.config.js", "tailwind.config.js", "railway.toml"]
+watchPatterns = ["package.json", "bun.lock", "src/**", "next.config.js", "tailwind.config.js", "railway.toml"]
 
 [deploy]
 healthcheckPath = "/api/health"

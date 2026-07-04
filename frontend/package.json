@@ -2,16 +2,17 @@
   "name": "CAMS Services - Frontend",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "bun@1.3.14",
   "engines": {
     "node": ">=20.0.0 <25.0.0",
-    "npm": ">=11.0.0"
+    "bun": ">=1.0.0"
   },
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:4300": "next dev --turbopack -p 4300",
     "dev:quiet": "NODE_OPTIONS='--no-deprecation' next dev --turbopack",
     "dev:webpack": "next dev",
-    "dev:typecheck": "echo '⚠️  Run \"npm run dev\" in one terminal and \"npm run typecheck:watch\" in another terminal'",
+    "dev:typecheck": "echo '⚠️  Run \"bun run dev\" in one terminal and \"bun run typecheck:watch\" in another terminal'",
     "build": "next build",
     "build:quiet": "NODE_OPTIONS='--no-deprecation' next build",
     "start": "next start",
