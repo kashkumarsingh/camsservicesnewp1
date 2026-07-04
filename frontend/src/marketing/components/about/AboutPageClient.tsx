@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { PageShell } from "@/marketing/components/shared/PageShell";
@@ -17,7 +17,7 @@ import {
 } from "@/marketing/mock/about-page";
 import { CamsSpaceTeamAvatar } from "@/marketing/components/about/CamsSpaceTeamAvatar";
 
-export function AboutPageClient(): ReactElement {
+export function AboutPageClient({ intro }: { intro?: ReactNode }): ReactElement {
   return (
     <PageShell maxWidthClassName="max-w-[1600px]">
       <PageHeroBand
@@ -30,6 +30,8 @@ export function AboutPageClient(): ReactElement {
         layout="centered"
         height="short"
       />
+
+      {intro}
 
       <section className={`relative overflow-hidden ${PAGE_LAYOUT.panel} px-4 py-14 md:px-8 md:py-20`}>
         <div

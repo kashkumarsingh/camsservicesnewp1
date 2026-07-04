@@ -22,9 +22,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function RiskAssessmentPage() {
   return (
-    <>
-      <PublicPageSeoSection {...RISK_ASSESSMENT_SEO_PROSE} className="border-b border-slate-200" />
-      <RiskAssessmentPageClient />
-    </>
+    <RiskAssessmentPageClient
+      intro={
+        <PublicPageSeoSection {...RISK_ASSESSMENT_SEO_PROSE} headingId="risk-assessment-seo-intro-heading" />
+      }
+    />
   );
 }

@@ -22,9 +22,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function CareersPage() {
   return (
-    <>
-      <PublicPageSeoSection {...CAREERS_SEO_PROSE} className="border-b border-slate-200" />
-      <CareersPageClient />
-    </>
+    <CareersPageClient
+      intro={<PublicPageSeoSection {...CAREERS_SEO_PROSE} headingId="careers-seo-intro-heading" />}
+    />
   );
 }

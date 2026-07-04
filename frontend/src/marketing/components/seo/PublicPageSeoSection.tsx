@@ -4,6 +4,7 @@ import type { PageSeoIntroContent } from '@/marketing/content/page-seo-intros';
 
 type PublicPageSeoSectionProps = PageSeoIntroContent & {
   className?: string;
+  headingId?: string;
 };
 
 export function PublicPageSeoSection({
@@ -13,6 +14,7 @@ export function PublicPageSeoSection({
   paragraphs,
   links,
   className,
+  headingId,
 }: PublicPageSeoSectionProps): ReactElement {
   return (
     <PageSeoProse
@@ -22,6 +24,7 @@ export function PublicPageSeoSection({
       paragraphs={paragraphs}
       links={links}
       className={className}
+      headingId={headingId}
     />
   );
 }

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { AboutPageClient } from '@/marketing/components/about/AboutPageClient';
-import { PageSeoProse } from '@/marketing/components/seo/PageSeoProse';
-import { ABOUT_SEO_PROSE } from '@/marketing/content/page-seo-intros';
+import { AboutSeoIntro } from '@/marketing/components/about/AboutSeoIntro';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
 import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
 import { ROUTES } from '@/shared/utils/routes';
@@ -21,15 +20,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function AboutPage() {
-  return (
-    <>
-      <AboutPageClient />
-      <PageSeoProse
-        eyebrow={ABOUT_SEO_PROSE.eyebrow}
-        title={ABOUT_SEO_PROSE.title}
-        paragraphs={ABOUT_SEO_PROSE.paragraphs}
-        links={ABOUT_SEO_PROSE.links}
-      />
-    </>
-  );
+  return <AboutPageClient intro={<AboutSeoIntro />} />;
 }

@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
 import { FileText } from 'lucide-react';
 import Section from '@/components/layout/Section';
@@ -16,6 +16,7 @@ type PoliciesIndexPageViewProps = {
   emptyContactSuffix: string;
   contactMailTo: string;
   contactEmail: string;
+  seoIntro?: ReactNode;
 };
 
 export function PoliciesIndexPageView({
@@ -30,6 +31,7 @@ export function PoliciesIndexPageView({
   emptyContactSuffix,
   contactMailTo,
   contactEmail,
+  seoIntro,
 }: PoliciesIndexPageViewProps): ReactElement {
   return (
     <div>
@@ -40,6 +42,12 @@ export function PoliciesIndexPageView({
           <p className="mt-6 text-lg md:text-xl max-w-2xl mx-auto font-sans font-light text-white/90">{heroSubtitle}</p>
         </div>
       </Section>
+
+      {seoIntro ? (
+        <div className="bg-white py-10 px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-[1600px]">{seoIntro}</div>
+        </div>
+      ) : null}
 
       <div className="py-20 bg-gradient-to-br from-blue-50 to-white">
         <Section>

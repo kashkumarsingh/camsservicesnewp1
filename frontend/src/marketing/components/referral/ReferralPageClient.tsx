@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent, ReactElement } from "react";
+import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { Button } from "@/marketing/components/ui/button";
@@ -86,7 +86,7 @@ const SERVICE_STANDARDS: ReadonlyArray<{
   }
 ];
 
-export function ReferralPageClient(): ReactElement {
+export function ReferralPageClient({ intro }: { intro?: ReactNode }): ReactElement {
   const baseId = useId();
   const router = useRouter();
   const { submit, loading, error } = useReferralForm();
@@ -146,6 +146,8 @@ export function ReferralPageClient(): ReactElement {
         }
         description="We welcome referrals from local authorities, schools, nurseries, foster agencies, family support teams, and parents or guardians. Submit a referral and we will respond within one working day."
       />
+
+      {intro}
 
       <section className={`${PAGE_LAYOUT.panelCompact} p-6 sm:p-8`}>
         <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">

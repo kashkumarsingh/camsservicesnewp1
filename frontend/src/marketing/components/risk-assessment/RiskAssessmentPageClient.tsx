@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import Image from "next/image";
 import { PageShell } from "@/marketing/components/shared/PageShell";
 import { PageHeroBand } from "@/marketing/components/shared/PageHeroBand";
@@ -78,7 +78,7 @@ const RISK_CATEGORIES = [
   }
 ] as const;
 
-export function RiskAssessmentPageClient(): ReactElement {
+export function RiskAssessmentPageClient({ intro }: { intro?: ReactNode }): ReactElement {
   return (
     <div className="w-full bg-slate-50">
       <PageShell className="pb-12 md:pb-16" maxWidthClassName="max-w-[1600px]">
@@ -90,6 +90,8 @@ export function RiskAssessmentPageClient(): ReactElement {
           }
           description="Understanding risk factors and CAMS safeguarding protocols. Professional guidance for referrers and partner agencies."
         />
+
+        {intro}
 
         <section className={PAGE_LAYOUT.sectionPadding}>
           <div className={PAGE_LAYOUT.container}>

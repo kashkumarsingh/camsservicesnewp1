@@ -96,10 +96,5 @@ export default async function TrainersPage() {
       : undefined;
   const content = resolveContent(page, sc);
 
-  return (
-    <>
-      <TrainersSeoIntro title={content.hero.title} subtitle={content.hero.subtitle} />
-      <TrainersPageClient content={content} />
-    </>
-  );
+  return <TrainersPageClient content={content} seoIntro={<TrainersSeoIntro />} />;
 }

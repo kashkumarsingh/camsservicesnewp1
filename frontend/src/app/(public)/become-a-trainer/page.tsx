@@ -23,9 +23,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function BecomeATrainerPage() {
   return (
-    <>
-      <PublicPageSeoSection {...BECOME_A_TRAINER_SEO_PROSE} className="border-b border-slate-200" />
-      <BecomeATrainerPageClient />
-    </>
+    <BecomeATrainerPageClient
+      intro={
+        <PublicPageSeoSection {...BECOME_A_TRAINER_SEO_PROSE} headingId="become-a-trainer-seo-intro-heading" />
+      }
+    />
   );
 }

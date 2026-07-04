@@ -65,7 +65,6 @@ export default async function PoliciesIndexPage() {
 
   return (
     <>
-      <PoliciesSeoIntro />
       <PoliciesIndexPageView
       policies={policies}
       heroTitle={heroTitle}
@@ -78,6 +77,7 @@ export default async function PoliciesIndexPage() {
       emptyContactSuffix={POLICIES_PAGE.EMPTY_CONTACT_SUFFIX}
       contactMailTo={POLICIES_PAGE.CONTACT_EMAIL_MAILTO}
       contactEmail={POLICIES_PAGE.CONTACT_EMAIL}
+      seoIntro={<PoliciesSeoIntro />}
     />
     </>
   );

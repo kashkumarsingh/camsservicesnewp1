@@ -15,9 +15,10 @@ const JOIN_EMAIL = 'coaches@camsservices.co.uk';
 
 interface TrainersPageClientProps {
   content: TrainersPageContentResolved;
+  seoIntro?: React.ReactNode;
 }
 
-export function TrainersPageClient({ content }: TrainersPageClientProps) {
+export function TrainersPageClient({ content, seoIntro }: TrainersPageClientProps) {
   const { trainers, loading, error } = useTrainers({ sortBy: 'rating', sortOrder: 'desc', available: true });
 
   const totalTrainers = trainers.length;
@@ -43,6 +44,12 @@ export function TrainersPageClient({ content }: TrainersPageClientProps) {
           </div>
         </div>
       </Section>
+
+      {seoIntro ? (
+        <div className="bg-white py-10">
+          <div className="container mx-auto max-w-[1600px] px-4">{seoIntro}</div>
+        </div>
+      ) : null}
 
       <div className="bg-gradient-to-r from-primary-blue to-light-blue-cyan text-white py-8">
         <div className="container mx-auto px-4">

@@ -22,9 +22,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function ContactPage() {
   return (
-    <>
-      <PublicPageSeoSection {...CONTACT_SEO_PROSE} className="border-b border-slate-200" />
-      <ContactPageClient />
-    </>
+    <ContactPageClient
+      intro={<PublicPageSeoSection {...CONTACT_SEO_PROSE} headingId="contact-seo-intro-heading" />}
+    />
   );
 }

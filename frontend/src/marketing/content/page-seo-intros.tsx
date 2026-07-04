@@ -47,7 +47,7 @@ export const ABOUT_SEO_PROSE: PageSeoIntroContent = {
 export const SERVICES_INDEX_SEO_PROSE: PageSeoIntroContent = {
   eyebrow: 'Programmes',
   title: 'CAMS services programmes for families and referrers',
-  titleAs: 'h1',
+  titleAs: 'h2',
   paragraphs: [
     `${CAMS} Each programme below is delivered one-to-one with DBS-checked practitioners, individual risk assessments, and referrer reporting where commissioned.`,
     'Choose sports and fitness pathways for regulation through movement, community access and transport for safe journeys, mentoring for confidence and decision-making, family support for communication at home, or SEND support for school engagement.',
@@ -76,10 +76,71 @@ export const BLOG_INDEX_SEO_PROSE: PageSeoIntroContent = {
   ],
 };
 
+export const PACKAGES_INDEX_SEO_PROSE: PageSeoIntroContent = {
+  eyebrow: 'Professional and parent referrals',
+  title: 'CAMS intervention packages',
+  titleAs: 'h2',
+  paragraphs: [
+    'CAMS services offers eight graduated intervention packages, from a short Mercury assessment block through to our Neptune flagship programme. Each tier combines structured one-to-one mentoring, activity-based engagement, and clear reporting so families, schools, and local authorities can match hours and intensity to the young person’s needs.',
+    'Packages include DBS-checked mentors, transport for session travel where required, refreshments during activities, and written updates for parents and referrers. Following an initial consultation we recommend the most appropriate tier and provide a personalised quotation aligned with your safeguarding and placement requirements.',
+  ],
+  links: [
+    { href: ROUTES.SERVICES, label: 'chaperone and mentoring services' },
+    { href: ROUTES.REFERRAL, label: 'make a referral' },
+    { href: ROUTES.FAQ, label: 'frequently asked questions' },
+  ],
+};
+
+export const POLICIES_INDEX_SEO_PROSE: PageSeoIntroContent = {
+  eyebrow: 'Legal and safeguarding',
+  title: 'CAMS policies and legal documents',
+  titleAs: 'h2',
+  paragraphs: [
+    'CAMS services Ltd maintains clear, accessible policies so families, schools, and commissioning teams understand how we handle data, safeguarding, cancellations, cookies, and payments. Our documents follow UK requirements including GDPR, safeguarding statutory guidance, and consumer rights for service bookings.',
+    'Each policy below explains what you can expect when you refer a child, book an intervention package, or work with our mentors and chaperones. We review documents regularly and publish updates on this page.',
+  ],
+  links: [
+    { href: ROUTES.FAQ, label: 'frequently asked questions' },
+    { href: ROUTES.PACKAGES, label: 'intervention packages' },
+    { href: ROUTES.REFERRAL, label: 'make a referral' },
+  ],
+};
+
+export const FAQ_INDEX_SEO_PROSE: PageSeoIntroContent = {
+  eyebrow: 'Commissioning support',
+  title: 'Answers for families, schools and referrers',
+  titleAs: 'h2',
+  paragraphs: [
+    'CAMS services supports children and young people with chaperone transport, one-to-one mentoring, SEND support, and family coaching. Families, schools, and local authorities use this page to understand referrals, safeguarding, payments, and how intervention packages are commissioned before sessions begin.',
+    'Browse the questions below for practical detail on referrals, DBS checks, session reporting, and how packages are scoped. If your question is not covered, contact our team and we will respond within one working day.',
+  ],
+  links: [
+    { href: ROUTES.SERVICES, label: 'CAMS services' },
+    { href: ROUTES.PACKAGES, label: 'intervention packages' },
+    { href: ROUTES.POLICIES, label: 'policies and safeguarding' },
+  ],
+};
+
+export const TRAINERS_INDEX_SEO_PROSE: PageSeoIntroContent = {
+  eyebrow: 'Our practitioners',
+  title: 'Meet the CAMS services team',
+  titleAs: 'h2',
+  paragraphs: [
+    'CAMS services trainers are DBS-checked specialists delivering trauma-informed mentoring, chaperone support, and SEND-aware sessions across the UK. Every practitioner is recruited against our safeguarding standards, trained in de-escalation and professional boundaries, and supervised by experienced leads who understand education, children’s services, and family support contexts.',
+    'Families and referrers work with the same mentor wherever possible so young people build trust and consistency. Trainers lead activities that match each child’s interests, from sports and fitness to community outings, while tracking goals agreed at the start of an intervention package.',
+    'Session notes and referrer updates are completed where commissioned so families, schools, and local authorities can see that provision is active and aligned with agreed goals.',
+  ],
+  links: [
+    { href: ROUTES.BECOME_A_TRAINER, label: 'become a trainer' },
+    { href: ROUTES.PACKAGES, label: 'intervention packages' },
+    { href: ROUTES.BLOG, label: 'commissioning guides' },
+  ],
+};
+
 export const CONTACT_SEO_PROSE: PageSeoIntroContent = {
   eyebrow: 'Get in touch',
   title: 'Contact CAMS services',
-  titleAs: 'h1',
+  titleAs: 'h2',
   paragraphs: [
     'Speak to CAMS services about chaperone transport, mentoring, SEND support, or family coaching for a child or young person in your care.',
     'Our team responds to enquiries from parents, schools, local authorities, and IFAs within one working day. We can explain referral steps, package options, safeguarding procedures, and availability in your area.',
@@ -95,7 +156,7 @@ export const CONTACT_SEO_PROSE: PageSeoIntroContent = {
 export const REFERRAL_SEO_PROSE: PageSeoIntroContent = {
   eyebrow: 'Referrals',
   title: 'Refer a child or young person to CAMS services',
-  titleAs: 'h1',
+  titleAs: 'h2',
   paragraphs: [
     'Local authorities, schools, nurseries, foster agencies, and parents can refer to CAMS services for chaperone transport, mentoring, SEMH support, and SEND interventions.',
     'Strong referrals include the young person’s story, current risks, preferred package tier, schedule constraints, and any court orders or handover instructions for transport work.',
@@ -111,7 +172,7 @@ export const REFERRAL_SEO_PROSE: PageSeoIntroContent = {
 export const CAREERS_SEO_PROSE: PageSeoIntroContent = {
   eyebrow: 'Careers',
   title: 'Careers at CAMS services',
-  titleAs: 'h1',
+  titleAs: 'h2',
   paragraphs: [
     'Join CAMS services as a mentor, chaperone, or specialist practitioner and help young people build confidence, attendance, and safer routines.',
     'We offer curated bookings matched to your safeguarding profile, activity specialisms, and geography. Practitioners receive induction, supervision, and ongoing safeguarding training aligned with UK children’s services standards.',
@@ -126,7 +187,7 @@ export const CAREERS_SEO_PROSE: PageSeoIntroContent = {
 export const BECOME_A_TRAINER_SEO_PROSE: PageSeoIntroContent = {
   eyebrow: 'Join our team',
   title: 'Become a CAMS services trainer',
-  titleAs: 'h1',
+  titleAs: 'h2',
   paragraphs: [
     'CAMS services trainers deliver one-to-one mentoring, chaperone journeys, sports sessions, and community access support for children and young people across the UK.',
     'Applicants must meet enhanced DBS requirements, demonstrate experience with SEMH, SEND, or children-in-care contexts, and commit to professional boundaries, supervision, and accurate session reporting.',
@@ -141,7 +202,7 @@ export const BECOME_A_TRAINER_SEO_PROSE: PageSeoIntroContent = {
 export const RISK_ASSESSMENT_SEO_PROSE: PageSeoIntroContent = {
   eyebrow: 'Suitability',
   title: 'CAMS services risk and suitability guidance',
-  titleAs: 'h1',
+  titleAs: 'h2',
   paragraphs: [
     'Use this page to understand whether CAMS services support is appropriate for your young person, placement, or commissioning context.',
     'We assess safeguarding information, behaviour history, medical needs, and logistics before confirming chaperone cover, mentoring hours, or package tiers. Honest disclosure helps us plan safe sessions and realistic goals.',

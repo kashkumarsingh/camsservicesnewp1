@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { FormEvent, ReactElement } from "react";
+import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useId, useState } from "react";
 import { Button } from "@/marketing/components/ui/button";
 import { PageShell } from "@/marketing/components/shared/PageShell";
@@ -109,7 +109,7 @@ const emptyForm: FormState = {
   message: ""
 };
 
-export function ContactPageClient(): ReactElement {
+export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElement {
   const baseId = useId();
   const router = useRouter();
   const [values, setValues] = useState<FormState>(emptyForm);
@@ -178,6 +178,8 @@ export function ContactPageClient(): ReactElement {
         }
         description="Tell us what is happening and where support is needed. We route each enquiry to the right next step quickly and clearly."
       />
+
+      {intro}
 
       <section className={`relative overflow-hidden ${PAGE_LAYOUT.panelFrame} bg-gradient-to-b from-white to-slate-50/80 px-4 py-10 md:px-8 md:py-12`}>
         <div

@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import Section from '@/components/layout/Section';
 import MarketingButton from '@/design-system/components/Button/MarketingButton';
 import CTASection from '@/components/shared/CTASection';
@@ -34,6 +34,7 @@ type FAQPageViewProps = {
   contactRoute: string;
   servicesRoute: string;
   heroTitleAs?: 'h1' | 'h2';
+  seoIntro?: ReactNode;
 };
 
 export function FAQPageView({
@@ -61,6 +62,7 @@ export function FAQPageView({
   contactRoute,
   servicesRoute,
   heroTitleAs = 'h1',
+  seoIntro,
 }: FAQPageViewProps): ReactElement {
   return (
     <div>
@@ -98,6 +100,14 @@ export function FAQPageView({
           </MarketingButton>
         )}
       </PageHero>
+
+      {seoIntro ? (
+        <div className="py-10 bg-white">
+          <Section>
+            <div className="max-w-[1600px] mx-auto px-4">{seoIntro}</div>
+          </Section>
+        </div>
+      ) : null}
 
       {(introHeading || introBody) && (
         <div className="py-12 bg-white">

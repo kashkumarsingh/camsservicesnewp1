@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import Image from "next/image";
 import { Button } from "@/marketing/components/ui/button";
 import { PageShell } from "@/marketing/components/shared/PageShell";
@@ -102,7 +102,7 @@ const QUALITY_SIGNALS: ReadonlyArray<{ icon: CamsIconName; label: string; value:
   { icon: "target", label: "Delivery standard", value: "Safeguarding-led" }
 ];
 
-export function CareersPageClient(): ReactElement {
+export function CareersPageClient({ intro }: { intro?: ReactNode }): ReactElement {
   return (
     <PageShell maxWidthClassName="max-w-[1600px]">
       <PageHeroBand
@@ -113,6 +113,8 @@ export function CareersPageClient(): ReactElement {
         }
         description="CAMS careers in the UK: join as a trainer or programme leader and help young people progress through structured, safeguarding-led delivery."
       />
+
+      {intro}
 
       <section className="relative overflow-hidden rounded-2xl border border-cams-primary/20 bg-slate-950 shadow-[0_30px_60px_-36px_rgba(2,12,27,0.8)]">
         <Image

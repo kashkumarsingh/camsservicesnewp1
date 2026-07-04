@@ -119,7 +119,6 @@ export default async function FAQPage() {
 
   return (
     <>
-      <FAQSeoIntro heading={heroTitle} body={introBody} />
       <FAQPageView
       faqJsonLd={faqJsonLd}
       heroTitle={heroTitle}
@@ -144,7 +143,7 @@ export default async function FAQPage() {
       ctaSecondaryHref={ctaSecondaryHref}
       contactRoute={ROUTES.CONTACT}
       servicesRoute={ROUTES.SERVICES}
-      heroTitleAs="h2"
+      seoIntro={<FAQSeoIntro />}
     />
     </>
   );

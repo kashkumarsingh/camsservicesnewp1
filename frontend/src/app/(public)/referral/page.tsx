@@ -23,9 +23,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function ReferralPage() {
   return (
-    <>
-      <PublicPageSeoSection {...REFERRAL_SEO_PROSE} className="border-b border-slate-200" />
-      <ReferralPageClient />
-    </>
+    <ReferralPageClient
+      intro={<PublicPageSeoSection {...REFERRAL_SEO_PROSE} headingId="referral-seo-intro-heading" />}
+    />
   );
 }

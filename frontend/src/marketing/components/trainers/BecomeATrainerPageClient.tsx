@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -183,7 +183,7 @@ function isAtLeast18(dateOfBirthIso: string): boolean {
   return age >= 18;
 }
 
-export function BecomeATrainerPageClient(): ReactElement {
+export function BecomeATrainerPageClient({ intro }: { intro?: ReactNode }): ReactElement {
   const router = useRouter();
   const [currentWizardStep, setCurrentWizardStep] = useState<number>(1);
   const [wizardValues, setWizardValues] = useState<TrainerWizardValues>(INITIAL_WIZARD_VALUES);
@@ -319,6 +319,8 @@ export function BecomeATrainerPageClient(): ReactElement {
         }
         description="Join CAMS services to coach families across London and Essex. Complete a premium UK-first onboarding flow with clear safeguarding requirements, faster review timelines, and curated bookings."
       />
+
+      {intro}
 
       <section className="relative overflow-hidden rounded-2xl border border-cams-primary/20 bg-slate-950 shadow-[0_20px_44px_-30px_rgba(2,12,27,0.65)]">
         <Image
