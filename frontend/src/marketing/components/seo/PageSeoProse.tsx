@@ -39,7 +39,7 @@ export function PageSeoProse({
 
   const content = (
     <div className={cn(variant === 'panel' && SEO_INTRO_PANEL_CLASS)}>
-      <div className="max-w-3xl">
+      <div>
         {eyebrow ? (
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cams-primary">{eyebrow}</p>
         ) : null}

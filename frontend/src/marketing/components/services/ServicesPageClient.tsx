@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactElement, ReactNode } from "react";
+import type { ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { CamsIcon, type CamsIconName } from "@/marketing/components/shared/CamsIcon";
 import { PageShell } from "@/marketing/components/shared/PageShell";
@@ -58,7 +58,7 @@ const SERVICE_DISPLAY_ORDER: readonly string[] = [
   "Sports Support Programme",
 ];
 
-export function ServicesPageClient({ intro }: { intro?: ReactNode }): ReactElement {
+export function ServicesPageClient(): ReactElement {
   const [programmes, setProgrammes] = useState(SERVICE_PROGRAMME_LIST);
   const orderedProgrammes = useMemo(() => {
     const orderIndex = new Map(SERVICE_DISPLAY_ORDER.map((title, index) => [title, index]));
@@ -104,8 +104,6 @@ export function ServicesPageClient({ intro }: { intro?: ReactNode }): ReactEleme
           </>
         }
       />
-
-      {intro}
 
       <section
         aria-labelledby="services-catalog-heading"

@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactElement, ReactNode } from "react";
+import type { ReactElement } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -50,7 +50,7 @@ function ComparisonCell({
   );
 }
 
-export function PackagesPageClient({ intro }: { intro?: ReactNode }): ReactElement {
+export function PackagesPageClient(): ReactElement {
   const [openFaqIndex, setOpenFaqIndex] = useState<number>(-1);
   const [packages, setPackages] = useState(INTERVENTION_PACKAGES);
   const [faqItems, setFaqItems] = useState(PACKAGE_FAQ_ITEMS);
@@ -89,8 +89,6 @@ export function PackagesPageClient({ intro }: { intro?: ReactNode }): ReactEleme
         }
         description="Eight solar-system tiers, from a short Mercury entry block through our Neptune flagship, so you can match hours, intensity, and reporting to your young person."
       />
-
-      {intro}
 
       <section className={`bg-cams-soft ${PAGE_LAYOUT.sectionPadding}`}>
         <div className={PAGE_LAYOUT.container}>

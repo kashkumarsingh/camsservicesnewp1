@@ -23,7 +23,11 @@ export default function LandingPage() {
   return (
     <>
       <OrganizationJsonLd />
-      <HomePageClient seoIntro={<HomeSeoIntro />} />
+      <HomePageClient />
+      {/* Crawlable copy without cluttering the visible page layout */}
+      <div className="sr-only">
+        <HomeSeoIntro />
+      </div>
     </>
   );
 }

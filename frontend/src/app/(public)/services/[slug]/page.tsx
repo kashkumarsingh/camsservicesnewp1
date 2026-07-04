@@ -87,10 +87,7 @@ export default async function ServiceDetailsPage({ params }: Props) {
   if (slug === 'sports-support-programme') {
     const programme = getServiceProgrammeBySlug(slug);
     return programme ? (
-      <>
-        <SportsSupportProgrammePageClient />
-        <ServiceSeoOverview programme={programme} />
-      </>
+      <SportsSupportProgrammePageClient overview={<ServiceSeoOverview programme={programme} />} />
     ) : (
       <SportsSupportProgrammePageClient />
     );
@@ -145,8 +142,6 @@ export default async function ServiceDetailsPage({ params }: Props) {
         </div>
       ) : null}
 
-      {programme ? <ServiceSeoOverview programme={programme} /> : null}
-
       <div className="py-16 bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <Section>
           <div className="max-w-4xl mx-auto">
@@ -177,6 +172,8 @@ export default async function ServiceDetailsPage({ params }: Props) {
           </div>
         </Section>
       </div>
+
+      {programme ? <ServiceSeoOverview programme={programme} /> : null}
 
       <CTASection
         title={SERVICE_DETAIL_PAGE.CTA_TITLE}

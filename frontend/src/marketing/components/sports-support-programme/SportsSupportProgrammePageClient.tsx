@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { cloneElement, isValidElement, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, CircleHelp } from "lucide-react";
@@ -109,7 +109,7 @@ type RouteMapState = {
   toLabel: string;
 };
 
-export function SportsSupportProgrammePageClient(): ReactElement {
+export function SportsSupportProgrammePageClient({ overview }: { overview?: ReactNode }): ReactElement {
   const [fromPostcode, setFromPostcode] = useState("");
   const [toPostcode, setToPostcode] = useState("");
   const [sessionsPerWeek, setSessionsPerWeek] = useState(2);
@@ -622,6 +622,8 @@ export function SportsSupportProgrammePageClient(): ReactElement {
           </details>
         </div>
       </section>
+
+      {overview}
 
       <PageCtaSection
         heading="Need sport support for a young person?"

@@ -20,5 +20,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function PackagesPage() {
-  return <PackagesPageClient intro={<PackagesSeoIntro />} />;
+  return (
+    <>
+      <PackagesPageClient />
+      <div className="sr-only">
+        <PackagesSeoIntro />
+      </div>
+    </>
+  );
 }

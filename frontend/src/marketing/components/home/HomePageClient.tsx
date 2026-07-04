@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from "react";
+import type { ReactElement } from "react";
 import Link from "next/link";
 import { Button } from "@/marketing/components/ui/button";
 import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
@@ -22,7 +22,7 @@ const TRUST_PROOF_POINTS = [
   { label: "Measured progression", detail: "Session goals, review points, and practical next steps" }
 ] as const;
 
-export function HomePageClient({ seoIntro }: { seoIntro?: ReactNode }): ReactElement {
+export function HomePageClient(): ReactElement {
   return (
     <div className="w-full bg-cams-soft">
       <HomeHeroSection />
@@ -179,12 +179,6 @@ export function HomePageClient({ seoIntro }: { seoIntro?: ReactNode }): ReactEle
       </section>
 
       <HomeBlogInsightsSection />
-
-      {seoIntro ? (
-        <section className="overflow-hidden px-4 py-12 md:px-10 md:py-16">
-          <div className={container}>{seoIntro}</div>
-        </section>
-      ) : null}
 
       <PageCtaSection
         heading="Need support for a child, young person, family member, or vulnerable adult?"

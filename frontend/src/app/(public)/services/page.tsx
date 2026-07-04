@@ -21,5 +21,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function ServicesPage() {
-  return <ServicesPageClient intro={<ServicesSeoIntro />} />;
+  return (
+    <>
+      <ServicesPageClient />
+      <div className="sr-only">
+        <ServicesSeoIntro />
+      </div>
+    </>
+  );
 }

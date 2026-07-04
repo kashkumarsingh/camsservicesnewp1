@@ -32,6 +32,8 @@ export function ServiceProgrammeMarketingDetail({
         <ServiceProgrammeFeaturesPanel programme={programme} imagePriority />
       </div>
 
+      <ServiceSeoOverview programme={programme} className="mt-12" />
+
       {related.length > 0 ? (
         <section
           className={`mt-12 ${PAGE_LAYOUT.panel} px-4 py-10 md:px-8 md:py-12`}
@@ -81,8 +83,6 @@ export function ServiceProgrammeMarketingDetail({
           </ul>
         </section>
       ) : null}
-
-      <ServiceSeoOverview programme={programme} />
 
       <PageCtaSection
         className="mt-12"

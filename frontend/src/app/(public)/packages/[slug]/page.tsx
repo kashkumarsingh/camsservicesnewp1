@@ -323,17 +323,6 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
           </div>
         </Section>
 
-        {interventionMeta ? (
-          <PackageSeoOverview
-            packageId={interventionMeta.id}
-            packageName={interventionMeta.name}
-            programmeSubtitle={interventionMeta.programmeSubtitle}
-            frequencyLine={interventionMeta.frequencyLine}
-            bestFor={interventionMeta.bestFor}
-            totalWeeks={pkg.totalWeeks ?? 6}
-          />
-        ) : null}
-
         {/* Stats bar */}
         <Section className="py-6 bg-white border-b border-primary-blue/20">
           <div className="max-w-7xl mx-auto px-4">
@@ -814,6 +803,18 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
 
         {/* Similar Packages Section */}
         <SimilarPackagesSection currentPackage={pkg} />
+
+        {interventionMeta ? (
+          <PackageSeoOverview
+            packageId={interventionMeta.id}
+            packageName={interventionMeta.name}
+            programmeSubtitle={interventionMeta.programmeSubtitle}
+            frequencyLine={interventionMeta.frequencyLine}
+            bestFor={interventionMeta.bestFor}
+            totalWeeks={pkg.totalWeeks ?? 6}
+            className="border-t border-primary-blue/10 bg-gradient-to-br from-blue-50/50 to-white"
+          />
+        ) : null}
 
         {/* Final CTA */}
         <Section className="py-16 bg-gradient-to-br from-primary-blue/10 via-white to-purple-50 border-t border-primary-blue/20">
