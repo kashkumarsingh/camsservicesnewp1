@@ -13,7 +13,7 @@ export const testimonials = [
     role: 'Parent',
     rating: 5,
     avatar: 'https://placehold.co/96x96?text=SM', // Remote placeholder avatar
-    text: 'CAMS Services has been incredible for my son. The staff are patient, understanding, and really know how to engage children with additional needs.',
+    text: 'CAMS services has been incredible for my son. The staff are patient, understanding, and really know how to engage children with additional needs.',
   },
   {
     name: 'James T.',

@@ -27,7 +27,7 @@ export async function generateMetadata({ searchParams }: { searchParams: ThankYo
         title: variant.metaTitle,
         description: variant.metaDescription,
         path: ROUTES.CONTACT_THANK_YOU,
-        imageAlt: 'CAMS Services',
+        imageAlt: 'CAMS services',
       },
       getMetadataBaseUrl()
     ),

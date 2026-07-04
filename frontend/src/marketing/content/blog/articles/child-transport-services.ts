@@ -45,7 +45,7 @@ ${articleToc([
 
 ## What child transport services cover
 
-**Child transport services** provide planned movement of children and young people with appropriate supervision. CAMS Services Ltd delivers home-to-school and home-to-nursery routes; foster placement and residential transitions; contact centre and supervised family time journeys; community access for appointments, activities and wellbeing sessions; and emergency or short-notice cover when placements change.
+**Child transport services** provide planned movement of children and young people with appropriate supervision. CAMS services Ltd delivers home-to-school and home-to-nursery routes; foster placement and residential transitions; contact centre and supervised family time journeys; community access for appointments, activities and wellbeing sessions; and emergency or short-notice cover when placements change.
 
 Every journey is scoped to the individual. A five-year-old with autism may need a quiet vehicle and visual timetable; a teenager in care may need an adult who understands conflict de-escalation after contact sessions. The [SEND Code of Practice](${OUTBOUND.sendCode}) reminds commissioners that transport can itself be special educational provision, not an afterthought once Section F hours are agreed.
 
@@ -152,7 +152,7 @@ Virtual school heads for children in care should be copied into transport planni
 
 ${endArticleCta(
   "Commission child transport services",
-  "CAMS Services Ltd provides safeguarding-trained child transport UK-wide for local authorities, IFAs, schools and families. Submit a referral with schedule and handover details, or contact our team to discuss framework agreements.",
+  "CAMS services Ltd provides safeguarding-trained child transport UK-wide for local authorities, IFAs, schools and families. Submit a referral with schedule and handover details, or contact our team to discuss framework agreements.",
 )}
 
 ## Frequently asked questions

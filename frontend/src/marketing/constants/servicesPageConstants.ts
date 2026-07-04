@@ -4,7 +4,7 @@
  */
 
 export const SERVICES_PAGE = {
-  META_TITLE: 'Our Services - CAMS Services',
+  META_TITLE: 'Our Services - CAMS services',
   META_DESCRIPTION:
     'Discover our comprehensive range of trauma-informed services designed to help every child thrive.',
   HERO_TITLE: 'Tailored Support, Lasting Impact',

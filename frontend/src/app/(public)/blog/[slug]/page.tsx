@@ -120,7 +120,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     },
     publisher: {
       '@type': 'Organization',
-      name: 'CAMS Services',
+      name: 'CAMS services',
       url: BASE_URL,
     },
     mainEntityOfPage: {

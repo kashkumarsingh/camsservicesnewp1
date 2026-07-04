@@ -254,7 +254,7 @@ export function ServicesPageClient(): ReactElement {
 
       <PageCtaSection
         heading="Need support for a child, young person, family member, or vulnerable adult?"
-        description="Contact CAMS Services today to discuss a tailored support package."
+        description="Contact CAMS services today to discuss a tailored support package."
         actions={[
           { href: "/referral", label: "Make a referral", variant: "primary" },
           { href: camsTelHref(CAMS_CONTACT.phone), label: "Call us", variant: "secondary" },

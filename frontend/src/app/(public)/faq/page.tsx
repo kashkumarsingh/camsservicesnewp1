@@ -5,6 +5,7 @@ import { GetPageUseCase } from '@/core/application/pages/useCases/GetPageUseCase
 import { pageRepository } from '@/infrastructure/persistence/pages';
 import { ListFAQItemsUseCase } from '@/core/application/faq/useCases/ListFAQItemsUseCase';
 import { faqRepository } from '@/infrastructure/persistence/faq';
+import { faqItems } from '@/data/faqData';
 import { ROUTES } from '@/shared/utils/routes';
 import { buildCmsPageMetadata } from '@/marketing/server/metadata/buildCmsPageMetadata';
 import {
@@ -22,6 +23,20 @@ const FAQ_SLUG = 'faq';
 async function getFAQPage() {
   const useCase = new GetPageUseCase(pageRepository);
   return useCase.execute(FAQ_SLUG);
+}
+
+async function getServerFaqs(): Promise<Array<{ question: string; answer: string }>> {
+  const useCase = new ListFAQItemsUseCase(faqRepository);
+  const items = await withTimeoutFallback(useCase.execute({ limit: 20 }), 5000, []);
+  if (items.length > 0) {
+    return items
+      .filter((faq) => faq.title?.trim() && faq.content?.trim())
+      .map((faq) => ({ question: faq.title.trim(), answer: faq.content.trim() }));
+  }
+  return faqItems.map((item) => ({
+    question: item.title,
+    answer: item.content,
+  }));
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -80,6 +95,8 @@ export default async function FAQPage() {
   const ctaSecondaryText = sc?.cta?.secondaryText?.trim() ?? FAQ_PAGE.CTA_SECONDARY;
   const ctaSecondaryHref = sc?.cta?.secondaryHref?.trim() || ROUTES.PACKAGES;
 
+  const serverFaqs = useContentItems ? [] : await getServerFaqs();
+
   let faqStructuredData: Array<Record<string, unknown>> = [];
   if (useContentItems && accordionFaqs.length > 0) {
     faqStructuredData = accordionFaqs.map((item) => ({
@@ -87,26 +104,12 @@ export default async function FAQPage() {
       name: item.question,
       acceptedAnswer: { '@type': 'Answer', text: item.answer },
     }));
-  } else {
-    try {
-      const listFaqUseCase = new ListFAQItemsUseCase(faqRepository);
-      const faqItems = await withTimeoutFallback(
-        listFaqUseCase.execute({ limit: 8 }),
-        2500,
-        []
-      );
-      faqStructuredData = faqItems
-        .filter((faq) => faq.content?.trim())
-        .map((faq) => ({
-          '@type': 'Question',
-          name: faq.title,
-          acceptedAnswer: { '@type': 'Answer', text: faq.content },
-        }));
-    } catch (error) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn('[FAQPage] Failed to build FAQ JSON-LD payload.', error);
-      }
-    }
+  } else if (serverFaqs.length > 0) {
+    faqStructuredData = serverFaqs.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    }));
   }
 
   const faqJsonLd =
@@ -132,6 +135,7 @@ export default async function FAQPage() {
       introBody={undefined}
       useContentItems={useContentItems}
       accordionFaqs={accordionFaqs}
+      serverFaqs={serverFaqs}
       ctaTitle={ctaTitle}
       ctaSubtitle={ctaSubtitle}
       ctaPrimaryText={ctaPrimaryText}

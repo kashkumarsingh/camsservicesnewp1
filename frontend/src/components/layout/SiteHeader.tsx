@@ -16,7 +16,7 @@ export function SiteHeader({ navItems }: SiteHeaderProps): ReactElement {
         <Link href={ROUTES.HOME} className="inline-flex items-center">
           <Image
             src="/logos/cams-services-logo.webp"
-            alt="CAMS Services"
+            alt="CAMS services"
             className="h-10 w-auto"
             width={180}
             height={40}

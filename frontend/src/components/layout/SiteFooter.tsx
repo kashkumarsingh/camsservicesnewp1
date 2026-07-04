@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 import { ROUTES } from "@/shared/utils/routes";
 import { getSeoBlogFooterLinks } from "@/marketing/content/blog";
 import { policiesData } from "@/data/policiesData";
+import { PACKAGE_TIER_LINKS } from "@/marketing/lib/package-footer-links";
 
 const BLOG_FOOTER_LINKS = getSeoBlogFooterLinks();
 
@@ -46,6 +47,10 @@ export const DEFAULT_FOOTER_SECTIONS: ReadonlyArray<SiteFooterSection> = [
     ],
   },
   {
+    title: "Package tiers",
+    links: PACKAGE_TIER_LINKS,
+  },
+  {
     title: "Insights",
     links: BLOG_FOOTER_LINKS,
   },
@@ -73,7 +78,7 @@ type SiteFooterProps = {
 export function SiteFooter({
   sections = DEFAULT_FOOTER_SECTIONS,
   description = "Trusted chaperone, transport, mentoring and support services, safe, reliable, and tailored to individual needs.",
-  copyrightText = "© 2026 CAMS Services Ltd. All rights reserved.",
+  copyrightText = "© 2026 CAMS services Ltd. All rights reserved.",
 }: SiteFooterProps): ReactElement {
   return (
     <footer className="relative bg-cams-dark text-slate-300">
@@ -83,7 +88,7 @@ export function SiteFooter({
             <Link href={ROUTES.HOME} className="inline-flex items-center">
               <Image
                 src="/logos/cams-services-logo.webp"
-                alt="CAMS Services"
+                alt="CAMS services"
                 className="h-11 w-auto brightness-0 invert"
                 width={198}
                 height={44}

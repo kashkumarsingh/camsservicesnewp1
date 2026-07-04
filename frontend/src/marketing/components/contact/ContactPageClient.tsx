@@ -22,7 +22,7 @@ const CONTACT_CHANNELS: ReadonlyArray<{
   {
     icon: "mapPin",
     title: "Location",
-    text: "CAMS Services Ltd, London, United Kingdom",
+    text: "CAMS services Ltd, London, United Kingdom",
     detail: "Delivery across London and surrounding areas by arrangement."
   },
   {

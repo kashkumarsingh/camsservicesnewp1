@@ -61,7 +61,7 @@ export const WHO_WE_SUPPORT_LIST: readonly string[] = [
 ] as const;
 
 export const TRANSPORT_SUPPORT_INTRO =
-  "CAMS Services provides safe and reliable child transport services across the UK, including school transport support, contact centre transport, foster placement journeys, and child escort services for children, young people, and vulnerable individuals." as const;
+  "CAMS services provides safe and reliable child transport services across the UK, including school transport support, contact centre transport, foster placement journeys, and child escort services for children, young people, and vulnerable individuals." as const;
 
 export const TRANSPORT_SUPPORT_ITEMS: readonly string[] = [
   "School Transport Support",
@@ -90,7 +90,7 @@ export const REFERRAL_PARTNERS_LIST: readonly string[] = [
 ] as const;
 
 export const HOME_INTRO_PARAGRAPHS: readonly string[] = [
-  "CAMS Services Ltd provides chaperone services UK-wide for children, young people, families, and vulnerable adults.",
+  "CAMS services Ltd provides chaperone services UK-wide for children, young people, families, and vulnerable adults.",
   "We work alongside local authorities, schools, nurseries, foster carers, residential homes, and community organisations to deliver family support services, community support services, and local authority support services that are safe, reliable, and person-centred.",
   "From child transport services and school transport support to SEND support services, foster placement support, residential care support, and mentoring services, every package is designed around the individual's needs, circumstances, and goals.",
 ] as const;

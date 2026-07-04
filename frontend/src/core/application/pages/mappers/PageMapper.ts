@@ -1,6 +1,11 @@
 import { Page } from '../../../domain/pages/entities/Page';
 import { PageDTO } from '../dto/PageDTO';
 
+function safeToISOString(date?: Date): string | undefined {
+  if (!date || Number.isNaN(date.getTime())) return undefined;
+  return date.toISOString();
+}
+
 export class PageMapper {
   static toDTO(page: Page): PageDTO {
     return {
@@ -14,13 +19,13 @@ export class PageMapper {
       ogImage: page.ogImage,
       content: page.content,
       sections: page.sections,
-      lastUpdated: page.lastUpdated?.toISOString(),
-      effectiveDate: page.effectiveDate?.toISOString(),
+      lastUpdated: safeToISOString(page.lastUpdated),
+      effectiveDate: safeToISOString(page.effectiveDate),
       version: page.version,
       views: page.views,
       published: page.published,
-      createdAt: page.createdAt?.toISOString(),
-      updatedAt: page.updatedAt?.toISOString(),
+      createdAt: safeToISOString(page.createdAt),
+      updatedAt: safeToISOString(page.updatedAt),
       mission: page.mission ?? undefined,
       coreValues: page.coreValues ?? undefined,
       coreValuesSectionTitle: page.coreValuesSectionTitle ?? undefined,

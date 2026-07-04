@@ -49,8 +49,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     ...buildPublicMetadata(
       {
-        title: `Book ${pkg.name} Package - CAMS Services`,
-        description: `Book your ${pkg.name} package with CAMS Services.`,
+        title: `Book ${pkg.name} Package - CAMS services`,
+        description: `Book your ${pkg.name} package with CAMS services.`,
         path: `/book/${pkg.slug.value}`,
         imageAlt: `${pkg.name} Package Booking`,
       },

@@ -149,7 +149,7 @@ Children who refuse school often refuse because every morning feels like meeting
 
 ${endArticleCta(
   "Commission school transport support",
-  "CAMS Services Ltd delivers dedicated school transport support UK-wide for SEMH, care-experienced and SEND pupils. Make a referral with school and schedule details, or contact our team about blended transport and mentoring packages.",
+  "CAMS services Ltd delivers dedicated school transport support UK-wide for SEMH, care-experienced and SEND pupils. Make a referral with school and schedule details, or contact our team about blended transport and mentoring packages.",
 )}
 
 ## Frequently asked questions
@@ -162,7 +162,7 @@ export const schoolTransportSupportArticle: MarketingBlogPostDTO = {
   focusKeyword: "school transport support",
   metaTitle: "School Transport Support for SEMH & Behaviour Needs",
   metaDescription:
-    "School transport support for SEMH, anxiety and care-experienced pupils. Dedicated UK school runs with safeguarding-trained staff. Refer CAMS Services.",
+    "School transport support for SEMH, anxiety and care-experienced pupils. Dedicated UK school runs with safeguarding-trained staff. Refer CAMS services.",
   title: "School Transport Support for Children With SEMH and Behavioural Needs",
   excerpt:
     "When mainstream buses are not enough, how dedicated school transport support protects attendance with SEMH-aware routines and school handovers.",

@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import RegisterPageClient from '@/features/public/pages/register/RegisterPageClient';
 
 export const metadata: Metadata = {
-  title: 'Register - CAMS Services',
+  title: 'Register - CAMS services',
   description: 'Create your account to book packages and services',
 };
 

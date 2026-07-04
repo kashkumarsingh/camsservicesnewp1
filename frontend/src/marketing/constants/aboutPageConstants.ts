@@ -5,7 +5,7 @@
 export const ABOUT_PAGE = {
   FALLBACK_HERO_TITLE: "Our Story: Dedicated to Every Child's Potential",
   FALLBACK_HERO_DESCRIPTION:
-    "Discover our mission, values, and the passionate team behind CAMS Services, committed to SEN support and trauma-informed care.",
+    "Discover our mission, values, and the passionate team behind CAMS services, committed to SEN support and trauma-informed care.",
   DEFAULT_MISSION_TITLE: 'Our Mission: Empowering Children and Young People',
   DEFAULT_CORE_VALUES_SECTION_TITLE: 'Our Core Values',
   DEFAULT_CORE_VALUES_SECTION_SUBTITLE: 'The principles that guide our every action.',

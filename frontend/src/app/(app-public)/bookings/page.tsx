@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import BookingsCallbackPageClient from '@/features/public/pages/bookings/BookingsCallbackPageClient';
 
 export const metadata = {
-  title: 'Payment Status | CAMS Services',
+  title: 'Payment Status | CAMS services',
   description: 'Payment processing status',
 };
 

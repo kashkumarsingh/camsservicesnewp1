@@ -2,6 +2,8 @@ import type { ReactElement } from "react";
 import Link from "next/link";
 import { AllPackagesNav } from "@/marketing/components/packages/AllPackagesNav";
 import { ROUTES } from "@/shared/utils/routes";
+import { INTERVENTION_PACKAGES } from "@/marketing/mock/intervention-packages";
+import { packageDetailHref } from "@/marketing/lib/package-detail-slug";
 
 /** Server-rendered intro for /packages (crawlable word count + H1). */
 export function PackagesSeoIntro(): ReactElement {
@@ -15,10 +17,31 @@ export function PackagesSeoIntro(): ReactElement {
       </h1>
       <div className="mt-4 max-w-3xl space-y-4 text-base leading-7 text-cams-slate">
         <p>
-          CAMS Services offers eight graduated intervention packages, from a short Mercury assessment block
-          through to our Neptune flagship programme. Each tier combines structured one-to-one mentoring,
-          activity-based engagement, and clear reporting so families, schools, and local authorities can match
-          hours and intensity to the young person&apos;s needs.
+          CAMS services offers eight graduated intervention packages, from a short{" "}
+          <Link href={packageDetailHref("mercury")} className="font-semibold text-cams-primary underline underline-offset-2">
+            Mercury assessment block
+          </Link>{" "}
+          through to our{" "}
+          <Link href={packageDetailHref("neptune")} className="font-semibold text-cams-primary underline underline-offset-2">
+            Neptune flagship programme
+          </Link>
+          . Each tier combines structured one-to-one mentoring, activity-based engagement, and clear reporting so
+          families, schools, and local authorities can match hours and intensity to the young person&apos;s needs.
+        </p>
+        <p>
+          Browse programme pages for{" "}
+          {INTERVENTION_PACKAGES.map((pkg, index) => (
+            <span key={pkg.id}>
+              {index > 0 ? (index === INTERVENTION_PACKAGES.length - 1 ? ", and " : ", ") : null}
+              <Link
+                href={packageDetailHref(pkg.id)}
+                className="font-semibold text-cams-primary underline underline-offset-2"
+              >
+                {pkg.name}
+              </Link>
+            </span>
+          ))}
+          .
         </p>
         <p>
           Packages include DBS-checked mentors, transport for session travel where required, refreshments

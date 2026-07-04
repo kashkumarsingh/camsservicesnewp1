@@ -29,9 +29,13 @@ const faqItems = [
 ];
 
 const content = `
-**Youth mentoring services** give children and young people a consistent, trusted adult outside the family and school triangle. When **mentoring services** work, attendance improves, risk-taking reduces and confidence grows, not because an adult lectures harder, but because a young person finally believes someone will return next week.
+**Youth mentoring services** give children and young people a consistent, trusted adult outside the family and school triangle.
 
-Commissioners across local authorities, schools and IFAs increasingly pair mentoring with transport and family support so relationships survive the chaos of contact weekends, placement moves and school exclusion. This article explains how UK teams design **youth mentoring services**, what outcomes to track, and why consistency beats intensity every time.
+When **mentoring services** work, attendance improves and risk-taking falls. Confidence grows because a young person believes someone will return next week, not because an adult lectures harder.
+
+Commissioners across local authorities, schools and IFAs often pair mentoring with transport and family support. That helps relationships survive contact weekends, placement moves and school exclusion.
+
+This article explains how UK teams design **youth mentoring services**, what outcomes to track, and why consistency beats intensity.
 
 ${articleToc([
   { label: "What youth mentoring services deliver", anchor: "what-youth-mentoring-services-deliver" },
@@ -45,15 +49,25 @@ ${articleToc([
 
 ## What youth mentoring services deliver
 
-CAMS **mentoring services** are delivered through our [Mentoring and Coaching](/services/mentoring) programme, always one-to-one, always safeguarding-led. Sessions typically focus on confidence and self-belief through strength-based feedback; decision-making using real choices from the young person's week; emotional regulation after conflict, exclusion or contact stress; goal-setting the young person co-owns; and community participation when paired with [community access](/services/community).
+CAMS **mentoring services** are delivered through our [Mentoring and Coaching](/services/mentoring) programme. Sessions are one-to-one and safeguarding-led.
 
-Unlike volunteer buddy schemes, commissioned **youth mentoring services** include DBS-checked practitioners, risk assessments, referrer reporting and professional boundaries. Mentors are not mates. They are skilled adults who show up reliably and know when to escalate safeguarding concerns.
+Typical session focus includes:
 
-The [Department for Education children in need statistics series](${OUTBOUND.childrensServices}) contextualises the scale of need mentoring can address, vulnerable children benefit from trusted relationships as a protective factor, not a luxury add-on.
+- Confidence and self-belief through strength-based feedback
+- Decision-making using real choices from the young person's week
+- Emotional regulation after conflict, exclusion or contact stress
+- Goal-setting the young person co-owns
+- Community participation when paired with [community access](/services/community)
+
+Unlike volunteer buddy schemes, commissioned **youth mentoring services** include DBS-checked practitioners, risk assessments, referrer reporting and professional boundaries. Mentors are skilled adults who show up reliably and know when to escalate safeguarding concerns.
+
+The [Department for Education children in need statistics series](${OUTBOUND.childrensServices}) shows the scale of need. Vulnerable children benefit from trusted relationships as a protective factor, not a luxury add-on.
 
 ### Strength-based practice
 
-Effective mentors name what is working before fixing what is not. A young person who attended school twice this month deserves recognition for those two days, not only scrutiny of the three they missed. Strength-based feedback builds the self-belief required for harder goals later.
+Effective mentors name what is working before fixing what is not.
+
+A young person who attended school twice this month deserves recognition for those two days. They should not hear only about the three days they missed. Strength-based feedback builds the self-belief required for harder goals later.
 
 ## Who benefits from one-to-one mentoring
 
@@ -77,13 +91,27 @@ A trusted adult who shows up weekly can be a protective factor against county li
 
 ## The science of consistency
 
-The deepest insight in mentoring is simple: young people test adults by waiting to see if they return. Consistency means same mentor wherever possible; sessions at predictable times; early communication when schedules must change; and naming the next meeting before the current one ends.
+The deepest insight in mentoring is simple: young people test adults by waiting to see if they return.
 
-Intensity without reliability breeds cynicism. Three steady hours weekly often outperforms ten sporadic hours monthly. CAMS protects rhythm by aligning mentors with transport routes where commissioned, one adult anchoring multiple touchpoints in the week.
+Consistency means:
+
+- Same mentor wherever possible
+- Sessions at predictable times
+- Early communication when schedules must change
+- Naming the next meeting before the current one ends
+
+Intensity without reliability breeds cynicism. Three steady hours weekly often outperforms ten sporadic hours monthly. CAMS protects rhythm by aligning mentors with transport routes where commissioned.
 
 ### What breaks trust
 
-Last-minute cancellations without explanation; a different adult each week; mentors who overpromise community trips then revert to office-based worksheets; and adults who share confidential session content with parents without the young person's knowledge where inappropriate. Professional boundaries protect the relationship.
+Avoid:
+
+- Last-minute cancellations without explanation
+- A different adult each week
+- Overpromising community trips then reverting to office-based worksheets
+- Sharing confidential session content with parents without appropriate consent
+
+Professional boundaries protect the relationship.
 
 ${midArticleCta(
   "Ready to commission mentoring?",
@@ -109,55 +137,93 @@ Sessions in parks, gyms or cafés, risk-assessed and referrer-approved, often su
 
 ## Measuring progress without shaming young people
 
-Good outcome tracking includes attendance and punctuality where school is a goal; self-reported confidence scales age-appropriately; referrer observations from social workers or SENCOs; goal completion on targets the young person chose; and incident frequency where behaviour is a referral reason.
+Track outcomes that respect the young person:
 
-We avoid publishing identifiable case studies without consent. Progress belongs to the young person first, reports serve their plan second. A dip in attendance after contact weekend is data, not failure, it signals where support should intensify.
+- Attendance and punctuality where school is a goal
+- Self-reported confidence scales (age-appropriate)
+- Referrer observations from social workers or SENCOs
+- Goal completion on targets the young person chose
+- Incident frequency where behaviour is a referral reason
+
+We avoid publishing identifiable case studies without consent. Progress belongs to the young person first. Reports serve their plan second.
+
+A dip in attendance after a contact weekend is data, not failure. It signals where support should intensify.
 
 ### Review cycles
 
-Termly reviews with commissioners should ask whether the same mentor remains appropriate, whether hours match risk, and whether integrated transport or family support should be added. Mentoring plans should evolve as the young person stabilises.
+Termly reviews with commissioners should ask:
+
+- Is the same mentor still appropriate?
+- Do hours match current risk?
+- Should integrated transport or family support be added?
+
+Mentoring plans should evolve as the young person stabilises.
 
 ## Commissioning mentoring services UK-wide
 
-Referrers include local authority teams, schools, IFAs, youth offending services and parents where self-funding applies. Strong referrals describe the young person's story, current risks, goals they co-own, and what has failed before.
+Referrers include local authority teams, schools, IFAs, youth offending services and self-funding parents.
 
-CAMS mentors follow organisational policy on gifts, social media and out-of-hours contact. The [SCIE safeguarding hub](${OUTBOUND.safeguarding}) offers external context on professional boundaries in children's services. Our policy aligns with those principles.
+Strong referrals describe:
+
+- The young person's story and current risks
+- Goals they co-own
+- What has failed before
+
+CAMS mentors follow organisational policy on gifts, social media and out-of-hours contact. The [SCIE safeguarding hub](${OUTBOUND.safeguarding}) offers external context on professional boundaries in children's services.
 
 ### Hours and settings
 
-Most packages range from two to six hours weekly. Community venues are risk-assessed; home-based mentoring occurs only where safe and commissioned. Core provision is one-to-one, group mentoring is not a cheaper substitute where safeguarding requires individual attention.
+Most packages range from two to six hours weekly. Community venues are risk-assessed. Home-based mentoring occurs only where safe and commissioned. Core provision is one-to-one.
 
 ### Mentoring after exclusion
 
-Excluded pupils lose structure quickly. **Youth mentoring services** during exclusion periods keep a thread of accountability and aspiration, meeting at libraries, sports venues or community centres to maintain skills, plan reintegration and prevent drift into harmful peer groups. Mentors coordinate with AP providers and virtual schools so exclusion is a bridge, not a cliff.
+Excluded pupils lose structure quickly. **Youth mentoring services** during exclusion keep a thread of accountability.
+
+Sessions can meet at libraries, sports venues or community centres to maintain skills, plan reintegration and prevent drift into harmful peer groups. Mentors coordinate with AP providers and virtual schools so exclusion is a bridge, not a cliff.
 
 ### Exploitation and county lines
 
-When referrals cite exploitation risk, mentors balance rapport with clear boundaries about secrecy. CAMS mentors know when to escalate intelligence to referrers without breaking trust unnecessarily. Integrated [family support services](/blog/family-support-services-uk) help carers respond to grooming indicators without shame-based confrontation that closes communication.
+When referrals cite exploitation risk, mentors balance rapport with clear boundaries about secrecy. CAMS mentors know when to escalate intelligence to referrers without breaking trust.
+
+Integrated [family support services](/blog/family-support-services-uk) help carers respond to grooming indicators without shame-based confrontation.
 
 ### Ending mentoring well
 
-Planned endings matter as much as starts. Abrupt cessation when funding ends replicates abandonment for care-experienced young people. CAMS plans tapering, reduced frequency, explicit goodbye sessions, signposting to sustainable activities, so endings are experienced as graduation, not rejection.
+Planned endings matter as much as starts. Abrupt cessation when funding ends can feel like abandonment for care-experienced young people.
+
+CAMS plans tapering: reduced frequency, explicit goodbye sessions and signposting to sustainable activities. Endings should feel like graduation, not rejection.
 
 ### Matching mentor and young person
 
-Matching considers interests, communication style and experience with similar presentations. A teenager who distrusts authority may respond better to a mentor with youth work background than one who feels like a teacher. Referrers can share preferences; CAMS avoids rotating mentors for administrative convenience.
+Matching considers interests, communication style and experience with similar presentations.
+
+A teenager who distrusts authority may respond better to a mentor with youth work background than one who feels like a teacher. Referrers can share preferences. CAMS avoids rotating mentors for administrative convenience.
 
 ### Supervision and quality assurance
 
-Every mentor receives supervision and safeguarding oversight. **Youth mentoring services** are not unstructured befriending, session focus, boundary maintenance and escalation decisions are reviewed so young people experience reliable quality whether they are in week two or week twenty. Commissioners can request anonymised outcome summaries across cohorts where frameworks require performance reporting.
+Every mentor receives supervision and safeguarding oversight. **Youth mentoring services** are not unstructured befriending.
+
+Session focus, boundary maintenance and escalation decisions are reviewed. Commissioners can request anonymised outcome summaries where frameworks require performance reporting.
 
 ### Cultural competence and identity
 
-Young people from minority ethnic backgrounds, LGBTQ+ youth, and care leavers navigating identity questions benefit from mentors who respect culture and identity without stereotyping. Matching considers preference where possible; training covers anti-discriminatory practice so provision feels relevant, not generic.
+Young people from minority ethnic backgrounds, LGBTQ+ youth, and care leavers navigating identity questions benefit from mentors who respect culture and identity without stereotyping.
+
+Matching considers preference where possible. Training covers anti-discriminatory practice so provision feels relevant, not generic.
 
 ### Digital boundaries and social media
 
-**Mentoring services** in 2026 must address online life explicitly. CAMS policy prohibits mentors connecting on personal social media, sharing personal numbers for unofficial chat, or commenting on a young person's posts outside commissioned work. Digital boundaries protect both parties and prevent grooming narratives that undermine legitimate professional relationships.
+**Mentoring services** in 2026 must address online life explicitly. CAMS policy prohibits:
+
+- Mentors connecting on personal social media
+- Sharing personal numbers for unofficial chat
+- Commenting on a young person's posts outside commissioned work
+
+Digital boundaries protect both parties and prevent grooming narratives that undermine legitimate professional relationships.
 
 ${endArticleCta(
   "Start youth mentoring with CAMS",
-  "CAMS Services Ltd provides safeguarding-led mentoring services UK-wide. Make a referral with the young person's profile and goals, or contact our team about blended transport and mentoring packages.",
+  "CAMS services Ltd provides safeguarding-led mentoring services UK-wide. Make a referral with the young person's profile and goals, or contact our team about blended transport and mentoring packages.",
 )}
 
 ## Frequently asked questions

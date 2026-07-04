@@ -1,18 +1,18 @@
-import { GetPageUseCase } from '@/core/application/pages/useCases/GetPageUseCase';
-import { ListPoliciesUseCase } from '@/core/application/pages/useCases/ListPoliciesUseCase';
-import { pageRepository } from '@/infrastructure/persistence/pages';
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { buildCmsPageMetadata } from '@/marketing/server/metadata/buildCmsPageMetadata';
-import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
 import { ROUTES } from '@/shared/utils/routes';
 import { POLICY_DETAIL_PAGE as P } from '@/app/(public)/constants/policyDetailPageConstants';
 import { PolicyDetailPageView } from '@/marketing/components/policies/PolicyDetailPageView';
+import {
+  getPolicyPageWithFallback,
+  getStaticPolicySlugs,
+  listPolicyPagesWithFallback,
+} from '@/marketing/server/policies/policyPageData';
 
 function isHtmlContent(content: string): boolean {
   return /<[a-z][\s\S]*>/i.test(content);
 }
-import { notFound } from 'next/navigation';
-import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
 
 type PolicyPageProps = {
   params: Promise<{
@@ -20,17 +20,12 @@ type PolicyPageProps = {
   }>;
 };
 
-async function getPolicy(slug: string) {
-  const useCase = new GetPageUseCase(pageRepository);
-  // Guard against slow or failing backend – return null instead of throwing during build
-  return withTimeoutFallback(useCase.execute(slug), 5000, null);
-}
-
 async function getPolicySlugs(): Promise<string[]> {
-  const useCase = new ListPoliciesUseCase(pageRepository);
-  // If backend is unavailable during build, fall back to no static params
-  const policies = await withTimeoutFallback(useCase.execute(), 5000, []);
-  return policies.map((policy) => policy.slug);
+  const policies = await listPolicyPagesWithFallback();
+  if (policies.length > 0) {
+    return policies.map((policy) => policy.slug);
+  }
+  return getStaticPolicySlugs();
 }
 
 export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
@@ -44,7 +39,7 @@ export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
 
 export async function generateMetadata({ params }: PolicyPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const page = await getPolicy(slug);
+  const page = await getPolicyPageWithFallback(slug);
 
   if (!page) {
     return buildCmsPageMetadata(
@@ -62,7 +57,7 @@ export async function generateMetadata({ params }: PolicyPageProps): Promise<Met
 
 export default async function PolicyPage({ params }: PolicyPageProps) {
   const { slug } = await params;
-  const page = await getPolicy(slug);
+  const page = await getPolicyPageWithFallback(slug);
 
   if (!page) {
     notFound();

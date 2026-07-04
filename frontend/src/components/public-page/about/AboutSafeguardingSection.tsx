@@ -36,7 +36,7 @@ export default function AboutSafeguardingSection({
           <div className="relative w-full h-80 md:h-96 rounded-card border-2 border-gray-200 shadow-card overflow-hidden">
             <Image
               src="/images/team/trainner-1.webp"
-              alt="Safeguarding-focused CAMS Services mentor"
+              alt="Safeguarding-focused CAMS services mentor"
               fill
               className="object-cover"
               quality={90}

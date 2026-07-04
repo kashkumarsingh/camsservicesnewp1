@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import ResetPasswordPageClient from '@/features/public/pages/reset-password/ResetPasswordPageClient';
 
 export const metadata: Metadata = {
-  title: 'Reset Password - CAMS Services',
+  title: 'Reset Password - CAMS services',
   description: 'Set a new password for your account',
 };
 

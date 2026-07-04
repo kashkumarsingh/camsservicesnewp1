@@ -25,7 +25,7 @@ export default function AboutMissionSection({ sectionTitle, description }: About
               <>
                 <h2 className="text-4xl font-bold text-navy-blue mb-6 leading-tight">Specialist Support for Every Child</h2>
                 <p className="text-lg text-navy-blue mb-6 leading-relaxed">
-                  At CAMS Services, we are dedicated to providing specialist SEN support and trauma-informed care for children with a range of needs, including SEMH, ASD, and ADHD.
+                  At CAMS services, we are dedicated to providing specialist SEN support and trauma-informed care for children with a range of needs, including SEMH, ASD, and ADHD.
                 </p>
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">

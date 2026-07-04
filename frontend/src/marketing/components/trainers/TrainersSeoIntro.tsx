@@ -16,7 +16,7 @@ export function TrainersSeoIntro({ title, subtitle }: TrainersSeoIntroProps): Re
         <p className="mx-auto mt-4 max-w-2xl text-lg text-navy-blue/80">{subtitle}</p>
         <div className="mx-auto mt-8 max-w-3xl space-y-4 text-left text-base leading-7 text-navy-blue/85">
           <p>
-            CAMS Services trainers are DBS-checked specialists delivering trauma-informed mentoring, chaperone
+            CAMS services trainers are DBS-checked specialists delivering trauma-informed mentoring, chaperone
             support, and SEND-aware sessions across the UK. Every practitioner is recruited against our
             safeguarding standards, trained in de-escalation and professional boundaries, and supervised by
             experienced leads who understand education, children&apos;s services, and family support contexts.
@@ -27,6 +27,11 @@ export function TrainersSeoIntro({ title, subtitle }: TrainersSeoIntroProps): Re
             fitness to community outings, while tracking goals agreed at the start of an intervention package.
           </p>
           <p>
+            CAMS services trainers complete induction, safeguarding training, and ongoing supervision. Session notes
+            and referrer updates are completed where commissioned so families, schools, and local authorities can see
+            that provision is active and aligned with agreed goals.
+          </p>
+          <p>
             Interested in joining the team? Visit{" "}
             <Link href={ROUTES.BECOME_A_TRAINER} className="font-semibold text-primary-blue underline underline-offset-2">
               become a trainer
@@ -34,10 +39,14 @@ export function TrainersSeoIntro({ title, subtitle }: TrainersSeoIntroProps): Re
             . To commission support, see our{" "}
             <Link href={ROUTES.PACKAGES} className="font-semibold text-primary-blue underline underline-offset-2">
               intervention packages
-            </Link>{" "}
-            or{" "}
+            </Link>
+            , read our{" "}
+            <Link href={ROUTES.BLOG} className="font-semibold text-primary-blue underline underline-offset-2">
+              commissioning guides
+            </Link>
+            , or{" "}
             <Link href={ROUTES.CONTACT} className="font-semibold text-primary-blue underline underline-offset-2">
-              contact CAMS Services
+              contact CAMS services
             </Link>
             .
           </p>

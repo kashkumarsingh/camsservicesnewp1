@@ -36,7 +36,7 @@ export function PoliciesIndexPageView({
       <Section className="relative pt-20 pb-16 px-4 sm:px-6 lg:px-8 text-white overflow-hidden bg-gradient-to-br from-primary-blue to-navy-blue">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url('/svgs/geometric-pattern.svg')", backgroundRepeat: 'repeat' }} />
         <div className="relative max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-heading font-extrabold leading-tight tracking-tight">{heroTitle}</h1>
+          <h2 className="text-4xl md:text-6xl font-heading font-extrabold leading-tight tracking-tight">{heroTitle}</h2>
           <p className="mt-6 text-lg md:text-xl max-w-2xl mx-auto font-sans font-light text-white/90">{heroSubtitle}</p>
         </div>
       </Section>
@@ -47,7 +47,7 @@ export function PoliciesIndexPageView({
             {(introHeading || introBody) && (
               <div className="mb-10 text-center">
                 {introHeading && <h2 className="text-2xl font-heading font-semibold text-navy-blue">{introHeading}</h2>}
-                {introBody && <p className="mt-3 text-slate-600">{introBody}</p>}
+                {introBody && <p className="mt-3 text-slate-600 leading-7">{introBody}</p>}
               </div>
             )}
             {policies.length > 0 ? (
@@ -56,10 +56,15 @@ export function PoliciesIndexPageView({
                   <li key={policy.id}>
                     <Link
                       href={policiesBySlug(policy.slug)}
-                      className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary-blue/20 bg-white hover:border-primary-blue/30 hover:shadow-card transition-all text-navy-blue font-medium"
+                      className="flex flex-col gap-1 p-4 rounded-xl border-2 border-primary-blue/20 bg-white hover:border-primary-blue/30 hover:shadow-card transition-all text-navy-blue"
                     >
-                      <FileText className="h-5 w-5 text-primary-blue flex-shrink-0" />
-                      <span>{policy.title}</span>
+                      <span className="flex items-center gap-3 font-medium">
+                        <FileText className="h-5 w-5 text-primary-blue flex-shrink-0" />
+                        {policy.title}
+                      </span>
+                      {policy.summary ? (
+                        <span className="pl-8 text-sm text-slate-600 leading-6">{policy.summary}</span>
+                      ) : null}
                     </Link>
                   </li>
                 ))}

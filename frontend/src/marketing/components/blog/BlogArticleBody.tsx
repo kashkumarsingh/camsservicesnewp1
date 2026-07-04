@@ -1,5 +1,3 @@
-'use client';
-
 import type { ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';

@@ -1,7 +1,6 @@
 import { PoliciesIndexPageView } from '@/marketing/components/policies/PoliciesIndexPageView';
-import { ListPoliciesUseCase } from '@/core/application/pages/useCases/ListPoliciesUseCase';
+import { PoliciesSeoIntro } from '@/marketing/components/policies/PoliciesSeoIntro';
 import { GetPageUseCase } from '@/core/application/pages/useCases/GetPageUseCase';
-import { PageMapper } from '@/core/application/pages/mappers/PageMapper';
 import { pageRepository } from '@/infrastructure/persistence/pages';
 import { StaticPageRepository } from '@/infrastructure/persistence/pages/repositories/StaticPageRepository';
 import type { PoliciesPageContentDTO, PageDTO } from '@/core/application/pages/dto/PageDTO';
@@ -10,6 +9,7 @@ import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
 import { buildCmsPageMetadata } from '@/marketing/server/metadata/buildCmsPageMetadata';
 import { ROUTES } from '@/shared/utils/routes';
 import { POLICIES_PAGE } from '@/app/(public)/constants/policiesPageConstants';
+import { listPolicyPagesWithFallback } from '@/marketing/server/policies/policyPageData';
 
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;
@@ -17,9 +17,7 @@ export const revalidate = 1800;
 const POLICIES_SLUG = 'policies';
 
 async function getPolicies() {
-  const useCase = new ListPoliciesUseCase(pageRepository);
-  const policies = await withTimeoutFallback(useCase.execute(), 5000, []);
-  return policies.map((page) => PageMapper.toDTO(page));
+  return listPolicyPagesWithFallback();
 }
 
 async function getPoliciesPage(): Promise<
@@ -66,7 +64,9 @@ export default async function PoliciesIndexPage() {
   const introBody = structuredContent?.intro?.body ?? POLICIES_PAGE.DEFAULT_INTRO_BODY;
 
   return (
-    <PoliciesIndexPageView
+    <>
+      <PoliciesSeoIntro />
+      <PoliciesIndexPageView
       policies={policies}
       heroTitle={heroTitle}
       heroSubtitle={heroSubtitle}
@@ -79,5 +79,6 @@ export default async function PoliciesIndexPage() {
       contactMailTo={POLICIES_PAGE.CONTACT_EMAIL_MAILTO}
       contactEmail={POLICIES_PAGE.CONTACT_EMAIL}
     />
+    </>
   );
 }

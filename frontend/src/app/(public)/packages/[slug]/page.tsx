@@ -77,7 +77,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       pkg = interventionPackageToFallbackDTO(intervention);
     } else {
       return {
-        title: 'Package Not Found | CAMS Services',
+        title: 'Package Not Found | CAMS services',
         description: 'The requested package could not be found.',
       };
     }
@@ -88,7 +88,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   return buildPublicMetadata(
     {
-      title: `${pkg.name} Package | ${totalWeeksLabel} | CAMS Services`,
+      title: `${pkg.name} Package | ${totalWeeksLabel} | CAMS services`,
       description,
       path: `/packages/${pkg.slug}`,
       imageAlt: `${pkg.name} package overview`,
@@ -119,6 +119,10 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
       }
       notFound();
     }
+  }
+
+  if (!interventionMeta) {
+    interventionMeta = getInterventionPackageBySlug(pkg.slug);
   }
 
   // Calculate savings (example: assume original price is 20% higher)
@@ -219,7 +223,7 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
     url: `${BASE_URL}/packages/${pkg.slug}`,
     provider: {
       '@type': 'Organization',
-      name: 'CAMS Services',
+      name: 'CAMS services',
       url: BASE_URL,
     },
     offers: {

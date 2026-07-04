@@ -140,7 +140,7 @@ Parents and foster carers often hold crucial insight about triggers, sleep patte
 
 ${endArticleCta(
   "Start SEND support with CAMS",
-  "CAMS Services Ltd delivers EHCP-aligned SEND support services UK-wide for local authorities, schools and families. Make a referral with the young person's plan and school contact, or speak to our team about combined transport and learning packages.",
+  "CAMS services Ltd delivers EHCP-aligned SEND support services UK-wide for local authorities, schools and families. Make a referral with the young person's plan and school contact, or speak to our team about combined transport and learning packages.",
 )}
 
 ## Frequently asked questions
@@ -153,7 +153,7 @@ export const sendSupportServicesArticle: MarketingBlogPostDTO = {
   focusKeyword: "SEND support services",
   metaTitle: "SEND Support Services: One-to-One UK Help for SEND",
   metaDescription:
-    "SEND support services for autism, ADHD and SEMH. School engagement, EHCP-aligned one-to-one help and safe transport across the UK. Refer CAMS Services.",
+    "SEND support services for autism, ADHD and SEMH. School engagement, EHCP-aligned one-to-one help and safe transport across the UK. Refer CAMS services.",
   title: "SEND Support Services: Practical One-to-One Help for Children With Additional Needs",
   excerpt:
     "How SEND support services strengthen school engagement, EHCP delivery and community access, with autism, ADHD and SEMH-informed one-to-one practice.",

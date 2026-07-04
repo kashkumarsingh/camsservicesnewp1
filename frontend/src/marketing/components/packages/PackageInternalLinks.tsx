@@ -2,6 +2,8 @@ import type { ReactElement } from "react";
 import Link from "next/link";
 import { ROUTES } from "@/shared/utils/routes";
 import { SEO_BLOG_ARTICLES } from "@/marketing/content/blog";
+import { INTERVENTION_PACKAGES } from "@/marketing/mock/intervention-packages";
+import { packageDetailHref } from "@/marketing/lib/package-detail-slug";
 
 const RELATED_ARTICLES = SEO_BLOG_ARTICLES.slice(0, 3);
 
@@ -21,13 +23,13 @@ export function PackageInternalLinks({ packageName }: PackageInternalLinksProps)
         services fit together. Use the links below to compare services, read commissioning guides, or start a referral.
       </p>
 
-      <div className="mt-6 grid gap-6 md:grid-cols-2">
+      <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div>
           <h3 className="text-sm font-bold uppercase tracking-wide text-cams-dark">Services and referral</h3>
           <ul className="mt-3 space-y-2 text-sm">
             <li>
               <Link href={ROUTES.SERVICES} className="font-semibold text-cams-primary underline underline-offset-2">
-                All CAMS Services
+                All CAMS services
               </Link>
             </li>
             <li>
@@ -45,6 +47,21 @@ export function PackageInternalLinks({ packageName }: PackageInternalLinksProps)
                 Contact our team
               </Link>
             </li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="text-sm font-bold uppercase tracking-wide text-cams-dark">All package tiers</h3>
+          <ul className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+            {INTERVENTION_PACKAGES.map((pkg) => (
+              <li key={pkg.id}>
+                <Link
+                  href={packageDetailHref(pkg.id)}
+                  className="font-semibold text-cams-primary underline underline-offset-2"
+                >
+                  {pkg.name} package
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
         <div>

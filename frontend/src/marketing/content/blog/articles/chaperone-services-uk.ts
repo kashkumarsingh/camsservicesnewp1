@@ -29,9 +29,11 @@ const faqItems = [
 ];
 
 const content = `
-**Chaperone services UK** help children, young people and vulnerable adults travel safely between homes, schools, contact centres, foster placements and appointments. For local authorities, schools and families. The right chaperone provision reduces risk, keeps contact arrangements on track and gives everyone confidence that safeguarding sits at the centre of every journey.
+**Chaperone services UK** help children and young people travel safely between homes, schools, contact centres, foster placements and appointments.
 
-When a child cannot travel alone, because of care proceedings, SEND needs, court-ordered contact or placement instability, commissioners need more than a driver. They need a trained adult who understands de-escalation, handover protocols and the emotional weight of transitions. This guide explains what professional **chaperone services UK** include, who they serve, and the standards you should expect from any provider.
+Local authorities, schools and families use chaperones when a child cannot travel alone. Reasons include care proceedings, SEND needs, court-ordered contact or placement instability.
+
+Commissioners need more than a driver. They need a trained adult who understands de-escalation, handover protocols and the stress of transitions. This guide explains what professional **chaperone services UK** include, who they serve, and the standards you should expect.
 
 ${articleToc([
   { label: "What chaperone services UK include", anchor: "what-chaperone-services-uk-include" },
@@ -45,11 +47,23 @@ ${articleToc([
 
 ## What chaperone services UK include
 
-Professional **chaperone services UK** combine trained adult presence with planned journeys. At CAMS Services Ltd, chaperone support typically covers supervised travel between home, school, nursery, contact centres and foster placements; handover coordination with parents, carers, social workers and school staff; emotional regulation support during transitions that can feel stressful for children; activity accompaniment for community access, appointments and wellbeing sessions; and clear reporting so referrers understand what happened on each journey.
+Professional **chaperone services UK** combine trained adult presence with planned journeys. At CAMS services Ltd, chaperone support typically covers:
 
-Unlike a simple taxi booking, chaperone services are person-centred. The adult travelling with the child understands their communication needs, triggers, medical requirements and any court-directed contact arrangements. A chaperone might use a visual timetable for an autistic passenger, allow silence after a difficult contact session, or coordinate with a residential home about medication before departure.
+- Supervised travel between home, school, nursery, contact centres and foster placements
+- Handover coordination with parents, carers, social workers and school staff
+- Emotional regulation support during stressful transitions
+- Activity accompaniment for community access, appointments and wellbeing sessions
+- Clear reporting so referrers understand what happened on each journey
 
-If your organisation is comparing providers, review our [Community Access and Transport Services](/services/community) programme and [intervention packages](/packages) to see how chaperone hours can be combined with mentoring. Many commissioners find that transport alone solves logistics while mentoring solves the emotional fallout of contact weekends or placement moves.
+Unlike a simple taxi booking, chaperone services are person-centred. The adult travelling with the child understands their communication needs, triggers, medical requirements and any court-directed contact arrangements.
+
+Examples include:
+
+- Using a visual timetable for an autistic passenger
+- Allowing silence after a difficult contact session
+- Coordinating with a residential home about medication before departure
+
+If your organisation is comparing providers, review our [Community Access and Transport Services](/services/community) programme and [intervention packages](/packages). Many commissioners combine chaperone hours with mentoring when contact weekends or placement moves affect the child.
 
 ### Supervised contact and community access
 
@@ -81,17 +95,24 @@ Some adults with learning disabilities or mental health needs require accompanie
 
 ## Safeguarding standards you should expect
 
-Any provider of **chaperone services UK** should be able to evidence robust safeguarding practice before the first journey begins. Commissioners who skip this step risk placement breakdown, proceedings adjournments and, most importantly, harm to the child.
+Any provider of **chaperone services UK** should evidence robust safeguarding practice before the first journey begins. Skipping this step risks placement breakdown, court delays and harm to the child.
 
 ### Core requirements
 
-Enhanced DBS checks for staff and regular update policies are non-negotiable. Safeguarding training must cover recognising abuse, neglect and exploitation, including county lines and online grooming indicators. Risk assessments should be completed before the first journey and reviewed after incidents or placement changes. Lone-working and incident procedures with out-of-hours escalation protect staff and passengers alike. Insurance appropriate for transporting children and vulnerable passengers must be current. Data protection controls govern how journey information is shared with local authorities.
+Commissioners should confirm:
 
-The [SCIE safeguarding hub](${OUTBOUND.safeguarding}) provides a useful benchmark for what good multi-agency safeguarding looks like. Chaperone providers should align with these principles even when operating as contracted services rather than statutory partners.
+- Enhanced DBS checks for staff, with regular update policies
+- Safeguarding training on abuse, neglect and exploitation (including county lines and online grooming)
+- Risk assessments before the first journey, reviewed after incidents or placement changes
+- Lone-working and incident procedures with out-of-hours escalation
+- Insurance for transporting children and vulnerable passengers
+- Data protection controls for journey information shared with local authorities
+
+The [SCIE safeguarding hub](${OUTBOUND.safeguarding}) provides a useful benchmark for good multi-agency safeguarding. Chaperone providers should align with these principles even when operating as contracted services.
 
 ### What CAMS does differently
 
-At CAMS Services, every package begins with understanding the young person's story, not just the postcode and pickup time. We align with local authority procedures and keep communication lines open with social workers and family support teams. Staff are trained not to probe children for intelligence about parents during contact journeys, and not to facilitate adult arguments at handover.
+At CAMS services, every package begins with understanding the young person's story, not just the postcode and pickup time. We align with local authority procedures and keep communication lines open with social workers and family support teams. Staff are trained not to probe children for intelligence about parents during contact journeys, and not to facilitate adult arguments at handover.
 
 ${midArticleCta(
   "Need chaperone cover this week?",
@@ -100,7 +121,7 @@ ${midArticleCta(
 
 ## How chaperone services differ from standard transport
 
-Commissioners sometimes ask whether a taxi would suffice. For low-risk, low-complexity journeys, mainstream transport may be appropriate. For children in care, court-ordered contact or SEMH presentations. The difference between standard transport and chaperone services is substantial.
+Commissioners sometimes ask whether a taxi would suffice. For low-risk journeys, mainstream transport may work. For children in care, court-ordered contact or SEMH presentations, the gap is large.
 
 | Standard transport | Chaperone services UK |
 |---|---|
@@ -111,21 +132,38 @@ Commissioners sometimes ask whether a taxi would suffice. For low-risk, low-comp
 | No pre-journey risk assessment | Individual risk plan with triggers, prohibited contacts and escalation paths |
 | Ad hoc booking | Named staff where possible for consistency across repeated journeys |
 
-When behaviour is a concern, chaperone support often works best alongside [mentoring and coaching](/services/mentoring) so the same trusted adult can bridge home, school and community goals. Read our [child transport services](/blog/child-transport-services-uk) guide for the full commissioning picture across journey types.
+When behaviour is a concern, pair chaperone support with [mentoring and coaching](/services/mentoring). Read our [child transport services](/blog/child-transport-services-uk) guide for the full commissioning picture.
 
 ### When to commission chaperone rather than taxi
 
-If a court order specifies supervised transport, if a child has refused previous taxi journeys, if siblings must not sit together without supervision, or if handover must occur inside a contact centre rather than on the street, you need chaperone services, not a standard cab.
+Commission chaperone services (not a standard cab) when:
+
+- A court order specifies supervised transport
+- A child has refused previous taxi journeys
+- Siblings must not sit together without supervision
+- Handover must occur inside a contact centre, not on the street
 
 ## Working with local authorities and referrers
 
-Commissioners typically need transparent pricing linked to hours, mileage and any waiting time; capacity confirmation before panel decisions or court dates; named contacts for scheduling changes; and audit-ready records for inspections and safeguarding reviews.
+Commissioners typically need:
 
-CAMS Services supports local authority teams across England and Wales. Whether you need emergency cover for a single contact weekend or a 12-week mentoring and transport package. We scope provision around the child, not a one-size template. Referrals can be submitted via our [referral form](/referral) with basic placement details, court dates and handover instructions.
+- Transparent pricing linked to hours, mileage and waiting time
+- Capacity confirmation before panel decisions or court dates
+- Named contacts for scheduling changes
+- Audit-ready records for inspections and safeguarding reviews
+
+CAMS services supports local authority teams across England and Wales. We scope provision around the child, not a one-size template. Submit referrals via our [referral form](/referral) with placement details, court dates and handover instructions.
 
 ### Information to provide at referral
 
-The strongest referrals include: full schedule with flexibility notes; behaviour and health summary including triggers and calming strategies; authorised recipients at each drop-off; referrer contact and out-of-hours escalation; any court orders or non-molestation directions; and centre or school contacts for handover coordination.
+Strong referrals include:
+
+- Full schedule with flexibility notes
+- Behaviour and health summary (triggers and calming strategies)
+- Authorised recipients at each drop-off
+- Referrer contact and out-of-hours escalation
+- Any court orders or non-molestation directions
+- Centre or school contacts for handover coordination
 
 ## Planning chaperone cover for complex cases
 
@@ -145,7 +183,7 @@ Chaperone provision should be reviewed when placements change, contact frequency
 
 ${endArticleCta(
   "Commission chaperone services UK-wide",
-  "CAMS Services Ltd delivers safeguarding-first chaperone and escort provision for local authorities, IFAs, schools and families. Submit a referral with schedule and handover details, or speak to our team about panel submissions and framework agreements.",
+  "CAMS services Ltd delivers safeguarding-first chaperone and escort provision for local authorities, IFAs, schools and families. Submit a referral with schedule and handover details, or speak to our team about panel submissions and framework agreements.",
 )}
 
 ## Frequently asked questions

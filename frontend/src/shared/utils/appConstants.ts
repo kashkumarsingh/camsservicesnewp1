@@ -132,7 +132,7 @@ export const INVOICE_PAID_TITLE = 'Invoice paid';
 export const POWERED_BY_STRIPE = 'Powered by Stripe';
 
 /** Invoice "From" business name (payment confirmation / invoice summary). */
-export const INVOICE_FROM_NAME = 'CAMS Services';
+export const INVOICE_FROM_NAME = 'CAMS services';
 
 /** Admin global quick search (dashboard shell). */
 export const ADMIN_GLOBAL_SEARCH = {

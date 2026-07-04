@@ -10,7 +10,7 @@ const BASE_URL = getMetadataBaseUrl();
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
     {
-      title: 'Packages - CAMS Services',
+      title: 'Packages - CAMS services',
       description: 'Flexible mentoring and intervention packages for different levels of need.',
       path: ROUTES.PACKAGES,
       imageAlt: 'CAMS Intervention Packages',

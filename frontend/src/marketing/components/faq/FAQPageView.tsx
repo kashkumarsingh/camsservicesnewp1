@@ -5,6 +5,7 @@ import CTASection from '@/components/shared/CTASection';
 import { PageHero } from '@/components/shared/public-page';
 import { FAQList } from '@/interfaces/web/components/faq';
 import FAQAccordion from '@/marketing/components/features/faq/FAQAccordion';
+import { FAQServerList } from '@/marketing/components/faq/FAQServerList';
 
 type FaqEntry = { question: string; answer: string };
 
@@ -23,6 +24,7 @@ type FAQPageViewProps = {
   introBody?: string;
   useContentItems: boolean;
   accordionFaqs: FaqEntry[];
+  serverFaqs?: FaqEntry[];
   ctaTitle: string;
   ctaSubtitle: string;
   ctaPrimaryText: string;
@@ -49,6 +51,7 @@ export function FAQPageView({
   introBody,
   useContentItems,
   accordionFaqs,
+  serverFaqs = [],
   ctaTitle,
   ctaSubtitle,
   ctaPrimaryText,
@@ -112,6 +115,8 @@ export function FAQPageView({
           <div className="max-w-3xl mx-auto">
             {useContentItems && accordionFaqs.length > 0 ? (
               <FAQAccordion faqs={accordionFaqs} />
+            ) : serverFaqs.length > 0 ? (
+              <FAQServerList faqs={serverFaqs} />
             ) : (
               <FAQList />
             )}

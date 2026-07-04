@@ -11,7 +11,7 @@ interface BookingDetailPageProps {
 export async function generateMetadata({ params }: BookingDetailPageProps): Promise<Metadata> {
   const { reference } = await params;
   return {
-    title: `Booking ${reference} | CAMS Services`,
+    title: `Booking ${reference} | CAMS services`,
     description: `Details for booking reference ${reference}`,
   };
 }

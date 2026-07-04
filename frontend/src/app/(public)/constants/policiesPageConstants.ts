@@ -5,7 +5,7 @@
 export const POLICIES_PAGE = {
   META_TITLE: 'Policies & Legal',
   META_DESCRIPTION:
-    'Terms of service, privacy policy, safeguarding, cancellation, and other policies for CAMS Services.',
+    'Terms of service, privacy policy, safeguarding, cancellation, and other policies for CAMS services.',
   META_DESCRIPTION_OG: 'Terms of service, privacy policy, safeguarding, and other policies.',
   HERO_TITLE: 'Policies & Legal',
   HERO_SUBTITLE:
@@ -16,7 +16,7 @@ export const POLICIES_PAGE = {
     'Important documents including terms of service, privacy, safeguarding, and refunds.',
   DEFAULT_INTRO_HEADING: 'Our policies',
   DEFAULT_INTRO_BODY:
-    'CAMS Services Ltd maintains clear, accessible policies so families, schools, and commissioning teams understand how we handle data, safeguarding, cancellations, cookies, and payments. Our documents follow UK compliance requirements including GDPR, safeguarding statutory guidance, and consumer rights for service bookings. Select a policy below to read the full text. For questions about how a policy applies to your referral or package, contact info@camsservices.co.uk and we will direct you to the right team member.',
+    'CAMS services Ltd maintains clear, accessible policies so families, schools, and commissioning teams understand how we handle data, safeguarding, cancellations, cookies, and payments. Our documents follow UK compliance requirements including GDPR, safeguarding statutory guidance, and consumer rights for service bookings. Select a policy below to read the full text. For questions about how a policy applies to your referral or package, contact info@camsservices.co.uk and we will direct you to the right team member.',
   EMPTY_MESSAGE: 'No published policies are available at the moment.',
   EMPTY_CONTACT: 'You can still reach us at',
   EMPTY_CONTACT_SUFFIX: 'for any questions.',

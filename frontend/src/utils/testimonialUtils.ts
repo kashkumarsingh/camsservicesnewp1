@@ -33,7 +33,7 @@ export function mapFallbackTestimonials(
     quote: testimonial.text,
     rating: testimonial.rating,
     sourceType: 'manual' as const,
-    sourceLabel: 'CAMS Services',
+    sourceLabel: 'CAMS services',
     sourceUrl: undefined,
     locale: 'en-GB',
     isFeatured: true,

@@ -33,7 +33,7 @@ export function createOgImageResponse({ title, summary }: OgImageInput): ImageRe
             opacity: 0.95,
           }}
         >
-          CAMS Services
+          CAMS services
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div style={{ fontSize: 52, fontWeight: 800, lineHeight: 1.12 }}>{shortTitle}</div>

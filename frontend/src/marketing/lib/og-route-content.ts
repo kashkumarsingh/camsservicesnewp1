@@ -5,12 +5,12 @@ const DEFAULT_SUMMARY =
 
 const PAGE_FALLBACKS: Record<string, { title: string; summary: string }> = {
   "": {
-    title: "Chaperone Services UK | CAMS Services",
+    title: "Chaperone Services UK | CAMS services",
     summary:
       "Chaperone services UK, child transport services, family support services, SEND support services, and mentoring services.",
   },
   about: {
-    title: "About CAMS Services",
+    title: "About CAMS services",
     summary: "Learn about our team, mission, and person-centred support model.",
   },
   services: {
@@ -55,7 +55,7 @@ export async function getOgContentForSlug(slug: string): Promise<{ title: string
   }
 
   return {
-    title: "CAMS Services",
+    title: "CAMS services",
     summary: DEFAULT_SUMMARY,
   };
 }

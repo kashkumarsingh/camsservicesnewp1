@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!booking) {
     return {
-      title: 'Thank You for Your Booking - CAMS Services',
+      title: 'Thank You for Your Booking - CAMS services',
       description: 'Your booking has been received.',
     };
   }
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     ...buildPublicMetadata(
       {
-        title: `Thank You for Your Booking ${booking.reference} - CAMS Services`,
+        title: `Thank You for Your Booking ${booking.reference} - CAMS services`,
         description: `Your booking ${booking.reference} has been confirmed.`,
         path: `/thank-you/${booking.reference}`,
         imageAlt: `Booking Confirmation ${booking.reference}`,

@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import Link from "next/link";
 import { Button } from "@/marketing/components/ui/button";
 import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
 import { CamsStarRating, InterventionPackageIcon } from "@/marketing/components/shared/CamsIcon";
@@ -10,6 +11,7 @@ import { HomeWhoWeSupportSection } from "@/marketing/components/home/HomeWhoWeSu
 import { HomeBlogInsightsSection } from "@/marketing/components/home/HomeBlogInsightsSection";
 import { PAGE_LAYOUT } from "@/marketing/components/shared/page-layout";
 import { INTERVENTION_PACKAGES } from "@/marketing/mock/intervention-packages";
+import { packageDetailHref } from "@/marketing/lib/package-detail-slug";
 import { CAMS_CONTACT, camsTelHref } from "@/marketing/mock/cams-services-catalog";
 
 const sectionShell = "overflow-hidden px-4 py-20 md:py-28";
@@ -90,7 +92,12 @@ export function HomePageClient(): ReactElement {
                   <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-1">
                     <div className="min-w-0">
                       <p className="font-heading text-base font-bold text-cams-ink md:text-lg">
-                        {pkg.name}
+                        <Link
+                          href={packageDetailHref(pkg.id)}
+                          className="hover:text-cams-primary hover:underline underline-offset-2"
+                        >
+                          {pkg.name}
+                        </Link>
                         <span className="font-sans font-medium text-cams-ink-secondary">
                           , {pkg.programmeSubtitle}
                         </span>
@@ -175,7 +182,7 @@ export function HomePageClient(): ReactElement {
 
       <PageCtaSection
         heading="Need support for a child, young person, family member, or vulnerable adult?"
-        description="Contact CAMS Services today to discuss a tailored support package."
+        description="Contact CAMS services today to discuss a tailored support package."
         actions={[
           { href: "/referral", label: "Make a Referral", variant: "primary" },
           { href: camsTelHref(CAMS_CONTACT.phone), label: "Call us", variant: "secondary" },

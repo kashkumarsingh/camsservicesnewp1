@@ -1,6 +1,6 @@
 export const faqItems = [
   {
-    title: 'How do I refer a child to CAMS Services?',
+    title: 'How do I refer a child to CAMS services?',
     slug: 'how-do-i-refer-a-child',
     content:
       'Families, schools, and local authority teams can start with our online referral form or contact page. We ask for basic safeguarding information, the young person’s needs, and preferred session locations. A member of the CAMS team will respond within one working day to discuss suitability and recommend an intervention package.',
@@ -39,7 +39,7 @@ export const faqItems = [
     title: 'Which areas do you cover?',
     slug: 'which-areas-do-you-cover',
     content:
-      'CAMS Services supports children and families across the UK, with strong coverage in London, Essex, and surrounding counties. Contact us to confirm availability for your postcode or commissioning area.',
+      'CAMS services supports children and families across the UK, with strong coverage in London, Essex, and surrounding counties. Contact us to confirm availability for your postcode or commissioning area.',
   },
   {
     title: 'How do you handle safeguarding concerns?',

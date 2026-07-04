@@ -23,7 +23,7 @@ export class StaticTestimonialRepository implements ITestimonialRepository {
         quote: testimonial.text,
         rating: testimonial.rating,
         sourceType: 'manual',
-        sourceLabel: 'CAMS Services',
+        sourceLabel: 'CAMS services',
         sourceUrl: null,
         locale: 'en-GB',
         isFeatured: true,

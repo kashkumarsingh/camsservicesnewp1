@@ -164,7 +164,7 @@ export function PackagesPageClient(): ReactElement {
                    Pricing available upon consultation.
                  </div>
                  <div className="mt-2 text-cams-slate text-sm mb-4">
-                   Every referral is different. Following consultation and assessment of need, CAMS Services will provide a tailored quotation based on the level of support required.
+                   Every referral is different. Following consultation and assessment of need, CAMS services will provide a tailored quotation based on the level of support required.
                  </div>
                  <div className="mt-2 border-b border-slate-200 pb-6" />
                  <PackageFeaturesCollapsible features={pkg.features} variant="packages" />
@@ -229,7 +229,14 @@ export function PackagesPageClient(): ReactElement {
                             index === packages.length - 1 && "border-b-0"
                           )}
                         >
-                          <td className="px-4 py-3 font-semibold text-cams-dark">{pkg.name}</td>
+                          <td className="px-4 py-3 font-semibold text-cams-dark">
+                            <Link
+                              href={packageDetailHref(pkg.id)}
+                              className="underline-offset-2 hover:text-cams-primary hover:underline"
+                            >
+                              {pkg.name}
+                            </Link>
+                          </td>
                           <td className="px-4 py-3 text-cams-primary font-bold">{price}</td>
                         </tr>
                       );
@@ -315,10 +322,13 @@ export function PackagesPageClient(): ReactElement {
                       key={pkg.id}
                       className="whitespace-nowrap border-l border-slate-100 px-4 py-5 font-bold text-cams-dark md:px-5"
                     >
-                      <span className="inline-flex items-center gap-2">
+                      <Link
+                        href={packageDetailHref(pkg.id)}
+                        className="inline-flex items-center gap-2 underline-offset-2 hover:text-cams-primary hover:underline"
+                      >
                         <InterventionPackageIcon packageId={pkg.id} size={22} className="inline" />
                         {pkg.name}
-                      </span>
+                      </Link>
                     </th>
                   ))}
                 </tr>

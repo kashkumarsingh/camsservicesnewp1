@@ -30,7 +30,7 @@ export function marketingBlogPostToDto(post: MarketingBlogPostDTO): BlogPostDTO 
     content: post.content,
     author: {
       id: 'cams-team',
-      name: 'CAMS Services Team',
+      name: 'CAMS services Team',
       email: undefined,
       avatar: undefined,
       bio: 'Safeguarding-first practitioners across chaperone, transport and mentoring services UK-wide.',

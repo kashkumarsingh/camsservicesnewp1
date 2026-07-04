@@ -141,7 +141,7 @@ Local authority panels and court hearings often require evidence that transport 
 
 ${endArticleCta(
   "Commission contact centre transport",
-  "CAMS Services Ltd provides safeguarding-first contact centre transport UK-wide for local authorities, IFAs and families. Make a referral with court dates and centre details, or contact our team for panel submissions.",
+  "CAMS services Ltd provides safeguarding-first contact centre transport UK-wide for local authorities, IFAs and families. Make a referral with court dates and centre details, or contact our team for panel submissions.",
 )}
 
 ## Frequently asked questions

@@ -152,7 +152,7 @@ The strongest family support referrals describe what happens at 6pm on a Tuesday
 
 ${endArticleCta(
   "Start family support with CAMS",
-  "CAMS Services Ltd delivers family support services UK-wide for early-help teams, IFAs, schools and carers. Make a referral with your household goals, or contact our team about combined family and mentoring packages.",
+  "CAMS services Ltd delivers family support services UK-wide for early-help teams, IFAs, schools and carers. Make a referral with your household goals, or contact our team about combined family and mentoring packages.",
 )}
 
 ## Frequently asked questions
@@ -165,7 +165,7 @@ export const familySupportServicesArticle: MarketingBlogPostDTO = {
   focusKeyword: "family support services",
   metaTitle: "Family Support Services UK: Home & School Help",
   metaDescription:
-    "Family support services UK for parents, foster and kinship carers. Communication coaching, routines and aligned mentoring. Refer CAMS Services today.",
+    "Family support services UK for parents, foster and kinship carers. Communication coaching, routines and aligned mentoring. Refer CAMS services today.",
   title: "Family Support Services UK: Strengthening Communication and Routines at Home",
   excerpt:
     "How family support services align home, school and mentoring so young people experience consistent boundaries, calmer routines and earlier help.",

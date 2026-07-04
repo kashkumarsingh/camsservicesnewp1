@@ -24,7 +24,7 @@ export function mapBlogApiPostToDto(
   const focusKeyword =
     typeof row.tags?.[0] === "string" && row.tags[0].length > 0
       ? row.tags[0]
-      : String(row.title ?? "CAMS Services");
+      : String(row.title ?? "CAMS services");
 
   return {
     slug: `blog/${String(row.slug ?? fallbackSlug).replace(/^\/+/, "")}`,
@@ -32,7 +32,7 @@ export function mapBlogApiPostToDto(
     metaTitle:
       typeof row.seo?.title === "string" && row.seo.title.length > 0
         ? row.seo.title
-        : `${String(row.title ?? "Blog Post")} | CAMS Services`,
+        : `${String(row.title ?? "Blog Post")} | CAMS services`,
     metaDescription:
       typeof row.seo?.description === "string" && row.seo.description.length > 0
         ? row.seo.description

@@ -45,7 +45,7 @@ ${articleToc([
 
 ## What foster placement support means in practice
 
-**Foster placement support** from CAMS Services Ltd combines placement transition transport with calm handovers; contact centre transport that protects children from adult conflict; one-to-one mentoring to process moves and contact sessions; family support messaging so foster carers and birth family boundaries stay clear; and school liaison where attendance wobbles after placement change.
+**Foster placement support** from CAMS services Ltd combines placement transition transport with calm handovers; contact centre transport that protects children from adult conflict; one-to-one mentoring to process moves and contact sessions; family support messaging so foster carers and birth family boundaries stay clear; and school liaison where attendance wobbles after placement change.
 
 Our [Family Support Service](/services/routine) and [Mentoring and Coaching](/services/mentoring) programmes are frequently commissioned together for children in care. The [GOV.UK children in care guidance](${OUTBOUND.childrenInCare}) sets out corporate parenting duties. Transport, mentoring and carer coaching are practical expressions of those duties when in-house teams lack capacity.
 
@@ -145,7 +145,7 @@ Support workers help carers maintain boundaries when birth family contact create
 
 ${endArticleCta(
   "Refer foster placement support",
-  "CAMS Services Ltd supports children in care UK-wide with transport, mentoring and family coordination. Make a referral with placement and contact details, or contact our team for IFA and local authority framework discussions.",
+  "CAMS services Ltd supports children in care UK-wide with transport, mentoring and family coordination. Make a referral with placement and contact details, or contact our team for IFA and local authority framework discussions.",
 )}
 
 ## Frequently asked questions
@@ -158,7 +158,7 @@ export const fosterPlacementSupportArticle: MarketingBlogPostDTO = {
   focusKeyword: "foster placement support",
   metaTitle: "Foster Placement Support: Transport & Mentoring UK",
   metaDescription:
-    "Foster placement support with safe transport, mentoring and family coordination. Help children in care stay stable. Refer CAMS Services UK-wide.",
+    "Foster placement support with safe transport, mentoring and family coordination. Help children in care stay stable. Refer CAMS services UK-wide.",
   title: "Foster Placement Support: Transport, Mentoring and Transition Care That Protects Placements",
   excerpt:
     "How foster placement support combines transport, mentoring and carer coordination so children in care experience safer moves, contact and school attendance.",

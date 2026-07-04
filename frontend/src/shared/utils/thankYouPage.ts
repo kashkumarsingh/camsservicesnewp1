@@ -15,7 +15,7 @@ export type ThankYouPageVariant = {
 
 const THANK_YOU_VARIANTS: Record<ThankYouPageType, ThankYouPageVariant> = {
   contact: {
-    metaTitle: "Thank You – We'll Be in Touch | CAMS Services",
+    metaTitle: "Thank You – We'll Be in Touch | CAMS services",
     metaDescription:
       'Your enquiry has been received. Our team will review your request and get back to you within 24 hours.',
     badge: 'Message Received Successfully',
@@ -27,7 +27,7 @@ const THANK_YOU_VARIANTS: Record<ThankYouPageType, ThankYouPageVariant> = {
       'Your enquiry is routed to our specialist mentors instantly. We follow a simple three-step process so you always know what comes next.',
   },
   referral: {
-    metaTitle: 'Thank You – Referral Received | CAMS Services',
+    metaTitle: 'Thank You – Referral Received | CAMS services',
     metaDescription:
       'Your referral has been received. Our team will review it and contact you within one working day.',
     badge: 'Referral Received Successfully',
@@ -39,7 +39,7 @@ const THANK_YOU_VARIANTS: Record<ThankYouPageType, ThankYouPageVariant> = {
       'Your referral is routed to our safeguarding and programme leads. We follow a clear process so you always know what happens next.',
   },
   trainer: {
-    metaTitle: 'Thank You – Application Received | CAMS Services',
+    metaTitle: 'Thank You – Application Received | CAMS services',
     metaDescription:
       'Your trainer application has been received. Our team will review it and email you next steps within 2–3 working days.',
     badge: 'Application Received Successfully',
@@ -51,7 +51,7 @@ const THANK_YOU_VARIANTS: Record<ThankYouPageType, ThankYouPageVariant> = {
       'Your application is reviewed by our operations and safeguarding team. We follow a structured process so you know exactly where you stand.',
   },
   register: {
-    metaTitle: 'Thank You – Registration Received | CAMS Services',
+    metaTitle: 'Thank You – Registration Received | CAMS services',
     metaDescription:
       'Your parent account registration has been received and is pending approval. We will email you once your account is approved.',
     badge: 'Registration Received Successfully',

@@ -25,13 +25,13 @@ const today = new Date().toISOString();
 export const pagesData: StaticPageData[] = [
   {
     id: '1',
-    title: 'About CAMS Services',
+    title: 'About CAMS services',
     slug: 'about',
     type: 'about',
     summary:
       'Discover our mission, trauma-informed approach, and the dedicated team supporting families across the UK.',
     content: `
-# About CAMS Services
+# About CAMS services
 
 ## Our Mission
 - Deliver trauma-informed, child-centered support that helps every young person feel safe, seen, and celebrated.
@@ -84,7 +84,7 @@ export const pagesData: StaticPageData[] = [
 _Last updated: January 1, 2025_
 
 ## Introduction
-CAMS Services ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.
+CAMS services ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.
 
 ## Information We Collect
 - Name and contact information
@@ -128,7 +128,7 @@ For questions about this Privacy Policy, please contact **info@camsservices.co.u
 _Last updated: January 1, 2025_
 
 ## Our Commitment
-CAMS Services is committed to safeguarding and promoting the welfare of all children and vulnerable individuals. Everyone has the right to be protected from harm.
+CAMS services is committed to safeguarding and promoting the welfare of all children and vulnerable individuals. Everyone has the right to be protected from harm.
 
 ## Key Principles
 - All children have the right to be safe.
@@ -171,7 +171,7 @@ _Last updated: January 1, 2025_
 - Cancellations made 24–48 hours before: 50% refund
 - Cancellations made less than 24 hours before: No refund
 
-## Cancellation by CAMS Services
+## Cancellation by CAMS services
 - Full refund will be provided
 - Alternative session will be offered where possible
 
@@ -200,7 +200,7 @@ For cancellation requests, please email **bookings@camsservices.co.uk** with you
 _Last updated: January 1, 2025_
 
 ## Agreement to Terms
-By accessing and using CAMS Services, you agree to be bound by these Terms of Service.
+By accessing and using CAMS services, you agree to be bound by these Terms of Service.
 
 ## Services
 We provide SEN and trauma-informed care services for children. Services are subject to availability and may vary based on individual needs.

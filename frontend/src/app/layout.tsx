@@ -34,7 +34,7 @@ export const viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.camsservices.co.uk'),
-  title: 'Chaperone Services UK | Child Transport & Family Support | CAMS Services',
+  title: 'Chaperone Services UK | Child Transport & Family Support | CAMS services',
   description:
     'Chaperone services UK, child transport services, school transport support, family support services, SEND support services, foster placement support, mentoring services, and local authority support services.',
   ...getSearchVerificationMetadata(),
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
         url: '/og',
         width: 1200,
         height: 630,
-        alt: 'CAMS Services - Trusted Support Services',
+        alt: 'CAMS services - Trusted Support Services',
       }
     ],
   },

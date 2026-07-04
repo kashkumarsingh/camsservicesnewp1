@@ -13,6 +13,7 @@ import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
 import { SERVICE_DETAIL_PAGE } from '@/app/(public)/constants/serviceDetailPageConstants';
 import { ServiceProgrammeFeaturesPanel } from '@/marketing/components/services/ServiceProgrammeFeaturesPanel';
 import { ServiceProgrammeMarketingDetail } from '@/marketing/components/services/ServiceProgrammeMarketingDetail';
+import { ServiceSeoOverview } from '@/marketing/components/services/ServiceSeoOverview';
 import { SportsSupportProgrammePageClient } from '@/marketing/components/sports-support-programme/SportsSupportProgrammePageClient';
 import { getServiceProgrammeBySlug } from '@/marketing/mock/services-programmes';
 import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
@@ -84,7 +85,15 @@ export default async function ServiceDetailsPage({ params }: Props) {
   const { slug } = resolvedParams;
 
   if (slug === 'sports-support-programme') {
-    return <SportsSupportProgrammePageClient />;
+    const programme = getServiceProgrammeBySlug(slug);
+    return programme ? (
+      <>
+        <SportsSupportProgrammePageClient />
+        <ServiceSeoOverview programme={programme} />
+      </>
+    ) : (
+      <SportsSupportProgrammePageClient />
+    );
   }
 
   const useCase = new GetServiceUseCase(serviceRepository);
@@ -135,6 +144,8 @@ export default async function ServiceDetailsPage({ params }: Props) {
           </Section>
         </div>
       ) : null}
+
+      {programme ? <ServiceSeoOverview programme={programme} /> : null}
 
       <div className="py-16 bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <Section>

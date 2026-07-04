@@ -33,7 +33,7 @@ Last Updated: ${new Date().toLocaleDateString()}
 
 ## Introduction
 
-CAMS Services ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.
+CAMS services ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.
 
 ## Information We Collect
 
@@ -84,7 +84,7 @@ Last Updated: ${new Date().toLocaleDateString()}
 
 ## Our Commitment
 
-CAMS Services is committed to safeguarding and promoting the welfare of all children and vulnerable individuals. We believe that everyone has the right to be protected from harm.
+CAMS services is committed to safeguarding and promoting the welfare of all children and vulnerable individuals. We believe that everyone has the right to be protected from harm.
 
 ## Key Principles
 
@@ -130,7 +130,7 @@ Last Updated: ${new Date().toLocaleDateString()}
 - Cancellations made 24-48 hours before: 50% refund
 - Cancellations made less than 24 hours before: No refund
 
-## Cancellation by CAMS Services
+## Cancellation by CAMS services
 
 If we need to cancel a session:
 - Full refund will be provided
@@ -163,7 +163,7 @@ Last Updated: ${new Date().toLocaleDateString()}
 
 ## Agreement to Terms
 
-By accessing and using CAMS Services, you agree to be bound by these Terms of Service.
+By accessing and using CAMS services, you agree to be bound by these Terms of Service.
 
 ## Services
 

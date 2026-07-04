@@ -317,7 +317,7 @@ export function BecomeATrainerPageClient(): ReactElement {
             Become a <span className="text-cams-primary">trainer</span>
           </>
         }
-        description="Join CAMS Services to coach families across London and Essex. Complete a premium UK-first onboarding flow with clear safeguarding requirements, faster review timelines, and curated bookings."
+        description="Join CAMS services to coach families across London and Essex. Complete a premium UK-first onboarding flow with clear safeguarding requirements, faster review timelines, and curated bookings."
       />
 
       <section className="relative overflow-hidden rounded-2xl border border-cams-primary/20 bg-slate-950 shadow-[0_20px_44px_-30px_rgba(2,12,27,0.65)]">

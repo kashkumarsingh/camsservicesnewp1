@@ -9,11 +9,12 @@ import { getSiteSettings } from '@/marketing/server/siteSettings/getSiteSettings
 import { SiteSettingsMapper } from '@/core/application/siteSettings/mappers/SiteSettingsMapper';
 import { policiesData } from '@/data/policiesData';
 import { ROUTES } from '@/shared/utils/routes';
+import { PACKAGE_TIER_LINKS } from '@/marketing/lib/package-footer-links';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
     {
-      title: 'Chaperone Services UK | Child Transport & Family Support | CAMS Services',
+      title: 'Chaperone Services UK | Child Transport & Family Support | CAMS services',
       description:
         'Chaperone services UK, child transport services, school transport support, family support services, SEND support services, foster placement support, and mentoring services.',
       path: '/',
@@ -56,6 +57,10 @@ export default async function PublicLayout({ children }: { children: React.React
             { href: '/packages', label: 'Intervention packages' },
             { href: '/about', label: 'About CAMS' },
           ],
+        },
+        {
+          title: 'Package tiers',
+          links: PACKAGE_TIER_LINKS,
         },
         {
           title: 'Legal',

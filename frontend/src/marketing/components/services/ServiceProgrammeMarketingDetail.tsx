@@ -6,6 +6,7 @@ import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
 import { CamsIcon } from "@/marketing/components/shared/CamsIcon";
 import { PAGE_LAYOUT, PAGE_SURFACES } from "@/marketing/components/shared/page-layout";
 import { ServiceProgrammeFeaturesPanel } from "@/marketing/components/services/ServiceProgrammeFeaturesPanel";
+import { ServiceSeoOverview } from "@/marketing/components/services/ServiceSeoOverview";
 import { PROGRAMME_COVER_IMAGE_LAYOUT } from "@/marketing/constants/programmeCoverImageLayout";
 import {
   getRelatedServiceProgrammes,
@@ -80,6 +81,8 @@ export function ServiceProgrammeMarketingDetail({
           </ul>
         </section>
       ) : null}
+
+      <ServiceSeoOverview programme={programme} />
 
       <PageCtaSection
         className="mt-12"
