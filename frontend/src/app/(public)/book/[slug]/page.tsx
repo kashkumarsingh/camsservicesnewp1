@@ -14,6 +14,14 @@ import { ListTrainersUseCase, TrainerDTO } from '@/core/application/trainers';
 import { createTrainerRepository } from '@/infrastructure/persistence/trainers';
 import { ListActivitiesUseCase } from '@/core/application/activities';
 import { createActivityRepository } from '@/infrastructure/persistence/activities';
+import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
+import ConditionalPriceDisplay from '@/marketing/components/features/packages/ConditionalPriceDisplay';
+import { getPublicSiteUrl } from '@/marketing/lib/public-site-url';
+import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
+import {
+  getInterventionPackageBySlug,
+  interventionPackageToFallbackDTO,
+} from '@/marketing/lib/intervention-package-fallback-dto';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -36,36 +44,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const pkg = PackageMapper.fromDTO(packageDTO);
-
   const baseUrl = getPublicSiteUrl();
-  const imageUrl = '/og-images/og-image.jpg';
 
   return {
-    title: `Book ${pkg.name} Package - CAMS Services`,
-    description: `Book your ${pkg.name} package with CAMS Services.`,
-    openGraph: {
-      title: `Book ${pkg.name} Package - CAMS Services`,
-      description: `Book your ${pkg.name} package with CAMS Services.`,
-      url: `${baseUrl}/book/${pkg.slug.value}`,
-      type: 'website',
-      images: [
-        {
-          url: `${baseUrl}${imageUrl}`,
-          width: 1200,
-          height: 630,
-          alt: `${pkg.name} Package Booking`,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `Book ${pkg.name} Package - CAMS Services`,
-      description: `Book your ${pkg.name} package with CAMS Services.`,
-      images: [`${baseUrl}${imageUrl}`],
-    },
-    alternates: {
-      canonical: `${baseUrl}/book/${pkg.slug.value}`,
-    },
+    ...buildPublicMetadata(
+      {
+        title: `Book ${pkg.name} Package - CAMS Services`,
+        description: `Book your ${pkg.name} package with CAMS Services.`,
+        path: `/book/${pkg.slug.value}`,
+        imageAlt: `${pkg.name} Package Booking`,
+      },
+      baseUrl
+    ),
+    robots: { index: false, follow: false },
   };
 }
 
@@ -89,14 +80,6 @@ function mapTrainerToLegacy(trainer: TrainerDTO): OriginalTrainer {
     serviceRegions: trainer.serviceRegions || [],
   };
 }
-
-import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
-import ConditionalPriceDisplay from '@/marketing/components/features/packages/ConditionalPriceDisplay';
-import { getPublicSiteUrl } from '@/marketing/lib/public-site-url';
-import {
-  getInterventionPackageBySlug,
-  interventionPackageToFallbackDTO,
-} from '@/marketing/lib/intervention-package-fallback-dto';
 
 export default async function BookPackagePage({ params }: Props) {
   // Note: Authentication check happens in BookingPageClient

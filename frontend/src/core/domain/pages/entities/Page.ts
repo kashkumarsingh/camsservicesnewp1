@@ -27,6 +27,9 @@ export class Page extends BaseEntity {
     private readonly _coreValuesSectionSubtitle: string | undefined,
     private readonly _safeguarding: AboutSafeguardingDTO | undefined,
     private readonly _structuredContent: AboutPageContentDTO | undefined,
+    private readonly _metaTitle: string | undefined,
+    private readonly _metaDescription: string | undefined,
+    private readonly _ogImage: string | undefined,
     createdAt?: Date,
     updatedAt?: Date,
   ) {
@@ -52,6 +55,9 @@ export class Page extends BaseEntity {
     coreValuesSectionSubtitle?: string | null;
     safeguarding?: AboutSafeguardingDTO | null;
     structuredContent?: AboutPageContentDTO | null;
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogImage?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
   }): Page {
@@ -74,6 +80,9 @@ export class Page extends BaseEntity {
       coreValuesSectionSubtitle,
       safeguarding,
       structuredContent,
+      metaTitle,
+      metaDescription,
+      ogImage,
       createdAt,
       updatedAt,
     } = params;
@@ -112,6 +121,9 @@ export class Page extends BaseEntity {
       coreValuesSectionSubtitle ?? undefined,
       normalizedSafeguarding,
       normalizedStructuredContent,
+      metaTitle?.trim() || undefined,
+      metaDescription?.trim() || undefined,
+      ogImage?.trim() || undefined,
       normalizedCreatedAt,
       normalizedUpdatedAt,
     );
@@ -184,6 +196,18 @@ export class Page extends BaseEntity {
   /** Public Pages Content Management: type-specific section data (e.g. about: hero, mission, coreValues, safeguarding). */
   get structuredContent(): AboutPageContentDTO | undefined {
     return this._structuredContent;
+  }
+
+  get metaTitle(): string | undefined {
+    return this._metaTitle;
+  }
+
+  get metaDescription(): string | undefined {
+    return this._metaDescription;
+  }
+
+  get ogImage(): string | undefined {
+    return this._ogImage;
   }
 }
 

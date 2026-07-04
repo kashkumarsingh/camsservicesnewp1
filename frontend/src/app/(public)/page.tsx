@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { HomePageClient } from '@/marketing/components/home/HomePageClient';
+import { OrganizationJsonLd } from '@/marketing/components/seo/OrganizationJsonLd';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
-
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
+import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
@@ -13,10 +13,15 @@ export async function generateMetadata(): Promise<Metadata> {
       path: '/',
       imageAlt: 'CAMS Services',
     },
-    BASE_URL
+    getMetadataBaseUrl()
   );
 }
 
 export default function LandingPage() {
-  return <HomePageClient />;
+  return (
+    <>
+      <OrganizationJsonLd />
+      <HomePageClient />
+    </>
+  );
 }

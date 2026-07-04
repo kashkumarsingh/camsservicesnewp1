@@ -5,13 +5,14 @@ import { GetFAQItemUseCase } from '@/core/application/faq/useCases/GetFAQItemUse
 import { faqRepository } from '@/infrastructure/persistence/faq';
 import { ROUTES } from '@/shared/utils/routes';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
+import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
 import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
 import { FAQ_DETAIL_PAGE as F } from '@/app/(public)/constants/faqDetailPageConstants';
 
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
+const BASE_URL = getMetadataBaseUrl();
 
 type Props = {
   params: Promise<{ slug: string }>;

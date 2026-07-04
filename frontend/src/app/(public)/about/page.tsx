@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import { AboutPageClient } from '@/marketing/components/about/AboutPageClient';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
+import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
 import { ROUTES } from '@/shared/utils/routes';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
+const BASE_URL = getMetadataBaseUrl();
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(

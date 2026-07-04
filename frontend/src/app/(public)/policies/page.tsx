@@ -7,14 +7,12 @@ import { StaticPageRepository } from '@/infrastructure/persistence/pages/reposit
 import type { PoliciesPageContentDTO, PageDTO } from '@/core/application/pages/dto/PageDTO';
 import { Metadata } from 'next';
 import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
-import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
+import { buildCmsPageMetadata } from '@/marketing/server/metadata/buildCmsPageMetadata';
 import { ROUTES } from '@/shared/utils/routes';
 import { POLICIES_PAGE } from '@/app/(public)/constants/policiesPageConstants';
 
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;
-
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
 
 const POLICIES_SLUG = 'policies';
 
@@ -35,14 +33,17 @@ async function getPoliciesPage(): Promise<
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  return buildPublicMetadata(
+  const page = await getPoliciesPage();
+
+  return buildCmsPageMetadata(
     {
-      title: POLICIES_PAGE.META_TITLE,
-      description: POLICIES_PAGE.META_DESCRIPTION,
-      path: ROUTES.POLICIES,
-      imageAlt: POLICIES_PAGE.HERO_TITLE,
+      title: page?.title?.trim() ?? POLICIES_PAGE.META_TITLE,
+      summary: page?.summary?.trim() ?? POLICIES_PAGE.META_DESCRIPTION,
+      metaTitle: page?.metaTitle,
+      metaDescription: page?.metaDescription,
+      ogImage: page?.ogImage,
     },
-    BASE_URL
+    ROUTES.POLICIES
   );
 }
 

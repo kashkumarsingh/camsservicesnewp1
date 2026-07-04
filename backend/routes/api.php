@@ -68,7 +68,7 @@ Route::prefix('v1')->group(function () {
         Route::get('auth/user', [\App\Http\Controllers\Api\AuthController::class, 'user']);
         Route::post('auth/logout', [\App\Http\Controllers\Api\AuthController::class, 'logout']);
         
-        // Parent profile (self-service)
+        // User contact profile (self-service, all authenticated roles)
         Route::get('user/profile', [\App\Http\Controllers\Api\ParentProfileController::class, 'show']);
         Route::put('user/profile', [\App\Http\Controllers\Api\ParentProfileController::class, 'update']);
         

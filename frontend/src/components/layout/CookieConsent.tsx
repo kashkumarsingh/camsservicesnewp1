@@ -4,20 +4,12 @@ import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ROUTES } from "@/shared/utils/routes";
-
-const COOKIE_CONSENT_STORAGE_KEY = "cams_cookie_consent_v1";
-
-type ConsentState = {
-  preferences: boolean;
-  statistics: boolean;
-  marketing: boolean;
-};
-
-const DEFAULT_CONSENT: ConsentState = {
-  preferences: false,
-  statistics: false,
-  marketing: false,
-};
+import {
+  DEFAULT_CONSENT,
+  getStoredConsent,
+  persistConsent,
+  type ConsentState,
+} from "@/lib/analytics/consent";
 
 export function CookieConsent(): ReactElement | null {
   const [visible, setVisible] = useState(false);
@@ -25,25 +17,16 @@ export function CookieConsent(): ReactElement | null {
   const [toggles, setToggles] = useState<ConsentState>(DEFAULT_CONSENT);
 
   useEffect(() => {
-    const raw = window.localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY);
-    if (!raw) {
+    const stored = getStoredConsent();
+    if (!stored) {
       setVisible(true);
       return;
     }
-    try {
-      const parsed = JSON.parse(raw) as ConsentState;
-      setToggles({
-        preferences: Boolean(parsed.preferences),
-        statistics: Boolean(parsed.statistics),
-        marketing: Boolean(parsed.marketing),
-      });
-    } catch {
-      setVisible(true);
-    }
+    setToggles(stored);
   }, []);
 
   const persist = (next: ConsentState) => {
-    window.localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, JSON.stringify(next));
+    persistConsent(next);
     setToggles(next);
     setVisible(false);
     setManageOpen(false);

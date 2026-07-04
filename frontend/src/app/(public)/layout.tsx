@@ -3,18 +3,11 @@ import React, { Suspense } from 'react';
 import { FooterImageRail } from '@/components/layout/FooterImageRail';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteFloatingActions } from '@/components/layout/SiteFloatingActions';
-import { CookieConsent } from '@/components/layout/CookieConsent';
 import Loading from '@/components/ui/Loading/Loading';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
+import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
 import { getSiteSettings } from '@/marketing/server/siteSettings/getSiteSettings';
 import { SiteSettingsMapper } from '@/core/application/siteSettings/mappers/SiteSettingsMapper';
-
-// No dynamic here — add dynamic = 'force-dynamic' only on pages that use headers() (home, about)
-// Base URL from env so layout can stay static and children can use revalidate
-function getBaseUrl(): string {
-  const url = process.env.NEXT_PUBLIC_SITE_URL;
-  return url ? url.replace(/\/$/, '') : 'https://camsservice.co.uk';
-}
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
@@ -24,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
         'Chaperone services UK, child transport services, school transport support, family support services, SEND support services, foster placement support, and mentoring services.',
       path: '/',
     },
-    getBaseUrl()
+    getMetadataBaseUrl()
   );
 }
 
@@ -76,14 +69,6 @@ export default async function PublicLayout({ children }: { children: React.React
   return (
     <>
       <div className="min-h-screen overflow-x-clip bg-white">
-        {/* Google Tag Manager (noscript) */}
-        <noscript
-          dangerouslySetInnerHTML={{
-            __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=YOUR_GTM_ID"
-              height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
-          }}
-        />
-
         <Suspense fallback={<Loading />}>
           {children}
         </Suspense>
@@ -94,7 +79,6 @@ export default async function PublicLayout({ children }: { children: React.React
           copyrightText={footerCopyrightText}
         />
         <SiteFloatingActions contactPhone={dto?.contact?.phone} />
-        <CookieConsent />
       </div>
     </>
   );

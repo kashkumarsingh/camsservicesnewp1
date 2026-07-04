@@ -20,6 +20,7 @@ import {
   interventionPackageToFallbackDTO,
 } from '@/marketing/lib/intervention-package-fallback-dto';
 import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
+import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
 import { getPublicSiteUrl } from '@/marketing/lib/public-site-url';
 
 type TrainerCardInfo = {
@@ -73,7 +74,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       pkg = interventionPackageToFallbackDTO(intervention);
     } else {
       return {
-        title: 'Package Not Found | KidzRunz',
+        title: 'Package Not Found | CAMS Services',
         description: 'The requested package could not be found.',
       };
     }
@@ -81,35 +82,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const totalWeeksLabel = `${pkg.totalWeeks}-week programme`;
   const description = `Explore the ${pkg.name} package: ${pkg.hours} total hours across a ${totalWeeksLabel} designed to support your child with personalized SEN sessions.`;
-  const canonicalUrl = `${BASE_URL}/packages/${pkg.slug}`;
-  const imageUrl = `${BASE_URL}/og-images/og-image.jpg`;
 
-  return {
-    title: `${pkg.name} Package | ${totalWeeksLabel}`,
-    description,
-    openGraph: {
-      title: `${pkg.name} Package`,
+  return buildPublicMetadata(
+    {
+      title: `${pkg.name} Package | ${totalWeeksLabel}`,
       description,
-      url: canonicalUrl,
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: `${pkg.name} package overview`,
-        },
-      ],
+      path: `/packages/${pkg.slug}`,
+      imageAlt: `${pkg.name} package overview`,
     },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${pkg.name} Package`,
-      description,
-      images: [imageUrl],
-    },
-    alternates: {
-      canonical: canonicalUrl,
-    },
-   };
+    BASE_URL
+  );
 }
 
 export default async function PackageDetail({ params }: {params: Promise<{slug: string}>}) {
@@ -233,7 +215,7 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
     url: `${BASE_URL}/packages/${pkg.slug}`,
     provider: {
       '@type': 'Organization',
-      name: 'KidzRunZ',
+      name: 'CAMS services',
       url: BASE_URL,
     },
     offers: {

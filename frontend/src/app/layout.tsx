@@ -3,9 +3,13 @@ import { DM_Sans, Outfit } from "next/font/google";
 import "./globals.css";
 import '@/shared/utils/moment-locales';
 import ConditionalPublicLayout from '@/components/layout/ConditionalPublicLayout';
+import { CookieConsent } from '@/components/layout/CookieConsent';
+import { GoogleTagManager } from '@/components/analytics/GoogleTagManager';
 import { ThemeProvider, ThemeScript } from '@/components/theme';
 import { AuthProvider } from '@/interfaces/web/hooks/auth/useAuth';
 import PerformanceFix from '@/utils/performanceFix';
+import { shouldIndexSite } from '@/marketing/lib/site-indexing';
+import { getSearchVerificationMetadata } from '@/marketing/lib/search-verification';
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -33,6 +37,7 @@ export const metadata: Metadata = {
   title: 'Chaperone Services UK | Child Transport & Family Support | CAMS Services',
   description:
     'Chaperone services UK, child transport services, school transport support, family support services, SEND support services, foster placement support, mentoring services, and local authority support services.',
+  ...getSearchVerificationMetadata(),
   icons: {
     icon: {
       url: '/favicon.ico',
@@ -48,7 +53,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/og-image.jpg',
+        url: '/og',
         width: 1200,
         height: 630,
         alt: 'CAMS Services - Trusted Support Services',
@@ -59,8 +64,11 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Chaperone Services UK | Child Transport & Family Support',
     description: 'Chaperone services UK, child transport services, family support services, SEND support services, and mentoring services.',
-    images: ['/og-image.jpg'],
+    images: ['/og'],
   },
+  ...(!shouldIndexSite() && {
+    robots: { index: false, follow: false },
+  }),
 };
 
 
@@ -75,11 +83,13 @@ export default function RootLayout({
       <body
         className={`${dmSans.variable} ${outfit.variable} antialiased`}
       >
+        <GoogleTagManager />
         <ThemeScript />
         <ThemeProvider>
           <AuthProvider>
             <PerformanceFix />
             <ConditionalPublicLayout>{children}</ConditionalPublicLayout>
+            <CookieConsent />
           </AuthProvider>
         </ThemeProvider>
       </body>

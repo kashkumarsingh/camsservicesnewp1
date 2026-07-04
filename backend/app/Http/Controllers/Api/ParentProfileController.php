@@ -9,10 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 /**
- * Parent Profile Controller (API)
+ * User Profile Controller (API)
  *
  * Clean Architecture: Interface Layer (HTTP Controllers)
- * Purpose: Allow parents to view and update their own profile details.
+ * Purpose: Allow any authenticated user to view and update their own contact details.
  * Location: backend/app/Http/Controllers/Api/ParentProfileController.php
  */
 class ParentProfileController extends Controller
@@ -20,14 +20,14 @@ class ParentProfileController extends Controller
     use BaseApiController;
 
     /**
-     * Get the authenticated parent's profile.
+     * Get the authenticated user's contact profile.
      */
     public function show(Request $request): JsonResponse
     {
         $user = $request->user();
 
-        if (! $user || $user->role !== 'parent') {
-            return $this->forbiddenResponse('Only parents can access this endpoint.');
+        if (! $user) {
+            return $this->unauthorizedResponse();
         }
 
         $profile = [
@@ -42,14 +42,14 @@ class ParentProfileController extends Controller
     }
 
     /**
-     * Update the authenticated parent's profile.
+     * Update the authenticated user's contact profile.
      */
     public function update(Request $request): JsonResponse
     {
         $user = $request->user();
 
-        if (! $user || $user->role !== 'parent') {
-            return $this->forbiddenResponse('Only parents can update this profile.');
+        if (! $user) {
+            return $this->unauthorizedResponse();
         }
 
         $validator = Validator::make($request->all(), [

@@ -9,9 +9,8 @@ import { CheckCircle2, Calendar, Phone, MessageSquare, Award, Shield, Sparkles, 
 import { ROUTES } from '@/shared/utils/routes';
 import { getThankYouPageVariant, resolveThankYouPageType } from '@/shared/utils/thankYouPage';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
+import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
 import { CONTACT_THANK_YOU_PAGE as C } from '@/app/(public)/constants/contactThankYouPageConstants';
-
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
 
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;
@@ -22,15 +21,18 @@ export async function generateMetadata({ searchParams }: { searchParams: ThankYo
   const { type } = await searchParams;
   const variant = getThankYouPageVariant(type);
 
-  return buildPublicMetadata(
-    {
-      title: variant.metaTitle,
-      description: variant.metaDescription,
-      path: `${ROUTES.CONTACT_THANK_YOU}?type=${resolveThankYouPageType(type)}`,
-      imageAlt: 'CAMS Services',
-    },
-    BASE_URL
-  );
+  return {
+    ...buildPublicMetadata(
+      {
+        title: variant.metaTitle,
+        description: variant.metaDescription,
+        path: ROUTES.CONTACT_THANK_YOU,
+        imageAlt: 'CAMS Services',
+      },
+      getMetadataBaseUrl()
+    ),
+    robots: { index: false, follow: false },
+  };
 }
 
 const nextSteps = [

@@ -9,11 +9,11 @@ import { PageShell } from "@/marketing/components/shared/PageShell";
 import { PageHeroBand } from "@/marketing/components/shared/PageHeroBand";
 import { CamsIcon, type CamsIconName } from "@/marketing/components/shared/CamsIcon";
 import { PAGE_LAYOUT, PAGE_SURFACES } from "@/marketing/components/shared/page-layout";
-import { camsUnsplashPhotoUrl } from "@/marketing/mock/cams-unsplash";
+import { camsPageImagePath } from "@/marketing/mock/cams-public-images";
 import { useTrainerApplicationForm } from "@/interfaces/web/hooks/trainerApplications/useTrainerApplicationForm";
 import { thankYouPageUrl } from "@/shared/utils/thankYouPage";
 
-const TRAINER_PROMO_IMAGE = camsUnsplashPhotoUrl("1575800542980-4753fe7fd72e", 1400, 900);
+const TRAINER_PROMO_IMAGE = camsPageImagePath("becomeATrainerPromo");
 
 const FEATURE_POINTS: ReadonlyArray<{ icon: CamsIconName; title: string; description: string }> = [
   {

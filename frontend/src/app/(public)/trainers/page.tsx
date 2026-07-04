@@ -1,18 +1,16 @@
 import type { Metadata } from 'next';
-import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
+import { buildCmsPageMetadata } from '@/marketing/server/metadata/buildCmsPageMetadata';
 import { ROUTES } from '@/shared/utils/routes';
 import { TRAINERS_PAGE, type TrainersPageContentResolved } from '@/app/(public)/constants/trainersPageConstants';
 import { TrainersPageClient } from '@/marketing/components/trainers/TrainersPageClient';
 import { GetPageUseCase } from '@/core/application/pages/useCases/GetPageUseCase';
 import { pageRepository } from '@/infrastructure/persistence/pages';
 import type { TrainersPageContentDTO } from '@/core/application/pages/dto/PageDTO';
-import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
 
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;
 
 const TRAINERS_SLUG = 'trainers';
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
 
 async function getTrainersPage() {
   const useCase = new GetPageUseCase(pageRepository);
@@ -71,23 +69,19 @@ export async function generateMetadata(): Promise<Metadata> {
     'hero' in page.structuredContent
       ? (page.structuredContent as TrainersPageContentDTO)
       : undefined;
-  const title =
-    page?.title?.trim() ??
-    sc?.hero?.title?.trim() ??
-    TRAINERS_PAGE.META_TITLE;
-  const description =
-    page?.summary?.trim() ??
-    sc?.hero?.subtitle?.trim() ??
-    TRAINERS_PAGE.META_DESCRIPTION;
 
-  return buildPublicMetadata(
+  return buildCmsPageMetadata(
     {
-      title: title ? `${title} - ${SEO_DEFAULTS.siteName}` : TRAINERS_PAGE.META_TITLE,
-      description: description ?? TRAINERS_PAGE.META_DESCRIPTION,
-      path: ROUTES.TRAINERS,
-      imageAlt: TRAINERS_PAGE.HERO_TITLE,
+      title: page?.title?.trim() ?? sc?.hero?.title?.trim() ?? TRAINERS_PAGE.META_TITLE,
+      summary:
+        page?.summary?.trim() ??
+        sc?.hero?.subtitle?.trim() ??
+        TRAINERS_PAGE.META_DESCRIPTION,
+      metaTitle: page?.metaTitle,
+      metaDescription: page?.metaDescription,
+      ogImage: page?.ogImage,
     },
-    BASE_URL
+    ROUTES.TRAINERS
   );
 }
 

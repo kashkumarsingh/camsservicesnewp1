@@ -1,8 +1,9 @@
 import { getBlogPost } from '@/marketing/server/blog/getBlogPost';
 import { getBlogPosts } from '@/marketing/server/blog/getBlogPosts';
+import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
 import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
+const BASE_URL = getMetadataBaseUrl();
 
 type BlogPostHeadProps = {
   params: Promise<{ slug: string }>;

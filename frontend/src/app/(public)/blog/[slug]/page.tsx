@@ -3,11 +3,12 @@ import { notFound } from 'next/navigation';
 import { getBlogPost } from '@/marketing/server/blog/getBlogPost';
 import { BlogPostPageClient } from '@/marketing/components/blog/BlogPostPageClient';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
+import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
 import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
 import { BLOG_DETAIL_PAGE } from '@/app/(public)/constants/blogDetailPageConstants';
 import { getBlogPosts } from '@/marketing/server/blog/getBlogPosts';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
+const BASE_URL = getMetadataBaseUrl();
 
 /** Literal required for Next.js segment config (see revalidationConstants.ts CONTENT_PAGE) */
 export const revalidate = 1800;

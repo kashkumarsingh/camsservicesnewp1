@@ -4,7 +4,13 @@
  */
 
 import type { Metadata } from 'next';
+import { shouldIndexSite } from '@/marketing/lib/site-indexing';
 import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
+
+function buildDynamicOgImageUrl(baseUrl: string, path: string): string {
+  const normalized = path.replace(/^\//, '').replace(/\/$/, '');
+  return normalized ? `${baseUrl}/og/${normalized}` : `${baseUrl}/og`;
+}
 
 export interface BuildPublicMetadataOptions {
   /** Page title (from CMS or fallback); use SEO_DEFAULTS.title when empty */
@@ -51,8 +57,9 @@ export function buildPublicMetadata(
     ? options.imageUrl.startsWith('http')
       ? options.imageUrl
       : `${baseUrl.replace(/\/$/, '')}${options.imageUrl.startsWith('/') ? options.imageUrl : `/${options.imageUrl}`}`
-    : `${baseUrl.replace(/\/$/, '')}${SEO_DEFAULTS.ogImagePath}`;
+    : buildDynamicOgImageUrl(baseUrl.replace(/\/$/, ''), options.path);
   const imageAlt = options.imageAlt?.trim() || SEO_DEFAULTS.ogImageAlt;
+  const indexable = shouldIndexSite();
 
   const openGraph: Metadata['openGraph'] = {
     title,
@@ -87,5 +94,8 @@ export function buildPublicMetadata(
       description,
       images: [{ url: imageUrl }],
     },
+    ...(!indexable && {
+      robots: { index: false, follow: false },
+    }),
   };
 }

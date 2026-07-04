@@ -337,6 +337,9 @@ export interface PageDTO {
   slug: string;
   type: string;
   summary?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  ogImage?: string;
   content: string;
   sections?: PageSectionDTO[];
   lastUpdated?: string;

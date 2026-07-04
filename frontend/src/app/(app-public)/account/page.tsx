@@ -7,6 +7,7 @@ import { parentProfileRepository } from '@/infrastructure/http/parent/ParentProf
 import MarketingButton from '@/design-system/components/Button/MarketingButton';
 import { AlertCircle, CheckCircle, User } from 'lucide-react';
 import { ROUTES } from '@/shared/utils/routes';
+import { getDashboardRoute } from '@/shared/utils/navigation';
 import { ACCOUNT_PAGE } from '@/features/public/constants/accountPageConstants';
 
 export default function AccountPage() {
@@ -200,7 +201,7 @@ export default function AccountPage() {
               <MarketingButton
                 type="button"
                 variant="outline"
-                onClick={() => router.push('/dashboard/parent')}
+                onClick={() => router.push(getDashboardRoute(user))}
               >
                 {ACCOUNT_PAGE.BACK_TO_DASHBOARD}
               </MarketingButton>

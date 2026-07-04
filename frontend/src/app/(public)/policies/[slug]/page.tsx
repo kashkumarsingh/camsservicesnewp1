@@ -2,16 +2,15 @@ import { GetPageUseCase } from '@/core/application/pages/useCases/GetPageUseCase
 import { ListPoliciesUseCase } from '@/core/application/pages/useCases/ListPoliciesUseCase';
 import { pageRepository } from '@/infrastructure/persistence/pages';
 import { Metadata } from 'next';
-import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
+import { buildCmsPageMetadata } from '@/marketing/server/metadata/buildCmsPageMetadata';
+import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
 import { ROUTES } from '@/shared/utils/routes';
-import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
 import { POLICY_DETAIL_PAGE as P } from '@/app/(public)/constants/policyDetailPageConstants';
 import { PolicyDetailPageView } from '@/marketing/components/policies/PolicyDetailPageView';
 
 function isHtmlContent(content: string): boolean {
   return /<[a-z][\s\S]*>/i.test(content);
 }
-import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
 
@@ -47,18 +46,18 @@ export async function generateMetadata({ params }: PolicyPageProps): Promise<Met
   const { slug } = await params;
   const page = await getPolicy(slug);
 
-  const headersList = await headers();
-  const host = headersList.get('host');
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || `${protocol}://${host}`;
+  if (!page) {
+    return buildCmsPageMetadata(
+      {
+        title: slug.replace(/-/g, ' '),
+        summary: P.META_DESCRIPTION_FALLBACK,
+      },
+      ROUTES.POLICIES_BY_SLUG(slug),
+      { type: 'article' }
+    );
+  }
 
-  const title = page ? `${page.title} - ${SEO_DEFAULTS.siteName}` : `${slug.replace(/-/g, ' ')} - ${SEO_DEFAULTS.siteName}`;
-  const description = page?.summary || P.META_DESCRIPTION_FALLBACK;
-
-  return buildPublicMetadata(
-    { title, description, path: ROUTES.POLICIES_BY_SLUG(slug), type: 'article' },
-    baseUrl
-  );
+  return buildCmsPageMetadata(page, ROUTES.POLICIES_BY_SLUG(slug), { type: 'article' });
 }
 
 export default async function PolicyPage({ params }: PolicyPageProps) {

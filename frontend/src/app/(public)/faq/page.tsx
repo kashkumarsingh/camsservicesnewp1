@@ -5,8 +5,7 @@ import { pageRepository } from '@/infrastructure/persistence/pages';
 import { ListFAQItemsUseCase } from '@/core/application/faq/useCases/ListFAQItemsUseCase';
 import { faqRepository } from '@/infrastructure/persistence/faq';
 import { ROUTES } from '@/shared/utils/routes';
-import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
-import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
+import { buildCmsPageMetadata } from '@/marketing/server/metadata/buildCmsPageMetadata';
 import {
   FAQ_PAGE,
   FAQ_PAGE_HERO_DEFAULT_VIDEO,
@@ -18,7 +17,6 @@ import { withTimeoutFallback } from '@/marketing/utils/promiseUtils';
 export const revalidate = 1800;
 
 const FAQ_SLUG = 'faq';
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://camsservice.co.uk';
 
 async function getFAQPage() {
   const useCase = new GetPageUseCase(pageRepository);
@@ -28,23 +26,19 @@ async function getFAQPage() {
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getFAQPage();
   const sc = page?.structuredContent as FAQPageContentDTO | undefined;
-  const title =
-    page?.title?.trim() ??
-    sc?.hero?.title?.trim() ??
-    FAQ_PAGE.META_TITLE;
-  const description =
-    page?.summary?.trim() ??
-    sc?.hero?.subtitle?.trim() ??
-    FAQ_PAGE.META_DESCRIPTION;
 
-  return buildPublicMetadata(
+  return buildCmsPageMetadata(
     {
-      title: title ? `${title} - ${SEO_DEFAULTS.siteName}` : FAQ_PAGE.META_TITLE,
-      description: description ?? FAQ_PAGE.META_DESCRIPTION,
-      path: ROUTES.FAQ,
-      imageAlt: 'CAMS Services FAQ',
+      title: page?.title?.trim() ?? sc?.hero?.title?.trim() ?? FAQ_PAGE.META_TITLE,
+      summary:
+        page?.summary?.trim() ??
+        sc?.hero?.subtitle?.trim() ??
+        FAQ_PAGE.META_DESCRIPTION,
+      metaTitle: page?.metaTitle,
+      metaDescription: page?.metaDescription,
+      ogImage: page?.ogImage,
     },
-    BASE_URL
+    ROUTES.FAQ
   );
 }
 

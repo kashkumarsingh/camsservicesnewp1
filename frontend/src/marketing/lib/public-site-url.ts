@@ -1,6 +1,15 @@
 /**
  * Canonical public origin for metadata, sitemap, and robots.
  */
+/** Origin for metadata/canonical tags; safe fallback when env is unset at build time. */
+export function getMetadataBaseUrl(): string {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (raw) {
+    return raw.replace(/\/$/, "");
+  }
+  return "https://www.camsservices.co.uk";
+}
+
 export function getPublicSiteUrl(): string {
   const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 

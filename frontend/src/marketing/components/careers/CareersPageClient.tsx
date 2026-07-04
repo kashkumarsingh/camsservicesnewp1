@@ -6,7 +6,7 @@ import { PageHeroBand } from "@/marketing/components/shared/PageHeroBand";
 import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
 import { CamsIcon, type CamsIconName } from "@/marketing/components/shared/CamsIcon";
 import { PAGE_LAYOUT, PAGE_SURFACES } from "@/marketing/components/shared/page-layout";
-import { camsUnsplashPhotoUrl } from "@/marketing/mock/cams-unsplash";
+import { camsPageImagePath } from "@/marketing/mock/cams-public-images";
 
 type RoleMetaItem = { icon: CamsIconName; text: string };
 
@@ -20,7 +20,7 @@ type RoleItem = {
   ctaLabel: string;
 };
 
-const CAREERS_HERO_IMAGE = camsUnsplashPhotoUrl("1517048676732-d65bc937f952", 1600, 1000);
+const CAREERS_HERO_IMAGE = camsPageImagePath("careersHero");
 
 const ROLES: readonly RoleItem[] = [
   {

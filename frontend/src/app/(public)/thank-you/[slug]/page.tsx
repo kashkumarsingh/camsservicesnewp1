@@ -6,6 +6,7 @@ import { bookingRepository } from '@/infrastructure/persistence/booking';
 import { BookingDetail } from '@/interfaces/web/components/booking';
 import { BookingSummary } from '@/components/booking/BookingSummary';
 import { getPublicSiteUrl } from '@/marketing/lib/public-site-url';
+import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -26,34 +27,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const baseUrl = getPublicSiteUrl();
-  const imageUrl = '/og-images/og-image.jpg';
 
   return {
-    title: `Thank You for Your Booking ${booking.reference} - CAMS Services`,
-    description: `Your booking ${booking.reference} has been confirmed.`,
-    openGraph: {
-      title: `Thank You for Your Booking ${booking.reference} - CAMS Services`,
-      description: `Your booking ${booking.reference} has been confirmed.`,
-      url: `${baseUrl}/thank-you/${booking.reference}`,
-      type: 'website',
-      images: [
-        {
-          url: `${baseUrl}${imageUrl}`,
-          width: 1200,
-          height: 630,
-          alt: `Booking Confirmation ${booking.reference}`,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `Thank You for Your Booking ${booking.reference} - CAMS Services`,
-      description: `Your booking ${booking.reference} has been confirmed.`,
-      images: [`${baseUrl}${imageUrl}`],
-    },
-    alternates: {
-      canonical: `${baseUrl}/thank-you/${booking.reference}`,
-    },
+    ...buildPublicMetadata(
+      {
+        title: `Thank You for Your Booking ${booking.reference} - CAMS Services`,
+        description: `Your booking ${booking.reference} has been confirmed.`,
+        path: `/thank-you/${booking.reference}`,
+        imageAlt: `Booking Confirmation ${booking.reference}`,
+      },
+      baseUrl
+    ),
+    robots: { index: false, follow: false },
   };
 }
 

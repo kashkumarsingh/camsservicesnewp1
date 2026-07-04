@@ -9,6 +9,7 @@ import type { BlogPostDTO } from "@/core/application/blog";
 import { ROUTES } from "@/shared/utils/routes";
 import { formatDate } from "@/shared/utils/formatDate";
 import { DATE_FORMAT_LONG } from "@/shared/utils/appConstants";
+import { camsPageImagePath } from "@/marketing/mock/cams-public-images";
 
 type BlogPostPageClientProps = {
   post: BlogPostDTO;
@@ -27,7 +28,7 @@ export function BlogPostPageClient({
   previousPost = null,
   nextPost = null,
 }: BlogPostPageClientProps): ReactElement {
-  const heroSrc = post.featuredImage || "/images/og-default.jpg";
+  const heroSrc = post.featuredImage || camsPageImagePath("ogDefault");
   const heroAlt = `Illustration for ${post.title}`;
 
   return (
