@@ -42,7 +42,7 @@ export const SERVICES_INDEX_SEO_PROSE = {
 export const BLOG_INDEX_SEO_PROSE = {
   eyebrow: 'Commissioning guides',
   title: 'Chaperone services, transport and family support articles',
-  titleAs: 'h1' as const,
+  titleAs: 'h2' as const,
   paragraphs: [
     'Read CAMS Services guides on chaperone services, chaperone service commissioning, child transport, SEND support and mentoring. Written for local authorities, schools and families navigating referrals in the UK.',
     'Start with our chaperone services UK article if you are scoping supervised contact transport, school runs or foster placement escorts.',

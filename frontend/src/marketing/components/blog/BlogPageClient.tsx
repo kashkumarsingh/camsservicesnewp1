@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { CamsIcon } from "@/marketing/components/shared/CamsIcon";
@@ -10,7 +10,11 @@ import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
 import { BLOG_POST_DTOS } from "@/marketing/mock/blog-posts";
 import { resolveBlogCoverImage } from "@/marketing/content/blog/seo-blog-helpers";
 
-export function BlogPageClient(): ReactElement {
+type BlogPageClientProps = {
+  intro?: ReactNode;
+};
+
+export function BlogPageClient({ intro }: BlogPageClientProps): ReactElement {
   const posts = BLOG_POST_DTOS;
 
   return (
@@ -21,19 +25,21 @@ export function BlogPageClient(): ReactElement {
             Blog & <span className="text-cams-primary">Insights</span>
           </>
         }
-        description="Expert articles on youth mentoring, behaviour change, emotional wellbeing, and supporting young people."
+        description="Practical commissioning guides on chaperone services, child transport, SEND support, mentoring and family support for local authorities, schools and families."
       />
-      <section aria-labelledby="blog-latest-heading" className="space-y-8">
+
+      {intro}
+
+      <section aria-labelledby="blog-guides-heading" className="space-y-8">
         <header className="text-center">
           <h2
-            id="blog-latest-heading"
+            id="blog-guides-heading"
             className="font-heading text-3xl font-bold md:text-4xl"
           >
-            Latest <span className="text-cams-primary">Articles</span>
+            Featured <span className="text-cams-primary">guides</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-cams-slate">
-            Practical ideas from CAMS practitioners. When you are ready to move from reading to
-            action, start with{" "}
+            Browse by topic below. When you are ready to move from reading to action, start with{" "}
             <Link href="/referral" className="font-semibold text-cams-primary underline underline-offset-2">
               make a referral
             </Link>{" "}

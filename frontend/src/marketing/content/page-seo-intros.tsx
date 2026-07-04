@@ -61,9 +61,9 @@ export const SERVICES_INDEX_SEO_PROSE: PageSeoIntroContent = {
 };
 
 export const BLOG_INDEX_SEO_PROSE: PageSeoIntroContent = {
-  eyebrow: 'Insights',
+  eyebrow: 'Commissioning guides',
   title: 'CAMS services commissioning guides',
-  titleAs: 'h1',
+  titleAs: 'h2',
   paragraphs: [
     'Read practical guides from CAMS services on chaperone services UK, child transport, youth mentoring, SEND support, foster placement stability, and school transport for SEMH needs.',
     'Articles are written for local authority commissioners, SENCOs, foster agencies, and parents who need clear language about safeguarding, referrals, and how intervention packages work in practice.',
