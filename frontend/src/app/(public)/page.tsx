@@ -9,7 +9,7 @@ import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
     {
-      title: 'Chaperone Services UK | Chaperone Service | CAMS Services',
+      title: SEO_DEFAULTS.title,
       description:
         'Chaperone services and chaperone service UK for children in care, contact transport and SEND. DBS-checked escorts for schools and local authorities.',
       path: '/',

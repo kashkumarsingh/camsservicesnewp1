@@ -4,13 +4,14 @@ import { ServicesSeoIntro } from '@/marketing/components/services/ServicesSeoInt
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
 import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
 import { ROUTES } from '@/shared/utils/routes';
+import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
 
 const BASE_URL = getMetadataBaseUrl();
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
     {
-      title: 'Chaperone Services UK | Chaperone Service | CAMS Services',
+      title: SEO_DEFAULTS.title,
       description:
         'Chaperone services and chaperone service UK for children in care, contact transport and SEND. Child transport, school runs, contact centre escorts and mentoring.',
       path: ROUTES.SERVICES,

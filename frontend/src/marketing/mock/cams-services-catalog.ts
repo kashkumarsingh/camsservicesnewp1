@@ -92,7 +92,7 @@ export const REFERRAL_PARTNERS_LIST: readonly string[] = [
 ] as const;
 
 export const HOME_INTRO_PARAGRAPHS: readonly string[] = [
-  "CAMS Services Ltd is a UK chaperone service provider. We deliver chaperone services for children, young people, families and vulnerable adults who need safeguarding-led travel and accompaniment.",
+  "CAMS services Ltd is a UK chaperone service provider. We deliver chaperone services for children, young people, families and vulnerable adults who need safeguarding-led travel and accompaniment.",
   "Local authorities, schools, nurseries, foster carers and residential homes commission our chaperone services alongside child transport services, school transport support, SEND support and mentoring.",
   "Every chaperone service assignment is planned around the individual: contact centre handovers, foster moves, SEMH-friendly school runs and community access with the same DBS-checked practitioner where possible.",
 ] as const;

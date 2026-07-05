@@ -5,7 +5,7 @@ const DEFAULT_SUMMARY =
 
 const PAGE_FALLBACKS: Record<string, { title: string; summary: string }> = {
   "": {
-    title: "Chaperone Services UK | CAMS services",
+    title: "Chaperone services UK | Chaperone service | CAMS services",
     summary:
       "Chaperone services UK, child transport services, family support services, SEND support services, and mentoring services.",
   },
@@ -14,7 +14,7 @@ const PAGE_FALLBACKS: Record<string, { title: string; summary: string }> = {
     summary: "Learn about our team, mission, and person-centred support model.",
   },
   services: {
-    title: "Chaperone Services UK | Child Transport & SEND Support",
+    title: "Chaperone services UK | Child transport & SEND support",
     summary:
       "Child transport services, school transport support, family support services, community support services, and residential care support.",
   },

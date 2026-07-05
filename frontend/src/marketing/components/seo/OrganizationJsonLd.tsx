@@ -28,7 +28,7 @@ export function OrganizationJsonLd(): ReactElement {
       {
         "@type": "ProfessionalService",
         "@id": `${baseUrl}/#chaperone-service`,
-        name: `${SEO_DEFAULTS.siteName} Chaperone Services`,
+        name: `${SEO_DEFAULTS.siteName} chaperone services`,
         url: `${baseUrl}/blog/chaperone-services-uk`,
         provider: { "@id": `${baseUrl}/#organization` },
         areaServed: {

@@ -200,7 +200,7 @@ export const chaperoneServicesUkArticle: MarketingBlogPostDTO = {
   focusKeyword: "chaperone services",
   metaTitle: "Chaperone Services UK | Professional Chaperone Service",
   metaDescription:
-    "Chaperone services and chaperone service UK for children in care, SEND and contact transport. DBS-checked escorts for schools and local authorities. Refer CAMS Services.",
+    "Chaperone services and chaperone service UK for children in care, SEND and contact transport. DBS-checked escorts for schools and local authorities. Refer CAMS services.",
   title: "Chaperone Services UK: Professional Chaperone Service for Children",
   excerpt:
     "What chaperone services and a professional chaperone service include for children in care, contact transport and school journeys, and how to commission safeguarding-first escorts.",
