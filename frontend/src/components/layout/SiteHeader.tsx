@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { ReactElement } from "react";
 import { ROUTES } from "@/shared/utils/routes";
+import { GetAccessDropdown } from "@/components/layout/GetAccessDropdown";
 import { SiteHeaderNav } from "@/components/layout/SiteHeaderNav";
 import type { NavItem } from "@/mock/navigation";
 
@@ -24,12 +25,7 @@ export function SiteHeader({ navItems }: SiteHeaderProps): ReactElement {
         </Link>
         <SiteHeaderNav navItems={navItems} />
         <div className="hidden items-center gap-3 xl:flex">
-          <Link
-            href={ROUTES.LOGIN}
-            className="inline-flex min-h-10 items-center justify-center rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold text-cams-ink transition hover:bg-cams-soft hover:text-cams-primary"
-          >
-            Sign in
-          </Link>
+          <GetAccessDropdown />
           <Link
             href={ROUTES.BECOME_A_TRAINER}
             className="inline-flex min-h-10 items-center justify-center rounded-md border border-cams-primary px-4 py-2 text-sm font-semibold text-cams-primary transition hover:bg-cams-primary/10"
@@ -41,12 +37,6 @@ export function SiteHeader({ navItems }: SiteHeaderProps): ReactElement {
             className="inline-flex min-h-10 items-center justify-center rounded-md border border-cams-primary px-4 py-2 text-sm font-semibold text-cams-primary transition hover:bg-cams-primary/10"
           >
             Make a Referral
-          </Link>
-          <Link
-            href={ROUTES.CONTACT}
-            className="inline-flex min-h-10 items-center justify-center rounded-md bg-gradient-to-r from-cams-primary to-cams-secondary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
-          >
-            Contact Us
           </Link>
         </div>
       </nav>
