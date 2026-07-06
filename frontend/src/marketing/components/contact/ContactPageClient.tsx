@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useId, useState } from "react";
@@ -150,8 +149,6 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
         }
         description="Tell us what is happening and where support is needed. We route each enquiry to the right next step quickly and clearly."
       />
-
-      {intro}
 
       <div className={`${PAGE_LAYOUT.splitGrid} mt-10 lg:mt-12`}>
         <section className={`relative order-2 overflow-hidden ${PAGE_LAYOUT.panel} p-5 sm:p-6 md:p-10 lg:order-1`}>
@@ -345,28 +342,18 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
                 />
                 <p className="mt-2 text-xs leading-5 text-cams-slate">No need to write full background at this stage.</p>
               </div>
-              <Button type="submit" className="w-full py-3 shadow-lg shadow-cams-primary/20 transition hover:shadow-xl">
+              <Button type="submit" className="w-auto min-w-[11rem] px-8 py-3 shadow-lg shadow-cams-primary/20 transition hover:shadow-xl">
                 {loading ? "Submitting..." : "Submit Enquiry"}
               </Button>
-              {error ? (
-                <p className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                  {error.message}
-                </p>
-              ) : null}
             </form>
         </section>
 
         <aside className="order-1 space-y-6 lg:order-2 lg:sticky lg:top-24 lg:self-start">
           <section className={`${PAGE_LAYOUT.panel} p-5 sm:p-6 md:p-8`}>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Contact details</p>
-            <h2 className="mt-2 text-2xl font-bold text-cams-ink sm:text-3xl">
-              Speak to <span className="text-cams-primary">CAMS</span>
-            </h2>
-            <p className="mt-2 text-sm leading-7 text-cams-ink-secondary">
-              Call, email or visit our Greenford office. We respond within one working day.
-            </p>
+            <h2 className="mt-2 text-xl font-bold text-cams-ink sm:text-2xl">Phone, email and office</h2>
 
-            <div className="mt-6 space-y-5 border-t border-slate-200/90 pt-6">
+            <div className="mt-5 space-y-5">
               <div>
                 <div className="flex items-center gap-2 text-sm font-semibold text-cams-ink">
                   <CamsIcon name="phone" size={22} />
@@ -386,16 +373,16 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
                   <CamsIcon name="mail" size={22} />
                   Email
                 </div>
-                <Button href={CONTACT_EMAIL_MAILTO} className="mt-3 w-full sm:w-auto" variant="secondary" type="button">
+                <Button href={CONTACT_EMAIL_MAILTO} className="mt-3 w-auto" variant="secondary" type="button">
                   Email us
                 </Button>
-                <p className="mt-2 text-sm text-cams-slate">Most enquiries answered within 24 hours</p>
+                <p className="mt-2 text-sm text-cams-slate">Reply within one working day</p>
               </div>
 
               <div>
                 <div className="flex items-center gap-2 text-sm font-semibold text-cams-ink">
                   <CamsIcon name="mapPin" size={22} />
-                  Address
+                  Office
                 </div>
                 <address className="mt-2 not-italic">
                   <p className="text-sm font-semibold text-cams-ink">CAMS services Ltd</p>
@@ -407,7 +394,7 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
                 <iframe
                   title="CAMS services office location"
                   src={contactData.mapEmbedUrl}
-                  className="h-44 w-full border-0"
+                  className="h-52 w-full border-0 md:h-56"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                 />
@@ -420,86 +407,10 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
                   Open in Google Maps
                 </a>
               </div>
-
-              <div className="rounded-xl border border-cams-secondary/20 bg-cams-secondary/[0.06] p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-cams-ink">
-                  <CamsIcon name="clock" size={20} />
-                  Response commitment
-                </div>
-                <p className="mt-2 text-sm leading-6 text-cams-ink-secondary">
-                  Same-day acknowledgement during working hours, with a clear next step and timeline.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm sm:p-6">
-            <h3 className="text-xl font-bold text-cams-ink">Need a faster route?</h3>
-            <p className="mt-2 text-sm leading-7 text-cams-ink-secondary">
-              For immediate pathway decisions, these pages usually answer the next question fastest.
-            </p>
-            <div className="mt-4 space-y-2 text-sm">
-              <Link href="/referral" className="block rounded-lg border border-slate-200 px-3 py-2 font-semibold text-cams-primary transition hover:border-cams-primary/40">
-                View referral process
-              </Link>
-              <Link href="/packages" className="block rounded-lg border border-slate-200 px-3 py-2 font-semibold text-cams-primary transition hover:border-cams-primary/40">
-                Compare support packages
-              </Link>
-              <Link href="/services" className="block rounded-lg border border-slate-200 px-3 py-2 font-semibold text-cams-primary transition hover:border-cams-primary/40">
-                Explore service pathways
-              </Link>
             </div>
           </section>
         </aside>
       </div>
-
-      <section className={`${PAGE_LAYOUT.panel} p-5 sm:p-6 md:p-8`}>
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">What happens next</p>
-        <h2 className="font-heading text-2xl font-bold sm:text-3xl">
-          Contact to <span className="text-cams-primary">action plan</span>
-        </h2>
-        <div className="mt-6 grid gap-5 md:grid-cols-3">
-          {PROCESS_STEPS.map((step) => (
-            <article key={step.title} className="rounded-2xl border border-slate-200/90 bg-slate-50/70 p-5">
-              <div className="inline-flex rounded-xl border border-cams-secondary/25 bg-cams-secondary/[0.09] p-2.5">
-                <CamsIcon name={step.icon} size={28} />
-              </div>
-              <h3 className="mt-3 text-lg font-bold text-cams-ink">{step.title}</h3>
-              <p className="mt-2 text-sm leading-7 text-cams-ink-secondary">{step.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className={`${PAGE_LAYOUT.panel} p-5 sm:p-6 md:p-8`}>
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Location</p>
-        <h2 className="font-heading text-2xl font-bold sm:text-3xl">
-          Find <span className="text-cams-primary">Us</span>
-        </h2>
-        <address className="mt-3 not-italic">
-          <p className="text-sm font-semibold text-cams-ink">CAMS services Ltd</p>
-          <p className="mt-1 text-sm text-cams-ink-secondary">{contactData.fullAddress}</p>
-        </address>
-        <div className="mt-4 h-[320px] overflow-hidden rounded-xl border border-slate-200">
-          <iframe
-            title="CAMS services office location map"
-            src={contactData.mapEmbedUrl}
-            className="h-full w-full border-0"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
-        </div>
-        <p className="mt-3 text-sm">
-          <a
-            href={contactData.mapsSearchUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-cams-primary transition hover:text-cams-secondary"
-          >
-            Open in Google Maps
-          </a>
-        </p>
-      </section>
 
       <section className={`relative overflow-hidden ${PAGE_LAYOUT.panelFrame} bg-gradient-to-b from-white to-slate-50/80 px-4 py-10 md:px-8 md:py-12`}>
         <div
@@ -527,6 +438,24 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
               </div>
               <h3 className="mt-4 text-lg font-bold text-cams-ink">{item.title}</h3>
               <p className="mt-2 text-sm leading-7 text-cams-ink-secondary">{item.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={`${PAGE_LAYOUT.panel} p-5 sm:p-6 md:p-8`}>
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">What happens next</p>
+        <h2 className="font-heading text-2xl font-bold sm:text-3xl">
+          Contact to <span className="text-cams-primary">action plan</span>
+        </h2>
+        <div className="mt-6 grid gap-5 md:grid-cols-3">
+          {PROCESS_STEPS.map((step) => (
+            <article key={step.title} className="rounded-2xl border border-slate-200/90 bg-slate-50/70 p-5">
+              <div className="inline-flex rounded-xl border border-cams-secondary/25 bg-cams-secondary/[0.09] p-2.5">
+                <CamsIcon name={step.icon} size={28} />
+              </div>
+              <h3 className="mt-3 text-lg font-bold text-cams-ink">{step.title}</h3>
+              <p className="mt-2 text-sm leading-7 text-cams-ink-secondary">{step.text}</p>
             </article>
           ))}
         </div>
@@ -560,10 +489,10 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
                 href: "/referral"
               },
               {
-                icon: "activity" as const,
-                title: "Which service is right for us?",
-                label: "Explore services",
-                href: "/services"
+                icon: "listChecks" as const,
+                title: "Which package fits?",
+                label: "View packages",
+                href: "/packages"
               },
               {
                 icon: "briefcase" as const,
@@ -598,6 +527,8 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
           ))}
         </div>
       </section>
+
+      {intro}
 
       <PageCtaSection
         heading="Want us to review your situation first?"
