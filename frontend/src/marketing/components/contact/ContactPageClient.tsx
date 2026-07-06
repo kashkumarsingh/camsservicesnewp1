@@ -153,85 +153,8 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
 
       {intro}
 
-      <section className={`${PAGE_LAYOUT.panel} p-5 sm:p-6 md:p-8`}>
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Get in touch</p>
-        <h2 className="font-heading text-2xl font-bold sm:text-3xl">
-          Contact <span className="text-cams-primary">details</span>
-        </h2>
-        <div className="mt-6 grid gap-5 md:grid-cols-3">
-          <article className={`${PAGE_SURFACES.cardHoverLift} p-5 sm:p-6`}>
-            <div className="inline-flex rounded-xl border border-cams-primary/20 bg-cams-primary/[0.08] p-2.5">
-              <CamsIcon name="phone" size={28} />
-            </div>
-            <h3 className="mt-3 text-lg font-bold text-cams-ink">Phone</h3>
-            <a
-              href={CONTACT_PHONE_HREF}
-              className="mt-2 block text-xl font-bold text-cams-primary transition hover:text-cams-secondary sm:text-2xl"
-            >
-              {contactData.phone}
-            </a>
-            <p className="mt-2 text-sm text-cams-ink-secondary">Monday to Friday, 9:00 to 18:00.</p>
-          </article>
-          <article className={`${PAGE_SURFACES.cardHoverLift} p-5 sm:p-6`}>
-            <div className="inline-flex rounded-xl border border-cams-primary/20 bg-cams-primary/[0.08] p-2.5">
-              <CamsIcon name="mail" size={28} />
-            </div>
-            <h3 className="mt-3 text-lg font-bold text-cams-ink">Email</h3>
-            <Button
-              href={CONTACT_EMAIL_MAILTO}
-              className="mt-3"
-              variant="secondary"
-              type="button"
-              aria-label="Email CAMS Services"
-            >
-              Email us
-            </Button>
-            <p className="mt-3 text-sm text-cams-ink-secondary">Most enquiries are answered within 24 hours.</p>
-          </article>
-          <article className={`${PAGE_SURFACES.cardHoverLift} p-5 sm:p-6`}>
-            <div className="inline-flex rounded-xl border border-cams-primary/20 bg-cams-primary/[0.08] p-2.5">
-              <CamsIcon name="mapPin" size={28} />
-            </div>
-            <h3 className="mt-3 text-lg font-bold text-cams-ink">Address</h3>
-            <p className="mt-2 text-sm font-semibold leading-6 text-cams-ink">CAMS Services Ltd</p>
-            <p className="mt-1 text-sm leading-6 text-cams-ink-secondary">{contactData.fullAddress}</p>
-          </article>
-        </div>
-      </section>
-
-      <section className={`relative overflow-hidden ${PAGE_LAYOUT.panelFrame} bg-gradient-to-b from-white to-slate-50/80 px-4 py-10 md:px-8 md:py-12`}>
-        <div
-          className="pointer-events-none absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-cams-secondary/[0.08] blur-3xl"
-          aria-hidden
-        />
-        <header className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Who should contact us</p>
-          <h2 className="mt-3 font-heading text-2xl font-bold sm:text-3xl md:text-4xl">
-            Built for <span className="text-cams-primary">real-world decisions</span>
-          </h2>
-          <p className="mx-auto mt-3 max-w-3xl text-sm leading-7 text-cams-ink-secondary md:text-base">
-            Whether you are making a first enquiry or arranging targeted support, this page helps you
-            choose the right route without delays.
-          </p>
-        </header>
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
-          {CONTACT_AUDIENCE.map((item) => (
-            <article
-              key={item.title}
-              className={`${PAGE_SURFACES.cardHoverLift} p-5 sm:p-6`}
-            >
-              <div className="inline-flex rounded-xl border border-cams-secondary/25 bg-cams-secondary/[0.1] p-2.5">
-                <CamsIcon name={item.icon} size={30} />
-              </div>
-              <h3 className="mt-4 text-lg font-bold text-cams-ink">{item.title}</h3>
-              <p className="mt-2 text-sm leading-7 text-cams-ink-secondary">{item.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <div className={PAGE_LAYOUT.splitGrid}>
-        <section className={`relative overflow-hidden ${PAGE_LAYOUT.panel} p-5 sm:p-6 md:p-10`}>
+      <div className={`${PAGE_LAYOUT.splitGrid} mt-10 lg:mt-12`}>
+        <section className={`relative order-2 overflow-hidden ${PAGE_LAYOUT.panel} p-5 sm:p-6 md:p-10 lg:order-1`}>
           <div
             className="pointer-events-none absolute -right-14 -top-16 h-52 w-52 rounded-full bg-cams-primary/[0.08] blur-3xl"
             aria-hidden
@@ -433,18 +356,81 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
             </form>
         </section>
 
-        <div className="space-y-6">
-          <section className={`${PAGE_SURFACES.cardHoverLift} bg-gradient-to-br from-white to-slate-50/70 p-5 sm:p-6`}>
-            <div className="inline-flex rounded-xl border border-cams-primary/20 bg-cams-primary/[0.08] p-2.5">
-              <CamsIcon name="clock" size={28} />
+        <aside className="order-1 space-y-6 lg:order-2 lg:sticky lg:top-24 lg:self-start">
+          <section className={`${PAGE_LAYOUT.panel} p-5 sm:p-6 md:p-8`}>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Contact details</p>
+            <h2 className="mt-2 text-2xl font-bold text-cams-ink sm:text-3xl">
+              Speak to <span className="text-cams-primary">CAMS</span>
+            </h2>
+            <p className="mt-2 text-sm leading-7 text-cams-ink-secondary">
+              Call, email or visit our Greenford office. We respond within one working day.
+            </p>
+
+            <div className="mt-6 space-y-5 border-t border-slate-200/90 pt-6">
+              <div>
+                <div className="flex items-center gap-2 text-sm font-semibold text-cams-ink">
+                  <CamsIcon name="phone" size={22} />
+                  Phone
+                </div>
+                <a
+                  href={CONTACT_PHONE_HREF}
+                  className="mt-2 block text-2xl font-bold text-cams-primary transition hover:text-cams-secondary"
+                >
+                  {contactData.phone}
+                </a>
+                <p className="mt-1 text-sm text-cams-slate">Monday to Friday, 9:00 to 18:00</p>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 text-sm font-semibold text-cams-ink">
+                  <CamsIcon name="mail" size={22} />
+                  Email
+                </div>
+                <Button href={CONTACT_EMAIL_MAILTO} className="mt-3 w-full sm:w-auto" variant="secondary" type="button">
+                  Email us
+                </Button>
+                <p className="mt-2 text-sm text-cams-slate">Most enquiries answered within 24 hours</p>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 text-sm font-semibold text-cams-ink">
+                  <CamsIcon name="mapPin" size={22} />
+                  Address
+                </div>
+                <address className="mt-2 not-italic">
+                  <p className="text-sm font-semibold text-cams-ink">CAMS services Ltd</p>
+                  <p className="mt-1 text-sm leading-6 text-cams-ink-secondary">{contactData.fullAddress}</p>
+                </address>
+              </div>
+
+              <div className="overflow-hidden rounded-xl border border-slate-200">
+                <iframe
+                  title="CAMS services office location"
+                  src={contactData.mapEmbedUrl}
+                  className="h-44 w-full border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+                <a
+                  href={contactData.mapsSearchUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block border-t border-slate-200 bg-slate-50 px-4 py-2.5 text-center text-sm font-semibold text-cams-primary transition hover:bg-slate-100"
+                >
+                  Open in Google Maps
+                </a>
+              </div>
+
+              <div className="rounded-xl border border-cams-secondary/20 bg-cams-secondary/[0.06] p-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-cams-ink">
+                  <CamsIcon name="clock" size={20} />
+                  Response commitment
+                </div>
+                <p className="mt-2 text-sm leading-6 text-cams-ink-secondary">
+                  Same-day acknowledgement during working hours, with a clear next step and timeline.
+                </p>
+              </div>
             </div>
-            <h3 className="mt-3 text-xl font-bold text-cams-ink">Response commitment</h3>
-            <p className="mt-2 text-sm leading-6 text-cams-ink-secondary">
-              Same-day acknowledgement during working hours, with a clear next step and expected timeline.
-            </p>
-            <p className="mt-2 text-xs leading-6 text-cams-slate">
-              Delivery across London, Essex and surrounding areas by arrangement.
-            </p>
           </section>
 
           <section className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm sm:p-6">
@@ -464,7 +450,7 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
               </Link>
             </div>
           </section>
-        </div>
+        </aside>
       </div>
 
       <section className={`${PAGE_LAYOUT.panel} p-5 sm:p-6 md:p-8`}>
@@ -491,12 +477,12 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
           Find <span className="text-cams-primary">Us</span>
         </h2>
         <address className="mt-3 not-italic">
-          <p className="text-sm font-semibold text-cams-ink">CAMS Services Ltd</p>
+          <p className="text-sm font-semibold text-cams-ink">CAMS services Ltd</p>
           <p className="mt-1 text-sm text-cams-ink-secondary">{contactData.fullAddress}</p>
         </address>
         <div className="mt-4 h-[320px] overflow-hidden rounded-xl border border-slate-200">
           <iframe
-            title="CAMS Services office location map"
+            title="CAMS services office location map"
             src={contactData.mapEmbedUrl}
             className="h-full w-full border-0"
             loading="lazy"
@@ -513,6 +499,37 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
             Open in Google Maps
           </a>
         </p>
+      </section>
+
+      <section className={`relative overflow-hidden ${PAGE_LAYOUT.panelFrame} bg-gradient-to-b from-white to-slate-50/80 px-4 py-10 md:px-8 md:py-12`}>
+        <div
+          className="pointer-events-none absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-cams-secondary/[0.08] blur-3xl"
+          aria-hidden
+        />
+        <header className="text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Who should contact us</p>
+          <h2 className="mt-3 font-heading text-2xl font-bold sm:text-3xl md:text-4xl">
+            Built for <span className="text-cams-primary">real-world decisions</span>
+          </h2>
+          <p className="mx-auto mt-3 max-w-3xl text-sm leading-7 text-cams-ink-secondary md:text-base">
+            Whether you are making a first enquiry or arranging targeted support, this page helps you
+            choose the right route without delays.
+          </p>
+        </header>
+        <div className="mt-8 grid gap-5 md:grid-cols-3">
+          {CONTACT_AUDIENCE.map((item) => (
+            <article
+              key={item.title}
+              className={`${PAGE_SURFACES.cardHoverLift} p-5 sm:p-6`}
+            >
+              <div className="inline-flex rounded-xl border border-cams-secondary/25 bg-cams-secondary/[0.1] p-2.5">
+                <CamsIcon name={item.icon} size={30} />
+              </div>
+              <h3 className="mt-4 text-lg font-bold text-cams-ink">{item.title}</h3>
+              <p className="mt-2 text-sm leading-7 text-cams-ink-secondary">{item.text}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section

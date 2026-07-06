@@ -139,11 +139,11 @@ export const TRAINERS_INDEX_SEO_PROSE: PageSeoIntroContent = {
 
 export const CONTACT_SEO_PROSE: PageSeoIntroContent = {
   eyebrow: 'Get in touch',
-  title: 'Contact CAMS services',
+  title: 'Contact CAMS services for chaperone and transport support',
   titleAs: 'h2',
   paragraphs: [
-    'Speak to CAMS services about chaperone transport, mentoring, SEND support, or family coaching for a child or young person in your care.',
-    'Our team responds to enquiries from parents, schools, local authorities, and IFAs within one working day. We can explain referral steps, package options, safeguarding procedures, and availability in your area.',
+    'Speak to CAMS services about chaperone services, child transport, contact centre journeys, mentoring, SEND support, or family coaching for a child or young person in your care.',
+    'Our team responds to enquiries from parents, schools, local authorities, and IFAs within one working day from our Greenford office (51 Eastmead Avenue, UB6 9RD), with delivery across London, Essex and the UK.',
     'If you already have court dates, panel deadlines, or placement moves scheduled, include timescales in your message so we can prioritise feasibility checks.',
   ],
   links: [
