@@ -351,8 +351,11 @@ export const AdminStaffPageClient: React.FC = () => {
           Staff management
         </h1>
         <p className="text-sm text-slate-600 dark:text-slate-400">
-          Keep records of internal staff onboarding — job titles, visa status, citizenship, and compliance.
-          Separate from trainers who deliver sessions.
+          Keep records of internal staff onboarding: job titles, visa status, citizenship, and compliance.
+          Separate from trainers who deliver sessions.{' '}
+          <Link href={ROUTES.DASHBOARD_ADMIN_DOCUMENTS} className="font-medium text-primary-blue hover:underline">
+            View compliance documents
+          </Link>
         </p>
       </header>
 

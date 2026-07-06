@@ -14,6 +14,8 @@ import { INTERVENTION_PACKAGES } from "@/marketing/mock/intervention-packages";
 import { REFERRAL_PARTNERS_LIST } from "@/marketing/mock/cams-services-catalog";
 import { useReferralForm } from "@/interfaces/web/hooks/referrals/useReferralForm";
 import { thankYouPageUrl } from "@/shared/utils/thankYouPage";
+import { ROUTES } from "@/shared/utils/routes";
+import { SCHOOLS_PAGE } from "@/app/(public)/constants/schoolsPageConstants";
 
 const PROCESS_STEPS: ReadonlyArray<{
   number: string;
@@ -148,6 +150,32 @@ export function ReferralPageClient({ intro }: { intro?: ReactNode }): ReactEleme
       />
 
       {intro}
+
+      <section className={`${PAGE_LAYOUT.panelCompact} border-cams-primary/20 bg-cams-primary/5 p-6 sm:p-8`}>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0 flex-1">
+            <h2 className="font-mono text-2xl font-bold text-cams-navy sm:text-3xl">
+              School partnerships
+            </h2>
+            <p className="mt-2 text-sm leading-7 text-cams-slate sm:text-base">
+              New to CAMS? Read our school onboarding summary, referral checklist, and safeguarding
+              arrangements, or download the full School Onboarding Pack for your setting.
+            </p>
+          </div>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <Button href={ROUTES.SCHOOLS} size="lg" className="w-full sm:w-auto">
+              School partnerships
+            </Button>
+            <a
+              href={SCHOOLS_PAGE.ONBOARDING_PACK_PDF_PATH}
+              download={SCHOOLS_PAGE.ONBOARDING_PACK_FILENAME}
+              className="inline-flex h-12 w-full items-center justify-center rounded-full border border-cams-primary bg-white px-6 text-sm font-semibold text-cams-primary transition hover:bg-cams-primary/5 sm:w-auto"
+            >
+              Download pack
+            </a>
+          </div>
+        </div>
+      </section>
 
       <section className={`${PAGE_LAYOUT.panelCompact} p-6 sm:p-8`}>
         <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">

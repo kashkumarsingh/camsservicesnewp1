@@ -132,6 +132,18 @@ Route::prefix('v1')->group(function () {
             Route::put('admin/staff/{id}', [\App\Http\Controllers\Api\AdminStaffController::class, 'update']);
             Route::delete('admin/staff/{id}', [\App\Http\Controllers\Api\AdminStaffController::class, 'destroy']);
 
+            // Internal operational documents (policies and procedures)
+            Route::get('admin/operational-documents', [\App\Http\Controllers\Api\AdminOperationalDocumentController::class, 'index']);
+            Route::post('admin/operational-documents', [\App\Http\Controllers\Api\AdminOperationalDocumentController::class, 'store']);
+            Route::put('admin/operational-documents/{id}', [\App\Http\Controllers\Api\AdminOperationalDocumentController::class, 'update']);
+            Route::delete('admin/operational-documents/{id}', [\App\Http\Controllers\Api\AdminOperationalDocumentController::class, 'destroy']);
+            Route::get('admin/operational-documents/{id}/download', [\App\Http\Controllers\Api\AdminOperationalDocumentController::class, 'download']);
+
+            // Incident reports (staff and trainer)
+            Route::get('admin/incidents', [\App\Http\Controllers\Api\AdminIncidentController::class, 'index']);
+            Route::get('admin/incidents/{id}', [\App\Http\Controllers\Api\AdminIncidentController::class, 'show']);
+            Route::patch('admin/incidents/{id}', [\App\Http\Controllers\Api\AdminIncidentController::class, 'update']);
+
             // Admin children (full CRUD + approve/reject + link parent + notify parent)
             Route::apiResource('admin/children', \App\Http\Controllers\Api\AdminChildController::class)->names('admin.children');
             Route::post('admin/children/{id}/approve', [\App\Http\Controllers\Api\AdminChildController::class, 'approve']);
@@ -337,6 +349,14 @@ Route::prefix('v1')->group(function () {
             // Session pay: trainer sees own payments and summary
             Route::get('session-payments', [\App\Http\Controllers\Api\TrainerSessionPayController::class, 'index']);
             Route::get('session-payments/{id}', [\App\Http\Controllers\Api\TrainerSessionPayController::class, 'show']);
+
+            // Internal operational documents (published resources for trainers)
+            Route::get('operational-documents', [\App\Http\Controllers\Api\TrainerOperationalDocumentController::class, 'index']);
+            Route::get('operational-documents/{id}/download', [\App\Http\Controllers\Api\TrainerOperationalDocumentController::class, 'download']);
+
+            // Trainer incident reporting
+            Route::get('incidents', [\App\Http\Controllers\Api\TrainerIncidentController::class, 'index']);
+            Route::post('incidents', [\App\Http\Controllers\Api\TrainerIncidentController::class, 'store']);
         });
     });
 });

@@ -41,7 +41,7 @@ export const DEFAULT_FOOTER_SECTIONS: ReadonlyArray<SiteFooterSection> = [
     title: "Partners",
     links: [
       { href: ROUTES.LOGIN, label: "Trainer sign in" },
-      { href: ROUTES.CONTACT, label: "School partnerships" },
+      { href: ROUTES.SCHOOLS, label: "School partnerships" },
       { href: ROUTES.PACKAGES, label: "Intervention packages" },
       { href: ROUTES.ABOUT, label: "About CAMS" },
     ],

@@ -84,6 +84,11 @@ export const API_ENDPOINTS = {
   ADMIN_STAFF_BY_ID: (id: string | number) => `/admin/staff/${id}`,
   ADMIN_STAFF_EXPORT: '/admin/staff/export',
 
+  // Admin operational documents (internal policy library)
+  ADMIN_OPERATIONAL_DOCUMENTS: '/admin/operational-documents',
+  ADMIN_OPERATIONAL_DOCUMENT_BY_ID: (id: string | number) => `/admin/operational-documents/${id}`,
+  ADMIN_OPERATIONAL_DOCUMENT_DOWNLOAD: (id: string | number) => `/admin/operational-documents/${id}/download`,
+
   // Admin Children
   ADMIN_CHILDREN: '/admin/children',
   ADMIN_CHILD_APPROVE: (id: string | number) => `/admin/children/${id}/approve`,
@@ -192,6 +197,17 @@ export const API_ENDPOINTS = {
   TRAINER_PROFILE_EMERGENCY_CONTACT_BY_ID: (id: string | number) => `/trainer/profile/emergency-contacts/${id}`,
   TRAINER_SAFEGUARDING_CONCERNS: '/trainer/safeguarding-concerns',
   TRAINER_SAFEGUARDING_CONCERN_UPDATE: (id: string | number) => `/trainer/safeguarding-concerns/${id}`,
+
+  // Trainer operational documents (internal resources)
+  TRAINER_OPERATIONAL_DOCUMENTS: '/trainer/operational-documents',
+  TRAINER_OPERATIONAL_DOCUMENT_DOWNLOAD: (id: string | number) => `/trainer/operational-documents/${id}/download`,
+
+  // Trainer incident reporting
+  TRAINER_INCIDENTS: '/trainer/incidents',
+
+  // Admin incident reports
+  ADMIN_INCIDENTS: '/admin/incidents',
+  ADMIN_INCIDENT_BY_ID: (id: string | number) => `/admin/incidents/${id}`,
   
   // Packages
   PACKAGES: '/packages',

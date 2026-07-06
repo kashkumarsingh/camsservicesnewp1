@@ -998,6 +998,26 @@ class NotificationIntentFactory
         );
     }
 
+    public static function incidentReported(\App\Models\Incident $incident): NotificationIntent
+    {
+        $incident->loadMissing(['reportedBy', 'child']);
+        $reporterName = $incident->reportedBy?->name ?? 'A staff member';
+        $typeLabel = ucfirst(str_replace('_', ' ', $incident->incident_type));
+
+        return new NotificationIntent(
+            intentType: IntentType::INCIDENT_REPORTED,
+            entityType: 'incident',
+            entityId: (string) $incident->id,
+            recipients: NotificationRecipientSet::forAdmins(self::adminEmails()),
+            payload: [
+                'title' => 'Incident report: ' . $incident->reference,
+                'message' => sprintf('%s reported a %s incident (%s). Review immediately.', $reporterName, $typeLabel, $incident->reference),
+                'link' => '/dashboard/admin/incidents',
+            ],
+            entityKey: 'incident:' . $incident->id,
+        );
+    }
+
     public static function newsletterSubscribed(NewsletterSubscription $subscription): NotificationIntent
     {
         return new NotificationIntent(

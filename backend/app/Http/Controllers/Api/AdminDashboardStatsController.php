@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingSchedule;
 use App\Models\Child;
+use App\Models\Incident;
 use App\Models\Payment;
 use App\Models\SafeguardingConcern;
 use App\Models\Trainer;
@@ -70,6 +71,7 @@ class AdminDashboardStatsController extends Controller
 
         // Safeguarding & risk alerts
         $pendingSafeguardingConcerns = SafeguardingConcern::where('status', SafeguardingConcern::STATUS_PENDING)->count();
+        $pendingIncidents = Incident::whereIn('status', [Incident::STATUS_OPEN, Incident::STATUS_REVIEWING])->count();
 
         // Trainer applications awaiting admin review (submitted, not yet approved/rejected)
         $pendingTrainerApplications = TrainerApplication::where('status', TrainerApplication::STATUS_SUBMITTED)->count();
@@ -287,6 +289,7 @@ class AdminDashboardStatsController extends Controller
             ],
             'alerts' => [
                 'pendingSafeguardingConcerns' => $pendingSafeguardingConcerns,
+                'pendingIncidents' => $pendingIncidents,
                 'pendingParentApprovals' => $pendingParentApprovals,
                 'pendingChildChecklists' => $pendingChildChecklists,
                 'pendingTrainerApplications' => $pendingTrainerApplications,

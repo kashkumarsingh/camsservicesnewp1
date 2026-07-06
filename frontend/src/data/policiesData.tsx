@@ -6,6 +6,10 @@
  */
 
 import { PolicyType } from '@/core/domain/policies/entities/Policy';
+import {
+  PICK_UP_DROP_OFF_PROCEDURE_CONTENT,
+  TRANSPORT_CHAPERONE_POLICY_CONTENT,
+} from '@/data/commissioningPolicyContent';
 
 export interface PolicyData {
   id: string;
@@ -299,6 +303,30 @@ Refund requests:
 
 For payment or refund inquiries: info@camsservices.co.uk
     `.trim(),
+    effectiveDate: new Date('2024-01-01').toISOString(),
+    version: '1.0',
+    published: true,
+  },
+  {
+    id: '7',
+    title: 'Transport and Chaperone Policy',
+    slug: 'transport-chaperone-policy',
+    type: 'other',
+    summary:
+      'How CAMS delivers safe, person-centred transport and chaperone services for education, contact, and community access.',
+    content: TRANSPORT_CHAPERONE_POLICY_CONTENT,
+    effectiveDate: new Date('2024-01-01').toISOString(),
+    version: '2.0',
+    published: true,
+  },
+  {
+    id: '8',
+    title: 'Pick Up and Drop Off Procedure',
+    slug: 'pick-up-drop-off-procedure',
+    type: 'other',
+    summary:
+      'Safeguarding-led collection, handover, and drop-off standards for school runs and commissioned transport.',
+    content: PICK_UP_DROP_OFF_PROCEDURE_CONTENT,
     effectiveDate: new Date('2024-01-01').toISOString(),
     version: '1.0',
     published: true,

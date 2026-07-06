@@ -26,6 +26,7 @@ export const ROUTES = {
   PAGE_BY_SLUG: (slug: string) => `/page/${slug}`,
   CONTACT: '/contact',
   REFERRAL: '/referral',
+  SCHOOLS: '/schools',
   CAREERS: '/careers',
   RISK_ASSESSMENT: '/risk-assessment',
   CONTACT_THANK_YOU: '/contact/thank-you',
@@ -64,6 +65,7 @@ export const ROUTES = {
   DASHBOARD_TRAINER_AVAILABILITY: '/dashboard/trainer/availability',
   DASHBOARD_TRAINER_SETTINGS: '/dashboard/trainer/settings',
   DASHBOARD_TRAINER_TIMESHEETS: '/dashboard/trainer/timesheets',
+  DASHBOARD_TRAINER_RESOURCES: '/dashboard/trainer/resources',
 
   // Admin
   DASHBOARD_ADMIN: '/dashboard/admin',
@@ -72,6 +74,8 @@ export const ROUTES = {
   DASHBOARD_ADMIN_BOOKING_SCHEDULES: '/dashboard/admin/booking-schedules',
   DASHBOARD_ADMIN_TRAINERS: '/dashboard/admin/trainers',
   DASHBOARD_ADMIN_STAFF: '/dashboard/admin/staff',
+  DASHBOARD_ADMIN_DOCUMENTS: '/dashboard/admin/documents',
+  DASHBOARD_ADMIN_INCIDENTS: '/dashboard/admin/incidents',
   DASHBOARD_ADMIN_PARENTS: '/dashboard/admin/parents',
   DASHBOARD_ADMIN_CHILDREN: '/dashboard/admin/children',
   DASHBOARD_ADMIN_PACKAGES: '/dashboard/admin/packages',

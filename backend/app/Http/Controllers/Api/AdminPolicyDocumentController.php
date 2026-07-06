@@ -25,9 +25,11 @@ class AdminPolicyDocumentController extends Controller
         'cancellation-policy',
         'cookie-policy',
         'payment-refund-policy',
+        'pick-up-drop-off-procedure',
         'privacy-policy',
         'safeguarding-policy',
         'terms-of-service',
+        'transport-chaperone-policy',
     ];
 
     private function isAllowedSlug(string $slug): bool

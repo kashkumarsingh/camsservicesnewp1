@@ -9,6 +9,8 @@ const POLICY_PAGE_TYPES = [
   'cookie-policy',
   'payment-refund-policy',
   'safeguarding-policy',
+  'transport-chaperone-policy',
+  'pick-up-drop-off-procedure',
 ] as const;
 
 export class ListPoliciesUseCase {

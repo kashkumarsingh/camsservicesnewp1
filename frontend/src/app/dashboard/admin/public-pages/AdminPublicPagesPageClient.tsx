@@ -66,9 +66,11 @@ export const AdminPublicPagesPageClient: React.FC = () => {
                         ? ROUTES.FAQ
                         : slug === 'trainers'
                           ? ROUTES.TRAINERS
-                          : slug === 'about'
-                            ? ROUTES.ABOUT
-                            : ROUTES.PAGE_BY_SLUG(slug);
+                  : slug === 'about'
+                    ? ROUTES.ABOUT
+                    : slug === 'schools'
+                      ? ROUTES.SCHOOLS
+                      : ROUTES.PAGE_BY_SLUG(slug);
           return (
             <div
               key={slug}

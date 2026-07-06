@@ -61,6 +61,7 @@ export interface ChildWithZeroHoursItem {
 
 interface AdminDashboardAlertsStats {
   pendingSafeguardingConcerns: number;
+  pendingIncidents?: number;
   pendingParentApprovals: number;
   pendingChildChecklists: number;
   pendingTrainerApplications: number;

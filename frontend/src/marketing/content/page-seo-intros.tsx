@@ -96,7 +96,7 @@ export const POLICIES_INDEX_SEO_PROSE: PageSeoIntroContent = {
   title: 'CAMS policies and legal documents',
   titleAs: 'h2',
   paragraphs: [
-    'CAMS services Ltd maintains clear, accessible policies so families, schools, and commissioning teams understand how we handle data, safeguarding, cancellations, cookies, and payments. Our documents follow UK requirements including GDPR, safeguarding statutory guidance, and consumer rights for service bookings.',
+    'CAMS services Ltd maintains clear, accessible policies so families, schools, and commissioning teams understand how we handle data, safeguarding, cancellations, cookies, payments, transport, and pick-up arrangements. Our documents follow UK requirements including GDPR, safeguarding statutory guidance, and consumer rights for service bookings.',
     'Each policy below explains what you can expect when you refer a child, book an intervention package, or work with our mentors and chaperones. We review documents regularly and publish updates on this page.',
   ],
   links: [
@@ -163,9 +163,27 @@ export const REFERRAL_SEO_PROSE: PageSeoIntroContent = {
     'After submission, a CAMS team member will confirm safeguarding details, recommend hours, and agree session locations before provision begins.',
   ],
   links: [
+    { href: ROUTES.SCHOOLS, label: 'school partnerships and onboarding pack' },
     { href: ROUTES.PACKAGES, label: 'compare packages' },
     { href: ROUTES.POLICIES, label: 'safeguarding policies' },
     { href: ROUTES.CONTACT, label: 'contact us' },
+  ],
+};
+
+export const SCHOOLS_SEO_PROSE: PageSeoIntroContent = {
+  eyebrow: 'School partnerships',
+  title: 'Onboarding for schools and educational settings',
+  titleAs: 'h2',
+  paragraphs: [
+    'CAMS services partners with schools, SENCOs, and pastoral teams to deliver safeguarding-led mentoring, transport, SEND support, and structured intervention packages for pupils who need consistent adult support.',
+    'This page summarises our referral process, information requirements, safeguarding arrangements, and reporting expectations before support begins. Download the School Onboarding Pack for your records or share it with your DSL and commissioning lead.',
+    'Schools across London, Essex, and the wider UK commission CAMS for SEMH-friendly school runs, attendance support, and one-to-one mentoring aligned with EHCP and pastoral plans.',
+  ],
+  links: [
+    { href: ROUTES.REFERRAL, label: 'make a referral' },
+    { href: ROUTES.POLICIES_BY_SLUG('transport-chaperone-policy'), label: 'transport and chaperone policy' },
+    { href: ROUTES.POLICIES_BY_SLUG('safeguarding-policy'), label: 'safeguarding policy' },
+    { href: ROUTES.CONTACT, label: 'contact the team' },
   ],
 };
 

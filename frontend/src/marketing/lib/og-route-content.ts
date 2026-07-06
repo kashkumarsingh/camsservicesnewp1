@@ -23,6 +23,11 @@ const PAGE_FALLBACKS: Record<string, { title: string; summary: string }> = {
     summary:
       "Referrals welcome from local authorities, schools, nurseries, foster agencies, and family support teams.",
   },
+  schools: {
+    title: "School partnerships | CAMS services",
+    summary:
+      "School onboarding, safeguarding-led mentoring, transport and SEND support for educational settings.",
+  },
   packages: {
     title: "Packages",
     summary: "Compare intervention tiers and find the right support level.",

@@ -53,7 +53,7 @@ export default async function PublicLayout({ children }: { children: React.React
           title: 'Partners',
           links: [
             { href: '/login', label: 'Trainer sign in' },
-            { href: '/contact', label: 'School partnerships' },
+            { href: '/schools', label: 'School partnerships' },
             { href: '/packages', label: 'Intervention packages' },
             { href: '/about', label: 'About CAMS' },
           ],

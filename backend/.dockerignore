@@ -30,6 +30,10 @@ storage/framework/sessions/*
 storage/framework/views/*
 !storage/framework/views/.gitignore
 
+# Runtime uploads (may be root-owned inside Docker; not needed in image)
+storage/app/private/
+storage/app/livewire-tmp/
+
 # Logs
 storage/logs/*
 !storage/logs/.gitignore

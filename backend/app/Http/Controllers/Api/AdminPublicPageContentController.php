@@ -23,7 +23,7 @@ class AdminPublicPageContentController extends Controller
     /**
      * Allowed slugs for content management (fixed list).
      */
-    private const ALLOWED_SLUGS = ['about', 'services', 'packages', 'blog', 'contact', 'faq', 'trainers', 'policies'];
+    private const ALLOWED_SLUGS = ['about', 'services', 'packages', 'blog', 'contact', 'faq', 'trainers', 'policies', 'schools'];
 
     private function isAllowedSlug(string $slug): bool
     {

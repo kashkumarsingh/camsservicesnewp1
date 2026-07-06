@@ -39,8 +39,8 @@ import TrainerSettingsModal from '@/components/trainer/modals/TrainerSettingsMod
 import AddAbsenceModal from '@/components/trainer/modals/AddAbsenceModal';
 import AvailabilitySidePanel from '@/components/trainer/AvailabilitySidePanel';
 import TrainerViewConcernsModal from '@/components/trainer/modals/TrainerViewConcernsModal';
-import SafeguardingConcernModal, { type SafeguardingConcernFormData } from '@/components/dashboard/modals/SafeguardingConcernModal';
-import { useSubmitSafeguardingConcern } from '@/interfaces/web/hooks/dashboard/useSubmitSafeguardingConcern';
+import IncidentReportModal, { type IncidentReportFormData } from '@/components/dashboard/modals/IncidentReportModal';
+import { useSubmitTrainerIncident } from '@/interfaces/web/hooks/dashboard/useSubmitTrainerIncident';
 import ToastContainer from '@/components/ui/Toast/ToastContainer';
 import { toastManager, type Toast } from '@/dashboard/utils/toast';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
@@ -316,7 +316,7 @@ export default function TrainerDashboardPageClient() {
   const searchParams = useSearchParams();
   const { user, loading, isAuthenticated } = useAuth();
   const syncEnabled = useDashboardSyncEnabled();
-  const { submitSafeguardingConcern } = useSubmitSafeguardingConcern();
+  const { submitTrainerIncident } = useSubmitTrainerIncident();
   /** Tab driven by URL (shell renders bottom nav); default schedule when on /dashboard/trainer */
   const activeTab = (searchParams.get('tab') === 'more' ? 'more' : 'schedule') as 'schedule' | 'more';
   /** Open Add clock-out modal when arriving from notification link (?openClockOut=scheduleId). */
@@ -368,7 +368,7 @@ export default function TrainerDashboardPageClient() {
 
   // Modals
   const [showSessionModal, setShowSessionModal] = useState(false);
-  const [showSafeguardingModal, setShowSafeguardingModal] = useState(false);
+  const [showIncidentModal, setShowIncidentModal] = useState(false);
   const [showViewConcernsModal, setShowViewConcernsModal] = useState(false);
   const [selectedSession, setSelectedSession] = useState<{
     date: string;
@@ -1160,13 +1160,13 @@ export default function TrainerDashboardPageClient() {
               Set my availability
             </DashboardButton>
             <DashboardButton
-              onClick={() => setShowSafeguardingModal(true)}
+              onClick={() => setShowIncidentModal(true)}
               variant="outline"
               size="sm"
               icon={<ShieldAlert size={14} className="sm:h-4 sm:w-4" />}
               className="rounded-full border border-slate-300 bg-white px-6 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all duration-150"
             >
-              Log concern
+              Report incident
             </DashboardButton>
             <DashboardButton
               onClick={() => setShowViewConcernsModal(true)}
@@ -1412,14 +1412,14 @@ export default function TrainerDashboardPageClient() {
                     type="button"
                     onClick={() => {
                       setShowMobileActionsDropdown(false);
-                      setShowSafeguardingModal(true);
+                      setShowIncidentModal(true);
                     }}
                     className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors duration-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                   >
                     <ShieldAlert size={18} className="shrink-0 text-slate-600 dark:text-slate-400" aria-hidden />
                     <div>
-                      <p className="text-sm font-medium text-slate-900 dark:text-slate-50">Log concern</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Safeguarding or issue</p>
+                      <p className="text-sm font-medium text-slate-900 dark:text-slate-50">Report incident</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Accident, transport, safeguarding</p>
                     </div>
                   </button>
                   <button
@@ -1561,14 +1561,15 @@ export default function TrainerDashboardPageClient() {
         onBulkClearMonth={handleBulkClearMonth}
       />
 
-      <SafeguardingConcernModal
-        isOpen={showSafeguardingModal}
-        onClose={() => setShowSafeguardingModal(false)}
-        children={[]}
-        onSubmit={async (data: SafeguardingConcernFormData) => {
-          await submitSafeguardingConcern(data);
-          setShowSafeguardingModal(false);
-          toastManager.success('Concern submitted. We will follow up as needed.');
+      <IncidentReportModal
+        isOpen={showIncidentModal}
+        onClose={() => setShowIncidentModal(false)}
+        childrenOptions={traineesForFilter}
+        onSubmit={async (data: IncidentReportFormData) => {
+          const result = await submitTrainerIncident(data);
+          setShowIncidentModal(false);
+          const refMsg = result.reference ? ` Reference: ${result.reference}.` : '';
+          toastManager.success(`Incident report submitted.${refMsg} Management will follow up as needed.`);
         }}
       />
 

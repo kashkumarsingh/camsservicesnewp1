@@ -31,6 +31,7 @@ import {
   PanelLeft,
   RefreshCw,
   AlertCircle,
+  AlertTriangle,
   XCircle,
 } from "lucide-react";
 import type { IconComponent } from "@/shared/types/icons";
@@ -91,6 +92,7 @@ const ROLE_SECTIONS: RoleSection[] = [
     baseHref: "/dashboard/trainer",
     items: [
       { label: "Overview", href: "/dashboard/trainer", icon: LayoutDashboard, description: "Your calendar, assigned sessions, availability and quick actions" },
+      { label: "Resources", href: "/dashboard/trainer/resources", icon: FileText, description: "Internal policies and procedures for your role" },
     ],
   },
   {
@@ -105,6 +107,8 @@ const ROLE_SECTIONS: RoleSection[] = [
       { label: "Children", href: "/dashboard/admin/children", icon: Users },
       { label: "Trainers", href: "/dashboard/admin/trainers", icon: UserCheck },
       { label: "Staff", href: "/dashboard/admin/staff", icon: Briefcase },
+      { label: "Compliance docs", href: "/dashboard/admin/documents", icon: FileText },
+      { label: "Incidents", href: "/dashboard/admin/incidents", icon: AlertTriangle },
       { label: "Activities", href: "/dashboard/admin/activities", icon: Activity },
       { label: "Services", href: "/dashboard/admin/services", icon: Briefcase },
       { label: "Packages", href: "/dashboard/admin/packages", icon: Package },

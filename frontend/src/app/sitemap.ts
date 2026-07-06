@@ -16,6 +16,7 @@ const STATIC_SLUGS = [
   "packages",
   "contact",
   "referral",
+  "schools",
   "blog",
   "careers",
   "risk-assessment",
@@ -25,7 +26,7 @@ const STATIC_SLUGS = [
   "policies",
 ] as const;
 
-const HIGH_PRIORITY_SLUGS = new Set(["", "about", "services", "packages", "contact", "blog"]);
+const HIGH_PRIORITY_SLUGS = new Set(["", "about", "services", "packages", "contact", "blog", "schools"]);
 
 function entry(
   slug: string,

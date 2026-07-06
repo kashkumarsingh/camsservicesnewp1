@@ -70,6 +70,7 @@ final class IntentType
     public const CHILD_CHECKLIST_SUBMITTED_ADMIN = 'child_checklist_submitted_admin';
     public const REFERRAL_SUBMISSION = 'referral_submission';
     public const SAFEGUARDING_CONCERN_SUBMITTED = 'safeguarding_concern_submitted';
+    public const INCIDENT_REPORTED = 'incident_reported';
     public const NEWSLETTER_SUBSCRIBED = 'newsletter_subscribed';
     public const TRAINER_APPLICATION_RESPONSE_SUBMITTED = 'trainer_application_response_submitted';
     public const CHILD_ADDED_ADMIN = 'child_added_admin';
@@ -98,6 +99,7 @@ final class IntentType
             self::ABSENCE_REQUEST_SUBMITTED, self::TRAINER_AVAILABILITY_UPDATED, self::CONTACT_SUBMISSION,
             self::CHILD_CHECKLIST_SUBMITTED, self::CHILD_CHECKLIST_SUBMITTED_ADMIN,
             self::REFERRAL_SUBMISSION, self::SAFEGUARDING_CONCERN_SUBMITTED,
+            self::INCIDENT_REPORTED,
             self::NEWSLETTER_SUBSCRIBED, self::TRAINER_APPLICATION_RESPONSE_SUBMITTED,
             self::CHILD_ADDED_ADMIN, self::CONTACT_SUBMISSION_THANK_YOU,
             self::REFERRAL_SUBMISSION_THANK_YOU => 60,

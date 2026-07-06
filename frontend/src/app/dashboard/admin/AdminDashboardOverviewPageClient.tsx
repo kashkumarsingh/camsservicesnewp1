@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle, CalendarDays, CalendarClock, ChevronRight, ExternalLink, UserCheck, Users, LayoutDashboard, UserPlus, PoundSterling, ClipboardList, UserCog, ShieldAlert } from "lucide-react";
+import { AlertCircle, AlertTriangle, CalendarDays, CalendarClock, ChevronRight, ExternalLink, UserCheck, Users, LayoutDashboard, UserPlus, PoundSterling, ClipboardList, UserCog, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/interfaces/web/hooks/auth/useAuth";
 import { Breadcrumbs } from "@/components/dashboard/universal";
 import { ROUTES } from "@/shared/utils/routes";
@@ -164,6 +164,7 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
 
   const totalBookings = stats?.bookings.total ?? 0;
   const pendingSafeguarding = stats?.alerts.pendingSafeguardingConcerns ?? 0;
+  const pendingIncidents = stats?.alerts.pendingIncidents ?? 0;
   const pendingParentApprovals = stats?.alerts.pendingParentApprovals ?? 0;
   const pendingTrainerApplications = stats?.alerts.pendingTrainerApplications ?? 0;
 
@@ -205,6 +206,7 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
     const trainerApps = pendingTrainerApplications ?? 0;
     const parentApprovals = pendingParentApprovals ?? 0;
     const safeguarding = pendingSafeguarding ?? 0;
+    const incidents = pendingIncidents ?? 0;
 
     const items: NeedsAttentionItem[] = [];
     if (unassigned > 0) {
@@ -281,6 +283,17 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
         href: ROUTES.DASHBOARD_ADMIN_TRAINER_APPLICATIONS,
       });
     }
+    if (incidents > 0) {
+      items.push({
+        id: 'incidents',
+        count: incidents,
+        label: `${incidents} incident report${incidents !== 1 ? 's' : ''} pending review`,
+        actionLabel: 'Review',
+        icon: AlertTriangle,
+        kind: 'navigate',
+        href: ROUTES.DASHBOARD_ADMIN_INCIDENTS,
+      });
+    }
     if (safeguarding > 0) {
       items.push({
         id: 'safeguarding',
@@ -302,6 +315,7 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
     pendingTrainerApplications,
     pendingParentApprovals,
     pendingSafeguarding,
+    pendingIncidents,
   ]);
 
   // Show skeleton until stats and today's bookings have loaded (avoids empty KPIs / list then data popping in)

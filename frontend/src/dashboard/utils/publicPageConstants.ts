@@ -11,6 +11,7 @@ export const PUBLIC_PAGES_CONTENT_SLUGS = [
   'faq',
   'trainers',
   'policies',
+  'schools',
 ] as const;
 
 export type PublicPageContentSlug = (typeof PUBLIC_PAGES_CONTENT_SLUGS)[number];
@@ -56,9 +57,11 @@ export const POLICY_DOCUMENT_SLUGS = [
   'cancellation-policy',
   'cookie-policy',
   'payment-refund-policy',
+  'pick-up-drop-off-procedure',
   'privacy-policy',
   'safeguarding-policy',
   'terms-of-service',
+  'transport-chaperone-policy',
 ] as const;
 
 export type PolicyDocumentSlug = (typeof POLICY_DOCUMENT_SLUGS)[number];
@@ -67,9 +70,11 @@ export const POLICY_DOCUMENT_LABELS: Record<PolicyDocumentSlug, string> = {
   'cancellation-policy': 'Cancellation Policy',
   'cookie-policy': 'Cookie Policy',
   'payment-refund-policy': 'Payment and Refund Policy',
+  'pick-up-drop-off-procedure': 'Pick Up and Drop Off Procedure',
   'privacy-policy': 'Privacy Policy',
   'safeguarding-policy': 'Safeguarding Policy',
   'terms-of-service': 'Terms of Service',
+  'transport-chaperone-policy': 'Transport and Chaperone Policy',
 };
 
 export const PUBLIC_PAGES_CONTENT_LABELS: Record<PublicPageContentSlug, string> = {
@@ -81,4 +86,5 @@ export const PUBLIC_PAGES_CONTENT_LABELS: Record<PublicPageContentSlug, string> 
   faq: 'FAQ',
   trainers: 'Trainers',
   policies: 'Policies',
+  schools: 'School partnerships',
 };

@@ -43,6 +43,16 @@ class SeedPolicyPages extends Command
             'summary' => 'Payment methods, processing, and refund procedures.',
             'body' => "# Payment and Refund Policy\n\nPayments are processed securely. Refund eligibility depends on timing and service type.\n\nContact bookings@camsservices.co.uk for payment or refund requests.",
         ],
+        'transport-chaperone-policy' => [
+            'title' => 'Transport and Chaperone Policy',
+            'summary' => 'How CAMS delivers safe, person-centred transport and chaperone services for education, contact, and community access.',
+            'body' => "# Transport and Chaperone Policy\n\nCAMS Services Ltd provides safe, professional transport and chaperone services for education, contact, community access, and other approved activities. All journeys follow safeguarding, health and safety, and data protection requirements.\n\nFor commissioning enquiries contact info@camsservices.co.uk. Safeguarding concerns: safeguarding@camsservices.co.uk.",
+        ],
+        'pick-up-drop-off-procedure' => [
+            'title' => 'Pick Up and Drop Off Procedure',
+            'summary' => 'Safeguarding-led collection, handover, and drop-off standards for school runs and commissioned transport.',
+            'body' => "# Pick Up and Drop Off Procedure\n\nCAMS Services Ltd ensures all pick-up and drop-off arrangements are carried out safely, consistently, and in line with safeguarding requirements. School and nursery collections follow site procedures, verified handovers, and agreed authorisation for any changes.\n\nFor questions contact info@camsservices.co.uk.",
+        ],
     ];
 
     public function handle(): int
