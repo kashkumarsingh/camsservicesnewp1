@@ -14,10 +14,11 @@ function buildFallbackSiteSettings(): SiteSetting {
     contact: {
       phone: '+44 7939 990587',
       email: 'info@camsservices.co.uk',
-      address: 'Buckhurst Hill, England',
-      fullAddress: '123 Example Street, Buckhurst Hill, England, IG9 1AB',
+      address: '51 Eastmead Avenue, UB6 9RD',
+      fullAddress: '51 Eastmead Avenue, Greenford, UB6 9RD, United Kingdom',
       whatsappUrl: 'https://wa.me/447939990587',
-      mapEmbedUrl: undefined,
+      mapEmbedUrl:
+        'https://maps.google.com/maps?q=51+Eastmead+Avenue,+UB6+9RD,+UK&hl=en&z=17&output=embed',
     },
     social: {
       links: [

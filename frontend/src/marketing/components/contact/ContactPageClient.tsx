@@ -12,38 +12,10 @@ import { CamsIcon, type CamsIconName } from "@/marketing/components/shared/CamsI
 import { PAGE_LAYOUT, PAGE_SURFACES } from "@/marketing/components/shared/page-layout";
 import { useContactForm } from "@/interfaces/web/hooks/contact/useContactForm";
 import { thankYouPageUrl } from "@/shared/utils/thankYouPage";
+import { contactData } from "@/data/contactData";
 
-const CONTACT_CHANNELS: ReadonlyArray<{
-  icon: CamsIconName;
-  title: string;
-  text: string;
-  detail: string;
-}> = [
-  {
-    icon: "mapPin",
-    title: "Location",
-    text: "CAMS services Ltd, London, United Kingdom",
-    detail: "Delivery across London and surrounding areas by arrangement."
-  },
-  {
-    icon: "phone",
-    title: "Call Back Request",
-    text: "Request a call and we reply within one working day.",
-    detail: "Phone support hours: Monday to Friday, 9:00 to 18:00."
-  },
-  {
-    icon: "mail",
-    title: "Email",
-    text: "hello@camsservices.co.uk",
-    detail: "Most enquiries are answered within 24 hours."
-  },
-  {
-    icon: "clock",
-    title: "Response Commitment",
-    text: "Same-day acknowledgement during working hours.",
-    detail: "Clear next-step message with owner and expected timeline."
-  }
-];
+const CONTACT_PHONE_HREF = `tel:${contactData.phone.replace(/\s/g, "")}`;
+const CONTACT_EMAIL_MAILTO = `mailto:${contactData.email}`;
 
 const CONTACT_AUDIENCE: ReadonlyArray<{ icon: CamsIconName; title: string; text: string }> = [
   {
@@ -180,6 +152,52 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
       />
 
       {intro}
+
+      <section className={`${PAGE_LAYOUT.panel} p-5 sm:p-6 md:p-8`}>
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Get in touch</p>
+        <h2 className="font-heading text-2xl font-bold sm:text-3xl">
+          Contact <span className="text-cams-primary">details</span>
+        </h2>
+        <div className="mt-6 grid gap-5 md:grid-cols-3">
+          <article className={`${PAGE_SURFACES.cardHoverLift} p-5 sm:p-6`}>
+            <div className="inline-flex rounded-xl border border-cams-primary/20 bg-cams-primary/[0.08] p-2.5">
+              <CamsIcon name="phone" size={28} />
+            </div>
+            <h3 className="mt-3 text-lg font-bold text-cams-ink">Phone</h3>
+            <a
+              href={CONTACT_PHONE_HREF}
+              className="mt-2 block text-xl font-bold text-cams-primary transition hover:text-cams-secondary sm:text-2xl"
+            >
+              {contactData.phone}
+            </a>
+            <p className="mt-2 text-sm text-cams-ink-secondary">Monday to Friday, 9:00 to 18:00.</p>
+          </article>
+          <article className={`${PAGE_SURFACES.cardHoverLift} p-5 sm:p-6`}>
+            <div className="inline-flex rounded-xl border border-cams-primary/20 bg-cams-primary/[0.08] p-2.5">
+              <CamsIcon name="mail" size={28} />
+            </div>
+            <h3 className="mt-3 text-lg font-bold text-cams-ink">Email</h3>
+            <Button
+              href={CONTACT_EMAIL_MAILTO}
+              className="mt-3"
+              variant="secondary"
+              type="button"
+              aria-label="Email CAMS Services"
+            >
+              Email us
+            </Button>
+            <p className="mt-3 text-sm text-cams-ink-secondary">Most enquiries are answered within 24 hours.</p>
+          </article>
+          <article className={`${PAGE_SURFACES.cardHoverLift} p-5 sm:p-6`}>
+            <div className="inline-flex rounded-xl border border-cams-primary/20 bg-cams-primary/[0.08] p-2.5">
+              <CamsIcon name="mapPin" size={28} />
+            </div>
+            <h3 className="mt-3 text-lg font-bold text-cams-ink">Address</h3>
+            <p className="mt-2 text-sm font-semibold leading-6 text-cams-ink">CAMS Services Ltd</p>
+            <p className="mt-1 text-sm leading-6 text-cams-ink-secondary">{contactData.fullAddress}</p>
+          </article>
+        </div>
+      </section>
 
       <section className={`relative overflow-hidden ${PAGE_LAYOUT.panelFrame} bg-gradient-to-b from-white to-slate-50/80 px-4 py-10 md:px-8 md:py-12`}>
         <div
@@ -416,21 +434,18 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
         </section>
 
         <div className="space-y-6">
-          <div className="grid gap-4">
-            {CONTACT_CHANNELS.map((card) => (
-              <article
-                key={card.title}
-                className={`${PAGE_SURFACES.cardHoverLift} bg-gradient-to-br from-white to-slate-50/70 p-5 sm:p-6`}
-              >
-                <div className="inline-flex rounded-xl border border-cams-primary/20 bg-cams-primary/[0.08] p-2.5">
-                  <CamsIcon name={card.icon} size={28} />
-                </div>
-                <h3 className="mt-3 text-xl font-bold text-cams-ink">{card.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-cams-ink-secondary">{card.text}</p>
-                <p className="mt-1 text-xs leading-6 text-cams-slate">{card.detail}</p>
-              </article>
-            ))}
-          </div>
+          <section className={`${PAGE_SURFACES.cardHoverLift} bg-gradient-to-br from-white to-slate-50/70 p-5 sm:p-6`}>
+            <div className="inline-flex rounded-xl border border-cams-primary/20 bg-cams-primary/[0.08] p-2.5">
+              <CamsIcon name="clock" size={28} />
+            </div>
+            <h3 className="mt-3 text-xl font-bold text-cams-ink">Response commitment</h3>
+            <p className="mt-2 text-sm leading-6 text-cams-ink-secondary">
+              Same-day acknowledgement during working hours, with a clear next step and expected timeline.
+            </p>
+            <p className="mt-2 text-xs leading-6 text-cams-slate">
+              Delivery across London, Essex and surrounding areas by arrangement.
+            </p>
+          </section>
 
           <section className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm sm:p-6">
             <h3 className="text-xl font-bold text-cams-ink">Need a faster route?</h3>
@@ -475,18 +490,29 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
         <h2 className="font-heading text-2xl font-bold sm:text-3xl">
           Find <span className="text-cams-primary">Us</span>
         </h2>
-        <p className="mt-2 text-sm text-cams-slate">
-          Map shows London centre as a placeholder until your final venue is published.
-        </p>
+        <address className="mt-3 not-italic">
+          <p className="text-sm font-semibold text-cams-ink">CAMS Services Ltd</p>
+          <p className="mt-1 text-sm text-cams-ink-secondary">{contactData.fullAddress}</p>
+        </address>
         <div className="mt-4 h-[320px] overflow-hidden rounded-xl border border-slate-200">
           <iframe
-            title="CAMS London map"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2483.1234567890123!2d-0.0127!3d51.5074!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sLondon!5e0!3m2!1sen!2suk!4v1234567890"
+            title="CAMS Services office location map"
+            src={contactData.mapEmbedUrl}
             className="h-full w-full border-0"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           />
         </div>
+        <p className="mt-3 text-sm">
+          <a
+            href={contactData.mapsSearchUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-cams-primary transition hover:text-cams-secondary"
+          >
+            Open in Google Maps
+          </a>
+        </p>
       </section>
 
       <section
