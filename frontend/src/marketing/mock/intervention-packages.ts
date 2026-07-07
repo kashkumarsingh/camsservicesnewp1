@@ -344,6 +344,17 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
   }
 ];
 
+export const PACKAGE_STARTING_PRICES: Readonly<Record<InterventionPackageId, string>> = {
+  mercury: "From £225",
+  venus: "From £390",
+  earth: "From £585",
+  mars: "From £780",
+  jupiter: "From £975",
+  saturn: "From £1,170",
+  uranus: "From £1,365",
+  neptune: "From £1,560"
+};
+
 export function getInterventionPackageById(
   id: InterventionPackageId
 ): InterventionPackage | undefined {

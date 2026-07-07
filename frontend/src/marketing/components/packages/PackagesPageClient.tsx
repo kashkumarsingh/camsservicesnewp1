@@ -25,6 +25,7 @@ import {
   PACKAGE_FAQ_ITEMS,
   PACKAGE_TIER_GROUPS,
   PACKAGE_UNIVERSAL_FEATURES,
+  PACKAGE_STARTING_PRICES,
   getPackageDistinctFeatures,
   type InterventionPackage
 } from "@/marketing/mock/intervention-packages";
@@ -58,7 +59,13 @@ function ComparisonCell({
   );
 }
 
-function PackageCard({ pkg }: { pkg: InterventionPackage }): ReactElement {
+function PackageCard({
+  pkg,
+  startingPrice
+}: {
+  pkg: InterventionPackage;
+  startingPrice?: string;
+}): ReactElement {
   const distinctFeatures = getPackageDistinctFeatures(pkg.features);
 
   return (
@@ -88,6 +95,9 @@ function PackageCard({ pkg }: { pkg: InterventionPackage }): ReactElement {
       <p className="mt-4 font-heading text-2xl font-bold tracking-tight text-cams-primary md:text-3xl">
         {pkg.frequencyLine}
       </p>
+      {startingPrice ? (
+        <p className="mt-1 text-base font-bold text-cams-dark">{startingPrice}</p>
+      ) : null}
       <PackageFeaturesCollapsible features={distinctFeatures} variant="packages" />
       <PackageBestForCallout variant="packages">{pkg.bestFor}</PackageBestForCallout>
       <div className="mt-auto pt-4">
@@ -118,6 +128,7 @@ export function PackagesPageClient(): ReactElement {
   const [comparePackageId, setComparePackageId] = useState(INTERVENTION_PACKAGES[0]?.id ?? "mercury");
   const [compareExpanded, setCompareExpanded] = useState(false);
   const { isAuthenticated, loading: authLoading } = useAuth();
+  const showPrices = !authLoading && isAuthenticated;
   const packagesById = useMemo(
     () => new Map(packages.map((pkg) => [pkg.id, pkg])),
     [packages]
@@ -184,8 +195,20 @@ export function PackagesPageClient(): ReactElement {
           </div>
           <div className="rounded-2xl border border-cams-primary/20 bg-white p-4 sm:p-5 md:p-6">
             <p className={PAGE_TYPOGRAPHY.body}>
-              Pricing available to registered parents, professionals and referral partners.
-              All interventions are tailored to the individual needs of the child or young person. Final pricing may vary depending on risk, complexity and support requirements.
+              {showPrices ? (
+                <>
+                  Guide starting prices are shown on each package below. All interventions are
+                  tailored to the individual needs of the child or young person. Final pricing may
+                  vary depending on risk, complexity and support requirements.
+                </>
+              ) : (
+                <>
+                  Pricing available to registered parents, professionals and referral partners.
+                  All interventions are tailored to the individual needs of the child or young
+                  person. Final pricing may vary depending on risk, complexity and support
+                  requirements.
+                </>
+              )}
             </p>
           </div>
 
@@ -238,7 +261,13 @@ export function PackagesPageClient(): ReactElement {
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
                 {group.packageIds.map((packageId) => {
                   const pkg = packagesById.get(packageId);
-                  return pkg ? <PackageCard key={packageId} pkg={pkg} /> : null;
+                  return pkg ? (
+                    <PackageCard
+                      key={packageId}
+                      pkg={pkg}
+                      startingPrice={showPrices ? PACKAGE_STARTING_PRICES[pkg.id] : undefined}
+                    />
+                  ) : null;
                 })}
               </div>
             </div>
@@ -259,65 +288,6 @@ export function PackagesPageClient(): ReactElement {
           </div>
          </div>
        </section>
-
-      {!authLoading && isAuthenticated && (
-        <section className={`bg-white ${PAGE_LAYOUT.sectionPadding}`}>
-          <div className={PAGE_LAYOUT.container}>
-            <div className="rounded-2xl border border-cams-primary/20 bg-white p-6 sm:p-8 md:p-10">
-              <h2 className={`${PAGE_TYPOGRAPHY.sectionHeading} tracking-tight text-cams-dark mb-6`}>
-                Starting From <span className={CAMS_GRADIENT_ACCENT_TEXT_CLASS}>Prices</span>
-              </h2>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[640px] border-collapse text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-200">
-                      <th className="px-4 py-3 font-bold text-cams-dark">Package</th>
-                      <th className="px-4 py-3 font-bold text-cams-dark">Starting From</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {packages.map((pkg, index) => {
-                      const startingPrices: Record<string, string> = {
-                        mercury: "From £225",
-                        venus: "From £390",
-                        earth: "From £585",
-                        mars: "From £780",
-                        jupiter: "From £975",
-                        saturn: "From £1,170",
-                        uranus: "From £1,365",
-                        neptune: "From £1,560"
-                      };
-                      const price = startingPrices[pkg.id] ?? "";
-                      return (
-                        <tr
-                          key={pkg.id}
-                          className={cn(
-                            "border-b border-slate-100 transition hover:bg-cams-soft",
-                            index === packages.length - 1 && "border-b-0"
-                          )}
-                        >
-                          <td className="px-4 py-3 font-semibold text-cams-dark">
-                            <Link
-                              href={packageDetailHref(pkg.id)}
-                              className="underline-offset-2 hover:text-cams-primary hover:underline"
-                            >
-                              {pkg.name}
-                            </Link>
-                          </td>
-                          <td className="px-4 py-3 text-cams-primary font-bold">{price}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-              <p className="mt-6 text-sm leading-relaxed text-cams-slate">
-                The prices shown are guide prices. Every child is unique, and interventions may require additional planning, staffing, travel, specialist support, reporting or professional liaison. A final quotation will be confirmed following consultation.
-              </p>
-            </div>
-          </div>
-        </section>
-      )}
 
       <section className={`bg-white ${PAGE_LAYOUT.sectionPadding}`}>
         <div className={PAGE_LAYOUT.container}>
