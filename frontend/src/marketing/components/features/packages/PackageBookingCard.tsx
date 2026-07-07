@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
+import { useCanViewPackagePricing } from '@/marketing/hooks/useCanViewPackagePricing';
 import { useSearchParams } from 'next/navigation';
 import MarketingButton from '@/design-system/components/Button/MarketingButton';
 import { Shield } from 'lucide-react';
@@ -12,7 +12,7 @@ interface PackageBookingCardProps {
 }
 
 export default function PackageBookingCard({ pkg }: PackageBookingCardProps) {
-  const { isApproved, loading } = useAuth();
+  const { canViewPackagePricing, pricingGateLoading } = useCanViewPackagePricing();
   const searchParams = useSearchParams();
   const childId = searchParams.get('childId');
   const buyPackageUrl = childId
@@ -22,7 +22,7 @@ export default function PackageBookingCard({ pkg }: PackageBookingCardProps) {
   return (
     <div className="bg-gradient-to-br from-primary-blue to-light-blue-cyan rounded-card p-5 border-2 border-primary-blue shadow-card text-white">
       <div className="text-center mb-4">
-        {!loading && isApproved ? (
+        {!pricingGateLoading && canViewPackagePricing ? (
           <div className="text-3xl font-extrabold mb-1">£{pkg.price}</div>
         ) : null}
         <div className="text-sm opacity-90">{pkg.hours}h Complete Package</div>

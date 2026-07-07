@@ -228,8 +228,6 @@ export default async function PackageDetail({ params }: {params: Promise<{slug: 
     },
     offers: {
       '@type': 'Offer',
-      price: Number(pkg.price ?? 0).toFixed(2),
-      priceCurrency: 'GBP',
       url: `${BASE_URL}/dashboard/parent?package=${encodeURIComponent(pkg.slug)}`,
       availability:
         pkg.metrics?.spotsRemaining && pkg.metrics.spotsRemaining > 0

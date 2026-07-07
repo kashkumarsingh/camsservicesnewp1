@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useAuth } from '@/interfaces/web/hooks/auth/useAuth';
+import { useCanViewPackagePricing } from '@/marketing/hooks/useCanViewPackagePricing';
 import { formatCurrency, formatCurrencyWhole } from '@/shared/utils/currencyFormatter';
 
 interface ConditionalPriceDisplayProps {
@@ -15,9 +15,9 @@ export default function ConditionalPriceDisplay({
   showSavings = true,
   savingsMultiplier = 1.3
 }: ConditionalPriceDisplayProps) {
-  const { isApproved, loading } = useAuth();
+  const { canViewPackagePricing, pricingGateLoading } = useCanViewPackagePricing();
 
-  if (loading || !isApproved) {
+  if (pricingGateLoading || !canViewPackagePricing) {
     return null;
   }
 

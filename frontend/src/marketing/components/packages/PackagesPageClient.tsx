@@ -31,7 +31,8 @@ import {
   type PackageApiItem
 } from "@/marketing/lib/package-api-mappers";
 import { mapPackageFaqs, type FaqApiItem } from "@/marketing/lib/faq-api-mappers";
-import { useAuth } from "@/interfaces/web/hooks/auth/useAuth";
+import { useCanViewPackagePricing } from "@/marketing/hooks/useCanViewPackagePricing";
+import { ROUTES } from "@/shared/utils/routes";
 
 function ComparisonCell({
   emphasized,
@@ -60,8 +61,7 @@ export function PackagesPageClient({ intro }: { intro?: ReactNode }): ReactEleme
   const [packages, setPackages] = useState(INTERVENTION_PACKAGES);
   const [faqItems, setFaqItems] = useState(PACKAGE_FAQ_ITEMS);
   const [comparePackageId, setComparePackageId] = useState(INTERVENTION_PACKAGES[0]?.id ?? "mercury");
-  const { isAuthenticated, loading: authLoading } = useAuth();
-  const showPrices = !authLoading && isAuthenticated;
+  const { canViewPackagePricing, pricingGateLoading } = useCanViewPackagePricing();
 
   useEffect(() => {
     void Promise.all([
@@ -126,7 +126,7 @@ export function PackagesPageClient({ intro }: { intro?: ReactNode }): ReactEleme
           </div>
           <div className="rounded-2xl border border-cams-primary/20 bg-white p-4 sm:p-5 md:p-6">
             <p className={PAGE_TYPOGRAPHY.body}>
-              {showPrices ? (
+              {!pricingGateLoading && canViewPackagePricing ? (
                 <>
                   Guide starting prices are listed below. All interventions are tailored to the
                   individual needs of the child or young person. Final pricing may vary depending on
@@ -134,14 +134,24 @@ export function PackagesPageClient({ intro }: { intro?: ReactNode }): ReactEleme
                 </>
               ) : (
                 <>
-                  Pricing available to registered parents, professionals and referral partners.
-                  All interventions are tailored to the individual needs of the child or young
-                  person. Final pricing may vary depending on risk, complexity and support
+                  Pricing is available to registered parents, professionals and referral partners
+                  after sign in. All interventions are tailored to the individual needs of the child
+                  or young person. Final pricing may vary depending on risk, complexity and support
                   requirements.
                 </>
               )}
             </p>
-            {showPrices ? (
+            {!pricingGateLoading && !canViewPackagePricing ? (
+              <p className="mt-4">
+                <Link
+                  href={`${ROUTES.LOGIN}?redirect=${encodeURIComponent("/packages")}`}
+                  className="text-sm font-semibold text-cams-primary underline-offset-2 hover:underline"
+                >
+                  Sign in to view guide prices
+                </Link>
+              </p>
+            ) : null}
+            {canViewPackagePricing ? (
               <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
                 {packages.map((pkg) => (
                   <Link
@@ -195,9 +205,16 @@ export function PackagesPageClient({ intro }: { intro?: ReactNode }): ReactEleme
                 <p className="mt-4 font-heading text-base font-bold tracking-tight text-cams-dark md:text-lg">
                   {pkg.frequencyLine}
                 </p>
-                {!showPrices ? (
+                {!canViewPackagePricing ? (
                   <p className="mt-4 text-sm text-cams-slate">
-                    Pricing available upon consultation.
+                    Pricing available upon consultation.{" "}
+                    <Link
+                      href={`${ROUTES.LOGIN}?redirect=${encodeURIComponent("/packages")}`}
+                      className="font-semibold text-cams-primary underline-offset-2 hover:underline"
+                    >
+                      Sign in
+                    </Link>{" "}
+                    to view guide prices.
                   </p>
                 ) : null}
                 <div className="mt-4 border-b border-slate-200 pb-6" />
