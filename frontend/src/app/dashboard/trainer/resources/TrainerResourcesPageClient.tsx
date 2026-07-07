@@ -77,7 +77,7 @@ export function TrainerResourcesPageClient() {
     setDownloadingId(doc.id);
     setError(null);
     try {
-      await trainerOperationalDocumentRepository.download(doc.id, doc.file_name);
+      await trainerOperationalDocumentRepository.download(doc.id, doc.fileName);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Download failed');
     } finally {
@@ -208,7 +208,7 @@ export function TrainerResourcesPageClient() {
                       <div className="min-w-0">
                         <p className="font-medium text-slate-900 dark:text-slate-100">{doc.title}</p>
                         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                          Version {doc.version} · Updated {formatDate(doc.updated_at)}
+                          Version {doc.version} · Updated {formatDate(doc.updatedAt)}
                         </p>
                       </div>
                       <button

@@ -19,7 +19,20 @@ export async function downloadAuthenticatedFile(path: string, fileName: string):
   });
 
   if (!response.ok) {
-    throw new Error('Failed to download file.');
+    let message = 'Failed to download file.';
+    try {
+      const contentType = response.headers.get('content-type') ?? '';
+      if (contentType.includes('application/json')) {
+        const body = (await response.json()) as { message?: string; error?: string };
+        message = body.message ?? body.error ?? message;
+      } else if (response.status === 404) {
+        message =
+          'Document file not found on the server. Re-run php artisan operational-documents:seed on Railway if files were lost after a redeploy.';
+      }
+    } catch {
+      // Keep default message.
+    }
+    throw new Error(message);
   }
 
   const blob = await response.blob();

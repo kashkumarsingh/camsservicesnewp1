@@ -72,7 +72,7 @@ export function AdminOperationalDocumentsPageClient() {
   }, [fetchDocuments]);
 
   const publishedCount = useMemo(
-    () => documents.filter((doc) => doc.is_published).length,
+    () => documents.filter((doc) => doc.isPublished).length,
     [documents]
   );
 
@@ -113,7 +113,7 @@ export function AdminOperationalDocumentsPageClient() {
     setError(null);
     try {
       await adminOperationalDocumentRepository.update(doc.id, {
-        isPublished: !doc.is_published,
+        isPublished: !doc.isPublished,
       });
       await fetchDocuments();
     } catch (err) {
@@ -141,7 +141,7 @@ export function AdminOperationalDocumentsPageClient() {
     setActingId(doc.id);
     setError(null);
     try {
-      await adminOperationalDocumentRepository.download(doc.id, doc.file_name);
+      await adminOperationalDocumentRepository.download(doc.id, doc.fileName);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Download failed');
     } finally {
@@ -354,15 +354,15 @@ export function AdminOperationalDocumentsPageClient() {
                       onClick={() => handleTogglePublished(doc)}
                       disabled={actingId === doc.id}
                       className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        doc.is_published
+                        doc.isPublished
                           ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200'
                           : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
                       }`}
                     >
-                      {doc.is_published ? 'Published' : 'Draft'}
+                      {doc.isPublished ? 'Published' : 'Draft'}
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{formatDate(doc.updated_at)}</td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{formatDate(doc.updatedAt)}</td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-2">
                       <button

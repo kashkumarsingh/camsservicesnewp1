@@ -12,14 +12,14 @@ export interface OperationalDocumentItem {
   title: string;
   category: OperationalDocumentCategory;
   audience: OperationalDocumentAudience;
-  file_name: string;
-  mime_type?: string;
+  fileName: string;
+  mimeType?: string;
   version: string;
-  is_published?: boolean;
-  internal_only?: boolean;
-  uploaded_by_name?: string | null;
-  created_at?: string;
-  updated_at?: string;
+  isPublished?: boolean;
+  internalOnly?: boolean;
+  uploadedByName?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface UploadOperationalDocumentInput {
@@ -89,7 +89,10 @@ export class AdminOperationalDocumentRepository {
   }
 
   async download(id: number, fileName: string): Promise<void> {
-    await downloadAuthenticatedFile(API_ENDPOINTS.ADMIN_OPERATIONAL_DOCUMENT_DOWNLOAD(id), fileName);
+    await downloadAuthenticatedFile(
+      API_ENDPOINTS.ADMIN_OPERATIONAL_DOCUMENT_DOWNLOAD(id),
+      fileName || 'document'
+    );
   }
 }
 

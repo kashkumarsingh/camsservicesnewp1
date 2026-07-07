@@ -12,9 +12,9 @@ export interface TrainerOperationalDocumentItem {
   title: string;
   category: OperationalDocumentCategory;
   audience: OperationalDocumentAudience;
-  file_name: string;
+  fileName: string;
   version: string;
-  updated_at?: string;
+  updatedAt?: string;
 }
 
 export class TrainerOperationalDocumentRepository {
