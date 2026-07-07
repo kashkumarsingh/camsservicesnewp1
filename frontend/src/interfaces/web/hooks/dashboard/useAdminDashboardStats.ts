@@ -59,6 +59,28 @@ export interface ChildWithZeroHoursItem {
   remainingHours: number;
 }
 
+export interface DbsExpiringItem {
+  kind: 'staff' | 'trainer';
+  id: string;
+  name: string;
+  roleLabel?: string;
+  hasDbsCheck?: boolean;
+  dbsExpiresAt?: string | null;
+  dbsStatus?: string;
+  daysUntilExpiry?: number | null;
+  trainerApplicationId?: string | null;
+}
+
+export interface LaAgreementAttentionItem {
+  id: string;
+  localAuthorityName: string;
+  status: string;
+  expiresAt?: string | null;
+  hasSignedDocument?: boolean;
+  reasons?: string[];
+  primaryReason?: string;
+}
+
 interface AdminDashboardAlertsStats {
   pendingSafeguardingConcerns: number;
   pendingIncidents?: number;
@@ -71,6 +93,10 @@ interface AdminDashboardAlertsStats {
   pendingPaymentsList?: PendingPaymentItem[];
   childrenWithZeroHoursCount?: number;
   childrenWithZeroHoursList?: ChildWithZeroHoursItem[];
+  dbsExpiringCount?: number;
+  dbsExpiringList?: DbsExpiringItem[];
+  laAgreementsAttentionCount?: number;
+  laAgreementsAttentionList?: LaAgreementAttentionItem[];
 }
 
 export interface AdminDashboardRevenueStats {

@@ -51,6 +51,11 @@ export interface RemoteTrainerResponse {
   views: number;
   activities: RemoteTrainerActivity[];
   userApprovalStatus?: string;
+  hasDbsCheck?: boolean;
+  dbsIssuedAt?: string | null;
+  dbsExpiresAt?: string | null;
+  dbsStatus?: string | null;
+  trainerApplicationId?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -94,6 +99,11 @@ export interface AdminTrainerDTO {
   views: number;
   activities: RemoteTrainerActivity[];
   userApprovalStatus?: string;
+  hasDbsCheck?: boolean;
+  dbsIssuedAt?: string | null;
+  dbsExpiresAt?: string | null;
+  dbsStatus?: string | null;
+  trainerApplicationId?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -207,6 +217,11 @@ export function mapRemoteTrainerToAdminTrainerDTO(
     views: typeof remote.views === 'number' ? remote.views : 0,
     activities: Array.isArray(remote.activities) ? remote.activities : [],
     userApprovalStatus: remote.userApprovalStatus,
+    hasDbsCheck: remote.hasDbsCheck,
+    dbsIssuedAt: remote.dbsIssuedAt ?? null,
+    dbsExpiresAt: remote.dbsExpiresAt ?? null,
+    dbsStatus: remote.dbsStatus ?? null,
+    trainerApplicationId: remote.trainerApplicationId ?? null,
     createdAt: remote.createdAt ?? new Date().toISOString(),
     updatedAt: remote.updatedAt ?? new Date().toISOString(),
   };

@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import SideCanvas from '@/components/ui/SideCanvas';
 import {
   Breadcrumbs,
@@ -28,6 +29,8 @@ import {
   STAFF_VISA_STATUS_OPTIONS,
 } from '@/core/application/admin/dto/AdminStaffDTO';
 import { StaffForm } from './StaffForm';
+import { DbsStatusBadge } from '@/components/dashboard/compliance/DbsStatusBadge';
+import { getDbsStatus, dbsStatusNeedsAttention } from '@/dashboard/utils/dbsComplianceUtils';
 
 type StaffFormData = CreateStaffDTO | UpdateStaffDTO;
 
@@ -87,6 +90,8 @@ function staffToFormData(member: AdminStaffRow): UpdateStaffDTO {
 }
 
 export const AdminStaffPageClient: React.FC = () => {
+  const searchParams = useSearchParams();
+  const dbsAttentionOnly = searchParams.get('dbs') === 'attention';
   const [search, setSearch] = useState('');
   const [employmentStatusFilter, setEmploymentStatusFilter] = useState('');
   const [visaStatusFilter, setVisaStatusFilter] = useState('');
@@ -220,10 +225,15 @@ export const AdminStaffPageClient: React.FC = () => {
     link.click();
   };
 
-  const sortedStaff = useMemo(
-    () => [...staff].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
-    [staff]
-  );
+  const sortedStaff = useMemo(() => {
+    let rows = [...staff];
+    if (dbsAttentionOnly) {
+      rows = rows.filter((member) =>
+        dbsStatusNeedsAttention(getDbsStatus(member.dbsExpiresAt, member.hasDbsCheck))
+      );
+    }
+    return rows.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+  }, [staff, dbsAttentionOnly]);
 
   const detailTabs = selectedStaff
     ? [
@@ -303,6 +313,12 @@ export const AdminStaffPageClient: React.FC = () => {
                 <p className="text-slate-900 dark:text-slate-50">
                   {selectedStaff.hasDbsCheck ? 'On file' : 'Not recorded'}
                 </p>
+                <div className="mt-2">
+                  <DbsStatusBadge
+                    status={getDbsStatus(selectedStaff.dbsExpiresAt, selectedStaff.hasDbsCheck)}
+                    expiresAt={selectedStaff.dbsExpiresAt}
+                  />
+                </div>
               </div>
               {selectedStaff.dbsCertificateNumber && (
                 <div>
@@ -353,6 +369,10 @@ export const AdminStaffPageClient: React.FC = () => {
         <p className="text-sm text-slate-600 dark:text-slate-400">
           Keep records of internal staff onboarding: job titles, visa status, citizenship, and compliance.
           Separate from trainers who deliver sessions.{' '}
+          <Link href={ROUTES.DASHBOARD_ADMIN_DBS_COMPLIANCE} className="font-medium text-primary-blue hover:underline">
+            DBS compliance
+          </Link>
+          {' · '}
           <Link href={ROUTES.DASHBOARD_ADMIN_DOCUMENTS} className="font-medium text-primary-blue hover:underline">
             View compliance documents
           </Link>
@@ -362,6 +382,15 @@ export const AdminStaffPageClient: React.FC = () => {
       {error && (
         <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200">
           {error}
+        </div>
+      )}
+
+      {dbsAttentionOnly && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100">
+          <span>Showing staff with DBS checks expiring within 30 days, overdue, or not recorded.</span>
+          <Link href={ROUTES.DASHBOARD_ADMIN_STAFF} className="font-medium text-cams-primary hover:underline">
+            Show all staff
+          </Link>
         </div>
       )}
 
@@ -459,6 +488,9 @@ export const AdminStaffPageClient: React.FC = () => {
                   RTW
                 </th>
                 <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  DBS
+                </th>
+                <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Status
                 </th>
                 <th className="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -469,14 +501,16 @@ export const AdminStaffPageClient: React.FC = () => {
             <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-800 dark:bg-slate-900">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-4 text-center text-xs text-slate-500">
+                  <td colSpan={8} className="px-3 py-4 text-center text-xs text-slate-500">
                     Loading staff records…
                   </td>
                 </tr>
               ) : sortedStaff.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-4 text-center text-xs text-slate-500">
-                    No staff records yet. Use &quot;Onboard staff&quot; to add your first team member.
+                  <td colSpan={8} className="px-3 py-4 text-center text-xs text-slate-500">
+                    {dbsAttentionOnly
+                      ? 'No staff with DBS issues in this view.'
+                      : 'No staff records yet. Use "Onboard staff" to add your first team member.'}
                   </td>
                 </tr>
               ) : (
@@ -511,6 +545,12 @@ export const AdminStaffPageClient: React.FC = () => {
                       >
                         {member.rightToWorkVerified ? 'Verified' : 'Pending'}
                       </span>
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2">
+                      <DbsStatusBadge
+                        status={getDbsStatus(member.dbsExpiresAt, member.hasDbsCheck)}
+                        expiresAt={member.dbsExpiresAt}
+                      />
                     </td>
                     <td className="whitespace-nowrap px-3 py-2">
                       <span

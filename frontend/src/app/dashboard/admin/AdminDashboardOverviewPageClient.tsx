@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle, AlertTriangle, CalendarDays, CalendarClock, ChevronRight, ExternalLink, UserCheck, Users, LayoutDashboard, UserPlus, PoundSterling, ClipboardList, UserCog, ShieldAlert } from "lucide-react";
+import { AlertCircle, AlertTriangle, Building2, CalendarDays, CalendarClock, ChevronRight, ExternalLink, UserCheck, Users, LayoutDashboard, UserPlus, PoundSterling, ClipboardList, UserCog, ShieldAlert, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/interfaces/web/hooks/auth/useAuth";
 import { Breadcrumbs } from "@/components/dashboard/universal";
 import { ROUTES } from "@/shared/utils/routes";
@@ -165,6 +165,8 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
   const totalBookings = stats?.bookings.total ?? 0;
   const pendingSafeguarding = stats?.alerts.pendingSafeguardingConcerns ?? 0;
   const pendingIncidents = stats?.alerts.pendingIncidents ?? 0;
+  const dbsExpiring = stats?.alerts.dbsExpiringCount ?? 0;
+  const laAgreementsAttention = stats?.alerts.laAgreementsAttentionCount ?? 0;
   const pendingParentApprovals = stats?.alerts.pendingParentApprovals ?? 0;
   const pendingTrainerApplications = stats?.alerts.pendingTrainerApplications ?? 0;
 
@@ -207,6 +209,8 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
     const parentApprovals = pendingParentApprovals ?? 0;
     const safeguarding = pendingSafeguarding ?? 0;
     const incidents = pendingIncidents ?? 0;
+    const dbsAlerts = dbsExpiring ?? 0;
+    const laAlerts = laAgreementsAttention ?? 0;
 
     const items: NeedsAttentionItem[] = [];
     if (unassigned > 0) {
@@ -283,6 +287,28 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
         href: ROUTES.DASHBOARD_ADMIN_TRAINER_APPLICATIONS,
       });
     }
+    if (laAlerts > 0) {
+      items.push({
+        id: 'la-agreements',
+        count: laAlerts,
+        label: `${laAlerts} local authority agreement${laAlerts !== 1 ? 's' : ''} need attention`,
+        actionLabel: 'Review',
+        icon: Building2,
+        kind: 'navigate',
+        href: `${ROUTES.DASHBOARD_ADMIN_LOCAL_AUTHORITIES}?attention=1`,
+      });
+    }
+    if (dbsAlerts > 0) {
+      items.push({
+        id: 'dbs-expiring',
+        count: dbsAlerts,
+        label: `${dbsAlerts} DBS check${dbsAlerts !== 1 ? 's' : ''} expiring or overdue`,
+        actionLabel: 'Review',
+        icon: ShieldCheck,
+        kind: 'navigate',
+        href: ROUTES.DASHBOARD_ADMIN_DBS_COMPLIANCE,
+      });
+    }
     if (incidents > 0) {
       items.push({
         id: 'incidents',
@@ -316,6 +342,8 @@ export const AdminDashboardOverviewPageClient: React.FC = () => {
     pendingParentApprovals,
     pendingSafeguarding,
     pendingIncidents,
+    dbsExpiring,
+    laAgreementsAttention,
   ]);
 
   // Show skeleton until stats and today's bookings have loaded (avoids empty KPIs / list then data popping in)

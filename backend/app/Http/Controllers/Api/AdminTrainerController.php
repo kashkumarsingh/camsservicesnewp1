@@ -7,8 +7,10 @@ use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use App\Models\Trainer;
 use App\Models\TrainerAbsenceRequest;
+use App\Models\TrainerApplication;
 use App\Models\TrainerAvailability;
 use App\Models\User;
+use App\Services\Compliance\DbsExpiryService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -97,7 +99,10 @@ class AdminTrainerController extends Controller
                 ->take($limit)
                 ->get();
 
-            $formatted = $trainers->map(function (Trainer $trainer) {
+            $appsByTrainer = $this->latestApprovedApplicationsFor($trainers->pluck('id'));
+            $dbsExpiry = app(DbsExpiryService::class);
+
+            $formatted = $trainers->map(function (Trainer $trainer) use ($appsByTrainer, $dbsExpiry) {
                 $user = $trainer->user;
                 $activities = $trainer->activities->map(function ($activity) {
                     return [
@@ -107,7 +112,7 @@ class AdminTrainerController extends Controller
                     ];
                 });
 
-                return [
+                return array_merge([
                     'id' => (string) $trainer->id,
                     'userId' => $user ? (string) $user->id : null,
                     'name' => $trainer->name,
@@ -137,7 +142,7 @@ class AdminTrainerController extends Controller
                     'userApprovalStatus' => $user?->approval_status,
                     'createdAt' => $trainer->created_at?->toIso8601String(),
                     'updatedAt' => $trainer->updated_at?->toIso8601String(),
-                ];
+                ], $this->dbsFieldsForTrainer($trainer, $appsByTrainer->get($trainer->id), $dbsExpiry));
             });
 
             return $this->collectionResponse(
@@ -184,7 +189,10 @@ class AdminTrainerController extends Controller
                 ];
             });
 
-            $data = [
+            $appsByTrainer = $this->latestApprovedApplicationsFor(collect([$trainer->id]));
+            $dbsExpiry = app(DbsExpiryService::class);
+
+            $data = array_merge([
                 'id' => (string) $trainer->id,
                 'userId' => $user ? (string) $user->id : null,
                 'name' => $trainer->name,
@@ -218,7 +226,7 @@ class AdminTrainerController extends Controller
                 'userApprovalStatus' => $user?->approval_status,
                 'createdAt' => $trainer->created_at?->toIso8601String(),
                 'updatedAt' => $trainer->updated_at?->toIso8601String(),
-            ];
+            ], $this->dbsFieldsForTrainer($trainer, $appsByTrainer->get($trainer->id), $dbsExpiry));
 
             return $this->successResponse($data);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -1056,5 +1064,41 @@ class AdminTrainerController extends Controller
                 'date_to' => $dateTo->format('Y-m-d'),
             ]
         );
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, int|string>  $trainerIds
+     */
+    private function latestApprovedApplicationsFor(\Illuminate\Support\Collection $trainerIds): \Illuminate\Support\Collection
+    {
+        if ($trainerIds->isEmpty()) {
+            return collect();
+        }
+
+        return TrainerApplication::query()
+            ->whereIn('trainer_id', $trainerIds)
+            ->where('status', TrainerApplication::STATUS_APPROVED)
+            ->orderByDesc('reviewed_at')
+            ->orderByDesc('updated_at')
+            ->get()
+            ->unique('trainer_id')
+            ->keyBy('trainer_id');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function dbsFieldsForTrainer(Trainer $trainer, ?TrainerApplication $app, DbsExpiryService $dbsExpiry): array
+    {
+        $expiresAt = $app?->dbs_expires_at;
+        $hasDbs = (bool) ($app?->has_dbs_check ?? false);
+
+        return [
+            'hasDbsCheck' => $hasDbs,
+            'dbsIssuedAt' => $app?->dbs_issued_at?->format('Y-m-d'),
+            'dbsExpiresAt' => $expiresAt?->format('Y-m-d'),
+            'dbsStatus' => $dbsExpiry->statusForExpiry($expiresAt, $hasDbs),
+            'trainerApplicationId' => $app ? (string) $app->id : null,
+        ];
     }
 }

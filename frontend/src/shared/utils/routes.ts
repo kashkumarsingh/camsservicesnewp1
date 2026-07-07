@@ -76,6 +76,8 @@ export const ROUTES = {
   DASHBOARD_ADMIN_STAFF: '/dashboard/admin/staff',
   DASHBOARD_ADMIN_DOCUMENTS: '/dashboard/admin/documents',
   DASHBOARD_ADMIN_INCIDENTS: '/dashboard/admin/incidents',
+  DASHBOARD_ADMIN_LOCAL_AUTHORITIES: '/dashboard/admin/local-authorities',
+  DASHBOARD_ADMIN_DBS_COMPLIANCE: '/dashboard/admin/dbs-compliance',
   DASHBOARD_ADMIN_PARENTS: '/dashboard/admin/parents',
   DASHBOARD_ADMIN_CHILDREN: '/dashboard/admin/children',
   DASHBOARD_ADMIN_PACKAGES: '/dashboard/admin/packages',

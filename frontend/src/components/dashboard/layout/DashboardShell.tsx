@@ -32,6 +32,8 @@ import {
   RefreshCw,
   AlertCircle,
   AlertTriangle,
+  Building2,
+  ShieldCheck,
   XCircle,
 } from "lucide-react";
 import type { IconComponent } from "@/shared/types/icons";
@@ -109,6 +111,8 @@ const ROLE_SECTIONS: RoleSection[] = [
       { label: "Staff", href: "/dashboard/admin/staff", icon: Briefcase },
       { label: "Compliance docs", href: "/dashboard/admin/documents", icon: FileText },
       { label: "Incidents", href: "/dashboard/admin/incidents", icon: AlertTriangle },
+      { label: "LA agreements", href: "/dashboard/admin/local-authorities", icon: Building2 },
+      { label: "DBS compliance", href: "/dashboard/admin/dbs-compliance", icon: ShieldCheck },
       { label: "Activities", href: "/dashboard/admin/activities", icon: Activity },
       { label: "Services", href: "/dashboard/admin/services", icon: Briefcase },
       { label: "Packages", href: "/dashboard/admin/packages", icon: Package },

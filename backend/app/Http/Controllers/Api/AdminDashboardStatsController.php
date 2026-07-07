@@ -13,6 +13,8 @@ use App\Models\SafeguardingConcern;
 use App\Models\Trainer;
 use App\Models\TrainerApplication;
 use App\Models\User;
+use App\Services\Compliance\DbsExpiryService;
+use App\Services\Compliance\LaAgreementAttentionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -26,10 +28,8 @@ use Illuminate\Support\Carbon;
 class AdminDashboardStatsController extends Controller
 {
     use BaseApiController;
-    /**
-     * Handle the incoming request.
-     */
-    public function __invoke(Request $request)
+
+    public function __invoke(Request $request, DbsExpiryService $dbsExpiry, LaAgreementAttentionService $laAgreementAttention)
     {
         // Bookings overview
         $totalBookings = Booking::count();
@@ -72,6 +72,14 @@ class AdminDashboardStatsController extends Controller
         // Safeguarding & risk alerts
         $pendingSafeguardingConcerns = SafeguardingConcern::where('status', SafeguardingConcern::STATUS_PENDING)->count();
         $pendingIncidents = Incident::whereIn('status', [Incident::STATUS_OPEN, Incident::STATUS_REVIEWING])->count();
+
+        $dbsAttention = $dbsExpiry->attentionSummary();
+        $dbsExpiringCount = $dbsAttention['count'];
+        $dbsExpiringList = $dbsAttention['records'];
+
+        $laAttention = $laAgreementAttention->attentionSummary();
+        $laAgreementsAttentionCount = $laAttention['count'];
+        $laAgreementsAttentionList = $laAttention['records'];
 
         // Trainer applications awaiting admin review (submitted, not yet approved/rejected)
         $pendingTrainerApplications = TrainerApplication::where('status', TrainerApplication::STATUS_SUBMITTED)->count();
@@ -299,6 +307,10 @@ class AdminDashboardStatsController extends Controller
                 'pendingPaymentsList' => $pendingPaymentsList,
                 'childrenWithZeroHoursCount' => $childrenWithZeroHoursCount,
                 'childrenWithZeroHoursList' => $childrenWithZeroHoursList,
+                'dbsExpiringCount' => $dbsExpiringCount,
+                'dbsExpiringList' => $dbsExpiringList,
+                'laAgreementsAttentionCount' => $laAgreementsAttentionCount,
+                'laAgreementsAttentionList' => $laAgreementsAttentionList,
             ],
             'revenue' => [
                 'thisMonth' => $revenueThisMonth,

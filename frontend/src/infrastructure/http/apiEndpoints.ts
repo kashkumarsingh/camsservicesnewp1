@@ -208,6 +208,18 @@ export const API_ENDPOINTS = {
   // Admin incident reports
   ADMIN_INCIDENTS: '/admin/incidents',
   ADMIN_INCIDENT_BY_ID: (id: string | number) => `/admin/incidents/${id}`,
+
+  // Admin local authority agreements
+  ADMIN_LOCAL_AUTHORITY_AGREEMENTS: '/admin/local-authority-agreements',
+  ADMIN_LOCAL_AUTHORITY_AGREEMENT_BY_ID: (id: string | number) =>
+    `/admin/local-authority-agreements/${id}`,
+  ADMIN_LOCAL_AUTHORITY_AGREEMENT_SIGNED_DOCUMENT: (id: string | number) =>
+    `/admin/local-authority-agreements/${id}/signed-document`,
+  ADMIN_LOCAL_AUTHORITY_AGREEMENT_DOWNLOAD: (id: string | number) =>
+    `/admin/local-authority-agreements/${id}/download`,
+
+  // Admin DBS compliance
+  ADMIN_DBS_COMPLIANCE: '/admin/dbs-compliance',
   
   // Packages
   PACKAGES: '/packages',

@@ -144,6 +144,18 @@ Route::prefix('v1')->group(function () {
             Route::get('admin/incidents/{id}', [\App\Http\Controllers\Api\AdminIncidentController::class, 'show']);
             Route::patch('admin/incidents/{id}', [\App\Http\Controllers\Api\AdminIncidentController::class, 'update']);
 
+            // Local authority data sharing agreements
+            Route::get('admin/local-authority-agreements', [\App\Http\Controllers\Api\AdminLocalAuthorityAgreementController::class, 'index']);
+            Route::post('admin/local-authority-agreements', [\App\Http\Controllers\Api\AdminLocalAuthorityAgreementController::class, 'store']);
+            Route::get('admin/local-authority-agreements/{id}', [\App\Http\Controllers\Api\AdminLocalAuthorityAgreementController::class, 'show']);
+            Route::patch('admin/local-authority-agreements/{id}', [\App\Http\Controllers\Api\AdminLocalAuthorityAgreementController::class, 'update']);
+            Route::delete('admin/local-authority-agreements/{id}', [\App\Http\Controllers\Api\AdminLocalAuthorityAgreementController::class, 'destroy']);
+            Route::post('admin/local-authority-agreements/{id}/signed-document', [\App\Http\Controllers\Api\AdminLocalAuthorityAgreementController::class, 'uploadSignedDocument']);
+            Route::get('admin/local-authority-agreements/{id}/download', [\App\Http\Controllers\Api\AdminLocalAuthorityAgreementController::class, 'download']);
+
+            // DBS compliance (expiry alerts)
+            Route::get('admin/dbs-compliance', [\App\Http\Controllers\Api\AdminDbsComplianceController::class, 'index']);
+
             // Admin children (full CRUD + approve/reject + link parent + notify parent)
             Route::apiResource('admin/children', \App\Http\Controllers\Api\AdminChildController::class)->names('admin.children');
             Route::post('admin/children/{id}/approve', [\App\Http\Controllers\Api\AdminChildController::class, 'approve']);

@@ -29,6 +29,8 @@ import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 import { TrainerForm } from './TrainerForm';
 import { AdminTrainerAvailabilityPanel } from '@/components/dashboard/admin/AdminTrainerAvailabilityPanel';
 import { Calendar, Clock, MapPin, Download, Pencil } from 'lucide-react';
+import { DbsStatusBadge } from '@/components/dashboard/compliance/DbsStatusBadge';
+import { getDbsStatus } from '@/dashboard/utils/dbsComplianceUtils';
 import { getActiveBadgeClasses } from '@/dashboard/utils/statusBadgeHelpers';
 import { BOOKING_STATUS, DEFAULT_TABLE_SORT } from '@/dashboard/utils/dashboardConstants';
 import { ROUTES } from '@/shared/utils/routes';
@@ -197,6 +199,17 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
             : '—',
       },
       {
+        id: 'dbs',
+        header: 'DBS',
+        sortable: false,
+        accessor: (row) => (
+          <DbsStatusBadge
+            status={row.dbsStatus ?? getDbsStatus(row.dbsExpiresAt, row.hasDbsCheck)}
+            expiresAt={row.dbsExpiresAt}
+          />
+        ),
+      },
+      {
         id: 'status',
         header: 'Status',
         sortable: true,
@@ -341,7 +354,10 @@ export const AdminTrainersPageClient: React.FC<AdminTrainersPageClientProps> = (
           Trainers Management
         </h1>
         <p className="text-sm text-slate-600 dark:text-slate-400">
-          Manage trainer profiles, certifications, availability, and schedules
+          Manage trainer profiles, certifications, availability, and schedules.{' '}
+          <Link href={ROUTES.DASHBOARD_ADMIN_DBS_COMPLIANCE} className="font-medium text-primary-blue hover:underline">
+            DBS compliance
+          </Link>
         </p>
       </header>
 
