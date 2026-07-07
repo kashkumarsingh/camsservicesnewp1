@@ -39,6 +39,7 @@ const defaultUploadForm = {
   audience: 'all' as OperationalDocumentAudience,
   version: '1.0',
   isPublished: true,
+  externalUrl: '',
 };
 
 export function AdminOperationalDocumentsPageClient() {
@@ -97,6 +98,7 @@ export function AdminOperationalDocumentsPageClient() {
         audience: uploadForm.audience,
         version: uploadForm.version.trim() || '1.0',
         isPublished: uploadForm.isPublished,
+        externalUrl: uploadForm.externalUrl.trim() || undefined,
       });
       setUploadFile(null);
       setUploadForm(defaultUploadForm);
@@ -284,6 +286,22 @@ export function AdminOperationalDocumentsPageClient() {
                 />
                 Publish immediately
               </label>
+            </div>
+            <div>
+              <label htmlFor="doc-external-url" className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+                External link (optional)
+              </label>
+              <input
+                id="doc-external-url"
+                type="url"
+                value={uploadForm.externalUrl}
+                onChange={(e) => setUploadForm((prev) => ({ ...prev, externalUrl: e.target.value }))}
+                placeholder="https://drive.google.com/..."
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
+              />
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                Optional Google Drive or public URL used when no server copy is available.
+              </p>
             </div>
             <DashboardButton type="submit" variant="primary" size="sm" disabled={uploading}>
               {uploading ? 'Uploading…' : 'Upload document'}

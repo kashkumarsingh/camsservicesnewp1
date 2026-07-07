@@ -3,6 +3,7 @@ import { getAuthToken } from './auth/authTokenProvider';
 
 /**
  * Download a file from an authenticated API route (returns raw stream, not JSON envelope).
+ * If the API redirects to an external URL (e.g. Google Drive), opens it in a new tab.
  */
 export async function downloadAuthenticatedFile(path: string, fileName: string): Promise<void> {
   const url = `${getApiBaseUrl({ serverSide: false })}${path}`;
@@ -16,7 +17,13 @@ export async function downloadAuthenticatedFile(path: string, fileName: string):
     method: 'GET',
     credentials: 'include',
     headers,
+    redirect: 'follow',
   });
+
+  if (response.redirected && response.url && !response.url.startsWith(getApiBaseUrl({ serverSide: false }))) {
+    window.open(response.url, '_blank', 'noopener,noreferrer');
+    return;
+  }
 
   if (!response.ok) {
     let message = 'Failed to download file.';
@@ -26,8 +33,7 @@ export async function downloadAuthenticatedFile(path: string, fileName: string):
         const body = (await response.json()) as { message?: string; error?: string };
         message = body.message ?? body.error ?? message;
       } else if (response.status === 404) {
-        message =
-          'Document file not found on the server. Re-run php artisan operational-documents:seed on Railway if files were lost after a redeploy.';
+        message = 'Document file not found on the server.';
       }
     } catch {
       // Keep default message.
@@ -39,7 +45,7 @@ export async function downloadAuthenticatedFile(path: string, fileName: string):
   const objectUrl = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = objectUrl;
-  link.download = fileName;
+  link.download = fileName || 'document';
   document.body.appendChild(link);
   link.click();
   link.remove();

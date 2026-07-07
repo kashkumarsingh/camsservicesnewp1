@@ -29,6 +29,7 @@ class OperationalDocument extends Model
         'category',
         'audience',
         'storage_path',
+        'external_url',
         'file_name',
         'mime_type',
         'version',

@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use App\Models\OperationalDocument;
+use App\Services\Compliance\OperationalDocumentFileResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -17,7 +19,9 @@ class TrainerOperationalDocumentController extends Controller
 {
     use BaseApiController;
 
-    private const DISK = 'local';
+    public function __construct(
+        private readonly OperationalDocumentFileResolver $documentFiles
+    ) {}
 
     /**
      * GET /api/v1/trainer/operational-documents
@@ -41,24 +45,19 @@ class TrainerOperationalDocumentController extends Controller
     /**
      * GET /api/v1/trainer/operational-documents/{id}/download
      */
-    public function download(Request $request, int $id): JsonResponse|StreamedResponse
+    public function download(Request $request, int $id): JsonResponse|StreamedResponse|BinaryFileResponse|RedirectResponse
     {
         $document = OperationalDocument::find($id);
         if (! $document || ! $document->visibleToTrainer()) {
             return $this->notFoundResponse('Document');
         }
 
-        if (! $document->storage_path || ! Storage::disk(self::DISK)->exists($document->storage_path)) {
+        $response = $this->documentFiles->downloadResponse($document);
+        if ($response === null) {
             return $this->notFoundResponse('Document file');
         }
 
-        $mime = Storage::disk(self::DISK)->mimeType($document->storage_path) ?: $document->mime_type;
-
-        return Storage::disk(self::DISK)->response(
-            $document->storage_path,
-            $document->file_name,
-            ['Content-Type' => $mime]
-        );
+        return $response;
     }
 
     /**
@@ -73,6 +72,8 @@ class TrainerOperationalDocumentController extends Controller
             'category' => $doc->category,
             'audience' => $doc->audience,
             'file_name' => $doc->file_name,
+            'external_url' => $doc->external_url,
+            'has_download' => $this->documentFiles->hasDownloadableFile($doc),
             'version' => $doc->version,
             'updated_at' => $doc->updated_at?->toIso8601String(),
         ];

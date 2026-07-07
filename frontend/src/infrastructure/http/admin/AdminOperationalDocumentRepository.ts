@@ -17,6 +17,8 @@ export interface OperationalDocumentItem {
   version: string;
   isPublished?: boolean;
   internalOnly?: boolean;
+  externalUrl?: string | null;
+  hasDownload?: boolean;
   uploadedByName?: string | null;
   createdAt?: string;
   updatedAt?: string;
@@ -30,6 +32,7 @@ export interface UploadOperationalDocumentInput {
   version?: string;
   slug?: string;
   isPublished?: boolean;
+  externalUrl?: string;
 }
 
 export interface UpdateOperationalDocumentInput {
@@ -38,6 +41,7 @@ export interface UpdateOperationalDocumentInput {
   audience?: OperationalDocumentAudience;
   version?: string;
   isPublished?: boolean;
+  externalUrl?: string;
 }
 
 export class AdminOperationalDocumentRepository {
@@ -61,6 +65,9 @@ export class AdminOperationalDocumentRepository {
     if (input.isPublished != null) {
       formData.append('is_published', input.isPublished ? '1' : '0');
     }
+    if (input.externalUrl) {
+      formData.append('external_url', input.externalUrl);
+    }
 
     const response = await apiClient.post<{ document: OperationalDocumentItem }>(
       API_ENDPOINTS.ADMIN_OPERATIONAL_DOCUMENTS,
@@ -76,6 +83,7 @@ export class AdminOperationalDocumentRepository {
     if (input.audience != null) payload.audience = input.audience;
     if (input.version != null) payload.version = input.version;
     if (input.isPublished != null) payload.is_published = input.isPublished;
+    if (input.externalUrl !== undefined) payload.external_url = input.externalUrl;
 
     const response = await apiClient.put<{ document: OperationalDocumentItem }>(
       API_ENDPOINTS.ADMIN_OPERATIONAL_DOCUMENT_BY_ID(id),

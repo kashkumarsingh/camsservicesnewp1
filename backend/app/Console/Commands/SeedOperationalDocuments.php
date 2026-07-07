@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\OperationalDocument;
+use App\Services\Compliance\OperationalDocumentFileResolver;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class SeedOperationalDocuments extends Command
@@ -15,7 +15,11 @@ class SeedOperationalDocuments extends Command
 
     private const DISK = 'local';
 
-    private const DRIVE_DOWNLOAD_SUBDIR = 'drive-download-20260706T144113Z-3-001';
+    public function __construct(
+        private readonly OperationalDocumentFileResolver $documentFiles
+    ) {
+        parent::__construct();
+    }
 
     /** @var array<int, array{slug: string, title: string, category: string, audience: string, version: string, source: string, published: bool}> */
     private const DOCUMENTS = [
@@ -219,7 +223,7 @@ class SeedOperationalDocuments extends Command
         $skipped = 0;
 
         foreach (self::DOCUMENTS as $definition) {
-            $sourcePath = $this->findSourceFile($definition['source']);
+            $sourcePath = $this->documentFiles->findBundledSourceFile($definition['source']);
             if ($sourcePath === null) {
                 $this->warn("Missing source file: {$definition['source']}");
                 $skipped++;
@@ -237,7 +241,13 @@ class SeedOperationalDocuments extends Command
 
             $extension = strtolower(pathinfo($sourcePath, PATHINFO_EXTENSION)) ?: 'docx';
             $storageRelative = 'operational-documents/'.$definition['slug'].'.'.$extension;
-            $contents = File::get($sourcePath);
+            $contents = file_get_contents($sourcePath);
+            if ($contents === false) {
+                $this->warn("Could not read source file: {$definition['source']}");
+                $skipped++;
+
+                continue;
+            }
             Storage::disk(self::DISK)->put($storageRelative, $contents);
 
             $mime = match ($extension) {
@@ -281,34 +291,5 @@ class SeedOperationalDocuments extends Command
         $this->info("Operational documents seeded (created: {$created}, updated: {$updated}, skipped: {$skipped}).");
 
         return self::SUCCESS;
-    }
-
-    private function findSourceFile(string $filename): ?string
-    {
-        $relativePaths = [
-            $filename,
-            self::DRIVE_DOWNLOAD_SUBDIR.DIRECTORY_SEPARATOR.$filename,
-        ];
-
-        $roots = array_filter([
-            storage_path('seeds/operational-documents/sources'),
-            env('CAMS_OPERATIONAL_DOCS_PATH'),
-            '/mnt/c/Users/Mr Singh/Desktop/DESKDATA030326/WPResolve/CMSSERVICE/projects/CAMS Social/Development',
-        ]);
-
-        foreach ($roots as $root) {
-            if (! is_dir($root)) {
-                continue;
-            }
-
-            foreach ($relativePaths as $relative) {
-                $path = $root.DIRECTORY_SEPARATOR.$relative;
-                if (is_file($path)) {
-                    return $path;
-                }
-            }
-        }
-
-        return null;
     }
 }

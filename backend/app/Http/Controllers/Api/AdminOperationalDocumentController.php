@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\Concerns\BaseApiController;
 use App\Http\Controllers\Controller;
 use App\Models\OperationalDocument;
+use App\Services\Compliance\OperationalDocumentFileResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -22,6 +25,10 @@ class AdminOperationalDocumentController extends Controller
     use BaseApiController;
 
     private const DISK = 'local';
+
+    public function __construct(
+        private readonly OperationalDocumentFileResolver $documentFiles
+    ) {}
 
     private const CATEGORIES = [
         OperationalDocument::CATEGORY_SAFEGUARDING,
@@ -73,6 +80,7 @@ class AdminOperationalDocumentController extends Controller
             'version' => ['sometimes', 'nullable', 'string', 'max:20'],
             'is_published' => ['sometimes', 'boolean'],
             'internal_only' => ['sometimes', 'boolean'],
+            'external_url' => ['sometimes', 'nullable', 'string', 'url', 'max:2048'],
         ]);
 
         if ($validator->fails()) {
@@ -104,6 +112,7 @@ class AdminOperationalDocumentController extends Controller
                 'version' => $request->input('version', '1.0'),
                 'is_published' => $request->boolean('is_published', false),
                 'internal_only' => $request->boolean('internal_only', true),
+                'external_url' => $request->input('external_url'),
                 'uploaded_by' => $request->user()?->id,
             ]);
 
@@ -142,6 +151,7 @@ class AdminOperationalDocumentController extends Controller
             'version' => ['sometimes', 'nullable', 'string', 'max:20'],
             'is_published' => ['sometimes', 'boolean'],
             'internal_only' => ['sometimes', 'boolean'],
+            'external_url' => ['sometimes', 'nullable', 'string', 'url', 'max:2048'],
         ]);
 
         if ($validator->fails()) {
@@ -155,6 +165,7 @@ class AdminOperationalDocumentController extends Controller
             'version',
             'is_published',
             'internal_only',
+            'external_url',
         ]));
         $document->save();
         $document->load('uploadedBy:id,name');
@@ -195,7 +206,7 @@ class AdminOperationalDocumentController extends Controller
     /**
      * GET /api/v1/admin/operational-documents/{id}/download
      */
-    public function download(Request $request, int $id): JsonResponse|StreamedResponse
+    public function download(Request $request, int $id): JsonResponse|StreamedResponse|BinaryFileResponse|RedirectResponse
     {
         $document = OperationalDocument::find($id);
         if (! $document) {
@@ -205,19 +216,14 @@ class AdminOperationalDocumentController extends Controller
         return $this->streamDocument($document);
     }
 
-    private function streamDocument(OperationalDocument $document): JsonResponse|StreamedResponse
+    private function streamDocument(OperationalDocument $document): JsonResponse|StreamedResponse|BinaryFileResponse|RedirectResponse
     {
-        if (! $document->storage_path || ! Storage::disk(self::DISK)->exists($document->storage_path)) {
+        $response = $this->documentFiles->downloadResponse($document);
+        if ($response === null) {
             return $this->notFoundResponse('Document file');
         }
 
-        $mime = Storage::disk(self::DISK)->mimeType($document->storage_path) ?: $document->mime_type;
-
-        return Storage::disk(self::DISK)->response(
-            $document->storage_path,
-            $document->file_name,
-            ['Content-Type' => $mime]
-        );
+        return $response;
     }
 
     /**
@@ -233,6 +239,8 @@ class AdminOperationalDocumentController extends Controller
             'audience' => $document->audience,
             'file_name' => $document->file_name,
             'mime_type' => $document->mime_type,
+            'external_url' => $document->external_url,
+            'has_download' => $this->documentFiles->hasDownloadableFile($document),
             'version' => $document->version,
             'is_published' => $document->is_published,
             'internal_only' => $document->internal_only,
