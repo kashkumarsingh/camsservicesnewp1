@@ -1,6 +1,10 @@
 import { apiClient } from '../ApiClient';
 import { API_ENDPOINTS } from '../apiEndpoints';
 import { downloadAuthenticatedFile } from '../downloadAuthenticatedFile';
+import {
+  getOperationalDocumentDownloadName,
+  normalizeOperationalDocument,
+} from '@/dashboard/utils/operationalDocumentUtils';
 import type {
   OperationalDocumentAudience,
   OperationalDocumentCategory,
@@ -51,7 +55,7 @@ export class AdminOperationalDocumentRepository {
       API_ENDPOINTS.ADMIN_OPERATIONAL_DOCUMENTS,
       params ? { params: params as Record<string, string> } : undefined
     );
-    return response.data?.documents ?? [];
+    return (response.data?.documents ?? []).map((doc) => normalizeOperationalDocument(doc));
   }
 
   async upload(input: UploadOperationalDocumentInput): Promise<OperationalDocumentItem> {
@@ -73,7 +77,7 @@ export class AdminOperationalDocumentRepository {
       API_ENDPOINTS.ADMIN_OPERATIONAL_DOCUMENTS,
       formData
     );
-    return response.data.document;
+    return normalizeOperationalDocument(response.data.document);
   }
 
   async update(id: number, input: UpdateOperationalDocumentInput): Promise<OperationalDocumentItem> {
@@ -89,17 +93,28 @@ export class AdminOperationalDocumentRepository {
       API_ENDPOINTS.ADMIN_OPERATIONAL_DOCUMENT_BY_ID(id),
       payload
     );
-    return response.data.document;
+    return normalizeOperationalDocument(response.data.document);
   }
 
   async delete(id: number): Promise<void> {
     await apiClient.delete(API_ENDPOINTS.ADMIN_OPERATIONAL_DOCUMENT_BY_ID(id));
   }
 
-  async download(id: number, fileName: string): Promise<void> {
+  async download(
+    id: number,
+    fileName: string | undefined,
+    fallback?: Pick<OperationalDocumentItem, 'title' | 'slug'>
+  ): Promise<void> {
+    const resolvedName =
+      fileName?.trim() && fileName.trim() !== 'undefined'
+        ? fileName.trim()
+        : fallback
+          ? getOperationalDocumentDownloadName({ fileName: '', ...fallback })
+          : 'document';
+
     await downloadAuthenticatedFile(
       API_ENDPOINTS.ADMIN_OPERATIONAL_DOCUMENT_DOWNLOAD(id),
-      fileName || 'document'
+      resolvedName
     );
   }
 }

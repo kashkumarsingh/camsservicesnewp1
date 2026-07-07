@@ -93,7 +93,10 @@ export function AdminDbsCompliancePageClient() {
         setError('DBS procedure document not found. Run operational-documents:seed or upload via Compliance docs.');
         return;
       }
-      await adminOperationalDocumentRepository.download(template.id, template.file_name);
+      await adminOperationalDocumentRepository.download(template.id, template.fileName, {
+        title: template.title,
+        slug: template.slug,
+      });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to download DBS procedure');
     } finally {

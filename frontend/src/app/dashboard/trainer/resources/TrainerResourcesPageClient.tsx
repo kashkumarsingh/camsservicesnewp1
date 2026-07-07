@@ -77,7 +77,10 @@ export function TrainerResourcesPageClient() {
     setDownloadingId(doc.id);
     setError(null);
     try {
-      await trainerOperationalDocumentRepository.download(doc.id, doc.fileName);
+      await trainerOperationalDocumentRepository.download(doc.id, doc.fileName, {
+        title: doc.title,
+        slug: doc.slug,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Download failed');
     } finally {

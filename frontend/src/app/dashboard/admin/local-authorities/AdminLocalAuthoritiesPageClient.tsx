@@ -202,7 +202,10 @@ export function AdminLocalAuthoritiesPageClient() {
         );
         return;
       }
-      await adminOperationalDocumentRepository.download(template.id, template.file_name);
+      await adminOperationalDocumentRepository.download(template.id, template.fileName, {
+        title: template.title,
+        slug: template.slug,
+      });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to download template');
     } finally {

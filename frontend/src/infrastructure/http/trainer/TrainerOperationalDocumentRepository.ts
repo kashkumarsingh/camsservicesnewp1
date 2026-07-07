@@ -1,6 +1,10 @@
 import { apiClient } from '../ApiClient';
 import { API_ENDPOINTS } from '../apiEndpoints';
 import { downloadAuthenticatedFile } from '../downloadAuthenticatedFile';
+import {
+  getOperationalDocumentDownloadName,
+  normalizeOperationalDocument,
+} from '@/dashboard/utils/operationalDocumentUtils';
 import type {
   OperationalDocumentAudience,
   OperationalDocumentCategory,
@@ -22,11 +26,25 @@ export class TrainerOperationalDocumentRepository {
     const response = await apiClient.get<{ documents: TrainerOperationalDocumentItem[] }>(
       API_ENDPOINTS.TRAINER_OPERATIONAL_DOCUMENTS
     );
-    return response.data?.documents ?? [];
+    return (response.data?.documents ?? []).map((doc) => normalizeOperationalDocument(doc));
   }
 
-  async download(id: number, fileName: string): Promise<void> {
-    await downloadAuthenticatedFile(API_ENDPOINTS.TRAINER_OPERATIONAL_DOCUMENT_DOWNLOAD(id), fileName);
+  async download(
+    id: number,
+    fileName: string | undefined,
+    fallback?: Pick<TrainerOperationalDocumentItem, 'title' | 'slug'>
+  ): Promise<void> {
+    const resolvedName =
+      fileName?.trim() && fileName.trim() !== 'undefined'
+        ? fileName.trim()
+        : fallback
+          ? getOperationalDocumentDownloadName({ fileName: '', ...fallback })
+          : 'document';
+
+    await downloadAuthenticatedFile(
+      API_ENDPOINTS.TRAINER_OPERATIONAL_DOCUMENT_DOWNLOAD(id),
+      resolvedName
+    );
   }
 }
 

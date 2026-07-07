@@ -1,5 +1,6 @@
 import { getApiBaseUrl } from './apiBaseUrl';
 import { getAuthToken } from './auth/authTokenProvider';
+import { fileNameFromContentDisposition } from '@/dashboard/utils/operationalDocumentUtils';
 
 /**
  * Download a file from an authenticated API route (returns raw stream, not JSON envelope).
@@ -42,10 +43,14 @@ export async function downloadAuthenticatedFile(path: string, fileName: string):
   }
 
   const blob = await response.blob();
+  const serverFileName = fileNameFromContentDisposition(response.headers.get('Content-Disposition'));
+  const downloadName =
+    serverFileName ||
+    (fileName?.trim() && fileName.trim() !== 'undefined' ? fileName.trim() : 'document');
   const objectUrl = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = objectUrl;
-  link.download = fileName || 'document';
+  link.download = downloadName;
   document.body.appendChild(link);
   link.click();
   link.remove();

@@ -143,7 +143,10 @@ export function AdminOperationalDocumentsPageClient() {
     setActingId(doc.id);
     setError(null);
     try {
-      await adminOperationalDocumentRepository.download(doc.id, doc.fileName);
+      await adminOperationalDocumentRepository.download(doc.id, doc.fileName, {
+        title: doc.title,
+        slug: doc.slug,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Download failed');
     } finally {
