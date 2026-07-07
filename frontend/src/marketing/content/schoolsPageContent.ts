@@ -206,6 +206,8 @@ export const SCHOOLS_RELATED_POLICIES: ReadonlyArray<{
       'Collection, school handover, and drop-off standards for safe transfer of responsibility.',
   },
 ] as const;
+
+export const SCHOOLS_ONBOARDING_CHECKLIST = [
   'Referral received',
   'Initial information reviewed',
   'Safeguarding information shared',

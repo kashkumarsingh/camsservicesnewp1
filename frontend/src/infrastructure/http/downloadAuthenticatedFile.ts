@@ -1,12 +1,12 @@
 import { getApiBaseUrl } from './apiBaseUrl';
-import { getAuthTokenFromProvider } from './auth/authTokenProvider';
+import { getAuthToken } from './auth/authTokenProvider';
 
 /**
  * Download a file from an authenticated API route (returns raw stream, not JSON envelope).
  */
 export async function downloadAuthenticatedFile(path: string, fileName: string): Promise<void> {
-  const url = `${getApiBaseUrl()}${path}`;
-  const token = getAuthTokenFromProvider();
+  const url = `${getApiBaseUrl({ serverSide: false })}${path}`;
+  const token = getAuthToken();
   const headers: HeadersInit = { Accept: '*/*' };
   if (token) {
     headers.Authorization = `Bearer ${token}`;

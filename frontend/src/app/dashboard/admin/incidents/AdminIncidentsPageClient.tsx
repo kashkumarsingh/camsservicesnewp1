@@ -42,7 +42,7 @@ interface IncidentRow {
 
 interface ListResponse {
   data: { incidents: IncidentRow[] };
-  meta?: { total_count: number };
+  meta?: { total_count: number; limit?: number; offset?: number };
 }
 
 interface DetailResponse {
@@ -113,13 +113,9 @@ export function AdminIncidentsPageClient() {
       const response = await apiClient.get<ListResponse>(
         `${API_ENDPOINTS.ADMIN_INCIDENTS}?${params.toString()}`
       );
-      const payload = response.data as ListResponse['data'] & { meta?: { total_count?: number } };
-      const nested = (response.data as { data?: { incidents?: IncidentRow[] }; meta?: { total_count?: number } })?.data;
-      setRows(nested?.incidents ?? payload?.incidents ?? []);
+      setRows(response.data?.data?.incidents ?? []);
       setTotalCount(
-        (response.data as { meta?: { total_count?: number } })?.meta?.total_count ??
-          nested?.incidents?.length ??
-          0
+        response.data?.meta?.total_count ?? response.data?.data?.incidents?.length ?? 0
       );
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to load incidents');
@@ -139,7 +135,7 @@ export function AdminIncidentsPageClient() {
     setSelectedId(id);
     try {
       const response = await apiClient.get<DetailResponse>(API_ENDPOINTS.ADMIN_INCIDENT_BY_ID(id));
-      const incident = response.data?.incident;
+      const incident = response.data?.data?.incident;
       if (incident) {
         setDetail(incident);
         setEditStatus((incident.status as IncidentStatus) || 'open');
