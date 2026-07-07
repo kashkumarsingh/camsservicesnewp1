@@ -34,6 +34,7 @@ export function mergePackageWithApi(
       typeof apiPackage.description === "string" && apiPackage.description.length > 0
         ? apiPackage.description
         : fallback.programmeSubtitle,
+    packagesPageCardSubtitle: fallback.packagesPageCardSubtitle,
     featured: typeof apiPackage.popular === "boolean" ? apiPackage.popular : fallback.featured,
     packagesPageBadge: badgeLabel ?? fallback.packagesPageBadge,
     homeBadge: badgeLabel ?? fallback.homeBadge,

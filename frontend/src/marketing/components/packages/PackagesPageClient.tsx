@@ -3,7 +3,7 @@
 import type { ReactElement } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/marketing/components/ui/button";
 import { PageShell } from "@/marketing/components/shared/PageShell";
 import { packageDetailHref } from "@/marketing/lib/package-detail-slug";
@@ -19,7 +19,15 @@ import { PAGE_LAYOUT, PAGE_TYPOGRAPHY } from "@/marketing/components/shared/page
 import { PackageBestForCallout } from "@/marketing/components/shared/PackageBestForCallout";
 import { PackageFeaturesCollapsible } from "@/marketing/components/shared/PackageFeaturesCollapsible";
 import { PackageTierHighlightBadge } from "@/marketing/components/shared/PackageTierHighlightBadge";
-import { INTERVENTION_PACKAGES, PACKAGE_COMPARISON_ROWS, PACKAGE_FAQ_ITEMS } from "@/marketing/mock/intervention-packages";
+import {
+  INTERVENTION_PACKAGES,
+  PACKAGE_COMPARISON_ROWS,
+  PACKAGE_FAQ_ITEMS,
+  PACKAGE_TIER_GROUPS,
+  PACKAGE_UNIVERSAL_FEATURES,
+  getPackageDistinctFeatures,
+  type InterventionPackage
+} from "@/marketing/mock/intervention-packages";
 import { fetchPublicApiJson } from "@/marketing/lib/public-api";
 import {
   mapPackageListWithFallbacks,
@@ -50,12 +58,70 @@ function ComparisonCell({
   );
 }
 
+function PackageCard({ pkg }: { pkg: InterventionPackage }): ReactElement {
+  const distinctFeatures = getPackageDistinctFeatures(pkg.features);
+
+  return (
+    <article
+      className={cn(
+        "relative flex flex-col rounded-2xl border border-slate-200 bg-[#F1F5FB] p-5 sm:p-6 md:p-7 transition duration-300",
+        "hover:-translate-y-2 hover:border-cams-primary hover:shadow-md",
+        pkg.featured &&
+          "z-10 border-2 border-cams-primary bg-white shadow-md lg:scale-[1.02]",
+        pkg.packagesPageBadgeStyle === "outline" &&
+          "bg-white ring-2 ring-cams-secondary/35 ring-offset-2 ring-offset-white"
+      )}
+    >
+      {pkg.packagesPageBadge && pkg.packagesPageBadgeStyle ? (
+        <PackageTierHighlightBadge
+          label={pkg.packagesPageBadge}
+          style={pkg.packagesPageBadgeStyle}
+        />
+      ) : null}
+      <div className="mt-2 flex items-center">
+        <InterventionPackageIcon packageId={pkg.id} size={44} />
+      </div>
+      <h3 className="mt-4 font-heading text-xl font-bold text-cams-dark md:text-2xl">
+        {pkg.name}
+      </h3>
+      <p className={`mt-1 ${PAGE_TYPOGRAPHY.label}`}>{pkg.packagesPageCardSubtitle}</p>
+      <p className="mt-4 font-heading text-2xl font-bold tracking-tight text-cams-primary md:text-3xl">
+        {pkg.frequencyLine}
+      </p>
+      <PackageFeaturesCollapsible features={distinctFeatures} variant="packages" />
+      <PackageBestForCallout variant="packages">{pkg.bestFor}</PackageBestForCallout>
+      <div className="mt-auto pt-4">
+        <Button
+          href="/contact"
+          variant="ghost"
+          className="w-full rounded-[10px] border border-slate-200 bg-white py-4 text-base font-semibold text-cams-dark hover:border-cams-primary hover:bg-cams-primary/10 hover:text-cams-dark"
+        >
+          Request a Consultation
+        </Button>
+        <p className="mt-3 text-center">
+          <Link
+            href={packageDetailHref(pkg.id)}
+            className="text-sm font-semibold text-cams-primary underline-offset-2 hover:underline"
+          >
+            View full details
+          </Link>
+        </p>
+      </div>
+    </article>
+  );
+}
+
 export function PackagesPageClient(): ReactElement {
   const [openFaqIndex, setOpenFaqIndex] = useState<number>(-1);
   const [packages, setPackages] = useState(INTERVENTION_PACKAGES);
   const [faqItems, setFaqItems] = useState(PACKAGE_FAQ_ITEMS);
   const [comparePackageId, setComparePackageId] = useState(INTERVENTION_PACKAGES[0]?.id ?? "mercury");
+  const [compareExpanded, setCompareExpanded] = useState(false);
   const { isAuthenticated, loading: authLoading } = useAuth();
+  const packagesById = useMemo(
+    () => new Map(packages.map((pkg) => [pkg.id, pkg])),
+    [packages]
+  );
 
   useEffect(() => {
     void Promise.all([
@@ -122,72 +188,74 @@ export function PackagesPageClient(): ReactElement {
               All interventions are tailored to the individual needs of the child or young person. Final pricing may vary depending on risk, complexity and support requirements.
             </p>
           </div>
-          <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4">
-            {packages.map((pkg) => (
-               <article
-                 key={pkg.id}
-                 className={cn(
-                   "relative flex flex-col rounded-2xl border border-slate-200 bg-[#F1F5FB] p-5 sm:p-6 md:p-10 transition duration-300",
-                   "hover:-translate-y-2 hover:border-cams-primary hover:shadow-md",
-                   pkg.featured &&
-                     "z-10 border-2 border-cams-primary bg-white shadow-md lg:scale-[1.02]",
-                   pkg.packagesPageBadgeStyle === "outline" &&
-                     "bg-white ring-2 ring-cams-secondary/35 ring-offset-2 ring-offset-white"
-                 )}
-               >
-                 {pkg.packagesPageBadge && pkg.packagesPageBadgeStyle ? (
-                   <PackageTierHighlightBadge
-                     label={pkg.packagesPageBadge}
-                     style={pkg.packagesPageBadgeStyle}
-                   />
-                 ) : null}
-                 <div className="mt-2 flex items-center">
-                   <InterventionPackageIcon packageId={pkg.id} size={44} />
-                 </div>
-                 <h3 className="mt-4 font-heading text-xl font-bold text-cams-dark md:text-2xl">
-                   {pkg.name}
-                 </h3>
-                 <p className={`mt-1 ${PAGE_TYPOGRAPHY.label}`}>{pkg.programmeSubtitle}</p>
-                 <p className="mt-3">
-                   <Link
-                     href={packageDetailHref(pkg.id)}
-                     className="text-sm font-semibold text-cams-primary underline-offset-2 hover:underline"
-                   >
-                     View full details
-                   </Link>
-                 </p>
-                 <p className="mt-4 font-heading text-base font-bold tracking-tight text-cams-dark md:text-lg">
-                   {pkg.frequencyLine}
-                 </p>
-                 <div className="mt-4 text-cams-slate text-sm">
-                   Pricing available upon consultation.
-                 </div>
-                 <div className="mt-2 text-cams-slate text-sm mb-4">
-                   Every referral is different. Following consultation and assessment of need, CAMS services will provide a tailored quotation based on the level of support required.
-                 </div>
-                 <div className="mt-2 border-b border-slate-200 pb-6" />
-                 <PackageFeaturesCollapsible features={pkg.features} variant="packages" />
-                 <PackageBestForCallout variant="packages">{pkg.bestFor}</PackageBestForCallout>
-                 <div className="mt-4">
-                   <Button
-                     href="/contact"
-                     variant="ghost"
-                     className="mt-8 w-full rounded-[10px] border border-slate-200 bg-white py-4 text-base font-semibold text-cams-dark hover:border-cams-primary hover:bg-cams-primary/10 hover:text-cams-dark"
-                   >
-                     Request a Consultation
-                   </Button>
-                 </div>
-                 <div className="mt-2">
-                   <Button
-                     href="/referral"
-                     variant="ghost"
-                     className="mt-3 w-full rounded-[10px] border border-transparent py-3 text-sm font-semibold text-cams-slate hover:border-slate-200 hover:bg-white hover:text-cams-dark"
-                   >
-                     Make a Referral
-                   </Button>
-                 </div>
-               </article>
-            ))}
+
+          <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 md:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cams-primary">
+              Support scale
+            </p>
+            <p className="mt-2 text-sm text-cams-slate">
+              Hours increase from Mercury through Neptune. Tap a tier to view full details.
+            </p>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              {packages.map((pkg, index) => (
+                <span key={pkg.id} className="inline-flex items-center gap-2">
+                  <Link
+                    href={packageDetailHref(pkg.id)}
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold transition",
+                      pkg.featured
+                        ? "border-cams-primary bg-cams-primary/10 text-cams-dark"
+                        : "border-slate-200 bg-[#F1F5FB] text-cams-dark hover:border-cams-primary/40"
+                    )}
+                  >
+                    <InterventionPackageIcon packageId={pkg.id} size={18} className="inline" />
+                    <span>{pkg.name}</span>
+                    <span className="text-cams-primary">{pkg.frequencyLine}</span>
+                    {pkg.packagesPageBadge === "Most Popular" ? (
+                      <span className="text-cams-secondary" aria-label="Most popular">
+                        *
+                      </span>
+                    ) : null}
+                  </Link>
+                  {index < packages.length - 1 ? (
+                    <span className="hidden text-cams-slate sm:inline" aria-hidden>
+                      →
+                    </span>
+                  ) : null}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {PACKAGE_TIER_GROUPS.map((group, groupIndex) => (
+            <div key={group.id} className={cn(groupIndex === 0 ? "mt-10" : "mt-12")}>
+              <header className="mb-6 max-w-2xl">
+                <h3 className="font-heading text-xl font-bold text-cams-dark md:text-2xl">
+                  {group.label}
+                </h3>
+                <p className={`mt-2 ${PAGE_TYPOGRAPHY.body}`}>{group.description}</p>
+              </header>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+                {group.packageIds.map((packageId) => {
+                  const pkg = packagesById.get(packageId);
+                  return pkg ? <PackageCard key={packageId} pkg={pkg} /> : null;
+                })}
+              </div>
+            </div>
+          ))}
+
+          <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+            <p className="text-sm font-bold text-cams-dark">Included in all packages</p>
+            <ul className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-2">
+              {PACKAGE_UNIVERSAL_FEATURES.map((feature) => (
+                <li key={feature} className="flex gap-2 text-sm text-cams-slate">
+                  <span className="font-bold text-cams-secondary" aria-hidden>
+                    •
+                  </span>
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
           </div>
          </div>
        </section>
@@ -258,12 +326,42 @@ export function PackagesPageClient(): ReactElement {
               Package <span className={CAMS_GRADIENT_ACCENT_TEXT_CLASS}>Comparison</span>
             </h2>
             <p className="mx-auto mt-4 max-w-[700px] text-base leading-relaxed text-cams-slate md:text-lg">
-              Compare features across every tier, Mercury through Neptune, to find the right fit.
-            </p>
-            <p className="mx-auto mt-2 max-w-[700px] text-sm text-cams-ink-secondary md:hidden">
-              Select a package below to compare features.
+              Compare hours, reporting, and support depth across every tier when you are ready.
             </p>
           </header>
+
+          {!compareExpanded ? (
+            <div className="mt-8 text-center">
+              <Button
+                type="button"
+                variant="ghost"
+                className="rounded-[10px] border border-cams-primary bg-white px-6 py-4 text-base font-semibold text-cams-primary hover:bg-cams-primary/10"
+                onClick={() => {
+                  setCompareExpanded(true);
+                }}
+              >
+                Compare all packages
+              </Button>
+              <p className="mx-auto mt-3 max-w-md text-sm text-cams-slate">
+                Open the full side-by-side table only when you need to compare every detail.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="mt-6 flex justify-center md:justify-end">
+                <button
+                  type="button"
+                  className="text-sm font-semibold text-cams-primary underline-offset-2 hover:underline"
+                  onClick={() => {
+                    setCompareExpanded(false);
+                  }}
+                >
+                  Hide comparison
+                </button>
+              </div>
+              <p className="mx-auto mt-2 max-w-[700px] text-center text-sm text-cams-ink-secondary md:hidden">
+                Select a package below to compare features.
+              </p>
 
           <div className="mt-8 space-y-4 md:hidden">
             <div className="-mx-4 cams-thin-x-scroll flex gap-2 overflow-x-auto px-4 pb-1">
@@ -303,7 +401,7 @@ export function PackagesPageClient(): ReactElement {
                         cell?.emphasized && "font-semibold text-cams-primary"
                       )}
                     >
-                      {cell?.text ?? "—"}
+                      {cell?.text ?? "-"}
                     </dd>
                   </div>
                 );
@@ -361,6 +459,8 @@ export function PackagesPageClient(): ReactElement {
               </tbody>
             </table>
           </div>
+            </>
+          )}
         </div>
       </section>
 

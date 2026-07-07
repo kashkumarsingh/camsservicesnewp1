@@ -6,7 +6,19 @@
  */
 
 /** Collapsed package card bullets (home + /packages) before expanding */
-export const PACKAGES_PAGE_INITIAL_FEATURE_COUNT = 4 as const;
+export const PACKAGES_PAGE_INITIAL_FEATURE_COUNT = 2 as const;
+
+/** Shown once below the card grid instead of repeating on every tier */
+export const PACKAGE_UNIVERSAL_FEATURES = [
+  "Transport costs included for all sessions",
+  "Refreshments and snacks included for all sessions",
+  "DBS checked mentor"
+] as const;
+
+export function getPackageDistinctFeatures(features: readonly string[]): string[] {
+  const universal = new Set<string>(PACKAGE_UNIVERSAL_FEATURES);
+  return features.filter((feature) => !universal.has(feature));
+}
 
 /** Classical planets in order from the Sun; single source for column order and ids. */
 export const INTERVENTION_PACKAGE_IDS = [
@@ -21,6 +33,34 @@ export const INTERVENTION_PACKAGE_IDS = [
 ] as const;
 
 export type InterventionPackageId = (typeof INTERVENTION_PACKAGE_IDS)[number];
+
+export type PackageTierGroup = {
+  readonly id: string;
+  readonly label: string;
+  readonly description: string;
+  readonly packageIds: readonly InterventionPackageId[];
+};
+
+export const PACKAGE_TIER_GROUPS: readonly PackageTierGroup[] = [
+  {
+    id: "getting-started",
+    label: "Getting started",
+    description: "Assessment and early engagement for new referrals.",
+    packageIds: ["mercury", "venus"]
+  },
+  {
+    id: "core-support",
+    label: "Core support",
+    description: "Most referrals start here for consistent, measurable progress.",
+    packageIds: ["earth", "mars"]
+  },
+  {
+    id: "intensive",
+    label: "Intensive",
+    description: "Higher hours, deeper reporting, and complex case coordination.",
+    packageIds: ["jupiter", "saturn", "uranus", "neptune"]
+  }
+];
 
 export type PackageComparisonCell = {
   readonly text: string;
@@ -43,6 +83,8 @@ export type InterventionPackage = {
   /** Badge look on /packages; gradient = primary highlight, outline = secondary highlight */
   readonly packagesPageBadgeStyle: "gradient" | "outline" | null;
   readonly programmeSubtitle: string;
+  /** Short label on /packages cards (a few words max) */
+  readonly packagesPageCardSubtitle: string;
   /** Total hours; shown prominently on /packages */
   readonly frequencyLine: string;
   /** Single line under price on home (hours only) */
@@ -66,6 +108,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
     programmeSubtitle: "Designed to identify strengths, challenges and recommended support pathways before intervention begins.",
+    packagesPageCardSubtitle: "Assessment & Planning",
     frequencyLine: "3 Hours",
     homeDurationLine: "3 Hours",
     features: [
@@ -93,6 +136,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
     programmeSubtitle: "Early Engagement",
+    packagesPageCardSubtitle: "Early Engagement",
     frequencyLine: "6 Hours",
     homeDurationLine: "6 Hours",
     features: [
@@ -120,6 +164,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     packagesPageBadge: "Most Popular",
     packagesPageBadgeStyle: "gradient",
     programmeSubtitle: "Core Intervention",
+    packagesPageCardSubtitle: "Core Intervention",
     frequencyLine: "9 Hours",
     homeDurationLine: "9 Hours",
     features: [
@@ -149,6 +194,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
     programmeSubtitle: "Behaviour & Routine Focus",
+    packagesPageCardSubtitle: "Behaviour & Routine Focus",
     frequencyLine: "12 Hours",
     homeDurationLine: "12 Hours",
     features: [
@@ -178,6 +224,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
     programmeSubtitle: "High Impact Mentoring",
+    packagesPageCardSubtitle: "High Impact Mentoring",
     frequencyLine: "15 Hours",
     homeDurationLine: "15 Hours",
     features: [
@@ -208,6 +255,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     packagesPageBadge: "Best for Complex Needs",
     packagesPageBadgeStyle: "outline",
     programmeSubtitle: "Deep Intervention",
+    packagesPageCardSubtitle: "Deep Intervention",
     frequencyLine: "18 Hours",
     homeDurationLine: "18 Hours",
     features: [
@@ -238,6 +286,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
     programmeSubtitle: "Premium Intensive Support",
+    packagesPageCardSubtitle: "Premium Intensive Support",
     frequencyLine: "21 Hours",
     homeDurationLine: "21 Hours",
     features: [
@@ -269,6 +318,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
     programmeSubtitle: "Flagship Programme",
+    packagesPageCardSubtitle: "Flagship Programme",
     frequencyLine: "24 Hours",
     homeDurationLine: "24 Hours",
     features: [
