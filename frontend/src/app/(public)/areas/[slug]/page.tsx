@@ -6,9 +6,9 @@ import { AreaPageJsonLd } from '@/marketing/components/seo/AreaPageJsonLd';
 import { getLocationAreaBySlug, LOCATION_AREAS } from '@/marketing/content/locations';
 import {
   areaMetaDescription,
-  areaMetaTitle,
   mergeAreaFaq,
 } from '@/marketing/content/locations/location-seo-copy';
+import { areaMetaTitle } from '@/marketing/content/locations/service-location-keywords';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
 import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
 import { ROUTES } from '@/shared/utils/routes';
@@ -40,10 +40,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return buildPublicMetadata(
     {
-      title: `${areaMetaTitle(area)} | CAMS services`,
+      title: `${areaMetaTitle(area.name)} | CAMS services`,
       description: areaMetaDescription(area),
       path: ROUTES.AREA_BY_SLUG(area.slug),
-      imageAlt: `Chaperone service and chaperoning services in ${area.name}`,
+      imageAlt: `Chaperone, child transport and mentoring in ${area.name}`,
     },
     BASE_URL
   );

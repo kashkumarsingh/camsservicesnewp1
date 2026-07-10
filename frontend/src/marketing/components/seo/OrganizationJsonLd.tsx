@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import { BUSINESS_HOURS } from "@/data/contactData";
 import { getMetadataBaseUrl } from "@/marketing/lib/public-site-url";
 import { SEO_DEFAULTS, CHAPERONE_SEO_TERMS } from "@/marketing/utils/seoConstants";
 
@@ -40,6 +41,14 @@ export function OrganizationJsonLd(): ReactElement {
           addressCountry: "GB",
         },
         areaServed: { "@type": "Country", name: "United Kingdom" },
+        openingHoursSpecification: [
+          {
+            "@type": "OpeningHoursSpecification",
+            dayOfWeek: [...BUSINESS_HOURS.schema.dayOfWeek],
+            opens: BUSINESS_HOURS.schema.opens,
+            closes: BUSINESS_HOURS.schema.closes,
+          },
+        ],
         parentOrganization: { "@id": `${baseUrl}/#organization` },
       },
       {

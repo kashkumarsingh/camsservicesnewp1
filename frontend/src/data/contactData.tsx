@@ -1,3 +1,22 @@
+export const BUSINESS_HOURS = {
+  /** Matches Yell / Google Business Profile listing */
+  display: 'Open 24 hours, Monday to Sunday',
+  displayShort: '24 hours, Mon–Sun',
+  schema: {
+    dayOfWeek: [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ] as const,
+    opens: '00:00',
+    closes: '23:59',
+  },
+} as const;
+
 export const contactData = {
   email: 'info@camsservices.co.uk',
   phone: '+44 7939 990587',

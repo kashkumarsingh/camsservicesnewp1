@@ -11,18 +11,22 @@ type AreaSeoIntroProps = {
   area: LocationArea;
 };
 
-/** Crawlable location SEO copy for "chaperone service [place]" and "chaperoning services [place]". */
+/** Crawlable location SEO copy for all programmes in this borough. */
 export function AreaSeoIntro({ area }: AreaSeoIntroProps): ReactElement {
   return (
     <div className="sr-only">
       <PageSeoProse
         titleAs="h2"
         headingId={`area-seo-${area.slug}`}
-        title={areaHeroTitle(area)}
+        title={areaHeroTitle(area.name)}
         paragraphs={areaSeoIntroParagraphs(area)}
         links={[
           { href: ROUTES.CHAPERONE_SERVICES, label: 'chaperone services UK' },
-          { href: ROUTES.SERVICE_BY_SLUG('community'), label: 'community transport programme' },
+          { href: ROUTES.SERVICE_BY_SLUG('community'), label: 'chaperone & child transport' },
+          { href: ROUTES.SERVICE_BY_SLUG('mentoring'), label: 'youth mentoring' },
+          { href: ROUTES.SERVICE_BY_SLUG('sen'), label: 'SEND support services' },
+          { href: ROUTES.SERVICE_BY_SLUG('routine'), label: 'family support services' },
+          { href: ROUTES.SERVICE_BY_SLUG('goals'), label: 'behaviour support' },
           { href: ROUTES.REFERRAL, label: 'make a referral' },
         ]}
       />

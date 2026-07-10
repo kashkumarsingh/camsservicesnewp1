@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { contactData } from "@/data/contactData";
+import { BUSINESS_HOURS, contactData } from "@/data/contactData";
 import { getMetadataBaseUrl } from "@/marketing/lib/public-site-url";
 import { SEO_DEFAULTS } from "@/marketing/utils/seoConstants";
 
@@ -24,9 +24,9 @@ export function ContactPageJsonLd(): ReactElement {
     openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-        opens: "09:00",
-        closes: "18:00",
+        dayOfWeek: [...BUSINESS_HOURS.schema.dayOfWeek],
+        opens: BUSINESS_HOURS.schema.opens,
+        closes: BUSINESS_HOURS.schema.closes,
       },
     ],
     areaServed: [

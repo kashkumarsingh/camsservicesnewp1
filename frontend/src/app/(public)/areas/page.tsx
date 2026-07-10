@@ -9,9 +9,9 @@ const BASE_URL = getMetadataBaseUrl();
 export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
     {
-      title: 'Chaperone service by area | Chaperoning services West London',
+      title: 'Service areas | Chaperone, transport, mentoring & SEND support',
       description:
-        'Find chaperone service and chaperoning services in your borough: Ealing, Harrow, Brent, Hounslow, Hillingdon, Barnet and more. CAMS services — HQ Greenford, Ealing.',
+        'Chaperone service, child transport, youth mentoring, SEND support and family support by borough. Ealing, Harrow, Brent, Hounslow, Hillingdon, Barnet, Watford and more. CAMS services — HQ Greenford.',
       path: ROUTES.AREAS,
       imageAlt: 'CAMS services West London service areas',
     },

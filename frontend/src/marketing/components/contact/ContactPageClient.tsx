@@ -11,7 +11,7 @@ import { CamsIcon, type CamsIconName } from "@/marketing/components/shared/CamsI
 import { PAGE_LAYOUT, PAGE_SURFACES } from "@/marketing/components/shared/page-layout";
 import { useContactForm } from "@/interfaces/web/hooks/contact/useContactForm";
 import { thankYouPageUrl } from "@/shared/utils/thankYouPage";
-import { contactData } from "@/data/contactData";
+import { BUSINESS_HOURS, contactData } from "@/data/contactData";
 
 const CONTACT_PHONE_HREF = `tel:${contactData.phone.replace(/\s/g, "")}`;
 const CONTACT_EMAIL_MAILTO = `mailto:${contactData.email}`;
@@ -365,7 +365,7 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
                 >
                   {contactData.phone}
                 </a>
-                <p className="mt-1 text-sm text-cams-slate">Monday to Friday, 9:00 to 18:00</p>
+                <p className="mt-1 text-sm text-cams-slate">{BUSINESS_HOURS.display}</p>
               </div>
 
               <div>

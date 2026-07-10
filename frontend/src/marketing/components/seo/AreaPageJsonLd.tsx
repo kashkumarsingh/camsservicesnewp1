@@ -1,7 +1,9 @@
 import type { ReactElement } from "react";
+import { BUSINESS_HOURS } from "@/data/contactData";
 import { getLocationAreaBySlug } from "@/marketing/content/locations";
 import {
   areaFocusKeywords,
+  areaJsonLdServiceTypes,
   areaMetaDescription,
   mergeAreaFaq,
 } from "@/marketing/content/locations/location-seo-copy";
@@ -27,12 +29,20 @@ export function AreaPageJsonLd({ slug }: AreaPageJsonLdProps): ReactElement | nu
       {
         "@type": "Service",
         "@id": `${pageUrl}#service`,
-        name: `Chaperone service ${area.name}`,
+        name: `Child support services in ${area.name}`,
         alternateName: areaFocusKeywords(area),
         provider: {
           "@type": "LocalBusiness",
           name: SEO_DEFAULTS.siteName,
           url: baseUrl,
+          openingHoursSpecification: [
+            {
+              "@type": "OpeningHoursSpecification",
+              dayOfWeek: [...BUSINESS_HOURS.schema.dayOfWeek],
+              opens: BUSINESS_HOURS.schema.opens,
+              closes: BUSINESS_HOURS.schema.closes,
+            },
+          ],
         },
         areaServed: {
           "@type": "AdministrativeArea",
@@ -42,13 +52,7 @@ export function AreaPageJsonLd({ slug }: AreaPageJsonLdProps): ReactElement | nu
             name: area.region,
           },
         },
-        serviceType: [
-          "Chaperone service",
-          "Chaperone services",
-          "Chaperoning services",
-          "Child transport services",
-          "School transport support",
-        ],
+        serviceType: areaJsonLdServiceTypes(),
         description: areaMetaDescription(area),
         url: pageUrl,
       },

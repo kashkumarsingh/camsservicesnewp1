@@ -6,7 +6,7 @@ import { useId, useState } from "react";
 import { Button } from "@/marketing/components/ui/button";
 import { CamsIcon } from "@/marketing/components/shared/CamsIcon";
 import { PAGE_LAYOUT, PAGE_SURFACES } from "@/marketing/components/shared/page-layout";
-import { contactData } from "@/data/contactData";
+import { BUSINESS_HOURS, contactData } from "@/data/contactData";
 import type { LocationArea } from "@/marketing/content/locations";
 import { useContactForm } from "@/interfaces/web/hooks/contact/useContactForm";
 import { thankYouPageUrl } from "@/shared/utils/thankYouPage";
@@ -93,7 +93,7 @@ export function AreaContactSidebar({ area }: AreaContactSidebarProps): ReactElem
             >
               {contactData.phone}
             </a>
-            <p className="mt-1 text-xs text-cams-slate">Monday to Friday, 9:00 to 18:00</p>
+            <p className="mt-1 text-xs text-cams-slate">{BUSINESS_HOURS.display}</p>
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">

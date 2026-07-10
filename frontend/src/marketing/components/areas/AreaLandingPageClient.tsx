@@ -9,6 +9,7 @@ import { CamsIcon } from "@/marketing/components/shared/CamsIcon";
 import { PAGE_LAYOUT, PAGE_SURFACES } from "@/marketing/components/shared/page-layout";
 import FAQAccordion from "@/marketing/components/features/faq/FAQAccordion";
 import { AreaContactSidebar } from "@/marketing/components/areas/AreaContactSidebar";
+import { AreaServicesKeywordsSection } from "@/marketing/components/areas/AreaServicesKeywordsSection";
 import { getBorderingAreas, type LocationArea } from "@/marketing/content/locations";
 import type { LocationAreaFaq } from "@/marketing/content/locations/types";
 import {
@@ -35,7 +36,7 @@ export function AreaLandingPageClient({ area, faq }: AreaLandingPageClientProps)
       <PageHeroBand
         title={
           <>
-            Chaperone service &amp; chaperoning services in{" "}
+            Chaperone, transport &amp; mentoring in{" "}
             <span className="text-cams-primary">{area.name}</span>
           </>
         }
@@ -62,6 +63,8 @@ export function AreaLandingPageClient({ area, faq }: AreaLandingPageClientProps)
             <p className="mt-4 text-sm text-cams-slate">{area.notes}</p>
           </section>
 
+          <AreaServicesKeywordsSection area={area} />
+
           <section className={`${PAGE_LAYOUT.panelFrame} bg-gradient-to-b from-white to-slate-50/80 px-4 py-10 md:px-8 md:py-12`}>
             <h2 className="font-heading text-2xl font-bold sm:text-3xl">
               Key <span className="text-cams-primary">neighbourhoods</span>
@@ -83,8 +86,8 @@ export function AreaLandingPageClient({ area, faq }: AreaLandingPageClientProps)
               Services in <span className="text-cams-primary">{area.name}</span>
             </h2>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-cams-ink-secondary">
-              Commission chaperone services, transport, mentoring and family support in {area.name}. Each programme
-              links to full detail on our services pages.
+              Commission chaperone service, child transport, youth mentoring, SEND support, family support
+              and sports programmes in {area.name}. Each programme links to full detail on our services pages.
             </p>
             <ul className="mt-8 grid gap-4 sm:grid-cols-2">
               {programmes.map((programme) => (
@@ -136,8 +139,8 @@ export function AreaLandingPageClient({ area, faq }: AreaLandingPageClientProps)
           <section>
             <FAQAccordion
               faqs={faqs}
-              title={`Chaperone service & chaperoning services in ${area.name}`}
-              description={`Questions about chaperone service near ${area.name} and chaperoning services for schools, local authorities and families.`}
+              title={`Services in ${area.name}: FAQs`}
+              description={`Chaperone service, child transport, mentoring, SEND and family support in ${area.name} — questions from schools, local authorities and families.`}
             />
           </section>
         </div>
@@ -149,7 +152,7 @@ export function AreaLandingPageClient({ area, faq }: AreaLandingPageClientProps)
 
       <PageCtaSection
         className="mt-10"
-        heading={`Refer chaperone services in ${area.name}`}
+        heading={`Refer services in ${area.name}`}
         description="Share postcodes, schedules and safeguarding context. We confirm feasibility and next steps within one working day."
         actions={[
           { href: ROUTES.REFERRAL, label: "Make a Referral", variant: "primary" },
