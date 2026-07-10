@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { policiesData } from "@/data/policiesData";
 import { getCanonicalUrlForSiteSlug } from "@/marketing/lib/public-site-url";
 import { getSeoBlogSitemapEntries } from "@/marketing/content/blog";
+import { getLocationAreaSitemapEntries } from "@/marketing/content/locations";
 import { INTERVENTION_PACKAGE_IDS } from "@/marketing/mock/intervention-packages";
 import {
   SERVICE_PROGRAMME_LIST,
@@ -13,6 +14,7 @@ const STATIC_SLUGS = [
   "",
   "about",
   "services",
+  "areas",
   "packages",
   "contact",
   "referral",
@@ -26,7 +28,7 @@ const STATIC_SLUGS = [
   "policies",
 ] as const;
 
-const HIGH_PRIORITY_SLUGS = new Set(["", "about", "services", "packages", "contact", "blog", "schools"]);
+const HIGH_PRIORITY_SLUGS = new Set(["", "about", "services", "areas", "packages", "contact", "blog", "schools"]);
 
 function entry(
   slug: string,
@@ -69,10 +71,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry(post.path, 0.7, "weekly", post.lastModified)
   );
 
+  const areaEntries: MetadataRoute.Sitemap = getLocationAreaSitemapEntries().map((area) =>
+    entry(area.path, 0.75, "monthly", area.lastModified)
+  );
+
   return [
     ...pageEntries,
     ...packageEntries,
     ...serviceEntries,
+    ...areaEntries,
     ...policyEntries,
     ...blogEntries,
   ];

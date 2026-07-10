@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import sitemap from "@/app/sitemap";
 import { getCanonicalUrlForSiteSlug } from "@/marketing/lib/public-site-url";
 import { getIndexNowKey, submitIndexNowUrls } from "@/marketing/lib/indexnow";
 
@@ -27,6 +28,7 @@ export async function POST(request: Request) {
 
   const rawUrls = Array.isArray(body?.urls) ? body.urls : [];
   const slugs = Array.isArray(body?.slugs) ? body.slugs : [];
+  const useSitemap = body?.sitemap === true;
 
   const urls = [
     ...rawUrls.filter((url: unknown): url is string => typeof url === "string"),
@@ -35,8 +37,13 @@ export async function POST(request: Request) {
       .map((slug: string) => getCanonicalUrlForSiteSlug(slug)),
   ];
 
+  if (useSitemap) {
+    const entries = await sitemap();
+    urls.push(...entries.map((entry) => entry.url));
+  }
+
   if (urls.length === 0) {
-    return NextResponse.json({ message: "Provide urls and/or slugs." }, { status: 400 });
+    return NextResponse.json({ message: "Provide urls, slugs, or sitemap: true." }, { status: 400 });
   }
 
   const result = await submitIndexNowUrls(urls);

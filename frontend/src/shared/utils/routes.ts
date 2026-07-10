@@ -14,6 +14,8 @@ export const ROUTES = {
   BOOK_RETRIEVE: '/book/retrieve',
   SERVICES: '/services',
   SERVICE_BY_SLUG: (slug: string) => `/services/${slug}`,
+  AREAS: '/areas',
+  AREA_BY_SLUG: (slug: string) => `/areas/${slug}`,
   BLOG: '/blog',
   BLOG_POST_BY_SLUG: (slug: string) => `/blog/${slug}`,
   TRAINERS: '/trainers',

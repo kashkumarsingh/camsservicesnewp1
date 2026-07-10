@@ -11,7 +11,6 @@ import {
   type NavMegaItem,
 } from "@/mock/navigation";
 import { ROUTES } from "@/shared/utils/routes";
-import { GetAccessDropdown } from "@/components/layout/GetAccessDropdown";
 
 function MegaPanel({ item }: { item: NavMegaItem }): ReactElement {
   return (
@@ -336,23 +335,53 @@ export function SiteHeaderNav({ navItems = NAV_ITEMS }: SiteHeaderNavProps): Rea
                 </li>
               );
             })}
+            <li>
+              <Link
+                href={ROUTES.BECOME_A_TRAINER}
+                aria-current={isActivePath(pathname, ROUTES.BECOME_A_TRAINER) ? "page" : undefined}
+                className={`block rounded-md px-2 py-2 text-sm font-semibold transition ${
+                  isActivePath(pathname, ROUTES.BECOME_A_TRAINER)
+                    ? "bg-cams-soft text-cams-primary"
+                    : "text-cams-ink hover:bg-cams-soft hover:text-cams-primary"
+                }`}
+                onClick={closeMobileMenu}
+              >
+                Become a Trainer
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={ROUTES.REFERRAL}
+                aria-current={isActivePath(pathname, ROUTES.REFERRAL) ? "page" : undefined}
+                className={`block rounded-md px-2 py-2 text-sm font-semibold transition ${
+                  isActivePath(pathname, ROUTES.REFERRAL)
+                    ? "bg-cams-soft text-cams-primary"
+                    : "text-cams-ink hover:bg-cams-soft hover:text-cams-primary"
+                }`}
+                onClick={closeMobileMenu}
+              >
+                Make a Referral
+              </Link>
+            </li>
           </ul>
-          <div className="mt-4 flex flex-col gap-2 border-t border-slate-200 pt-4">
-            <GetAccessDropdown variant="mobile" onNavigate={closeMobileMenu} />
+          <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-slate-200 pt-3">
             <Link
-              href={ROUTES.BECOME_A_TRAINER}
-              className="inline-flex min-h-10 items-center justify-center rounded-md border border-cams-primary px-4 py-2 text-sm font-semibold text-cams-primary transition hover:bg-cams-primary/10"
+              href={ROUTES.LOGIN}
+              className="inline-flex min-h-9 items-center justify-center rounded-md bg-gradient-to-r from-cams-primary to-cams-secondary px-4 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
               onClick={closeMobileMenu}
             >
-              Become a Trainer
+              Sign in
             </Link>
-            <Link
-              href={ROUTES.REFERRAL}
-              className="inline-flex min-h-10 items-center justify-center rounded-md border border-cams-primary px-4 py-2 text-sm font-semibold text-cams-primary transition hover:bg-cams-primary/10"
-              onClick={closeMobileMenu}
-            >
-              Make a Referral
-            </Link>
+            <p className="text-sm text-cams-ink-secondary">
+              or{" "}
+              <Link
+                href={ROUTES.REGISTER}
+                className="font-semibold text-cams-primary hover:underline hover:underline-offset-2"
+                onClick={closeMobileMenu}
+              >
+                Register
+              </Link>
+            </p>
           </div>
         </div>
       </div>

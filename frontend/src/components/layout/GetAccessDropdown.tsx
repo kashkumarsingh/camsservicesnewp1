@@ -6,14 +6,10 @@ import { useEffect, useRef, useState } from "react";
 import { ROUTES } from "@/shared/utils/routes";
 
 type GetAccessDropdownProps = {
-  variant?: "desktop" | "mobile";
   onNavigate?: () => void;
 };
 
-export function GetAccessDropdown({
-  variant = "desktop",
-  onNavigate,
-}: GetAccessDropdownProps): ReactElement {
+export function GetAccessDropdown({ onNavigate }: GetAccessDropdownProps): ReactElement {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -40,33 +36,6 @@ export function GetAccessDropdown({
 
   const menuLinkClass =
     "block rounded-lg px-3 py-2 text-sm font-semibold text-cams-ink transition hover:bg-cams-soft hover:text-cams-primary";
-
-  if (variant === "mobile") {
-    return (
-      <div ref={ref}>
-        <button
-          type="button"
-          className="inline-flex min-h-10 w-full items-center justify-between rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold text-cams-ink transition hover:bg-cams-soft hover:text-cams-primary"
-          aria-expanded={open}
-          aria-controls="get-access-mobile-menu"
-          onClick={() => setOpen((value) => !value)}
-        >
-          Get Access
-          <span aria-hidden>{open ? "−" : "+"}</span>
-        </button>
-        {open ? (
-          <div id="get-access-mobile-menu" className="mt-2 flex flex-col gap-1 border-l border-slate-200 pl-3">
-            <Link href={ROUTES.LOGIN} className={menuLinkClass} onClick={close}>
-              Sign in
-            </Link>
-            <Link href={ROUTES.REGISTER} className={menuLinkClass} onClick={close}>
-              Register
-            </Link>
-          </div>
-        ) : null}
-      </div>
-    );
-  }
 
   return (
     <div ref={ref} className="relative">
