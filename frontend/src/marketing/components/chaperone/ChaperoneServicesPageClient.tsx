@@ -56,11 +56,11 @@ export function ChaperoneServicesPageClient(): ReactElement {
               Near you
             </p>
             <h2 className="mt-3 font-heading text-3xl font-bold text-cams-ink md:text-4xl">
-              Chaperone services near West London & Hertfordshire
+              Chaperone service &amp; chaperoning services by borough
             </h2>
             <p className="mt-4 text-cams-ink-secondary">
-              Search &quot;chaperone service near me&quot; or &quot;chaperone services&quot; for your borough?
-              CAMS covers these areas from our Greenford HQ — each page explains local delivery and referral routes.
+              Searching chaperone service Ealing, chaperoning services Hounslow, or chaperone service near your
+              postcode? Each borough page explains local delivery, neighbourhoods and how to refer.
             </p>
           </header>
           <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -70,7 +70,7 @@ export function ChaperoneServicesPageClient(): ReactElement {
                   href={ROUTES.AREA_BY_SLUG(area.slug)}
                   className="block rounded-2xl border border-slate-200/90 bg-cams-soft/60 px-4 py-3 text-sm font-semibold text-cams-ink transition hover:border-cams-primary/30 hover:bg-white"
                 >
-                  Chaperone services {area.name}
+                  Chaperone service &amp; chaperoning services — {area.name}
                 </Link>
               </li>
             ))}

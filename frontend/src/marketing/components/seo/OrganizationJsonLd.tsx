@@ -55,6 +55,7 @@ export function OrganizationJsonLd(): ReactElement {
         serviceType: [
           CHAPERONE_SEO_TERMS.secondary,
           CHAPERONE_SEO_TERMS.primary,
+          CHAPERONE_SEO_TERMS.chaperoning,
           CHAPERONE_SEO_TERMS.branded,
           "child transport services",
           "contact centre transport",

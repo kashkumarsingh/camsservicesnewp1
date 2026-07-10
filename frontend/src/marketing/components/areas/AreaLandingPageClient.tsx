@@ -10,30 +10,36 @@ import { PAGE_LAYOUT, PAGE_SURFACES } from "@/marketing/components/shared/page-l
 import FAQAccordion from "@/marketing/components/features/faq/FAQAccordion";
 import { AreaContactSidebar } from "@/marketing/components/areas/AreaContactSidebar";
 import { getBorderingAreas, type LocationArea } from "@/marketing/content/locations";
+import type { LocationAreaFaq } from "@/marketing/content/locations/types";
+import {
+  areaHeroDescription,
+} from "@/marketing/content/locations/location-seo-copy";
 import { getServiceProgrammeBySlug } from "@/marketing/mock/services-programmes";
 import { ROUTES } from "@/shared/utils/routes";
 
 type AreaLandingPageClientProps = {
   area: LocationArea;
+  faq: readonly LocationAreaFaq[];
 };
 
-export function AreaLandingPageClient({ area }: AreaLandingPageClientProps): ReactElement {
+export function AreaLandingPageClient({ area, faq }: AreaLandingPageClientProps): ReactElement {
   const programmes = area.serviceSlugs
     .map((slug) => getServiceProgrammeBySlug(slug))
     .filter((item): item is NonNullable<typeof item> => item != null);
 
   const bordering = getBorderingAreas(area);
-  const faqs = area.faq.map((item) => ({ question: item.q, answer: item.a }));
+  const faqs = faq.map((item) => ({ question: item.q, answer: item.a }));
 
   return (
     <PageShell maxWidthClassName="max-w-[1600px]">
       <PageHeroBand
         title={
           <>
-            Chaperone services in <span className="text-cams-primary">{area.name}</span>
+            Chaperone service &amp; chaperoning services in{" "}
+            <span className="text-cams-primary">{area.name}</span>
           </>
         }
-        description={area.heroDescription}
+        description={areaHeroDescription(area)}
       />
 
       <div className={`${PAGE_LAYOUT.splitGrid} mt-10 lg:mt-12`}>
@@ -130,8 +136,8 @@ export function AreaLandingPageClient({ area }: AreaLandingPageClientProps): Rea
           <section>
             <FAQAccordion
               faqs={faqs}
-              title={`Chaperone services in ${area.name}: FAQs`}
-              description={`Common questions from schools, local authorities and families commissioning cover in ${area.name}.`}
+              title={`Chaperone service & chaperoning services in ${area.name}`}
+              description={`Questions about chaperone service near ${area.name} and chaperoning services for schools, local authorities and families.`}
             />
           </section>
         </div>

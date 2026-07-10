@@ -14,8 +14,8 @@ export function ChaperoneServicesJsonLd(): ReactElement {
       {
         '@type': 'Service',
         '@id': `${pageUrl}#service`,
-        name: 'Chaperone services',
-        alternateName: ['Chaperone service', 'Chaperone services UK', 'Child chaperone services'],
+        name: 'Chaperone service',
+        alternateName: ['Chaperone services', 'Chaperoning services', 'Chaperoning service', 'Chaperone services UK'],
         url: pageUrl,
         description: CHAPERONE_SERVICES_PAGE.metaDescription,
         provider: {
@@ -32,7 +32,7 @@ export function ChaperoneServicesJsonLd(): ReactElement {
           },
         },
         areaServed: { '@type': 'Country', name: 'United Kingdom' },
-        serviceType: ['Chaperone services', 'Child transport', 'Contact centre transport', 'School transport support'],
+        serviceType: ['Chaperone service', 'Chaperoning services', 'Chaperone services', 'Child transport', 'Contact centre transport'],
       },
       {
         '@type': 'FAQPage',

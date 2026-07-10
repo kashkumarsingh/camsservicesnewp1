@@ -4,9 +4,9 @@
  */
 export const SEO_DEFAULTS = {
   siteName: 'CAMS services',
-  title: 'Chaperone services UK | Chaperone service | CAMS services',
+  title: 'Chaperone service UK | Chaperoning services | CAMS services',
   description:
-    'Professional chaperone service and chaperone services UK for children in care, contact transport and SEND. DBS-checked child chaperones for schools and local authorities.',
+    'Chaperone service, chaperoning services and chaperone services UK for children in care, contact transport and SEND. DBS-checked child chaperones for schools and local authorities.',
   ogImagePath: '/og',
   ogImageWidth: 1200,
   ogImageHeight: 630,
@@ -17,5 +17,8 @@ export const SEO_DEFAULTS = {
 export const CHAPERONE_SEO_TERMS = {
   primary: 'chaperone services',
   secondary: 'chaperone service',
+  chaperoning: 'chaperoning services',
+  chaperoningSingular: 'chaperoning service',
   branded: 'chaperone services UK',
+  nearMe: 'chaperone service near me',
 } as const;

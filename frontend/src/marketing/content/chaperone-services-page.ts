@@ -2,31 +2,35 @@ import { ROUTES } from '@/shared/utils/routes';
 import type { PageSeoLink } from '@/marketing/components/seo/PageSeoProse';
 
 export const CHAPERONE_SERVICES_PAGE = {
-  metaTitle: 'Chaperone services UK | Professional chaperone service | CAMS services',
+  metaTitle: 'Chaperone service UK | Chaperoning services & chaperone services',
   metaDescription:
-    'Chaperone services and chaperone service UK for children in care, SEND transport and contact centre journeys. DBS-checked escorts for schools, IFAs and local authorities. West London & UK.',
-  heroEyebrow: 'Chaperone services',
-  heroTitle: 'Professional chaperone services for children and young people',
+    'Chaperone service, chaperoning services and chaperone services UK for children in care, SEND transport and contact centre journeys. DBS-checked escorts. West London boroughs & UK.',
+  heroEyebrow: 'Chaperone service & chaperoning services',
+  heroTitle: 'Chaperone service and chaperoning services for children',
   heroSubtitle:
-    'Safeguarding-first chaperone service for contact transport, school runs, foster moves and community access. Commission CAMS services across West London and the wider UK.',
+    'Safeguarding-first chaperone service for contact transport, school runs, foster moves and community access — chaperoning services across West London boroughs and the wider UK.',
   paragraphs: [
-    'CAMS services Ltd provides chaperone services when a child or young person cannot travel alone. Our chaperone service combines trained adult presence with planned journeys: supervised contact transport, SEMH-friendly school runs, foster placement moves and appointments.',
-    'Unlike a taxi booking, a professional chaperone service is person-centred. The same DBS-checked practitioner can support multiple journeys in a week when continuity helps the child. Every assignment includes handover protocols, de-escalation awareness and reporting for referrers where commissioned.',
-    'Local authorities, schools, foster agencies and families search for chaperone services near them when court-ordered contact, placement instability or SEND needs make independent travel unsafe. CAMS is headquartered in Greenford, Ealing, with chaperone services across West London boroughs and links into Hertfordshire and wider UK commissioning.',
-    'We are a children\'s social care provider — not medical chaperoning, entertainment licensing or private VIP escorts. If you need chaperone services UK-wide for a child in care, contact centre transport or school attendance support, start with a referral or consultation.',
+    'CAMS services Ltd provides chaperone service when a child or young person cannot travel alone. Our chaperoning services combine trained adult presence with planned journeys: supervised contact transport, SEMH-friendly school runs, foster placement moves and appointments.',
+    'People search chaperone service, chaperone services, or chaperoning services near their borough when court-ordered contact, placement instability or SEND needs make independent travel unsafe. Unlike a taxi, our chaperone service is person-centred with handover protocols and de-escalation support.',
+    'Local authorities, schools, foster agencies and families commission chaperoning services across West London — Ealing, Hounslow, Hillingdon, Brent, Harrow, Barnet and more — from our Greenford HQ, with UK-wide delivery by arrangement.',
+    'We provide children\'s social care chaperoning only — not medical chaperoning, entertainment licensing or private VIP escorts. Find chaperone service in your area on our borough pages, or submit a referral to confirm capacity.',
   ] as const,
   faq: [
     {
-      q: 'What are chaperone services?',
-      a: 'Chaperone services provide a trained, DBS-checked adult to accompany a child or young person on journeys or during supervised contact. The chaperone supports safeguarding, handovers and emotional regulation — not only driving from A to B.',
+      q: 'What is chaperone service?',
+      a: 'Chaperone service is a trained, DBS-checked adult accompanying a child on journeys or during supervised contact. The chaperone supports safeguarding, handovers and emotional regulation — not only driving from A to B.',
+    },
+    {
+      q: 'What are chaperoning services?',
+      a: 'Chaperoning services is the same provision as chaperone service — supervised child escort and transport. Commissioners use both phrases in care plans, contracts and panel papers. CAMS delivers chaperoning services for children in care, SEND and contact transport.',
     },
     {
       q: 'What is the difference between chaperone services and chaperone service?',
-      a: 'Both terms describe the same provision. Commissioners often use "chaperone services" in contracts and "chaperone service" in care plans. CAMS uses both phrases to match local authority templates.',
+      a: 'Both describe the same CAMS provision. "Chaperone services" is common in contracts; "chaperone service" appears in individual care plans. We optimise for both search terms.',
     },
     {
-      q: 'Do you offer chaperone services near me?',
-      a: 'CAMS delivers chaperone services across West London (Ealing, Hounslow, Hillingdon, Brent, Harrow, Barnet, Hammersmith and Fulham, Richmond) and Watford/Hertfordshire, with UK-wide commissioning for some referrals. See our service areas page for borough detail.',
+      q: 'Do you offer chaperone service near me?',
+      a: 'CAMS delivers chaperone service and chaperoning services across West London boroughs and Watford/Hertfordshire. Visit our service areas page for chaperone service Ealing, Hounslow, Harrow, Brent and other locations.',
     },
     {
       q: 'Who commissions chaperone services UK?',

@@ -29,7 +29,7 @@ export function AreasPageClient(): ReactElement {
             Service <span className="text-cams-primary">areas</span>
           </>
         }
-        description="Chaperone services, child transport and mentoring across West London boroughs and Hertfordshire. CAMS services Ltd is headquartered in Greenford, Ealing."
+        description="Chaperone service and chaperoning services across West London and Hertfordshire. Choose your borough for local cover, referral routes and neighbourhood detail. CAMS services Ltd — HQ Greenford, Ealing."
       />
 
       <section className={`${PAGE_LAYOUT.panel} mt-10 p-5 sm:p-6 md:p-10`}>
@@ -38,9 +38,9 @@ export function AreasPageClient(): ReactElement {
           Where we <span className="text-cams-primary">deliver</span>
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-cams-ink-secondary md:text-base">
-          We prioritise West London and surrounding Home Counties, with UK-wide delivery by arrangement
-          for commissioned chaperone services, school transport support, contact centre transport and
-          youth mentoring.
+          Search chaperone service near you or chaperoning services in your borough? We prioritise West London
+          and surrounding Home Counties, with UK-wide delivery by arrangement for commissioned child escort,
+          school transport support, contact centre transport and youth mentoring.
         </p>
 
         <div className="mt-10 space-y-12">
@@ -91,6 +91,9 @@ function AreaCard({ area }: { area: LocationArea }): ReactElement {
       </div>
       <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-cams-slate">{area.councilTypeLabel}</p>
       <p className="mt-3 text-sm leading-6 text-cams-ink-secondary line-clamp-3">{area.heroDescription}</p>
+      <p className="mt-2 text-xs font-medium text-cams-slate">
+        Chaperone service · chaperoning services · {area.name}
+      </p>
       <p className="mt-4 text-sm font-semibold text-cams-primary">View area →</p>
     </Link>
   );
