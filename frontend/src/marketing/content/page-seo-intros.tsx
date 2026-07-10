@@ -17,7 +17,7 @@ export const HOME_SEO_PROSE: PageSeoIntroContent = {
   title: 'Professional chaperone services and chaperone service for children',
   paragraphs: [
     `${CAMS} Our chaperone services support local authorities, schools, foster agencies, and families who need safeguarding-first escorts for contact transport, school runs, foster moves and community access.`,
-    'Commissioners search for chaperone services when a child cannot travel alone. Our chaperone service pairs DBS-checked practitioners with planned journeys, handover protocols and de-escalation support — not a standard taxi booking.',
+    'Commissioners search for chaperone services when a child cannot travel alone. Our chaperone service pairs DBS-checked practitioners with planned journeys, handover protocols and de-escalation support. This is not a standard taxi booking.',
     'We deliver chaperone services across West London and the wider UK, including SEND-aware school transport, supervised contact centre journeys and mentoring combined through intervention packages.',
     'Explore our dedicated chaperone services page, service areas for borough-level cover, or submit a referral to confirm capacity and safeguarding requirements.',
   ],

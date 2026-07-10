@@ -140,7 +140,7 @@ export function AreaLandingPageClient({ area, faq }: AreaLandingPageClientProps)
             <FAQAccordion
               faqs={faqs}
               title={`Services in ${area.name}: FAQs`}
-              description={`Chaperone service, child transport, mentoring, SEND and family support in ${area.name} — questions from schools, local authorities and families.`}
+              description={`Chaperone service, child transport, mentoring, SEND and family support in ${area.name}. Questions from schools, local authorities and families.`}
             />
           </section>
         </div>

@@ -70,7 +70,7 @@ export function ChaperoneServicesPageClient(): ReactElement {
                   href={ROUTES.AREA_BY_SLUG(area.slug)}
                   className="block rounded-2xl border border-slate-200/90 bg-cams-soft/60 px-4 py-3 text-sm font-semibold text-cams-ink transition hover:border-cams-primary/30 hover:bg-white"
                 >
-                  Chaperone service &amp; chaperoning services — {area.name}
+                  Chaperone service &amp; chaperoning services in {area.name}
                 </Link>
               </li>
             ))}
@@ -86,7 +86,7 @@ export function ChaperoneServicesPageClient(): ReactElement {
       <section className="px-4 py-14 md:py-20" aria-labelledby="chaperone-faq-heading">
         <div className={`${PAGE_LAYOUT.container} max-w-3xl`}>
           <h2 id="chaperone-faq-heading" className="font-heading text-3xl font-bold text-cams-ink">
-            Chaperone services — frequently asked questions
+            Chaperone services: frequently asked questions
           </h2>
           <dl className="mt-8 space-y-6">
             {CHAPERONE_SERVICES_PAGE.faq.map((item) => (

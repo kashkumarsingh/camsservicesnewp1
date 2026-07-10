@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description:
           'Chaperone services and chaperone service for contact transport, school runs and community access. DBS-checked escorts from CAMS services across West London and the UK.',
         path: ROUTES.SERVICE_BY_SLUG('community'),
-        imageAlt: 'Chaperone services — community transport programme',
+        imageAlt: 'Chaperone services, community transport programme',
       },
       BASE_URL
     );
@@ -49,9 +49,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       {
         title: 'Youth mentoring services | One-to-one mentoring for children | CAMS services',
         description:
-          'Youth mentoring and mentoring services for children and young people. DBS-checked mentors across West London — Ealing, Harrow, Brent, Hounslow and surrounding boroughs.',
+          'Youth mentoring and mentoring services for children and young people. DBS-checked mentors across West London: Ealing, Harrow, Brent, Hounslow and surrounding boroughs.',
         path: ROUTES.SERVICE_BY_SLUG('mentoring'),
-        imageAlt: 'Youth mentoring services — CAMS services',
+        imageAlt: 'Youth mentoring services, CAMS services',
       },
       BASE_URL
     );
@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description:
           'SEND support services and SEN support for school engagement, autism and ADHD-informed sessions. CAMS services across West London and the UK.',
         path: ROUTES.SERVICE_BY_SLUG('sen'),
-        imageAlt: 'SEND support services — CAMS services',
+        imageAlt: 'SEND support services, CAMS services',
       },
       BASE_URL
     );
@@ -75,9 +75,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       {
         title: 'Family support services | Parent coaching & routines | CAMS services',
         description:
-          'Family support services and parent coaching to align communication, boundaries and routines. CAMS services — West London and UK-wide by arrangement.',
+          'Family support services and parent coaching to align communication, boundaries and routines. CAMS services across West London and UK-wide by arrangement.',
         path: ROUTES.SERVICE_BY_SLUG('routine'),
-        imageAlt: 'Family support services — CAMS services',
+        imageAlt: 'Family support services, CAMS services',
       },
       BASE_URL
     );
@@ -90,7 +90,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description:
           'Behaviour support and SEMH-informed sessions for young people. Trauma-informed practitioners across West London boroughs and the UK.',
         path: ROUTES.SERVICE_BY_SLUG('goals'),
-        imageAlt: 'Behaviour support — CAMS services',
+        imageAlt: 'Behaviour support, CAMS services',
       },
       BASE_URL
     );
@@ -103,7 +103,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description:
           'Fitness mentoring and boxing-based wellbeing support for young people. Structured sessions from CAMS services across West London.',
         path: ROUTES.SERVICE_BY_SLUG('boxing-fitness'),
-        imageAlt: 'Fitness mentoring — CAMS services',
+        imageAlt: 'Fitness mentoring, CAMS services',
       },
       BASE_URL
     );

@@ -19,7 +19,7 @@ export function AreaServicesKeywordsSection({ area }: AreaServicesKeywordsSectio
         What we <span className="text-cams-primary">deliver</span> locally
       </h2>
       <p className="mt-3 max-w-3xl text-sm leading-7 text-cams-ink-secondary md:text-base">
-        CAMS area pages cover all our programmes — not only chaperone service. Commissioners and families
+        CAMS area pages cover all our programmes, not only chaperone service. Commissioners and families
         search for different keywords; each programme below links to full detail.
       </p>
       <ul className="mt-8 grid gap-4 sm:grid-cols-2">

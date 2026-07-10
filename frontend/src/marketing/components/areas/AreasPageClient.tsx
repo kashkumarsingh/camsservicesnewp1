@@ -29,7 +29,7 @@ export function AreasPageClient(): ReactElement {
             Service <span className="text-cams-primary">areas</span>
           </>
         }
-        description="Chaperone service, child transport services, youth mentoring, SEND support and family support across West London and Hertfordshire. Choose your borough for local programmes and referral routes. CAMS services Ltd — HQ Greenford, Ealing."
+        description="Chaperone service, child transport services, youth mentoring, SEND support and family support across West London and Hertfordshire. Choose your borough for local programmes and referral routes. CAMS services Ltd, HQ Greenford, Ealing."
       />
 
       <section className={`${PAGE_LAYOUT.panel} mt-10 p-5 sm:p-6 md:p-10`}>
@@ -39,8 +39,8 @@ export function AreasPageClient(): ReactElement {
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-cams-ink-secondary md:text-base">
           Each borough page covers chaperone service, chaperoning services, child transport, school transport
-          support, youth mentoring, SEND support services, family support, behaviour support and sports programmes
-          — not only chaperone keywords.
+          support, youth mentoring, SEND support services, family support, behaviour support and sports programmes.
+          Not only chaperone keywords.
         </p>
 
         <div className="mt-10 space-y-12">

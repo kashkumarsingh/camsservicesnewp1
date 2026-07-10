@@ -124,7 +124,7 @@ export function buildAreaServicesFaq(
     },
     {
       q: `Do you deliver family support services in ${name}?`,
-      a: `Yes. Family support services in ${name} help parents, carers and young people align communication, boundaries and routines — often alongside mentoring or transport in the same package.`,
+      a: `Yes. Family support services in ${name} help parents, carers and young people align communication, boundaries and routines, often alongside mentoring or transport in the same package.`,
     },
     {
       q: `Which neighbourhoods in ${name} do you cover?`,
@@ -132,7 +132,7 @@ export function buildAreaServicesFaq(
     },
     {
       q: `How do schools and local authorities refer in ${name}?`,
-      a: `Use our online referral form or contact page. We respond within one working day with feasibility, safeguarding questions and recommended programmes — chaperone, transport, mentoring, SEND or combined packages.`,
+      a: `Use our online referral form or contact page. We respond within one working day with feasibility, safeguarding questions and recommended programmes: chaperone, transport, mentoring, SEND or combined packages.`,
     },
   ];
 }
@@ -145,7 +145,7 @@ export function areaSeoIntroParagraphs(
 
   return [
     `CAMS services in ${name} delivers chaperone service, chaperoning services, child transport services, youth mentoring, SEND support services, family support services, school transport support and SEMH behaviour support across ${neighbourhoods}.`,
-    `Families and commissioners search for chaperone service ${name}, child transport ${name}, youth mentoring ${name}, SEND support ${name}, or family support services ${name} when a young person needs consistent, safeguarding-led adults. CAMS provides one-to-one provision — not group programmes.`,
+    `Families and commissioners search for chaperone service ${name}, child transport ${name}, youth mentoring ${name}, SEND support ${name}, or family support services ${name} when a young person needs consistent, safeguarding-led adults. CAMS provides one-to-one provision, not group programmes.`,
     `Programmes available in ${name} include chaperone & community transport, mentoring and coaching, SEN and education support, family support service, behavioural management, sports support and fitness mentoring. Services can be combined through intervention packages.`,
     `Submit a referral with postcodes, schedules and safeguarding context to confirm capacity for chaperone, transport, mentoring or SEND cover in ${name}.`,
   ];
