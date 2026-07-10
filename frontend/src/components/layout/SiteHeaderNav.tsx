@@ -43,7 +43,7 @@ function MegaPanel({ item }: { item: NavMegaItem }): ReactElement {
       </div>
       <div className="mt-6 border-t border-slate-100 pt-4">
         <Link href={item.href} className="text-sm font-semibold text-cams-primary hover:underline hover:underline-offset-4">
-          View full services page →
+          {item.footerCta ?? "View full services page →"}
         </Link>
       </div>
     </div>

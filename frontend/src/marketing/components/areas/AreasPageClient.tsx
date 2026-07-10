@@ -17,6 +17,7 @@ import { ROUTES } from "@/shared/utils/routes";
 const REGIONS = [
   { slug: "greater-london", label: "Greater London" },
   { slug: "hertfordshire", label: "Hertfordshire" },
+  { slug: "berkshire", label: "Berkshire" },
 ] as const;
 
 export function AreasPageClient(): ReactElement {

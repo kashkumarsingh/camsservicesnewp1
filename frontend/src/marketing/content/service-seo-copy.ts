@@ -13,7 +13,7 @@ const COMMUNITY_CHAPERONE_COPY: ServiceSeoCopy = {
   delivery:
     'Our chaperone service is person-centred: the same practitioner can anchor multiple journeys in a week when continuity helps the child. Sessions are risk-assessed, documented for referrers where commissioned, and aligned with court orders or care plans. This is children\'s social care chaperoning, not medical or entertainment chaperoning.',
   commissioning:
-    'Commission chaperone services through a referral or consultation. CAMS services confirms capacity, agrees hours and can combine chaperone service hours with mentoring or family support through intervention packages. We cover West London boroughs including Ealing (HQ Greenford), Harrow, Brent, Hillingdon, Barnet and Hounslow, plus Watford in Hertfordshire. See our service areas page for neighbourhood detail.',
+    'Commission chaperone services through a referral or consultation. CAMS services confirms capacity, agrees hours and can combine chaperone service hours with mentoring or family support through intervention packages. We cover West London including Ealing (HQ Greenford), Hounslow, Hillingdon, Brent, Harrow, Hammersmith and Fulham, Richmond, Kensington and Chelsea, plus Barnet, Enfield, Watford, Hertsmere and Slough. See our service areas page for neighbourhood detail.',
   featuresIntro: 'Our chaperone services programme typically includes:',
 };
 

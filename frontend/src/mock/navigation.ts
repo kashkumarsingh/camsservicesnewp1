@@ -20,9 +20,12 @@ export type NavMegaItem = {
   readonly label: string;
   readonly href: string;
   readonly columns: readonly NavMegaColumn[];
+  readonly footerCta?: string;
 };
 
 export type NavItem = NavLinkItem | NavMegaItem;
+
+import { buildAreasNavColumns } from "@/marketing/content/locations/nav";
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { kind: "link", href: "/", label: "Home" },
@@ -50,6 +53,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
         ],
       },
     ],
+  },
+  {
+    kind: "mega",
+    label: "Areas",
+    href: "/areas",
+    footerCta: "View all service areas →",
+    columns: buildAreasNavColumns(),
   },
   { kind: "link", href: "/packages", label: "Packages" },
   { kind: "link", href: "/blog", label: "Blog" },

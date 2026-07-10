@@ -1,4 +1,8 @@
-export type LocationCouncilType = 'outer-london-borough' | 'unitary-borough' | 'county-town';
+export type LocationCouncilType =
+  | 'outer-london-borough'
+  | 'inner-london-borough'
+  | 'unitary-borough'
+  | 'county-town';
 
 export type LocationAreaFaq = {
   readonly q: string;
