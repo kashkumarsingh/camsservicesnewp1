@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
+import { getCanonicalUrlForSiteSlug } from '@/marketing/lib/public-site-url';
+import { submitIndexNowUrls } from '@/marketing/lib/indexnow';
 
 export async function POST(request: Request) {
   const secret = process.env.NEXT_REVALIDATE_SECRET;
@@ -25,7 +27,22 @@ export async function POST(request: Request) {
 
   revalidateTag(tag, 'page');
 
-  return NextResponse.json({ revalidated: true, tag });
+  let indexNow: { submitted: number; status: number } | null = null;
+  const rawUrls = Array.isArray(body?.urls) ? body.urls : [];
+  const slugs = Array.isArray(body?.slugs) ? body.slugs : [];
+  const urls = [
+    ...rawUrls.filter((url: unknown): url is string => typeof url === 'string'),
+    ...slugs
+      .filter((slug: unknown): slug is string => typeof slug === 'string')
+      .map((slug: string) => getCanonicalUrlForSiteSlug(slug)),
+  ];
+
+  if (urls.length > 0) {
+    const result = await submitIndexNowUrls(urls);
+    indexNow = { submitted: result.submitted, status: result.status };
+  }
+
+  return NextResponse.json({ revalidated: true, tag, indexNow });
 }
 
 
