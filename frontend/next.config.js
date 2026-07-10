@@ -30,6 +30,21 @@ const nextConfig = {
     ];
   },
 
+  async redirects() {
+    return [
+      {
+        source: "/chaperone-service",
+        destination: "/chaperone-services",
+        permanent: true,
+      },
+      {
+        source: "/chaperone-services-uk",
+        destination: "/chaperone-services",
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {

@@ -58,7 +58,7 @@ export function HomeIntroSection(): ReactElement {
                 id="home-intro-heading"
                 className="mt-3 font-heading text-2xl font-bold tracking-tight text-cams-ink md:text-3xl"
               >
-                Safeguarding-led travel and accompaniment across the UK
+                Chaperone services &amp; chaperone service for safe travel
               </h2>
               <div className="mt-4 space-y-3 text-sm leading-7 text-cams-ink-secondary md:text-base">
                 {HOME_INTRO_PARAGRAPHS.map((paragraph) => (

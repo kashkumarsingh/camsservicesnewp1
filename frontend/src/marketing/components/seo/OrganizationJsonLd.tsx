@@ -26,10 +26,27 @@ export function OrganizationJsonLd(): ReactElement {
         inLanguage: "en-GB",
       },
       {
+        "@type": "LocalBusiness",
+        "@id": `${baseUrl}/#localbusiness`,
+        name: SEO_DEFAULTS.siteName,
+        url: baseUrl,
+        description: SEO_DEFAULTS.description,
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "51 Eastmead Avenue",
+          addressLocality: "Greenford",
+          addressRegion: "London",
+          postalCode: "UB6 9RD",
+          addressCountry: "GB",
+        },
+        areaServed: { "@type": "Country", name: "United Kingdom" },
+        parentOrganization: { "@id": `${baseUrl}/#organization` },
+      },
+      {
         "@type": "ProfessionalService",
         "@id": `${baseUrl}/#chaperone-service`,
         name: `${SEO_DEFAULTS.siteName} chaperone services`,
-        url: `${baseUrl}/blog/chaperone-services-uk`,
+        url: `${baseUrl}/chaperone-services`,
         provider: { "@id": `${baseUrl}/#organization` },
         areaServed: {
           "@type": "Country",

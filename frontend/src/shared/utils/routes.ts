@@ -13,6 +13,7 @@ export const ROUTES = {
   BOOK_BY_SLUG: (slug: string) => `/book/${slug}`,
   BOOK_RETRIEVE: '/book/retrieve',
   SERVICES: '/services',
+  CHAPERONE_SERVICES: '/chaperone-services',
   SERVICE_BY_SLUG: (slug: string) => `/services/${slug}`,
   AREAS: '/areas',
   AREA_BY_SLUG: (slug: string) => `/areas/${slug}`,

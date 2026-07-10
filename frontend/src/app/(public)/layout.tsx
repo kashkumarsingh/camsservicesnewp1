@@ -1,30 +1,11 @@
-import { Metadata } from 'next';
-import React from 'react';
 import { FooterImageRail } from '@/components/layout/FooterImageRail';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteFloatingActions } from '@/components/layout/SiteFloatingActions';
-import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
-import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
-import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
 import { getSiteSettings } from '@/marketing/server/siteSettings/getSiteSettings';
 import { SiteSettingsMapper } from '@/core/application/siteSettings/mappers/SiteSettingsMapper';
 import { policiesData } from '@/data/policiesData';
 import { ROUTES } from '@/shared/utils/routes';
 import { PACKAGE_TIER_LINKS } from '@/marketing/lib/package-footer-links';
-
-export async function generateMetadata(): Promise<Metadata> {
-  return buildPublicMetadata(
-    {
-      title: SEO_DEFAULTS.title,
-      description: SEO_DEFAULTS.description,
-      path: '/',
-    },
-    getMetadataBaseUrl()
-  );
-}
-
-
-
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const settings = await getSiteSettings().catch(() => null);

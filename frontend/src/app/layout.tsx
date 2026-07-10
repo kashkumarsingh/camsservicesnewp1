@@ -10,6 +10,7 @@ import { AuthProvider } from '@/interfaces/web/hooks/auth/useAuth';
 import PerformanceFix from '@/utils/performanceFix';
 import { shouldIndexSite } from '@/marketing/lib/site-indexing';
 import { getSearchVerificationMetadata } from '@/marketing/lib/search-verification';
+import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -34,13 +35,12 @@ export const viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.camsservices.co.uk'),
-  title: 'Chaperone services & child transport services UK | CAMS',
-  description:
-    'UK chaperone and child transport for families, schools and local authorities. SEND support, foster placement help, mentoring and tailored family support.',
+  title: SEO_DEFAULTS.title,
+  description: SEO_DEFAULTS.description,
   ...getSearchVerificationMetadata(),
   openGraph: {
-    title: 'Chaperone services UK | Child transport & family support',
-    description: 'Chaperone services UK, child transport services, family support services, SEND support services, and mentoring services across the UK.',
+    title: SEO_DEFAULTS.title,
+    description: SEO_DEFAULTS.description,
     url: 'https://www.camsservices.co.uk',
     type: 'website',
     images: [
@@ -54,8 +54,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Chaperone services UK | Child transport & family support',
-    description: 'Chaperone services UK, child transport services, family support services, SEND support services, and mentoring services.',
+    title: SEO_DEFAULTS.title,
+    description: SEO_DEFAULTS.description,
     images: ['/og'],
   },
   ...(!shouldIndexSite() && {

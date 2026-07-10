@@ -31,6 +31,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
   const { slug } = resolvedParams;
 
+  if (slug === 'community') {
+    return buildPublicMetadata(
+      {
+        title: 'Chaperone services | Child escort & community transport | CAMS services',
+        description:
+          'Chaperone services and chaperone service for contact transport, school runs and community access. DBS-checked escorts from CAMS services across West London and the UK.',
+        path: ROUTES.SERVICE_BY_SLUG('community'),
+        imageAlt: 'Chaperone services — community transport programme',
+      },
+      BASE_URL
+    );
+  }
+
   if (slug === 'sports-support-programme') {
     return buildPublicMetadata(
       {

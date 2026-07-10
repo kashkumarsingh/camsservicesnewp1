@@ -10,8 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPublicMetadata(
     {
       title: SEO_DEFAULTS.title,
-      description:
-        'Chaperone services and chaperone service UK for children in care, contact transport and SEND. DBS-checked escorts for schools and local authorities.',
+      description: SEO_DEFAULTS.description,
       path: '/',
       imageAlt: SEO_DEFAULTS.ogImageAlt,
     },

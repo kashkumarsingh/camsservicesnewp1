@@ -24,6 +24,7 @@ export const DEFAULT_FOOTER_SECTIONS: ReadonlyArray<SiteFooterSection> = [
     links: [
       { href: ROUTES.HOME, label: "Home" },
       { href: ROUTES.SERVICES, label: "Services" },
+      { href: ROUTES.CHAPERONE_SERVICES, label: "Chaperone services" },
       { href: ROUTES.AREAS, label: "Service areas" },
       { href: ROUTES.PACKAGES, label: "Packages" },
       { href: ROUTES.BLOG, label: "Blog" },

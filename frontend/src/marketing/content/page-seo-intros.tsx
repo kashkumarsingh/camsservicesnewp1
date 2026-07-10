@@ -13,17 +13,18 @@ const CAMS =
   'CAMS services is a UK provider of chaperone transport, youth mentoring, SEND support, and family coaching for children and young people.';
 
 export const HOME_SEO_PROSE: PageSeoIntroContent = {
-  eyebrow: 'About CAMS services',
-  title: 'Chaperone, transport and mentoring support across the UK',
+  eyebrow: 'Chaperone services UK',
+  title: 'Professional chaperone services and chaperone service for children',
   paragraphs: [
-    `${CAMS} We work with local authorities, schools, foster agencies, and families who need safeguarding-first support that is reliable, measurable, and tailored to each young person.`,
-    'Our teams deliver supervised school runs, contact centre transport, one-to-one mentoring, SEMH-friendly routines, and SEND-aware learning support. Every practitioner is DBS checked, trained in de-escalation, and supervised by experienced safeguarding leads.',
-    'Families and referrers choose CAMS services when they need consistent adults who return each week, clear reporting for panels and reviews, and practical help that bridges home, school, and community settings.',
-    'Start with a consultation or referral. We will recommend the right intervention package, explain safeguarding procedures, and confirm capacity before sessions begin.',
+    `${CAMS} Our chaperone services support local authorities, schools, foster agencies, and families who need safeguarding-first escorts for contact transport, school runs, foster moves and community access.`,
+    'Commissioners search for chaperone services when a child cannot travel alone. Our chaperone service pairs DBS-checked practitioners with planned journeys, handover protocols and de-escalation support — not a standard taxi booking.',
+    'We deliver chaperone services across West London and the wider UK, including SEND-aware school transport, supervised contact centre journeys and mentoring combined through intervention packages.',
+    'Explore our dedicated chaperone services page, service areas for borough-level cover, or submit a referral to confirm capacity and safeguarding requirements.',
   ],
   links: [
-    { href: ROUTES.SERVICES, label: 'view all services' },
-    { href: ROUTES.PACKAGES, label: 'compare intervention packages' },
+    { href: ROUTES.CHAPERONE_SERVICES, label: 'chaperone services' },
+    { href: ROUTES.AREAS, label: 'chaperone services near you' },
+    { href: ROUTES.SERVICE_BY_SLUG('community'), label: 'community transport programme' },
     { href: ROUTES.REFERRAL, label: 'make a referral' },
     { href: ROUTES.CONTACT, label: 'contact CAMS services' },
   ],
