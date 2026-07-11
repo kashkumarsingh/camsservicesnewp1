@@ -12,21 +12,40 @@ import {
 } from "@/mock/navigation";
 import { ROUTES } from "@/shared/utils/routes";
 
-function MegaPanel({ item }: { item: NavMegaItem }): ReactElement {
+function megaPanelGridClass(columnCount: number): string {
+  if (columnCount >= 3) {
+    return "grid gap-6 sm:grid-cols-2 lg:grid-cols-3";
+  }
+  return "grid gap-6 md:grid-cols-2";
+}
+
+function MegaPanel({ item, panelId }: { item: NavMegaItem; panelId: string }): ReactElement {
+  const columnCount = item.columns.length;
+  const isWide = columnCount >= 3;
+
   return (
     <div
-      id="site-mega-services"
-      className="absolute left-1/2 top-full z-50 mt-3 w-[min(760px,calc(100vw-2rem))] -translate-x-1/2 rounded-2xl border border-slate-200/90 bg-white/95 p-6 shadow-2xl shadow-slate-900/10 backdrop-blur-xl md:left-0 md:translate-x-0"
+      id={panelId}
+      className={`absolute left-1/2 top-full z-[60] mt-2 -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl shadow-slate-900/15 ${
+        isWide
+          ? "w-[min(920px,calc(100vw-2rem))]"
+          : "w-[min(640px,calc(100vw-2rem))]"
+      }`}
     >
-      <div className="grid gap-8 md:grid-cols-2">
+      <div
+        className={`${megaPanelGridClass(columnCount)} max-h-[min(60vh,420px)] overflow-y-auto overscroll-contain pr-1`}
+      >
         {item.columns.map((column) => (
           <div key={column.heading}>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cams-primary">{column.heading}</p>
-            <ul className="mt-4 space-y-1">
+            <ul className="mt-3 space-y-0.5">
               {column.links.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="group block rounded-xl px-2 py-2.5 transition hover:bg-cams-soft">
-                    <span className="block text-sm font-semibold text-cams-ink group-hover:text-cams-primary">
+                  <Link
+                    href={link.href}
+                    className="group block rounded-lg px-2 py-2 transition hover:bg-cams-soft"
+                  >
+                    <span className="block text-sm font-semibold leading-snug text-cams-ink group-hover:text-cams-primary">
                       {link.label}
                     </span>
                     {link.description ? (
@@ -41,7 +60,7 @@ function MegaPanel({ item }: { item: NavMegaItem }): ReactElement {
           </div>
         ))}
       </div>
-      <div className="mt-6 border-t border-slate-100 pt-4">
+      <div className="mt-4 border-t border-slate-100 bg-white pt-3">
         <Link href={item.href} className="text-sm font-semibold text-cams-primary hover:underline hover:underline-offset-4">
           {item.footerCta ?? "View full services page →"}
         </Link>
@@ -156,9 +175,16 @@ function NavRow({ item, pathname }: { item: NavItem; pathname: string }): ReactE
         </button>
       </div>
       {open ? (
-        <div id={panelId}>
-          <MegaPanel item={item} />
-        </div>
+        <>
+          <button
+            type="button"
+            aria-label={`Close ${item.label} menu`}
+            className="fixed inset-0 top-[70px] z-[55] cursor-default bg-slate-900/25"
+            tabIndex={-1}
+            onClick={() => setOpen(false)}
+          />
+          <MegaPanel item={item} panelId={panelId} />
+        </>
       ) : null}
     </li>
   );

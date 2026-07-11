@@ -12,7 +12,7 @@ type SiteHeaderProps = {
 
 export function SiteHeader({ navItems }: SiteHeaderProps): ReactElement {
   return (
-    <header className="sticky top-0 z-50 h-[70px] overflow-visible border-b border-slate-200/80 bg-white/90 shadow-sm backdrop-blur-xl">
+    <header className="sticky top-0 z-50 h-[70px] overflow-visible border-b border-slate-200/80 bg-white shadow-sm">
       <nav className="mx-auto flex h-[70px] w-full max-w-[1600px] items-center justify-between px-4 sm:px-6">
         <Link href={ROUTES.HOME} className="inline-flex items-center">
           <Image

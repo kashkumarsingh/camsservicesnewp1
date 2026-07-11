@@ -48,7 +48,6 @@ function toNavLink(slug: string) {
   return {
     href: ROUTES.AREA_BY_SLUG(area.slug),
     label,
-    description: area.keyAreas.slice(0, 3).join(', '),
   };
 }
 
