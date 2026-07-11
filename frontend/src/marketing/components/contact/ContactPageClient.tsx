@@ -12,6 +12,7 @@ import { PAGE_LAYOUT, PAGE_SURFACES } from "@/marketing/components/shared/page-l
 import { useContactForm } from "@/interfaces/web/hooks/contact/useContactForm";
 import { thankYouPageUrl } from "@/shared/utils/thankYouPage";
 import { BUSINESS_HOURS, contactData } from "@/data/contactData";
+import { SocialMediaLinks } from "@/marketing/components/shared/SocialMediaLinks";
 
 const CONTACT_PHONE_HREF = `tel:${contactData.phone.replace(/\s/g, "")}`;
 const CONTACT_EMAIL_MAILTO = `mailto:${contactData.email}`;
@@ -388,6 +389,12 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
                   <p className="text-sm font-semibold text-cams-ink">CAMS services Ltd</p>
                   <p className="mt-1 text-sm leading-6 text-cams-ink-secondary">{contactData.fullAddress}</p>
                 </address>
+              </div>
+
+              <div>
+                <p className="text-sm font-semibold text-cams-ink">Social</p>
+                <p className="mt-2 text-sm text-cams-slate">Updates, news and community stories</p>
+                <SocialMediaLinks variant="contact" className="mt-3" />
               </div>
 
               <div className="overflow-hidden rounded-xl border border-slate-200">

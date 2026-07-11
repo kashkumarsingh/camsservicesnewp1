@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { BUSINESS_HOURS } from "@/data/contactData";
 import { getMetadataBaseUrl } from "@/marketing/lib/public-site-url";
 import { SEO_DEFAULTS, CHAPERONE_SEO_TERMS } from "@/marketing/utils/seoConstants";
+import { CAMS_SOCIAL_PROFILE_URLS } from "@/marketing/constants/socialLinks";
 
 export function OrganizationJsonLd(): ReactElement {
   const baseUrl = getMetadataBaseUrl();
@@ -15,7 +16,7 @@ export function OrganizationJsonLd(): ReactElement {
         url: baseUrl,
         logo: `${baseUrl}/logos/cams-services-logo.webp`,
         description: SEO_DEFAULTS.description,
-        sameAs: [] as string[],
+        sameAs: [...CAMS_SOCIAL_PROFILE_URLS],
       },
       {
         "@type": "WebSite",

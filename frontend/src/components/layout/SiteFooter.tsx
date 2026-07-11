@@ -5,6 +5,7 @@ import { ROUTES } from "@/shared/utils/routes";
 import { getSeoBlogFooterLinks } from "@/marketing/content/blog";
 import { policiesData } from "@/data/policiesData";
 import { PACKAGE_TIER_LINKS } from "@/marketing/lib/package-footer-links";
+import { SocialMediaLinks } from "@/marketing/components/shared/SocialMediaLinks";
 
 const BLOG_FOOTER_LINKS = getSeoBlogFooterLinks();
 
@@ -97,6 +98,10 @@ export function SiteFooter({
               />
             </Link>
             <p className="mt-5 text-sm leading-relaxed text-slate-400">{description}</p>
+            <div className="mt-6">
+              <p className="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-white">Follow us</p>
+              <SocialMediaLinks variant="footer" className="mt-3" />
+            </div>
           </div>
           <div className="grid flex-1 grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-5 lg:max-w-5xl lg:gap-x-8">
             {sections.map((section) => (

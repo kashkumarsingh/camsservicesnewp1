@@ -7,6 +7,7 @@ import { API_ENDPOINTS } from '@/infrastructure/http/apiEndpoints';
 import { getApiBaseUrl } from '@/infrastructure/http/apiBaseUrl';
 import { CACHE_TAGS, REVALIDATION_TIMES } from '@/shared/utils/revalidationConstants';
 import { ROUTES } from '@/shared/utils/routes';
+import { camsSocialLinksForSiteSettings } from '@/marketing/constants/socialLinks';
 
 function buildFallbackSiteSettings(): SiteSetting {
   const dto: SiteSettingsDTO = {
@@ -21,11 +22,7 @@ function buildFallbackSiteSettings(): SiteSetting {
         'https://maps.google.com/maps?q=51+Eastmead+Avenue,+UB6+9RD,+UK&hl=en&z=17&output=embed',
     },
     social: {
-      links: [
-        { platform: 'Facebook', url: 'https://facebook.com/camsservices', icon: 'facebook' },
-        { platform: 'Instagram', url: 'https://instagram.com/camsservices', icon: 'instagram' },
-        { platform: 'LinkedIn', url: 'https://linkedin.com/company/camsservices', icon: 'linkedin' },
-      ],
+      links: camsSocialLinksForSiteSettings(),
     },
     company: {
       name: 'CAMS services Ltd.',

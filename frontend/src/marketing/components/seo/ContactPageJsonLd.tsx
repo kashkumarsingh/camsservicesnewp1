@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { BUSINESS_HOURS, contactData } from "@/data/contactData";
 import { getMetadataBaseUrl } from "@/marketing/lib/public-site-url";
 import { SEO_DEFAULTS } from "@/marketing/utils/seoConstants";
+import { CAMS_SOCIAL_PROFILE_URLS } from "@/marketing/constants/socialLinks";
 
 export function ContactPageJsonLd(): ReactElement {
   const baseUrl = getMetadataBaseUrl();
@@ -36,6 +37,7 @@ export function ContactPageJsonLd(): ReactElement {
     ],
     description:
       "Contact CAMS services for chaperone services, child transport, school transport support, youth mentoring and SEND support across London, Essex and the UK.",
+    sameAs: [...CAMS_SOCIAL_PROFILE_URLS],
   };
 
   return (
