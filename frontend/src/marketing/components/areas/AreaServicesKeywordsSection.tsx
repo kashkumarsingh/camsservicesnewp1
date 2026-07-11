@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { SERVICE_LOCATION_KEYWORDS } from '@/marketing/content/locations/service-location-keywords';
 import type { LocationArea } from '@/marketing/content/locations/types';
 import { PAGE_LAYOUT } from '@/marketing/components/shared/page-layout';
+import { ROUTES } from '@/shared/utils/routes';
 
 type AreaServicesKeywordsSectionProps = {
   area: LocationArea;
