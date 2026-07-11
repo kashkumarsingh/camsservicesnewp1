@@ -5,6 +5,10 @@
 
 import type { Metadata } from 'next';
 import { shouldIndexSite } from '@/marketing/lib/site-indexing';
+import {
+  absoluteImageUrl,
+  resolvePagePrimaryImage,
+} from '@/marketing/content/image-seo-catalog';
 import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
 
 function buildDynamicOgImageUrl(baseUrl: string, path: string): string {
@@ -35,6 +39,10 @@ export interface BuildPublicMetadataOptions {
   authors?: string[];
   /** For article: tag names */
   tags?: string[];
+  /** Borough or place name for area landing metadata images */
+  areaName?: string | null;
+  /** When true, keep dynamic /og text cards instead of programme photos */
+  useDynamicOgImage?: boolean;
 }
 
 /**
@@ -53,12 +61,20 @@ export function buildPublicMetadata(
   const siteName = options.siteName?.trim() || SEO_DEFAULTS.siteName;
   const canonicalUrl = `${baseUrl.replace(/\/$/, '')}${options.path.startsWith('/') ? options.path : `/${options.path}`}`;
 
+  const primaryImage = !options.imageUrl && !options.useDynamicOgImage
+    ? resolvePagePrimaryImage(options.path, {
+        areaName: options.areaName ?? undefined,
+      })
+    : null;
+
   const imageUrl = options.imageUrl
     ? options.imageUrl.startsWith('http')
       ? options.imageUrl
       : `${baseUrl.replace(/\/$/, '')}${options.imageUrl.startsWith('/') ? options.imageUrl : `/${options.imageUrl}`}`
-    : buildDynamicOgImageUrl(baseUrl.replace(/\/$/, ''), options.path);
-  const imageAlt = options.imageAlt?.trim() || SEO_DEFAULTS.ogImageAlt;
+    : primaryImage
+      ? absoluteImageUrl(baseUrl.replace(/\/$/, ''), primaryImage.path)
+      : buildDynamicOgImageUrl(baseUrl.replace(/\/$/, ''), options.path);
+  const imageAlt = options.imageAlt?.trim() || primaryImage?.alt || SEO_DEFAULTS.ogImageAlt;
   const indexable = shouldIndexSite();
 
   const openGraph: Metadata['openGraph'] = {

@@ -1,4 +1,5 @@
 import type { CamsIconName } from "@/marketing/components/shared/CamsIcon";
+import { PROGRAMME_IMAGE_SEO } from "@/marketing/content/image-seo-catalog";
 import { CAMS_HERO_CARD_IMAGES, camsProgrammeImagePath } from "@/marketing/mock/cams-public-images";
 import { ROUTES } from "@/shared/utils/routes";
 
@@ -69,7 +70,7 @@ export const HOME_HERO_CARD_IMAGES: readonly string[] = [
 ].filter((src) => src.length > 0);
 
 export const HOME_HERO_CARD_ALTS: readonly [string, string, string] = [
-  "Young person taking part in a sports support programme",
-  "One-to-one fitness and wellbeing session with a CAMS mentor",
-  "Supported community access and transport for a young person",
+  PROGRAMME_IMAGE_SEO.outdoorEngagement.alt,
+  PROGRAMME_IMAGE_SEO.boxingFitness.alt,
+  PROGRAMME_IMAGE_SEO.community.alt,
 ];

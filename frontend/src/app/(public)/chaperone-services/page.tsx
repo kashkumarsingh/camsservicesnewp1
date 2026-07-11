@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: CHAPERONE_SERVICES_PAGE.metaTitle,
       description: CHAPERONE_SERVICES_PAGE.metaDescription,
       path: ROUTES.CHAPERONE_SERVICES,
-      imageAlt: 'Chaperone services UK — CAMS services',
+      imageAlt: 'Chaperone services UK, CAMS services',
     },
     getMetadataBaseUrl()
   );

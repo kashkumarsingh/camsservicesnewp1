@@ -6,6 +6,7 @@ import { useId, useState } from "react";
 import { Button } from "@/marketing/components/ui/button";
 import { PageShell } from "@/marketing/components/shared/PageShell";
 import { PageHeroBand } from "@/marketing/components/shared/PageHeroBand";
+import { PagePrimaryImageSection } from "@/marketing/components/seo/PagePrimaryImageSection";
 import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
 import { CamsIcon, type CamsIconName } from "@/marketing/components/shared/CamsIcon";
 import { MarketingBulletGrid } from "@/marketing/components/shared/MarketingBulletGrid";
@@ -148,6 +149,8 @@ export function ReferralPageClient({ intro }: { intro?: ReactNode }): ReactEleme
         }
         description="We welcome referrals from local authorities, schools, nurseries, foster agencies, family support teams, and parents or guardians. Submit a referral and we will respond within one working day."
       />
+
+      <PagePrimaryImageSection pagePath={ROUTES.REFERRAL} />
 
       {intro}
 

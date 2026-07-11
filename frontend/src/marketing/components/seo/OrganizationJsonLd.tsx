@@ -13,7 +13,7 @@ export function OrganizationJsonLd(): ReactElement {
         "@id": `${baseUrl}/#organization`,
         name: SEO_DEFAULTS.siteName,
         url: baseUrl,
-        logo: `${baseUrl}/og`,
+        logo: `${baseUrl}/logos/cams-services-logo.webp`,
         description: SEO_DEFAULTS.description,
         sameAs: [] as string[],
       },

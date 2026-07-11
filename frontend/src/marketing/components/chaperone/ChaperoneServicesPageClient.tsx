@@ -5,6 +5,7 @@ import { PageCtaSection } from '@/marketing/components/shared/PageCtaSection';
 import { PageSeoProse } from '@/marketing/components/seo/PageSeoProse';
 import { PAGE_LAYOUT } from '@/marketing/components/shared/page-layout';
 import { CHAPERONE_SERVICES_PAGE } from '@/marketing/content/chaperone-services-page';
+import { PagePrimaryImageSection } from '@/marketing/components/seo/PagePrimaryImageSection';
 import { LOCATION_AREAS } from '@/marketing/content/locations';
 import { ROUTES } from '@/shared/utils/routes';
 import { CAMS_CONTACT, camsTelHref } from '@/marketing/mock/cams-services-catalog';
@@ -35,6 +36,10 @@ export function ChaperoneServicesPageClient(): ReactElement {
           </div>
         </div>
       </section>
+
+      <div className={PAGE_LAYOUT.container}>
+        <PagePrimaryImageSection pagePath={ROUTES.CHAPERONE_SERVICES} />
+      </div>
 
       <section className="px-4 py-14 md:py-20">
         <div className={PAGE_LAYOUT.container}>

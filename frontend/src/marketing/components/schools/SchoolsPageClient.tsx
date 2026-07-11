@@ -4,6 +4,7 @@ import type { ReactElement, ReactNode } from "react";
 import Link from "next/link";
 import { PageShell } from "@/marketing/components/shared/PageShell";
 import { PageHeroBand } from "@/marketing/components/shared/PageHeroBand";
+import { PagePrimaryImageSection } from "@/marketing/components/seo/PagePrimaryImageSection";
 import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
 import { MarketingBulletGrid } from "@/marketing/components/shared/MarketingBulletGrid";
 import { CamsIcon } from "@/marketing/components/shared/CamsIcon";
@@ -42,6 +43,8 @@ export function SchoolsPageClient({ intro }: SchoolsPageClientProps): ReactEleme
         }
         description={SCHOOLS_PAGE.HERO_DESCRIPTION}
       />
+
+      <PagePrimaryImageSection pagePath={ROUTES.SCHOOLS} />
 
       {intro}
 

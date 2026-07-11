@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 import { PageShell } from "@/marketing/components/shared/PageShell";
 import { PageHeroBand } from "@/marketing/components/shared/PageHeroBand";
+import { PagePrimaryImageSection } from "@/marketing/components/seo/PagePrimaryImageSection";
 import { PageCtaSection } from "@/marketing/components/shared/PageCtaSection";
 import { CamsIcon } from "@/marketing/components/shared/CamsIcon";
 import { PAGE_LAYOUT, PAGE_SURFACES } from "@/marketing/components/shared/page-layout";
@@ -31,6 +32,8 @@ export function AreasPageClient(): ReactElement {
         }
         description="Chaperone service, child transport services, youth mentoring, SEND support and family support across West London and Hertfordshire. Choose your borough for local programmes and referral routes. CAMS services Ltd, HQ Greenford, Ealing."
       />
+
+      <PagePrimaryImageSection pagePath={ROUTES.AREAS} />
 
       <section className={`${PAGE_LAYOUT.panel} mt-10 p-5 sm:p-6 md:p-10`}>
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Coverage</p>

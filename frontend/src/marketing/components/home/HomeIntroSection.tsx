@@ -6,6 +6,7 @@ import {
   COMPANY_KEY_MESSAGE,
   HOME_INTRO_PARAGRAPHS,
 } from "@/marketing/mock/cams-services-catalog";
+import { PROGRAMME_IMAGE_SEO } from "@/marketing/content/image-seo-catalog";
 import { CAMS_UNSPLASH_PHOTO, camsUnsplashPhotoUrl } from "@/marketing/mock/cams-unsplash";
 
 const TRUST_PROOF_POINTS: ReadonlyArray<{
@@ -44,7 +45,7 @@ export function HomeIntroSection(): ReactElement {
           <div className="grid items-stretch lg:grid-cols-[1.05fr_1fr]">
             <Image
               src={INTRO_IMAGE}
-              alt="CAMS practitioner supporting a young person during a community outing"
+              alt={PROGRAMME_IMAGE_SEO.community.alt}
               className="h-full min-h-[240px] w-full object-cover lg:min-h-[360px]"
               width={1400}
               height={860}

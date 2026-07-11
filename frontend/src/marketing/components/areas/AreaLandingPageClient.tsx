@@ -10,6 +10,7 @@ import { PAGE_LAYOUT, PAGE_SURFACES } from "@/marketing/components/shared/page-l
 import FAQAccordion from "@/marketing/components/features/faq/FAQAccordion";
 import { AreaContactSidebar } from "@/marketing/components/areas/AreaContactSidebar";
 import { AreaServicesKeywordsSection } from "@/marketing/components/areas/AreaServicesKeywordsSection";
+import { PagePrimaryImageSection } from "@/marketing/components/seo/PagePrimaryImageSection";
 import { getBorderingAreas, type LocationArea } from "@/marketing/content/locations";
 import type { LocationAreaFaq } from "@/marketing/content/locations/types";
 import {
@@ -41,6 +42,11 @@ export function AreaLandingPageClient({ area, faq }: AreaLandingPageClientProps)
           </>
         }
         description={areaHeroDescription(area)}
+      />
+
+      <PagePrimaryImageSection
+        pagePath={ROUTES.AREA_BY_SLUG(area.slug)}
+        areaName={area.name}
       />
 
       <div className={`${PAGE_LAYOUT.splitGrid} mt-10 lg:mt-12`}>

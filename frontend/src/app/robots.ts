@@ -22,6 +22,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/login", "/register", "/dashboard", "/api/"],
       },
     ],
-    sitemap: `${base}/sitemap.xml`,
+    sitemap: [`${base}/sitemap.xml`, `${base}/sitemap-images.xml`],
   };
 }

@@ -44,6 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: areaMetaDescription(area),
       path: ROUTES.AREA_BY_SLUG(area.slug),
       imageAlt: `Chaperone, child transport and mentoring in ${area.name}`,
+      areaName: area.name,
     },
     BASE_URL
   );

@@ -1,6 +1,7 @@
 import { FooterImageRail } from '@/components/layout/FooterImageRail';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteFloatingActions } from '@/components/layout/SiteFloatingActions';
+import { PathPrimaryImageJsonLd } from '@/marketing/components/seo/PathPrimaryImageJsonLd';
 import { getSiteSettings } from '@/marketing/server/siteSettings/getSiteSettings';
 import { SiteSettingsMapper } from '@/core/application/siteSettings/mappers/SiteSettingsMapper';
 import { policiesData } from '@/data/policiesData';
@@ -64,6 +65,7 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <>
+      <PathPrimaryImageJsonLd />
       <div className="min-h-screen overflow-x-clip bg-white">
         {children}
         <FooterImageRail />

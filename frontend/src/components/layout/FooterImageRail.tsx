@@ -1,42 +1,23 @@
 import type { ReactElement } from "react";
 import {
-  camsProgrammeImagePath,
-  type CamsProgrammeImageKey,
-} from "@/marketing/mock/cams-public-images";
+  PROGRAMME_IMAGE_SEO,
+  type ImageSeoRecord,
+} from "@/marketing/content/image-seo-catalog";
+import type { CamsProgrammeImageKey } from "@/marketing/mock/cams-public-images";
 
-const FOOTER_IMAGE_RAIL_ITEMS: ReadonlyArray<{
-  src: string;
-  alt: string;
-}> = [
-  {
-    src: camsProgrammeImagePath("outdoorEngagement" satisfies CamsProgrammeImageKey),
-    alt: "Young person taking part in outdoor sports support",
-  },
-  {
-    src: camsProgrammeImagePath("boxingFitness" satisfies CamsProgrammeImageKey),
-    alt: "One-to-one fitness and wellbeing session",
-  },
-  {
-    src: camsProgrammeImagePath("community" satisfies CamsProgrammeImageKey),
-    alt: "Supported community access and travel",
-  },
-  {
-    src: camsProgrammeImagePath("goals" satisfies CamsProgrammeImageKey),
-    alt: "Behavioural management and goal-setting support",
-  },
-  {
-    src: camsProgrammeImagePath("mentoring" satisfies CamsProgrammeImageKey),
-    alt: "Mentoring and coaching conversation",
-  },
-  {
-    src: camsProgrammeImagePath("routine" satisfies CamsProgrammeImageKey),
-    alt: "Family support and relationship-building session",
-  },
-  {
-    src: camsProgrammeImagePath("sen" satisfies CamsProgrammeImageKey),
-    alt: "SEN and education support activity",
-  },
+const FOOTER_IMAGE_RAIL_KEYS: readonly CamsProgrammeImageKey[] = [
+  "outdoorEngagement",
+  "boxingFitness",
+  "community",
+  "goals",
+  "mentoring",
+  "routine",
+  "sen",
 ];
+
+const FOOTER_IMAGE_RAIL_ITEMS: readonly ImageSeoRecord[] = FOOTER_IMAGE_RAIL_KEYS.map(
+  (key) => PROGRAMME_IMAGE_SEO[key]
+);
 
 export function FooterImageRail(): ReactElement {
   const sequence = [...FOOTER_IMAGE_RAIL_ITEMS, ...FOOTER_IMAGE_RAIL_ITEMS];
@@ -52,11 +33,11 @@ export function FooterImageRail(): ReactElement {
         <div className="cams-footer-rail-track flex w-max gap-3 md:gap-4">
           {sequence.map((item, index) => (
             <figure
-              key={`${item.src}-${String(index)}`}
+              key={`${item.path}-${String(index)}`}
               className="relative shrink-0 overflow-hidden rounded-xl border border-white/10 shadow-lg shadow-black/30"
             >
               <img
-                src={item.src}
+                src={item.path}
                 alt={item.alt}
                 width={280}
                 height={190}

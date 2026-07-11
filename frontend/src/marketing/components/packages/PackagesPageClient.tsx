@@ -15,6 +15,7 @@ import {
 import { InterventionPackageIcon } from "@/marketing/components/shared/CamsIcon";
 import { cn } from "@/marketing/lib/utils";
 import { CAMS_UNSPLASH_PHOTO, camsUnsplashPhotoUrl } from "@/marketing/mock/cams-unsplash";
+import { programmeImageSeo } from "@/marketing/content/image-seo-catalog";
 import { PAGE_LAYOUT, PAGE_TYPOGRAPHY } from "@/marketing/components/shared/page-layout";
 import { PackageBestForCallout } from "@/marketing/components/shared/PackageBestForCallout";
 import { PackageFeaturesCollapsible } from "@/marketing/components/shared/PackageFeaturesCollapsible";
@@ -104,7 +105,7 @@ export function PackagesPageClient({ intro }: { intro?: ReactNode }): ReactEleme
             <div className="grid items-stretch md:grid-cols-[1.1fr_1fr]">
               <Image
                 src={camsUnsplashPhotoUrl(CAMS_UNSPLASH_PHOTO.goals, 1400, 860)}
-                alt="Young person working towards goals with mentor support"
+                alt={programmeImageSeo("goals").alt}
                 className="h-full min-h-[240px] w-full object-cover"
                 width={1400}
                 height={860}

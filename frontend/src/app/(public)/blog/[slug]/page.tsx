@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getBlogPost } from '@/marketing/server/blog/getBlogPost';
 import { BlogPostPageClient } from '@/marketing/components/blog/BlogPostPageClient';
 import { buildPublicMetadata } from '@/marketing/server/metadata/buildPublicMetadata';
+import { absoluteImageUrl } from '@/marketing/content/image-seo-catalog';
 import { getMetadataBaseUrl } from '@/marketing/lib/public-site-url';
 import { BLOG_DETAIL_PAGE } from '@/app/(public)/constants/blogDetailPageConstants';
 import { getBlogPosts } from '@/marketing/server/blog/getBlogPosts';
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   const seoDescription = post.seo?.description || post.excerpt || undefined;
   const ogImage =
     post.seo?.og_image || post.featuredImage || `${BASE_URL}/images/og-default.jpg`;
-  const imageUrl = ogImage.startsWith('http') ? ogImage : `${BASE_URL}${ogImage}`;
+  const imageUrl = ogImage.startsWith('http') ? ogImage : absoluteImageUrl(BASE_URL, ogImage);
 
   return buildPublicMetadata(
     {
@@ -44,7 +45,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       path: `/blog/${slug}`,
       type: 'article',
       imageUrl,
-      imageAlt: post.title,
+      imageAlt: post.featuredImageAlt || post.title,
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt,
       authors: [post.author.name],
@@ -110,7 +111,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.excerpt,
-    image: post.featuredImage ? `${BASE_URL}${post.featuredImage}` : undefined,
+    image: post.featuredImage ? absoluteImageUrl(BASE_URL, post.featuredImage) : undefined,
     datePublished: post.publishedAt,
     dateModified: post.updatedAt,
     author: {

@@ -7,6 +7,7 @@ import {
   serviceProgrammeImage,
   type ServiceProgrammeListItem
 } from "@/marketing/mock/services-programmes";
+import { programmeImageSeo } from "@/marketing/content/image-seo-catalog";
 import { ROUTES } from "@/shared/utils/routes";
 
 type ServiceProgrammeFeaturesPanelProps = {
@@ -27,6 +28,7 @@ export function ServiceProgrammeFeaturesPanel({
   imagePriority = false
 }: ServiceProgrammeFeaturesPanelProps): ReactElement {
   const imageSrc = serviceProgrammeImage(programme);
+  const imageSeo = programmeImageSeo(programme.coverKey);
   const { width, height } = PROGRAMME_COVER_IMAGE_LAYOUT.detailPanel;
 
   return (
@@ -42,7 +44,7 @@ export function ServiceProgrammeFeaturesPanel({
         <div className="brand-image-frame relative min-h-[260px] overflow-hidden rounded-3xl border border-slate-200 shadow-md lg:min-h-[420px]">
           <Image
             src={imageSrc}
-            alt={programme.title}
+            alt={imageSeo.alt}
             className="h-full w-full object-cover"
             width={width}
             height={height}
