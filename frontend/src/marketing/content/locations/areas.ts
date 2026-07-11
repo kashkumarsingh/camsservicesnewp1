@@ -1,32 +1,8 @@
 import type { LocationArea } from '@/marketing/content/locations/types';
+import { areaFaq, CORE_SERVICE_SLUGS } from '@/marketing/content/locations/area-factory';
+import { PHASE6_LOCATION_AREAS } from '@/marketing/content/locations/areas-phase6';
 
-const CORE_SERVICE_SLUGS = [
-  'community',
-  'mentoring',
-  'sen',
-  'routine',
-  'goals',
-  'sports-support-programme',
-] as const;
-
-function areaFaq(placeName: string, keyAreaSample: string): LocationArea['faq'] {
-  return [
-    {
-      q: `Do you provide chaperone services in ${placeName}?`,
-      a: `Yes. CAMS services delivers chaperone services, child transport and mentoring across ${placeName} for local authorities, schools, foster agencies and families. Contact us to discuss availability in ${keyAreaSample} and surrounding neighbourhoods.`,
-    },
-    {
-      q: `Which neighbourhoods in ${placeName} do you cover?`,
-      a: `We plan journeys across the borough or town based on referrer need, including school runs, contact centre transport, foster moves and community access. Share postcodes when you refer so we can confirm routing and practitioner cover.`,
-    },
-    {
-      q: `How do schools and local authorities refer in ${placeName}?`,
-      a: `Use our online referral form or contact page. We respond within one working day with feasibility, safeguarding questions and recommended next steps.`,
-    },
-  ];
-}
-
-export const LOCATION_AREAS: readonly LocationArea[] = [
+const CORE_LOCATION_AREAS: readonly LocationArea[] = [
   {
     slug: 'ealing',
     name: 'Ealing',
@@ -340,4 +316,9 @@ export const LOCATION_AREAS: readonly LocationArea[] = [
     faq: areaFaq('Slough', 'Langley'),
     serviceSlugs: CORE_SERVICE_SLUGS,
   },
+];
+
+export const LOCATION_AREAS: readonly LocationArea[] = [
+  ...CORE_LOCATION_AREAS,
+  ...PHASE6_LOCATION_AREAS,
 ];

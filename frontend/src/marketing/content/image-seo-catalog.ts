@@ -1,4 +1,5 @@
 import { SEO_BLOG_ARTICLES } from '@/marketing/content/blog';
+import { getServiceLocationPairs } from '@/marketing/content/locations/service-location-page-content';
 import { resolveBlogCoverImage } from '@/marketing/content/blog/seo-blog-helpers';
 import { LOCATION_AREAS } from '@/marketing/content/locations';
 import {
@@ -217,6 +218,23 @@ export function resolvePagePrimaryImage(
     };
   }
 
+  const areaServiceMatch = normalized.match(/^\/areas\/([^/]+)\/([^/]+)$/);
+  if (areaServiceMatch) {
+    const programme = SERVICE_PROGRAMME_LIST.find(
+      (item) => serviceSlugFromProgramme(item) === areaServiceMatch[2]
+    );
+    if (programme) {
+      const areaName = options.areaName ?? areaServiceMatch[1];
+      const record = programmeImageSeo(programme.coverKey);
+      return {
+        ...record,
+        title: `${record.title} in ${areaName}`,
+        caption: `${programme.title} in ${areaName} from CAMS services.`,
+        alt: `${record.alt} in ${areaName}`,
+      };
+    }
+  }
+
   const packageMatch = normalized.match(/^\/packages\/([^/]+)$/);
   if (packageMatch) {
     return {
@@ -300,6 +318,15 @@ export function getImageSitemapEntries(): readonly ImageSitemapPageEntry[] {
   for (const area of LOCATION_AREAS) {
     const pagePath = ROUTES.AREA_BY_SLUG(area.slug);
     const image = resolvePagePrimaryImage(pagePath, { areaName: area.name });
+    if (image) {
+      entries.push({ pagePath, images: [image] });
+    }
+  }
+
+  for (const pair of getServiceLocationPairs()) {
+    const pagePath = ROUTES.AREA_SERVICE_BY_SLUG(pair.areaSlug, pair.serviceSlug);
+    const area = LOCATION_AREAS.find((a) => a.slug === pair.areaSlug);
+    const image = resolvePagePrimaryImage(pagePath, { areaName: area?.name });
     if (image) {
       entries.push({ pagePath, images: [image] });
     }

@@ -210,7 +210,7 @@ export const chaperoneServicesUkArticle: MarketingBlogPostDTO = {
   readTimeLabel: formatReadTimeLabel(content),
   icon: "clipboardList",
   coverPhotoId: CAMS_UNSPLASH_PHOTO.community,
-  coverImageAlt: "Professional chaperone accompanying a young person on a safe community journey in the UK",
+  coverImageAlt: 'Chaperone services UK - professional escort and child transport guide',
   content,
   tags: [
     "chaperone services",

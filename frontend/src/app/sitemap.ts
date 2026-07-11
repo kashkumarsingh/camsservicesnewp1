@@ -3,6 +3,7 @@ import { policiesData } from "@/data/policiesData";
 import { getCanonicalUrlForSiteSlug } from "@/marketing/lib/public-site-url";
 import { getSeoBlogSitemapEntries } from "@/marketing/content/blog";
 import { getLocationAreaSitemapEntries } from "@/marketing/content/locations";
+import { getServiceLocationSitemapEntries } from "@/marketing/content/locations/service-location-page-content";
 import { INTERVENTION_PACKAGE_IDS } from "@/marketing/mock/intervention-packages";
 import {
   SERVICE_PROGRAMME_LIST,
@@ -76,11 +77,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry(area.path, 0.75, "monthly", area.lastModified)
   );
 
+  const serviceLocationEntries: MetadataRoute.Sitemap = getServiceLocationSitemapEntries().map(
+    (item) => entry(item.path, 0.7, "monthly", item.lastModified)
+  );
+
   return [
     ...pageEntries,
     ...packageEntries,
     ...serviceEntries,
     ...areaEntries,
+    ...serviceLocationEntries,
     ...policyEntries,
     ...blogEntries,
   ];

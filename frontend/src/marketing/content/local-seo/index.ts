@@ -1,0 +1,15 @@
+export {
+  CITATION_DIRECTORIES,
+  GBP_BUSINESS_DESCRIPTION,
+  YELL_BUSINESS_SUMMARY,
+  YELL_GBP_LONG_DESCRIPTION,
+  YELL_PRODUCTS_AND_SERVICES,
+  YELL_STRAPLINE,
+  formatCitationNapBlock,
+  formatGscIndexingUrlList,
+  getGbpYellPrimaryAreaEntries,
+  getGscIndexingPriorityUrls,
+  getYellGbpAreaLabels,
+  type CitationDirectoryEntry,
+  type GbpYellAreaEntry,
+} from '@/marketing/content/local-seo/gbp-yell-phase5';

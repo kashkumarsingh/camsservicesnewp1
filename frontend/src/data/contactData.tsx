@@ -1,3 +1,5 @@
+import { BUSINESS_NAP } from '@/marketing/constants/businessNap';
+
 export const BUSINESS_HOURS = {
   /** Matches Yell / Google Business Profile listing */
   display: 'Open 24 hours, Monday to Sunday',
@@ -18,13 +20,11 @@ export const BUSINESS_HOURS = {
 } as const;
 
 export const contactData = {
-  email: 'info@camsservices.co.uk',
-  phone: '+44 7939 990587',
-  whatsapp: 'https://wa.me/447939990587',
-  address: '51 Eastmead Avenue, UB6 9RD',
-  fullAddress: '51 Eastmead Avenue, Greenford, UB6 9RD, United Kingdom',
-  mapEmbedUrl:
-    'https://maps.google.com/maps?q=51+Eastmead+Avenue,+UB6+9RD,+UK&hl=en&z=17&output=embed',
-  mapsSearchUrl:
-    'https://www.google.com/maps/search/?api=1&query=51+Eastmead+Avenue,+UB6+9RD,+UK',
+  email: BUSINESS_NAP.email,
+  phone: BUSINESS_NAP.phone,
+  whatsapp: `https://wa.me/${BUSINESS_NAP.phoneTelHref.replace('+', '')}`,
+  address: BUSINESS_NAP.shortAddress,
+  fullAddress: BUSINESS_NAP.fullAddress,
+  mapEmbedUrl: BUSINESS_NAP.mapsEmbedUrl,
+  mapsSearchUrl: BUSINESS_NAP.mapsPlaceUrl,
 } as const;

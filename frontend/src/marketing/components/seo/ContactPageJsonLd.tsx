@@ -1,27 +1,29 @@
 import type { ReactElement } from "react";
 import { BUSINESS_HOURS, contactData } from "@/data/contactData";
+import {
+  BUSINESS_LEGAL_NAME,
+  BUSINESS_POSTAL_ADDRESS_SCHEMA,
+} from "@/marketing/constants/businessNap";
+import { getGbpYellPrimaryAreaEntries } from "@/marketing/content/local-seo";
 import { getMetadataBaseUrl } from "@/marketing/lib/public-site-url";
 import { SEO_DEFAULTS } from "@/marketing/utils/seoConstants";
-import { CAMS_SOCIAL_PROFILE_URLS } from "@/marketing/constants/socialLinks";
+import { CAMS_SAME_AS_PROFILE_URLS } from "@/marketing/constants/socialLinks";
 
 export function ContactPageJsonLd(): ReactElement {
   const baseUrl = getMetadataBaseUrl();
+  const primaryAreas = getGbpYellPrimaryAreaEntries();
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "@id": `${baseUrl}/contact#localbusiness`,
-    name: SEO_DEFAULTS.siteName,
+    name: BUSINESS_LEGAL_NAME,
+    alternateName: SEO_DEFAULTS.siteName,
     url: `${baseUrl}/contact`,
     telephone: contactData.phone,
     email: contactData.email,
     image: `${baseUrl}/logos/cams-services-logo.webp`,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "51 Eastmead Avenue",
-      addressLocality: "Greenford",
-      postalCode: "UB6 9RD",
-      addressCountry: "GB",
-    },
+    address: BUSINESS_POSTAL_ADDRESS_SCHEMA,
     openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",
@@ -31,13 +33,16 @@ export function ContactPageJsonLd(): ReactElement {
       },
     ],
     areaServed: [
-      { "@type": "City", name: "London" },
-      { "@type": "AdministrativeArea", name: "Essex" },
+      ...primaryAreas.map((area) => ({
+        "@type": "AdministrativeArea",
+        name: area.name,
+        url: area.areaPageUrl,
+      })),
       { "@type": "Country", name: "United Kingdom" },
     ],
     description:
       "Contact CAMS services for chaperone services, child transport, school transport support, youth mentoring and SEND support across London, Essex and the UK.",
-    sameAs: [...CAMS_SOCIAL_PROFILE_URLS],
+    sameAs: [...CAMS_SAME_AS_PROFILE_URLS],
   };
 
   return (

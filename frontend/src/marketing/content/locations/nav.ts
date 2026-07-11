@@ -18,7 +18,25 @@ const NORTH_AND_COUNTIES_NAV_SLUGS = [
   'enfield',
   'watford',
   'hertsmere',
+  'st-albans',
+  'hemel-hempstead',
+  'stevenage',
   'slough',
+] as const;
+
+const ESSEX_NAV_SLUGS = [
+  'chelmsford',
+  'brentwood',
+  'basildon',
+  'harlow',
+  'colchester',
+] as const;
+
+const LONDON_EXPANSION_NAV_SLUGS = [
+  'kingston-upon-thames',
+  'waltham-forest',
+  'haringey',
+  'redbridge',
 ] as const;
 
 const bySlug = new Map(LOCATION_AREAS.map((area) => [area.slug, area]));
@@ -37,6 +55,10 @@ function toNavLink(slug: string) {
 export function buildAreasNavColumns(): readonly NavMegaColumn[] {
   const westLinks = WEST_LONDON_NAV_SLUGS.map(toNavLink).filter((link) => link != null);
   const northLinks = NORTH_AND_COUNTIES_NAV_SLUGS.map(toNavLink).filter((link) => link != null);
+  const essexLinks = ESSEX_NAV_SLUGS.map(toNavLink).filter((link) => link != null);
+  const londonExpansionLinks = LONDON_EXPANSION_NAV_SLUGS.map(toNavLink).filter(
+    (link) => link != null
+  );
 
   return [
     {
@@ -51,8 +73,12 @@ export function buildAreasNavColumns(): readonly NavMegaColumn[] {
       ],
     },
     {
-      heading: 'North & counties',
+      heading: 'North, Herts & Berkshire',
       links: northLinks,
+    },
+    {
+      heading: 'Essex & outer London',
+      links: [...essexLinks, ...londonExpansionLinks],
     },
   ];
 }

@@ -1,22 +1,32 @@
 import type { ReactElement } from "react";
-import { BUSINESS_HOURS } from "@/data/contactData";
+import { BUSINESS_HOURS, contactData } from "@/data/contactData";
+import {
+  BUSINESS_LEGAL_NAME,
+  BUSINESS_NAP,
+  BUSINESS_POSTAL_ADDRESS_SCHEMA,
+} from "@/marketing/constants/businessNap";
+import { getGbpYellPrimaryAreaEntries } from "@/marketing/content/local-seo";
 import { getMetadataBaseUrl } from "@/marketing/lib/public-site-url";
 import { SEO_DEFAULTS, CHAPERONE_SEO_TERMS } from "@/marketing/utils/seoConstants";
-import { CAMS_SOCIAL_PROFILE_URLS } from "@/marketing/constants/socialLinks";
+import { CAMS_SAME_AS_PROFILE_URLS } from "@/marketing/constants/socialLinks";
 
 export function OrganizationJsonLd(): ReactElement {
   const baseUrl = getMetadataBaseUrl();
+  const hqUrl = `${baseUrl}${BUSINESS_NAP.headquartersPath}`;
+  const primaryAreas = getGbpYellPrimaryAreaEntries();
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "Organization",
         "@id": `${baseUrl}/#organization`,
-        name: SEO_DEFAULTS.siteName,
+        name: BUSINESS_LEGAL_NAME,
+        alternateName: SEO_DEFAULTS.siteName,
         url: baseUrl,
         logo: `${baseUrl}/logos/cams-services-logo.webp`,
         description: SEO_DEFAULTS.description,
-        sameAs: [...CAMS_SOCIAL_PROFILE_URLS],
+        sameAs: [...CAMS_SAME_AS_PROFILE_URLS],
       },
       {
         "@type": "WebSite",
@@ -30,18 +40,23 @@ export function OrganizationJsonLd(): ReactElement {
       {
         "@type": "LocalBusiness",
         "@id": `${baseUrl}/#localbusiness`,
-        name: SEO_DEFAULTS.siteName,
+        name: BUSINESS_LEGAL_NAME,
+        alternateName: SEO_DEFAULTS.siteName,
         url: baseUrl,
+        telephone: contactData.phone,
+        email: contactData.email,
+        image: `${baseUrl}/logos/cams-services-logo.webp`,
         description: SEO_DEFAULTS.description,
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: "51 Eastmead Avenue",
-          addressLocality: "Greenford",
-          addressRegion: "London",
-          postalCode: "UB6 9RD",
-          addressCountry: "GB",
-        },
-        areaServed: { "@type": "Country", name: "United Kingdom" },
+        address: BUSINESS_POSTAL_ADDRESS_SCHEMA,
+        hasMap: BUSINESS_NAP.mapsPlaceUrl,
+        areaServed: [
+          ...primaryAreas.map((area) => ({
+            "@type": "AdministrativeArea",
+            name: area.name,
+            url: area.areaPageUrl,
+          })),
+          { "@type": "Country", name: "United Kingdom" },
+        ],
         openingHoursSpecification: [
           {
             "@type": "OpeningHoursSpecification",
@@ -51,6 +66,16 @@ export function OrganizationJsonLd(): ReactElement {
           },
         ],
         parentOrganization: { "@id": `${baseUrl}/#organization` },
+        ...(primaryAreas.find((a) => a.isHeadquarters)
+          ? {
+              department: {
+                "@type": "LocalBusiness",
+                name: `${SEO_DEFAULTS.siteName} West London HQ`,
+                url: hqUrl,
+                address: BUSINESS_POSTAL_ADDRESS_SCHEMA,
+              },
+            }
+          : {}),
       },
       {
         "@type": "ProfessionalService",
@@ -58,10 +83,11 @@ export function OrganizationJsonLd(): ReactElement {
         name: `${SEO_DEFAULTS.siteName} chaperone services`,
         url: `${baseUrl}/chaperone-services`,
         provider: { "@id": `${baseUrl}/#organization` },
-        areaServed: {
-          "@type": "Country",
-          name: "United Kingdom",
-        },
+        areaServed: primaryAreas.map((area) => ({
+          "@type": "AdministrativeArea",
+          name: area.name,
+          url: area.areaPageUrl,
+        })),
         serviceType: [
           CHAPERONE_SEO_TERMS.secondary,
           CHAPERONE_SEO_TERMS.primary,

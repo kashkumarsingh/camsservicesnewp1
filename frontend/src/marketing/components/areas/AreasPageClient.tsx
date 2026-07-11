@@ -18,6 +18,7 @@ import { ROUTES } from "@/shared/utils/routes";
 const REGIONS = [
   { slug: "greater-london", label: "Greater London" },
   { slug: "hertfordshire", label: "Hertfordshire" },
+  { slug: "essex", label: "Essex" },
   { slug: "berkshire", label: "Berkshire" },
 ] as const;
 
@@ -30,7 +31,7 @@ export function AreasPageClient(): ReactElement {
             Service <span className="text-cams-primary">areas</span>
           </>
         }
-        description="Chaperone service, child transport services, youth mentoring, SEND support and family support across West London and Hertfordshire. Choose your borough for local programmes and referral routes. CAMS services Ltd, HQ Greenford, Ealing."
+        description="Chaperone service, child transport services, youth mentoring, SEND support and family support across West London, Essex and Hertfordshire. Choose your borough or town for local programmes and referral routes. CAMS services Ltd, HQ Greenford, Ealing."
       />
 
       <PagePrimaryImageSection pagePath={ROUTES.AREAS} />

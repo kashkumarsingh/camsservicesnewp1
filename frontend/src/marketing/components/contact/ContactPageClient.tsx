@@ -386,7 +386,7 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
                   Office
                 </div>
                 <address className="mt-2 not-italic">
-                  <p className="text-sm font-semibold text-cams-ink">CAMS services Ltd</p>
+                  <p className="text-sm font-semibold text-cams-ink">CAMS Services Ltd</p>
                   <p className="mt-1 text-sm leading-6 text-cams-ink-secondary">{contactData.fullAddress}</p>
                 </address>
               </div>
@@ -399,7 +399,7 @@ export function ContactPageClient({ intro }: { intro?: ReactNode }): ReactElemen
 
               <div className="overflow-hidden rounded-xl border border-slate-200">
                 <iframe
-                  title="CAMS services office location"
+                  title="CAMS Services Ltd — 51 Eastmead Avenue, Greenford"
                   src={contactData.mapEmbedUrl}
                   className="h-52 w-full border-0 md:h-56"
                   loading="lazy"

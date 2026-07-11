@@ -5,6 +5,10 @@ const bySlug = new Map(LOCATION_AREAS.map((area) => [area.slug, area]));
 
 export type { LocationArea, LocationAreaFaq, LocationCouncilType } from '@/marketing/content/locations/types';
 export { LOCATION_AREAS };
+export {
+  PHASE6_EXPANSION_ORDER,
+  PHASE6_LOCATION_AREAS,
+} from '@/marketing/content/locations/areas-phase6';
 
 export function getLocationAreaBySlug(slug: string): LocationArea | null {
   return bySlug.get(slug) ?? null;
@@ -29,3 +33,5 @@ export function getBorderingAreas(area: LocationArea): readonly LocationArea[] {
     .map((slug) => bySlug.get(slug))
     .filter((item): item is LocationArea => item != null);
 }
+
+export { getServiceLocationPairs, getServiceLocationSitemapEntries } from '@/marketing/content/locations/service-location-page-content';

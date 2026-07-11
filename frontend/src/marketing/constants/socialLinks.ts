@@ -1,4 +1,6 @@
 /** Canonical CAMS services social profiles (footer, contact, JSON-LD sameAs). */
+import { GBP_LISTING_URL, YELL_LISTING_URL } from '@/marketing/constants/businessNap';
+
 export const CAMS_SOCIAL_LINKS = [
   {
     platform: 'facebook' as const,
@@ -18,6 +20,13 @@ export type CamsSocialPlatform = (typeof CAMS_SOCIAL_LINKS)[number]['platform'];
 export const CAMS_SOCIAL_PROFILE_URLS: readonly string[] = CAMS_SOCIAL_LINKS.map(
   (link) => link.url
 );
+
+/** Social + directory listings for JSON-LD sameAs (GBP, Yell, Facebook, Instagram). */
+export const CAMS_SAME_AS_PROFILE_URLS: readonly string[] = [
+  ...CAMS_SOCIAL_PROFILE_URLS,
+  GBP_LISTING_URL,
+  YELL_LISTING_URL,
+];
 
 /** Site settings API shape (fallback when CMS unavailable). */
 export function camsSocialLinksForSiteSettings(): Array<{

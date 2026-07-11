@@ -29,7 +29,7 @@ export function AreaServicesKeywordsSection({ area }: AreaServicesKeywordsSectio
             className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm"
           >
             <Link
-              href={service.servicePath}
+              href={ROUTES.AREA_SERVICE_BY_SLUG(area.slug, service.slug)}
               className="font-heading text-base font-bold text-cams-ink no-underline hover:text-cams-primary"
             >
               {service.label}
@@ -42,7 +42,7 @@ export function AreaServicesKeywordsSection({ area }: AreaServicesKeywordsSectio
                 .join(' · ')}
             </p>
             <span className="mt-3 inline-block text-sm font-semibold text-cams-primary">
-              View programme →
+              {service.label} in {area.name} →
             </span>
           </li>
         ))}

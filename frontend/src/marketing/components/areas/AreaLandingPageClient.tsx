@@ -16,6 +16,7 @@ import type { LocationAreaFaq } from "@/marketing/content/locations/types";
 import {
   areaHeroDescription,
 } from "@/marketing/content/locations/location-seo-copy";
+import { getLocationBlogArticleForArea } from "@/marketing/content/blog";
 import { getServiceProgrammeBySlug } from "@/marketing/mock/services-programmes";
 import { ROUTES } from "@/shared/utils/routes";
 
@@ -31,6 +32,10 @@ export function AreaLandingPageClient({ area, faq }: AreaLandingPageClientProps)
 
   const bordering = getBorderingAreas(area);
   const faqs = faq.map((item) => ({ question: item.q, answer: item.a }));
+  const locationBlog = getLocationBlogArticleForArea(area.slug);
+  const locationBlogHref = locationBlog
+    ? ROUTES.BLOG_POST_BY_SLUG(locationBlog.slug.replace(/^blog\//, ""))
+    : null;
 
   return (
     <PageShell maxWidthClassName="max-w-[1600px]">
@@ -67,6 +72,13 @@ export function AreaLandingPageClient({ area, faq }: AreaLandingPageClientProps)
               ))}
             </div>
             <p className="mt-4 text-sm text-cams-slate">{area.notes}</p>
+            {locationBlogHref ? (
+              <p className="mt-4 text-sm">
+                <Link href={locationBlogHref} className="font-semibold text-cams-primary hover:underline">
+                  Read our {area.name} commissioning guide →
+                </Link>
+              </p>
+            ) : null}
           </section>
 
           <AreaServicesKeywordsSection area={area} />

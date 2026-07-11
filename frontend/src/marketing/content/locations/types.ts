@@ -28,4 +28,6 @@ export type LocationArea = {
   readonly faq: readonly LocationAreaFaq[];
   /** Service programme slugs from SERVICE_PROGRAMME_LIST, linked on the area page. */
   readonly serviceSlugs: readonly string[];
+  /** Phase 6 geography expansion tier when applicable. */
+  readonly expansionTier?: 'phase6-essex' | 'phase6-hertfordshire' | 'phase6-london';
 };
