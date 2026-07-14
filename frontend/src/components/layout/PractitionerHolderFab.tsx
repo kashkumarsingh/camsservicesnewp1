@@ -7,6 +7,8 @@ import { FloatingStackMenu, type FloatingStackAction } from "@/components/layout
 import { contactData } from "@/data/contactData";
 import { ROUTES } from "@/shared/utils/routes";
 
+export const KENNETH_HOLDER_SLUG = "kenneth-holder" as const;
+
 function WhatsAppIcon(): ReactElement {
   return (
     <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="currentColor" aria-hidden>
@@ -31,6 +33,13 @@ export function PractitionerHolderFab({
   const whatsappHref = `${contactData.whatsapp}?text=${encodeURIComponent(PRACTITIONER_PAGE.WHATSAPP_MESSAGE)}`;
 
   const actions: FloatingStackAction[] = [
+    {
+      id: "profile",
+      label: "View Kenneth's profile",
+      href: ROUTES.PRACTITIONER_BY_SLUG(KENNETH_HOLDER_SLUG),
+      icon: <User size={18} aria-hidden />,
+      className: "bg-cams-dark text-white hover:bg-cams-dark/90",
+    },
     {
       id: "whatsapp-kenneth",
       label: "WhatsApp about Kenneth",

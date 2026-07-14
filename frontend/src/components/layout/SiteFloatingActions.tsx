@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactElement } from "react";
 import { ArrowUp, MessageCircle, Phone, X } from "lucide-react";
 import { FloatingStackMenu, type FloatingStackAction } from "@/components/layout/FloatingStackMenu";
@@ -28,7 +27,6 @@ function WhatsAppIcon(): ReactElement {
 }
 
 export function SiteFloatingActions({ contactPhone }: SiteFloatingActionsProps): ReactElement {
-  const pathname = usePathname();
   const [chatOpen, setChatOpen] = useState(false);
   const [askCamsDialOpen, setAskCamsDialOpen] = useState(false);
   const [kennethDialOpen, setKennethDialOpen] = useState(false);
@@ -39,7 +37,6 @@ export function SiteFloatingActions({ contactPhone }: SiteFloatingActionsProps):
 
   const phoneDisplay = contactPhone ?? contactData.phone;
   const phoneHref = `tel:${phoneDisplay.replace(/\s/g, "")}`;
-  const isKennethProfilePage = pathname.startsWith("/practitioners/kenneth-holder");
   const anyDialOpen = askCamsDialOpen || kennethDialOpen;
 
   useEffect(() => {
@@ -207,7 +204,7 @@ export function SiteFloatingActions({ contactPhone }: SiteFloatingActionsProps):
           </button>
         ) : null}
 
-        {isKennethProfilePage && !chatOpen ? (
+        {!chatOpen ? (
           <PractitionerHolderFab
             open={kennethDialOpen}
             onToggle={toggleKennethDial}

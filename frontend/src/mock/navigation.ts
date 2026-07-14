@@ -26,10 +26,21 @@ export type NavMegaItem = {
 export type NavItem = NavLinkItem | NavMegaItem;
 
 import { buildAreasNavColumns } from "@/marketing/content/locations/nav";
+import {
+  buildPractitionersNavColumns,
+  getPrimaryPractitionerNavHref,
+} from "@/marketing/content/practitioners/nav";
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { kind: "link", href: "/", label: "Home" },
   { kind: "link", href: "/about", label: "About" },
+  {
+    kind: "mega",
+    label: "Practitioner",
+    href: getPrimaryPractitionerNavHref(),
+    footerCta: "Book via CAMS Services →",
+    columns: buildPractitionersNavColumns(),
+  },
   {
     kind: "mega",
     label: "Services",
