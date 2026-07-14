@@ -16,6 +16,7 @@ import {
   ABOUT_WHY_POINTS
 } from "@/marketing/mock/about-page";
 import { CamsSpaceTeamAvatar } from "@/marketing/components/about/CamsSpaceTeamAvatar";
+import { ROUTES } from "@/shared/utils/routes";
 
 export function AboutPageClient({ intro }: { intro?: ReactNode }): ReactElement {
   return (
@@ -204,22 +205,43 @@ export function AboutPageClient({ intro }: { intro?: ReactNode }): ReactElement 
             </p>
           </div>
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {ABOUT_TEAM.map((member) => (
-              <article
-                key={member.name}
-                className="group overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/50 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-              >
-                <div className="brand-image-frame overflow-hidden rounded-t-2xl">
-                  <CamsSpaceTeamAvatar avatarKey={member.avatarKey} name={member.name} role={member.role} />
-                </div>
-                <div className="border-t border-slate-100 bg-white px-5 py-5">
-                  <h3 className="text-lg font-bold text-cams-dark">{member.name}</h3>
-                  <p className="mt-2 inline-flex rounded-full border border-cams-primary/20 bg-cams-primary/[0.07] px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-cams-primary">
-                    {member.role}
-                  </p>
-                </div>
-              </article>
-            ))}
+            {ABOUT_TEAM.map((member) => {
+              const profileHref =
+                member.avatarKey === "kenneth-holder" ? ROUTES.PRACTITIONER_BY_SLUG("kenneth-holder") : null;
+              const card = (
+                <>
+                  <div className="brand-image-frame overflow-hidden rounded-t-2xl">
+                    <CamsSpaceTeamAvatar avatarKey={member.avatarKey} name={member.name} role={member.role} />
+                  </div>
+                  <div className="border-t border-slate-100 bg-white px-5 py-5">
+                    <h3 className="text-lg font-bold text-cams-dark">{member.name}</h3>
+                    <p className="mt-2 inline-flex rounded-full border border-cams-primary/20 bg-cams-primary/[0.07] px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-cams-primary">
+                      {member.role}
+                    </p>
+                    {profileHref ? (
+                      <p className="mt-3 text-sm font-semibold text-cams-primary">View practitioner profile →</p>
+                    ) : null}
+                  </div>
+                </>
+              );
+
+              return profileHref ? (
+                <Link
+                  key={member.name}
+                  href={profileHref}
+                  className="group overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/50 shadow-sm transition hover:-translate-y-1 hover:shadow-md no-underline"
+                >
+                  {card}
+                </Link>
+              ) : (
+                <article
+                  key={member.name}
+                  className="group overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/50 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                >
+                  {card}
+                </article>
+              );
+            })}
           </div>
           <p className="mt-10 text-center text-sm text-cams-slate">
             Interested in joining us?{" "}

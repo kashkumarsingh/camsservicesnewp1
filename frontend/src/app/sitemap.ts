@@ -3,6 +3,7 @@ import { policiesData } from "@/data/policiesData";
 import { getCanonicalUrlForSiteSlug } from "@/marketing/lib/public-site-url";
 import { getSeoBlogSitemapEntries } from "@/marketing/content/blog";
 import { getLocationAreaSitemapEntries } from "@/marketing/content/locations";
+import { getPractitionerSitemapEntries } from "@/marketing/content/practitioners";
 import { getServiceLocationSitemapEntries } from "@/marketing/content/locations/service-location-page-content";
 import { INTERVENTION_PACKAGE_IDS } from "@/marketing/mock/intervention-packages";
 import {
@@ -81,12 +82,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     (item) => entry(item.path, 0.7, "monthly", item.lastModified)
   );
 
+  const practitionerEntries: MetadataRoute.Sitemap = getPractitionerSitemapEntries().map((item) =>
+    entry(item.path, 0.75, "monthly", item.lastModified)
+  );
+
   return [
     ...pageEntries,
     ...packageEntries,
     ...serviceEntries,
     ...areaEntries,
     ...serviceLocationEntries,
+    ...practitionerEntries,
     ...policyEntries,
     ...blogEntries,
   ];

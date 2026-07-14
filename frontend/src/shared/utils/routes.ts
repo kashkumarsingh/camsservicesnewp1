@@ -23,6 +23,8 @@ export const ROUTES = {
   BLOG_POST_BY_SLUG: (slug: string) => `/blog/${slug}`,
   TRAINERS: '/trainers',
   TRAINER_BY_SLUG: (slug: string) => `/trainers/${slug}`,
+  PRACTITIONERS: '/practitioners',
+  PRACTITIONER_BY_SLUG: (slug: string) => `/practitioners/${slug}`,
   FAQ: '/faq',
   FAQ_BY_SLUG: (slug: string) => `/faq/${slug}`,
   POLICIES: '/policies',
