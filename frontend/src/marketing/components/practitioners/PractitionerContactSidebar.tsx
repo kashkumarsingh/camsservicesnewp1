@@ -77,10 +77,9 @@ export function PractitionerContactSidebar({ profile }: PractitionerContactSideb
     <div className="space-y-5">
       <section className={`${PAGE_LAYOUT.panel} p-5 sm:p-6`}>
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Contact CAMS</p>
-        <h2 className="mt-2 text-xl font-bold text-cams-ink">Book {profile.name}</h2>
+        <h2 className="mt-2 text-lg font-bold text-cams-ink">Book {profile.name}</h2>
         <p className="mt-2 text-sm leading-6 text-cams-ink-secondary">
-          All enquiries go through CAMS Services Ltd. Call, WhatsApp or send a message. We respond within one working
-          day.
+          All enquiries go through CAMS Services Ltd. We respond within one working day.
         </p>
 
         <div className="mt-5 space-y-4 border-t border-slate-200/90 pt-5">
@@ -91,18 +90,18 @@ export function PractitionerContactSidebar({ profile }: PractitionerContactSideb
             </div>
             <a
               href={CONTACT_PHONE_HREF}
-              className="mt-2 block text-xl font-bold text-cams-primary transition hover:text-cams-secondary"
+              className="mt-2 block text-lg font-bold text-cams-primary transition hover:text-cams-secondary"
             >
               {contactData.phone}
             </a>
             <p className="mt-1 text-xs text-cams-slate">{BUSINESS_HOURS.display}</p>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Button href={WHATSAPP_HREF} variant="primary" type="button" className="w-full">
-              WhatsApp CAMS Services
+          <div className={`${PAGE_LAYOUT.ctaRow} mt-2`}>
+            <Button href={WHATSAPP_HREF} variant="secondary" type="button" className="w-full sm:w-auto">
+              WhatsApp us
             </Button>
-            <Button href={CONTACT_PHONE_HREF} variant="secondary" type="button" className="w-full">
+            <Button href={CONTACT_PHONE_HREF} variant="secondary" type="button" className="w-full sm:w-auto">
               Call now
             </Button>
           </div>
@@ -110,7 +109,7 @@ export function PractitionerContactSidebar({ profile }: PractitionerContactSideb
       </section>
 
       <section className={`${PAGE_SURFACES.cardHoverLift} rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6`}>
-        <h3 className="text-lg font-bold text-cams-ink">Quick enquiry</h3>
+        <h3 className="text-base font-bold text-cams-ink">Quick enquiry</h3>
         <p className="mt-1 text-sm text-cams-slate">Ask about booking {profile.name}.</p>
 
         {error ? (
@@ -188,29 +187,26 @@ export function PractitionerContactSidebar({ profile }: PractitionerContactSideb
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-auto min-w-[10rem] px-6 py-2.5 text-sm" disabled={loading}>
             {loading ? 'Sending…' : 'Send enquiry'}
           </Button>
         </form>
-      </section>
 
-      <section className={`${PAGE_LAYOUT.panel} p-5 sm:p-6`}>
-        <h3 className="text-sm font-bold text-cams-ink">Referrals and packs</h3>
-        <div className="mt-4 flex flex-col gap-2">
-          <Button href={ROUTES.REFERRAL} variant="secondary" className="w-full">
-            Make a referral
-          </Button>
-          <Button href={ROUTES.CONTACT} variant="secondary" className="w-full">
-            Contact CAMS Services
-          </Button>
+        <p className="mt-3 text-xs leading-5 text-cams-slate">
+          Or{' '}
+          <a href={ROUTES.REFERRAL} className="font-semibold text-cams-primary underline underline-offset-2">
+            make a referral
+          </a>{' '}
+          or{' '}
           <a
             href={PRACTITIONER_PAGE.INFORMATION_PACK_PDF_PATH}
             download={PRACTITIONER_PAGE.INFORMATION_PACK_FILENAME}
-            className="inline-flex min-h-10 w-full items-center justify-center rounded-md border border-cams-primary px-4 py-2 text-center text-sm font-semibold text-cams-primary transition hover:bg-cams-primary/10"
+            className="font-semibold text-cams-primary underline underline-offset-2"
           >
-            Download information pack
+            download the information pack
           </a>
-        </div>
+          .
+        </p>
       </section>
     </div>
   );

@@ -7,7 +7,10 @@ import { CAMS_SERVICES_LIST } from "@/marketing/mock/cams-services-catalog";
 
 export function HomeServicesGridSection(): ReactElement {
   return (
-    <section className={PAGE_LAYOUT.homeSectionSoft} aria-labelledby="home-services-heading">
+    <section
+      className="relative overflow-hidden bg-cams-soft px-4 pt-20 pb-10 md:px-10 md:pt-28 md:pb-12"
+      aria-labelledby="home-services-heading"
+    >
       <div
         className="pointer-events-none absolute -left-32 top-20 h-72 w-72 rounded-full bg-cams-primary/10 blur-3xl"
         aria-hidden

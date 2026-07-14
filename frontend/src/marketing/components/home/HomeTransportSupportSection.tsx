@@ -13,7 +13,7 @@ import {
 export function HomeTransportSupportSection(): ReactElement {
   return (
     <section
-      className={PAGE_LAYOUT.homeSectionWhite}
+      className="relative overflow-hidden bg-white px-4 pt-10 pb-20 md:px-10 md:pt-12 md:pb-28"
       aria-labelledby="home-transport-heading"
     >
       <div

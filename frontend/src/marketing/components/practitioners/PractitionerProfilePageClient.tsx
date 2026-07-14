@@ -4,14 +4,13 @@ import Link from 'next/link';
 import type { ReactElement, ReactNode } from 'react';
 import { CheckCircle2, Lock } from 'lucide-react';
 import { PageShell } from '@/marketing/components/shared/PageShell';
+import { PageHeroBand } from '@/marketing/components/shared/PageHeroBand';
 import { PageCtaSection } from '@/marketing/components/shared/PageCtaSection';
-import { CamsSpaceTeamAvatar } from '@/marketing/components/about/CamsSpaceTeamAvatar';
 import { Button } from '@/marketing/components/ui/button';
 import { PAGE_LAYOUT, PAGE_SURFACES } from '@/marketing/components/shared/page-layout';
 import { PRACTITIONER_PAGE } from '@/app/(public)/constants/practitionerPageConstants';
 import { PractitionerContactSidebar } from '@/marketing/components/practitioners/PractitionerContactSidebar';
 import type { PractitionerProfile } from '@/marketing/content/practitioners/types';
-import { camsVideoSrc } from '@/marketing/mock/cams-videos';
 import { ROUTES } from '@/shared/utils/routes';
 
 type PractitionerProfilePageClientProps = {
@@ -43,68 +42,50 @@ function ProfileSection({
 export function PractitionerProfilePageClient({ profile }: PractitionerProfilePageClientProps): ReactElement {
   return (
     <PageShell maxWidthClassName="max-w-[1600px]">
-      <section className="cams-hero-diagonal-clip relative left-1/2 flex w-screen max-w-none -translate-x-1/2 overflow-hidden px-4 py-12 text-white sm:px-6 md:px-8 md:py-16 lg:py-20">
-        <video
-          className="cams-hero-video absolute inset-0 h-full w-full object-cover"
-          src={camsVideoSrc('heroBackground')}
-          autoPlay
-          loop
-          muted
-          playsInline
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-cams-dark/90 via-cams-primary/50 to-cams-secondary/35" />
-
-        <div className="relative z-10 mx-auto grid w-full max-w-[1600px] gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-12">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-accent">{profile.heroEyebrow}</p>
-            <h1 className="mt-4 font-heading text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl">
-              Meet <span className="text-cams-accent">{profile.name}</span>
-            </h1>
-            <p className="mt-3 text-lg font-semibold text-white/95">
+      <PageHeroBand
+        layout="centered"
+        height="short"
+        title={
+          <>
+            Meet <span className="text-cams-accent">{profile.name}</span>
+          </>
+        }
+        description={
+          <>
+            <p className="text-base font-semibold text-white/95 md:text-lg">
               {profile.role} | {profile.company}
             </p>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-white/90 md:text-lg">{profile.heroSubtitle}</p>
+            <p className="mt-4 text-base leading-relaxed text-white/90 md:text-lg">{profile.heroSubtitle}</p>
+          </>
+        }
+      />
 
-            <ul className="mt-6 flex flex-wrap gap-2">
-              {profile.servicesSummary.map((service) => (
-                <li
-                  key={service}
-                  className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold backdrop-blur-sm"
-                >
-                  {service}
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Button href={ROUTES.CONTACT} variant="primary" size="lg">
-                Book this practitioner
-              </Button>
-              <Button href={ROUTES.REFERRAL} variant="secondary" size="lg">
-                Make a referral
-              </Button>
-              <a
-                href={PRACTITIONER_PAGE.INFORMATION_PACK_PDF_PATH}
-                download={PRACTITIONER_PAGE.INFORMATION_PACK_FILENAME}
-                className="inline-flex min-h-12 items-center justify-center rounded-md border border-white/30 bg-white/10 px-6 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20"
+      <section className={`${PAGE_LAYOUT.panel} -mt-6 relative z-20 mx-auto max-w-[1600px] px-4 sm:px-6 md:px-8`}>
+        <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm sm:p-6 md:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">{profile.heroEyebrow}</p>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {profile.servicesSummary.map((service) => (
+              <li
+                key={service}
+                className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-cams-ink-secondary"
               >
-                Download information pack
-              </a>
-            </div>
-          </div>
-
-          <div className="mx-auto w-full max-w-md lg:max-w-none">
-            <div className="overflow-hidden rounded-3xl border border-white/20 shadow-2xl shadow-slate-900/30">
-              <CamsSpaceTeamAvatar
-                avatarKey={profile.avatarKey}
-                name={profile.name}
-                role={profile.role}
-                className="min-h-[320px] md:min-h-[380px]"
-              />
-            </div>
-            <p className="mt-3 text-center text-xs text-white/75">
-              CAMS brand avatar. No personal photograph published on this page.
-            </p>
+                {service}
+              </li>
+            ))}
+          </ul>
+          <div className={`${PAGE_LAYOUT.ctaRow} mt-6`}>
+            <Button href={ROUTES.CONTACT} variant="primary">
+              Book this practitioner
+            </Button>
+            <Button href={ROUTES.REFERRAL} variant="secondary">
+              Make a referral
+            </Button>
+            <Button
+              href={PRACTITIONER_PAGE.INFORMATION_PACK_PDF_PATH}
+              variant="secondary"
+            >
+              Download information pack
+            </Button>
           </div>
         </div>
       </section>
