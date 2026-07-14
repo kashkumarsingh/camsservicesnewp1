@@ -18,6 +18,18 @@ export function getLocationAreasByRegion(regionSlug: string): readonly LocationA
   return LOCATION_AREAS.filter((area) => area.regionSlug === regionSlug);
 }
 
+/** Greater London boroughs excluding Phase 6 outer expansion (hub page grouping). */
+export function getCoreGreaterLondonAreas(): readonly LocationArea[] {
+  return LOCATION_AREAS.filter(
+    (area) => area.regionSlug === 'greater-london' && area.expansionTier !== 'phase6-london'
+  );
+}
+
+/** Phase 6 outer London boroughs shown as a separate hub subsection. */
+export function getOuterLondonExpansionAreas(): readonly LocationArea[] {
+  return LOCATION_AREAS.filter((area) => area.expansionTier === 'phase6-london');
+}
+
 export function getLocationAreaSitemapEntries(): ReadonlyArray<{
   path: string;
   lastModified: Date;

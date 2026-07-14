@@ -138,6 +138,24 @@ export const TRAINERS_INDEX_SEO_PROSE: PageSeoIntroContent = {
   ],
 };
 
+export const AREAS_INDEX_SEO_PROSE: PageSeoIntroContent = {
+  eyebrow: 'Coverage map',
+  title: 'CAMS services areas across London, Essex and Hertfordshire',
+  titleAs: 'h2',
+  paragraphs: [
+    'CAMS services Ltd delivers chaperone services, child transport, youth mentoring, SEND support and family support across twenty-five borough and county hubs from our Greenford headquarters in Ealing.',
+    'West London coverage includes Ealing, Hounslow, Hillingdon, Brent, Harrow, Hammersmith and Fulham, Richmond upon Thames and Kensington and Chelsea. North London includes Barnet and Enfield. Hertfordshire includes Watford, Hertsmere, St Albans, Hemel Hempstead and Stevenage. Essex includes Chelmsford, Brentwood, Basildon, Harlow and Colchester. Berkshire includes Slough on the Heathrow corridor.',
+    'Outer London boroughs such as Kingston upon Thames, Waltham Forest, Haringey and Redbridge extend our North East and South West routes. Each area page links to six programme-specific pages for chaperone service, mentoring, SEND support, family support, behaviour support and sports programmes.',
+    'Commissioners and families can make a referral with postcodes and timescales. We confirm feasibility within one working day and align safeguarding, handover protocols and court schedules before the first journey.',
+  ],
+  links: [
+    { href: ROUTES.AREA_BY_SLUG('ealing'), label: 'Ealing (HQ Greenford)' },
+    { href: ROUTES.AREA_BY_SLUG('chelmsford'), label: 'Chelmsford Essex' },
+    { href: ROUTES.CHAPERONE_SERVICES, label: 'chaperone services UK' },
+    { href: ROUTES.REFERRAL, label: 'make a referral' },
+  ],
+};
+
 export const CONTACT_SEO_PROSE: PageSeoIntroContent = {
   eyebrow: 'Get in touch',
   title: 'Contact CAMS services for chaperone and transport support',
