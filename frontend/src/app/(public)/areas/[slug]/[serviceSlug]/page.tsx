@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ServiceLocationPageClient } from '@/marketing/components/areas/ServiceLocationPageClient';
+import { ServiceLocationSeoIntro } from '@/marketing/components/areas/ServiceLocationSeoIntro';
 import { ServiceLocationPageJsonLd } from '@/marketing/components/seo/ServiceLocationPageJsonLd';
 import { getLocationAreaBySlug } from '@/marketing/content/locations';
 import {
@@ -64,6 +65,7 @@ export default async function ServiceLocationPage({ params }: Props) {
   return (
     <>
       <ServiceLocationPageJsonLd area={area} serviceSlug={serviceSlug} content={content} />
+      <ServiceLocationSeoIntro area={area} serviceSlug={serviceSlug} content={content} />
       <ServiceLocationPageClient area={area} serviceSlug={serviceSlug} content={content} />
     </>
   );

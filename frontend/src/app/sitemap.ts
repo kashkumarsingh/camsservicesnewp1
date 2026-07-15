@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { policiesData } from "@/data/policiesData";
 import { getCanonicalUrlForSiteSlug } from "@/marketing/lib/public-site-url";
+import { SITEMAP_CONTENT_REFRESH_DATE } from "@/marketing/lib/sitemap-content-version";
 import { getSeoBlogSitemapEntries } from "@/marketing/content/blog";
 import { getLocationAreaSitemapEntries } from "@/marketing/content/locations";
 import { getPractitionerSitemapEntries } from "@/marketing/content/practitioners";
@@ -75,15 +76,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   const areaEntries: MetadataRoute.Sitemap = getLocationAreaSitemapEntries().map((area) =>
-    entry(area.path, 0.75, "monthly", area.lastModified)
+    entry(area.path, 0.75, "monthly", SITEMAP_CONTENT_REFRESH_DATE)
   );
 
   const serviceLocationEntries: MetadataRoute.Sitemap = getServiceLocationSitemapEntries().map(
-    (item) => entry(item.path, 0.7, "monthly", item.lastModified)
+    (item) => entry(item.path, 0.7, "weekly", SITEMAP_CONTENT_REFRESH_DATE)
   );
 
   const practitionerEntries: MetadataRoute.Sitemap = getPractitionerSitemapEntries().map((item) =>
-    entry(item.path, 0.75, "monthly", item.lastModified)
+    entry(item.path, 0.75, "monthly", SITEMAP_CONTENT_REFRESH_DATE)
   );
 
   return [

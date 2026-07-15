@@ -9,8 +9,11 @@ import { ThemeProvider, ThemeScript } from '@/components/theme';
 import { AuthProvider } from '@/interfaces/web/hooks/auth/useAuth';
 import PerformanceFix from '@/utils/performanceFix';
 import { shouldIndexSite } from '@/marketing/lib/site-indexing';
+import { resolvePublicSiteOrigin } from '@/marketing/lib/public-site-url';
 import { getSearchVerificationMetadata } from '@/marketing/lib/search-verification';
 import { SEO_DEFAULTS } from '@/marketing/utils/seoConstants';
+
+const SITE_ORIGIN = resolvePublicSiteOrigin();
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -34,14 +37,14 @@ export const viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.camsservices.co.uk'),
+  metadataBase: new URL(SITE_ORIGIN),
   title: SEO_DEFAULTS.title,
   description: SEO_DEFAULTS.description,
   ...getSearchVerificationMetadata(),
   openGraph: {
     title: SEO_DEFAULTS.title,
     description: SEO_DEFAULTS.description,
-    url: 'https://www.camsservices.co.uk',
+    url: SITE_ORIGIN,
     type: 'website',
     images: [
       {

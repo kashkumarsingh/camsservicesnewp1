@@ -10,6 +10,7 @@ import { HomeServicesGridSection } from "@/marketing/components/home/HomeService
 import { HomeTransportSupportSection } from "@/marketing/components/home/HomeTransportSupportSection";
 import { HomeWhoWeSupportSection } from "@/marketing/components/home/HomeWhoWeSupportSection";
 import { HomeBlogInsightsSection } from "@/marketing/components/home/HomeBlogInsightsSection";
+import { HomeAreasLinksSection } from "@/marketing/components/home/HomeAreasLinksSection";
 import { PAGE_LAYOUT } from "@/marketing/components/shared/page-layout";
 import { INTERVENTION_PACKAGES } from "@/marketing/mock/intervention-packages";
 import { packageDetailHref } from "@/marketing/lib/package-detail-slug";
@@ -99,6 +100,8 @@ export function HomePageClient(): ReactElement {
       <HomeMethodSection />
 
       <HomeWhoWeSupportSection />
+
+      <HomeAreasLinksSection />
 
       <section className={`${sectionShell} bg-white`}>
         <div className={container}>

@@ -4,7 +4,6 @@ import Link from 'next/link';
 import type { ReactElement, ReactNode } from 'react';
 import { CheckCircle2, Lock } from 'lucide-react';
 import { PageShell } from '@/marketing/components/shared/PageShell';
-import { PageHeroBand } from '@/marketing/components/shared/PageHeroBand';
 import { PageCtaSection } from '@/marketing/components/shared/PageCtaSection';
 import { Button } from '@/marketing/components/ui/button';
 import { PAGE_LAYOUT, PAGE_SURFACES } from '@/marketing/components/shared/page-layout';
@@ -29,70 +28,66 @@ function ProfileSection({
   children: ReactNode;
 }): ReactElement {
   return (
-    <section id={id} className={`${PAGE_LAYOUT.panel} scroll-mt-28 p-5 sm:p-6 md:p-8`}>
+    <section id={id} className={`${PAGE_LAYOUT.panel} scroll-mt-28 p-5 sm:p-6 md:p-10`}>
       {eyebrow ? (
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">{eyebrow}</p>
       ) : null}
       <h2 className="mt-2 font-heading text-2xl font-bold text-cams-ink sm:text-3xl">{title}</h2>
-      <div className="mt-5">{children}</div>
+      <div className="mt-6">{children}</div>
     </section>
   );
 }
 
 export function PractitionerProfilePageClient({ profile }: PractitionerProfilePageClientProps): ReactElement {
+  const firstName = profile.name.split(' ')[0];
+
   return (
     <PageShell maxWidthClassName="max-w-[1600px]">
-      <PageHeroBand
-        layout="centered"
-        height="short"
-        title={
-          <>
-            Meet <span className="text-cams-accent">{profile.name}</span>
-          </>
-        }
-        description={
-          <>
-            <p className="text-base font-semibold text-white/95 md:text-lg">
-              {profile.role} | {profile.company}
-            </p>
-            <p className="mt-4 text-base leading-relaxed text-white/90 md:text-lg">{profile.heroSubtitle}</p>
-          </>
-        }
-      />
-
-      <section className={`${PAGE_LAYOUT.panel} -mt-6 relative z-20 mx-auto max-w-[1600px] px-4 sm:px-6 md:px-8`}>
-        <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm sm:p-6 md:p-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">{profile.heroEyebrow}</p>
-          <ul className="mt-4 flex flex-wrap gap-2">
+      <section className="border-b border-slate-200/80 bg-gradient-to-br from-cams-primary/[0.08] via-white to-cams-secondary/[0.08] px-4 py-14 md:py-20">
+        <div className={`${PAGE_LAYOUT.container} max-w-3xl`}>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cams-primary">
+            {profile.heroEyebrow}
+          </p>
+          <h1 className="mt-4 font-heading text-4xl font-bold tracking-tight text-cams-ink md:text-5xl">
+            Meet <span className="text-cams-primary">{profile.name}</span>
+          </h1>
+          <p className="mt-4 text-base font-semibold text-cams-ink md:text-lg">
+            {profile.role} | {profile.company}
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-cams-ink-secondary md:text-lg">
+            {profile.heroSubtitle}
+          </p>
+          <ul className="mt-6 flex flex-wrap gap-2">
             {profile.servicesSummary.map((service) => (
               <li
                 key={service}
-                className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-cams-ink-secondary"
+                className="rounded-full border border-cams-primary/15 bg-white px-3 py-1 text-xs font-semibold text-cams-ink-secondary shadow-sm"
               >
                 {service}
               </li>
             ))}
           </ul>
-          <div className={`${PAGE_LAYOUT.ctaRow} mt-6`}>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button href={ROUTES.CONTACT} variant="primary">
               Book this practitioner
             </Button>
             <Button href={ROUTES.REFERRAL} variant="secondary">
               Make a referral
             </Button>
-            <Button
+            <a
               href={PRACTITIONER_PAGE.INFORMATION_PACK_PDF_PATH}
-              variant="secondary"
+              download={PRACTITIONER_PAGE.INFORMATION_PACK_FILENAME}
+              className="inline-flex min-h-10 items-center justify-center rounded-md border border-cams-primary px-4 py-2 text-sm font-semibold text-cams-primary transition hover:bg-cams-primary/10"
             >
               Download information pack
-            </Button>
+            </a>
           </div>
         </div>
       </section>
 
-      <div className={`${PAGE_LAYOUT.splitGrid} mt-10`}>
-        <div className="order-2 space-y-8 lg:order-1">
-          <ProfileSection id="about" eyebrow="About me" title={`About ${profile.name.split(' ')[0]}`}>
+      <div className={`${PAGE_LAYOUT.splitGrid} mt-10 lg:mt-12`}>
+        <div className="order-2 space-y-10 lg:order-1">
+          <ProfileSection id="about" eyebrow="About me" title={`About ${firstName}`}>
             <div className="space-y-4 text-sm leading-7 text-cams-ink-secondary md:text-base">
               {profile.aboutParagraphs.map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
@@ -100,7 +95,7 @@ export function PractitionerProfilePageClient({ profile }: PractitionerProfilePa
             </div>
           </ProfileSection>
 
-          <ProfileSection id="experience" eyebrow="Background" title="My experience">
+          <ProfileSection id="experience" eyebrow="Background" title="Experience">
             <p className="text-sm leading-7 text-cams-ink-secondary md:text-base">{profile.experienceIntro}</p>
             <ul className="mt-5 grid gap-2 sm:grid-cols-2">
               {profile.experienceItems.map((item) => (
@@ -127,7 +122,7 @@ export function PractitionerProfilePageClient({ profile }: PractitionerProfilePa
             </p>
           </ProfileSection>
 
-          <ProfileSection id="qualifications" eyebrow="Safeguarding" title="Qualifications and professional development">
+          <ProfileSection id="qualifications" eyebrow="Safeguarding" title="Qualifications and training">
             <p className="text-sm leading-7 text-cams-ink-secondary md:text-base">{profile.qualificationsIntro}</p>
             <ul className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {profile.qualifications.map((item) => (
@@ -143,7 +138,6 @@ export function PractitionerProfilePageClient({ profile }: PractitionerProfilePa
 
           <ProfileSection id="interests" eyebrow="Connection" title="Interests">
             <p className="text-sm leading-7 text-cams-ink-secondary md:text-base">{profile.interestsIntro}</p>
-            <p className="mt-3 text-sm font-semibold text-cams-ink">Some of my favourite activities include:</p>
             <ul className="mt-4 flex flex-wrap gap-2">
               {profile.interests.map((interest) => (
                 <li
@@ -160,7 +154,7 @@ export function PractitionerProfilePageClient({ profile }: PractitionerProfilePa
           </ProfileSection>
 
           <ProfileSection id="families" eyebrow="What to expect" title="What families can expect">
-            <div className="space-y-4 rounded-2xl border border-cams-primary/20 bg-gradient-to-br from-cams-primary/[0.06] to-cams-secondary/[0.04] p-5 md:p-6">
+            <div className="space-y-4 rounded-2xl border border-slate-200/90 bg-cams-soft/80 p-5 md:p-6">
               {profile.familiesExpectParagraphs.map((paragraph, index) => (
                 <p key={index} className="text-sm leading-7 text-cams-ink-secondary md:text-base">
                   {paragraph}
@@ -199,18 +193,6 @@ export function PractitionerProfilePageClient({ profile }: PractitionerProfilePa
               ))}
             </ul>
           </ProfileSection>
-
-          <section className={`${PAGE_LAYOUT.panel} border-dashed p-5 sm:p-6 md:p-8`}>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-slate">Coming soon</p>
-            <h2 className="mt-2 font-heading text-xl font-bold text-cams-ink">Future profile features</h2>
-            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-              {profile.futureFeatures.map((feature) => (
-                <li key={feature} className="text-sm text-cams-ink-tertiary">
-                  {feature}
-                </li>
-              ))}
-            </ul>
-          </section>
         </div>
 
         <aside className="order-1 lg:order-2 lg:sticky lg:top-24 lg:self-start">
@@ -221,13 +203,12 @@ export function PractitionerProfilePageClient({ profile }: PractitionerProfilePa
       <PageCtaSection
         className="mt-10"
         heading={`Enquire about ${profile.name}`}
-        description="Parents, carers, schools, social workers and commissioners can contact CAMS Services for referrals, bookings and safeguarding checks. Practitioner personal numbers are not published."
+        description="Parents, carers, schools, social workers and commissioners contact CAMS Services for referrals and bookings. Practitioner personal numbers are not published."
         actions={[
           { href: ROUTES.CONTACT, label: 'Contact CAMS Services', variant: 'primary' },
           { href: ROUTES.REFERRAL, label: 'Make a Referral', variant: 'secondary' },
         ]}
       />
-
     </PageShell>
   );
 }

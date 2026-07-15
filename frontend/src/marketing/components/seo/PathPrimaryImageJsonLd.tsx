@@ -7,9 +7,9 @@ import {
   resolvePagePrimaryImage,
 } from '@/marketing/content/image-seo-catalog';
 import { getLocationAreaBySlug } from '@/marketing/content/locations';
+import { joinPublicUrl, resolvePublicSiteOrigin } from '@/marketing/lib/public-site-url';
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://www.camsservices.co.uk';
+const BASE_URL = resolvePublicSiteOrigin();
 
 /**
  * Injects WebPage + primaryImageOfPage schema for the current route (whole marketing site).
@@ -22,7 +22,7 @@ export function PathPrimaryImageJsonLd(): ReactElement | null {
 
   if (!image) return null;
 
-  const pageUrl = `${BASE_URL}${pathname === '/' ? '' : pathname}`;
+  const pageUrl = joinPublicUrl(BASE_URL, pathname);
   const imageUrl = absoluteImageUrl(BASE_URL, image.path);
 
   const jsonLd = {

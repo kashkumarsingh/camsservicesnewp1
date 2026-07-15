@@ -24,6 +24,8 @@ export const HOME_SEO_PROSE: PageSeoIntroContent = {
   links: [
     { href: ROUTES.CHAPERONE_SERVICES, label: 'chaperone services' },
     { href: ROUTES.AREAS, label: 'chaperone services near you' },
+    { href: ROUTES.AREA_SERVICE_BY_SLUG('ealing', 'community'), label: 'chaperone service Ealing' },
+    { href: ROUTES.AREA_SERVICE_BY_SLUG('harrow', 'mentoring'), label: 'youth mentoring Harrow' },
     { href: ROUTES.SERVICE_BY_SLUG('community'), label: 'community transport programme' },
     { href: ROUTES.REFERRAL, label: 'make a referral' },
     { href: ROUTES.CONTACT, label: 'contact CAMS services' },

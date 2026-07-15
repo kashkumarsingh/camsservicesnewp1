@@ -2,12 +2,19 @@ import Link from "next/link";
 import Image from "next/image";
 import type { ReactElement } from "react";
 import { ROUTES } from "@/shared/utils/routes";
-import { getSeoBlogFooterLinks } from "@/marketing/content/blog";
+import { getSeoBlogFooterLinks, getTrendingBlogFooterLinks } from "@/marketing/content/blog";
+import {
+  getPriorityBoroughLinks,
+  getPriorityServiceLocationLinks,
+} from "@/marketing/content/locations/area-index-links";
 import { policiesData } from "@/data/policiesData";
 import { PACKAGE_TIER_LINKS } from "@/marketing/lib/package-footer-links";
 import { SocialMediaLinks } from "@/marketing/components/shared/SocialMediaLinks";
 
 const BLOG_FOOTER_LINKS = getSeoBlogFooterLinks();
+const TRENDING_BLOG_FOOTER_LINKS = getTrendingBlogFooterLinks();
+const LOCAL_PROGRAMME_FOOTER_LINKS = getPriorityServiceLocationLinks().slice(0, 14);
+const BOROUGH_FOOTER_LINKS = getPriorityBoroughLinks();
 
 const POLICY_FOOTER_LINKS = policiesData.map((policy) => ({
   href: ROUTES.POLICIES_BY_SLUG(policy.slug),
@@ -54,8 +61,20 @@ export const DEFAULT_FOOTER_SECTIONS: ReadonlyArray<SiteFooterSection> = [
     links: PACKAGE_TIER_LINKS,
   },
   {
+    title: "Borough hubs",
+    links: BOROUGH_FOOTER_LINKS,
+  },
+  {
+    title: "Local programmes",
+    links: LOCAL_PROGRAMME_FOOTER_LINKS,
+  },
+  {
     title: "Insights",
     links: BLOG_FOOTER_LINKS,
+  },
+  {
+    title: "Commissioning 2026",
+    links: TRENDING_BLOG_FOOTER_LINKS,
   },
   {
     title: "Legal",

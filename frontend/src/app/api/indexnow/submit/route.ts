@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import sitemap from "@/app/sitemap";
-import { getCanonicalUrlForSiteSlug } from "@/marketing/lib/public-site-url";
+import { getCanonicalUrlForSiteSlug, sanitizePublicUrl } from "@/marketing/lib/public-site-url";
 import { getIndexNowKey, submitIndexNowUrls } from "@/marketing/lib/indexnow";
 
 function isAuthorized(request: Request, body: { secret?: unknown }): boolean {
@@ -31,7 +31,9 @@ export async function POST(request: Request) {
   const useSitemap = body?.sitemap === true;
 
   const urls = [
-    ...rawUrls.filter((url: unknown): url is string => typeof url === "string"),
+    ...rawUrls
+      .filter((url: unknown): url is string => typeof url === "string")
+      .map((url: string) => sanitizePublicUrl(url)),
     ...slugs
       .filter((slug: unknown): slug is string => typeof slug === "string")
       .map((slug: string) => getCanonicalUrlForSiteSlug(slug)),
@@ -39,7 +41,7 @@ export async function POST(request: Request) {
 
   if (useSitemap) {
     const entries = await sitemap();
-    urls.push(...entries.map((entry) => entry.url));
+    urls.push(...entries.map((entry) => sanitizePublicUrl(entry.url)));
   }
 
   if (urls.length === 0) {

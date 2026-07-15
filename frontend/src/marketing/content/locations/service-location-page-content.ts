@@ -17,6 +17,13 @@ export type ServiceLocationPageContent = {
   readonly focusPhrases: readonly string[];
 };
 
+function getBorderingAreasForContent(area: LocationArea): readonly LocationArea[] {
+  const bySlug = new Map(LOCATION_AREAS.map((item) => [item.slug, item]));
+  return area.borderingSlugs
+    .map((slug) => bySlug.get(slug))
+    .filter((item): item is LocationArea => item != null);
+}
+
 function getServiceKeyword(slug: string): ServiceLocationKeyword | undefined {
   return SERVICE_LOCATION_KEYWORDS.find((s) => s.slug === slug);
 }
@@ -67,6 +74,31 @@ export function buildServiceLocationPageContent(
   const secondaryPhrase = keyword.searchPhrases[1] ?? keyword.searchPhrases[0];
 
   const focusPhrases = keyword.searchPhrases.map((p) => `${p} ${place}`);
+  const borderingNames = getBorderingAreasForContent(area)
+    .slice(0, 3)
+    .map((item) => item.name)
+    .join(', ');
+  const featureSummary = programme.features.slice(0, 3).join('; ');
+
+  const localityParagraphs: string[] = [];
+
+  if (area.paragraphs[1]) {
+    localityParagraphs.push(area.paragraphs[1]);
+  }
+
+  if (area.isHeadquarters) {
+    localityParagraphs.push(
+      `CAMS Services Ltd is headquartered in Greenford, ${place}. Local routing, escalation and supervision sit on the borough border, so ${neighbourhoods} journeys are planned with realistic buffer times.`
+    );
+  } else if (borderingNames) {
+    localityParagraphs.push(
+      `We plan ${keyword.label.toLowerCase()} in ${place} alongside bordering commissioning areas including ${borderingNames} when schools, placements or contact centres cross boundaries.`
+    );
+  }
+
+  localityParagraphs.push(
+    `Typical ${place} outcomes include ${featureSummary}. Referrers receive feasibility confirmation, safeguarding questions and a named practitioner pathway within one working day.`
+  );
 
   return {
     metaTitle: `${primaryPhrase} ${place} | ${programme.title}`,
@@ -78,6 +110,7 @@ export function buildServiceLocationPageContent(
       area.paragraphs[0] ?? `We work with schools, nurseries, IFAs and children's services teams across ${place}.`,
       `Programme detail: ${programme.tagline}. Sessions are one-to-one, risk-assessed and documented for referrers where commissioned.`,
       `Explore the wider [${place} borough hub](${ROUTES.AREA_BY_SLUG(area.slug)}) for all programmes, or the national [${programme.title}](${ROUTES.SERVICE_BY_SLUG(serviceSlug)}) page for full feature lists and packages.`,
+      ...localityParagraphs,
     ],
     faq: [
       {
@@ -91,6 +124,14 @@ export function buildServiceLocationPageContent(
       {
         q: `Can programmes be combined in ${place}?`,
         a: `Yes. Many ${place} cases combine chaperone transport, mentoring, SEND support or family support through [intervention packages](${ROUTES.PACKAGES}).`,
+      },
+      {
+        q: `Which neighbourhoods in ${place} do you cover for ${keyword.label.toLowerCase()}?`,
+        a: `We plan sessions and journeys across ${neighbourhoods}. Share postcodes, bell times and handover requirements when you refer.`,
+      },
+      {
+        q: `How quickly can ${keyword.label.toLowerCase()} start in ${place}?`,
+        a: `After referral we confirm safeguarding fit, practitioner availability and travel feasibility for ${place}. Urgent contact transport or school runs are prioritised when risk assessments allow.`,
       },
     ],
     focusPhrases,

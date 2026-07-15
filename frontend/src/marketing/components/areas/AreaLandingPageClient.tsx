@@ -17,7 +17,7 @@ import {
   areaHeroDescription,
 } from "@/marketing/content/locations/location-seo-copy";
 import { getLocationBlogArticleForArea } from "@/marketing/content/blog";
-import { getServiceProgrammeBySlug } from "@/marketing/mock/services-programmes";
+import { getServiceProgrammeBySlug, serviceSlugFromProgramme } from "@/marketing/mock/services-programmes";
 import { ROUTES } from "@/shared/utils/routes";
 
 type AreaLandingPageClientProps = {
@@ -108,10 +108,14 @@ export function AreaLandingPageClient({ area, faq }: AreaLandingPageClientProps)
               and sports programmes in {area.name}. Each programme links to full detail on our services pages.
             </p>
             <ul className="mt-8 grid gap-4 sm:grid-cols-2">
-              {programmes.map((programme) => (
+              {programmes.map((programme) => {
+                const serviceSlug = serviceSlugFromProgramme(programme);
+                const localHref = ROUTES.AREA_SERVICE_BY_SLUG(area.slug, serviceSlug);
+
+                return (
                 <li key={programme.href}>
                   <Link
-                    href={programme.href}
+                    href={localHref}
                     className={`flex h-full flex-col ${PAGE_SURFACES.cardHoverLift} rounded-2xl border border-slate-200/90 bg-white p-5 no-underline`}
                   >
                     <div className="inline-flex rounded-xl border border-cams-primary/20 bg-cams-primary/[0.08] p-2.5">
@@ -119,10 +123,13 @@ export function AreaLandingPageClient({ area, faq }: AreaLandingPageClientProps)
                     </div>
                     <p className="mt-3 font-heading text-base font-bold text-cams-ink">{programme.title}</p>
                     <p className="mt-2 line-clamp-3 text-sm leading-6 text-cams-ink-secondary">{programme.tagline}</p>
-                    <span className="mt-4 text-sm font-semibold text-cams-primary">View programme →</span>
+                    <span className="mt-4 text-sm font-semibold text-cams-primary">
+                      {programme.title} in {area.name} →
+                    </span>
                   </Link>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           </section>
 

@@ -17,6 +17,7 @@ const inputClassName =
   'w-full rounded-xl border border-slate-300/90 bg-white px-3 py-2.5 text-sm text-cams-dark shadow-sm transition focus:border-cams-primary/60 focus:outline-none focus:ring-2 focus:ring-cams-primary/20';
 
 const CONTACT_PHONE_HREF = `tel:${contactData.phone.replace(/\s/g, '')}`;
+const CONTACT_EMAIL_MAILTO = `mailto:${contactData.email}`;
 const WHATSAPP_HREF = `${contactData.whatsapp}?text=${encodeURIComponent(PRACTITIONER_PAGE.WHATSAPP_MESSAGE)}`;
 
 type FormState = {
@@ -76,8 +77,8 @@ export function PractitionerContactSidebar({ profile }: PractitionerContactSideb
   return (
     <div className="space-y-5">
       <section className={`${PAGE_LAYOUT.panel} p-5 sm:p-6`}>
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Contact CAMS</p>
-        <h2 className="mt-2 text-lg font-bold text-cams-ink">Book {profile.name}</h2>
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cams-primary">Get in touch</p>
+        <h2 className="mt-2 text-xl font-bold text-cams-ink">Book {profile.name}</h2>
         <p className="mt-2 text-sm leading-6 text-cams-ink-secondary">
           All enquiries go through CAMS Services Ltd. We respond within one working day.
         </p>
@@ -90,26 +91,26 @@ export function PractitionerContactSidebar({ profile }: PractitionerContactSideb
             </div>
             <a
               href={CONTACT_PHONE_HREF}
-              className="mt-2 block text-lg font-bold text-cams-primary transition hover:text-cams-secondary"
+              className="mt-2 block text-xl font-bold text-cams-primary transition hover:text-cams-secondary"
             >
               {contactData.phone}
             </a>
             <p className="mt-1 text-xs text-cams-slate">{BUSINESS_HOURS.display}</p>
           </div>
 
-          <div className={`${PAGE_LAYOUT.ctaRow} mt-2`}>
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             <Button href={WHATSAPP_HREF} variant="secondary" type="button" className="w-full sm:w-auto">
               WhatsApp us
             </Button>
-            <Button href={CONTACT_PHONE_HREF} variant="secondary" type="button" className="w-full sm:w-auto">
-              Call now
+            <Button href={CONTACT_EMAIL_MAILTO} variant="secondary" type="button" className="w-full sm:w-auto">
+              Email us
             </Button>
           </div>
         </div>
       </section>
 
       <section className={`${PAGE_SURFACES.cardHoverLift} rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6`}>
-        <h3 className="text-base font-bold text-cams-ink">Quick enquiry</h3>
+        <h3 className="text-lg font-bold text-cams-ink">Quick enquiry</h3>
         <p className="mt-1 text-sm text-cams-slate">Ask about booking {profile.name}.</p>
 
         {error ? (
@@ -183,7 +184,7 @@ export function PractitionerContactSidebar({ profile }: PractitionerContactSideb
               value={values.message}
               onChange={(e) => setValues((v) => ({ ...v, message: e.target.value }))}
               className={`${inputClassName} min-h-[100px] resize-y`}
-              placeholder={`e.g. I'd like to book ${profile.name} for mentoring in Ealing`}
+              placeholder={`e.g. I would like to book ${profile.name} for mentoring`}
             />
           </div>
 
@@ -193,11 +194,15 @@ export function PractitionerContactSidebar({ profile }: PractitionerContactSideb
         </form>
 
         <p className="mt-3 text-xs leading-5 text-cams-slate">
-          Or{' '}
+          Need the full intake form?{' '}
+          <a href={ROUTES.CONTACT} className="font-semibold text-cams-primary underline underline-offset-2">
+            Contact page
+          </a>
+          ,{' '}
           <a href={ROUTES.REFERRAL} className="font-semibold text-cams-primary underline underline-offset-2">
             make a referral
-          </a>{' '}
-          or{' '}
+          </a>
+          , or{' '}
           <a
             href={PRACTITIONER_PAGE.INFORMATION_PACK_PDF_PATH}
             download={PRACTITIONER_PAGE.INFORMATION_PACK_FILENAME}

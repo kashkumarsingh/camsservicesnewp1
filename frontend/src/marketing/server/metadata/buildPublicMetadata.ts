@@ -6,6 +6,11 @@
 import type { Metadata } from 'next';
 import { shouldIndexSite } from '@/marketing/lib/site-indexing';
 import {
+  joinPublicUrl,
+  normalizePublicPath,
+  resolvePublicSiteOrigin,
+} from '@/marketing/lib/public-site-url';
+import {
   absoluteImageUrl,
   resolvePagePrimaryImage,
 } from '@/marketing/content/image-seo-catalog';
@@ -59,7 +64,9 @@ export function buildPublicMetadata(
   const title = options.title?.trim() || SEO_DEFAULTS.title;
   const description = options.description?.trim() || SEO_DEFAULTS.description;
   const siteName = options.siteName?.trim() || SEO_DEFAULTS.siteName;
-  const canonicalUrl = `${baseUrl.replace(/\/$/, '')}${options.path.startsWith('/') ? options.path : `/${options.path}`}`;
+  const origin = resolvePublicSiteOrigin(baseUrl);
+  const canonicalPath = normalizePublicPath(options.path);
+  const canonicalUrl = joinPublicUrl(origin, canonicalPath);
 
   const primaryImage = !options.imageUrl && !options.useDynamicOgImage
     ? resolvePagePrimaryImage(options.path, {
@@ -70,10 +77,10 @@ export function buildPublicMetadata(
   const imageUrl = options.imageUrl
     ? options.imageUrl.startsWith('http')
       ? options.imageUrl
-      : `${baseUrl.replace(/\/$/, '')}${options.imageUrl.startsWith('/') ? options.imageUrl : `/${options.imageUrl}`}`
+      : joinPublicUrl(origin, options.imageUrl)
     : primaryImage
-      ? absoluteImageUrl(baseUrl.replace(/\/$/, ''), primaryImage.path)
-      : buildDynamicOgImageUrl(baseUrl.replace(/\/$/, ''), options.path);
+      ? absoluteImageUrl(origin, primaryImage.path)
+      : buildDynamicOgImageUrl(origin, canonicalPath);
   const imageAlt = options.imageAlt?.trim() || primaryImage?.alt || SEO_DEFAULTS.ogImageAlt;
   const indexable = shouldIndexSite();
 

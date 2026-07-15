@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
-import { getCanonicalUrlForSiteSlug } from '@/marketing/lib/public-site-url';
+import { getCanonicalUrlForSiteSlug, sanitizePublicUrl } from '@/marketing/lib/public-site-url';
 import { submitIndexNowUrls } from '@/marketing/lib/indexnow';
 
 export async function POST(request: Request) {
@@ -31,7 +31,9 @@ export async function POST(request: Request) {
   const rawUrls = Array.isArray(body?.urls) ? body.urls : [];
   const slugs = Array.isArray(body?.slugs) ? body.slugs : [];
   const urls = [
-    ...rawUrls.filter((url: unknown): url is string => typeof url === 'string'),
+    ...rawUrls
+      .filter((url: unknown): url is string => typeof url === 'string')
+      .map((url: string) => sanitizePublicUrl(url)),
     ...slugs
       .filter((slug: unknown): slug is string => typeof slug === 'string')
       .map((slug: string) => getCanonicalUrlForSiteSlug(slug)),
