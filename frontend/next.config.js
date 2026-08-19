@@ -42,6 +42,16 @@ const nextConfig = {
         destination: "/chaperone-services",
         permanent: true,
       },
+      {
+        source: "/link",
+        destination: "/connect",
+        permanent: false,
+      },
+      {
+        source: "/bio",
+        destination: "/connect",
+        permanent: false,
+      },
     ];
   },
 

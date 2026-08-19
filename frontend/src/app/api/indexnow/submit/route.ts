@@ -51,8 +51,13 @@ export async function POST(request: Request) {
   const result = await submitIndexNowUrls(urls);
 
   if (!result.ok) {
+    const hint =
+      result.status === 403
+        ? 'IndexNow rejected the key. Set INDEXNOW_KEY in Vercel, redeploy, then open https://www.camsservices.co.uk/YOUR_KEY.txt — it must return only the key text.'
+        : 'Check INDEXNOW_KEY and NEXT_PUBLIC_SITE_URL on Vercel.';
+
     return NextResponse.json(
-      { message: "IndexNow submission failed.", status: result.status },
+      { message: "IndexNow submission failed.", status: result.status, hint },
       { status: 502 }
     );
   }

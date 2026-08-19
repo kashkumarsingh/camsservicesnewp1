@@ -27,6 +27,7 @@ export default async function PublicLayout({ children }: { children: React.React
           links: [
             { href: '/login', label: 'Parent sign in' },
             { href: '/register', label: 'Parent sign up' },
+            { href: '/connect', label: 'Share CAMS link' },
             { href: '/referral', label: 'Make a referral' },
             { href: '/contact', label: 'Contact' },
           ],

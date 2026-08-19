@@ -32,6 +32,8 @@ export const ROUTES = {
   /** CMS-composed pages by slug */
   PAGE_BY_SLUG: (slug: string) => `/page/${slug}`,
   CONTACT: '/contact',
+  /** Shareable link-in-bio hub for WhatsApp, SMS, email and social. */
+  CONNECT: '/connect',
   REFERRAL: '/referral',
   SCHOOLS: '/schools',
   CAREERS: '/careers',

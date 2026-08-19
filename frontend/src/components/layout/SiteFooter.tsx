@@ -43,6 +43,7 @@ export const DEFAULT_FOOTER_SECTIONS: ReadonlyArray<SiteFooterSection> = [
     links: [
       { href: ROUTES.LOGIN, label: "Parent sign in" },
       { href: ROUTES.REGISTER, label: "Parent sign up" },
+      { href: ROUTES.CONNECT, label: "Share CAMS link" },
       { href: ROUTES.REFERRAL, label: "Make a referral" },
       { href: ROUTES.CONTACT, label: "Contact" },
     ],

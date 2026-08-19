@@ -172,6 +172,10 @@ export function resolvePagePrimaryImage(
     return PROGRAMME_IMAGE_SEO.community;
   }
 
+  if (normalized === ROUTES.CONNECT) {
+    return PROGRAMME_IMAGE_SEO.community;
+  }
+
   if (normalized === ROUTES.CAREERS) {
     return CAREERS_HERO_IMAGE;
   }
@@ -298,6 +302,7 @@ export function getImageSitemapEntries(): readonly ImageSitemapPageEntry[] {
     ROUTES.FAQ,
     ROUTES.RISK_ASSESSMENT,
     ROUTES.POLICIES,
+    ROUTES.CONNECT,
   ] as const;
 
   const entries: ImageSitemapPageEntry[] = staticPaths.map((pagePath) => {

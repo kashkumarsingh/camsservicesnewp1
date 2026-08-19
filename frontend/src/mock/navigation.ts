@@ -53,6 +53,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
           { href: "/packages", label: "Intervention packages", description: "Tiers, duration, and fit." },
           { href: "/book/retrieve", label: "Retrieve booking", description: "Check an existing booking." },
           { href: "/contact", label: "Book a call", description: "Speak with the team." },
+          { href: "/connect", label: "Share CAMS link", description: "One link for WhatsApp, SMS and email." },
         ],
       },
       {

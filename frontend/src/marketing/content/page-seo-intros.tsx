@@ -253,3 +253,20 @@ export const RISK_ASSESSMENT_SEO_PROSE: PageSeoIntroContent = {
     { href: ROUTES.POLICIES, label: 'read safeguarding policies' },
   ],
 };
+
+export const CONNECT_SEO_PROSE: PageSeoIntroContent = {
+  eyebrow: 'Share CAMS',
+  title: 'One CAMS link for families, referrers and local staff',
+  titleAs: 'h2',
+  paragraphs: [
+    'CAMS stands for Chaperone Activity Mentor Support. Use this page to share CAMS Services by WhatsApp, text message, email or social media, then choose Become a CAMS Member, Work With CAMS, Refer a Family, or Contact CAMS.',
+    'Parents, foster carers, schools and children’s homes can learn about membership, view Mercury, Venus, Earth and Jupiter subscriptions, create a family account, and register interest before the planned 20 September launch.',
+    'Experienced chaperones, mentors and support workers can view local opportunity areas, register interest, create a staff profile, and enter the CAMS assessment, safeguarding and matching process.',
+  ],
+  links: [
+    { href: `${ROUTES.CONNECT}#member`, label: 'Become a CAMS Member' },
+    { href: `${ROUTES.CONNECT}#work`, label: 'Work With CAMS' },
+    { href: ROUTES.REFERRAL, label: 'Refer a Family' },
+    { href: ROUTES.CONTACT, label: 'Contact CAMS' },
+  ],
+};

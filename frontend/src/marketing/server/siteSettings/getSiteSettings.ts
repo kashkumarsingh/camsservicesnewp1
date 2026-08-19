@@ -61,6 +61,7 @@ function buildFallbackSiteSettings(): SiteSetting {
         { href: ROUTES.TRAINERS, label: 'Our Team' },
         { href: ROUTES.BLOG, label: 'Blog & Resources' },
         { href: ROUTES.FAQ, label: 'FAQs' },
+        { href: ROUTES.CONNECT, label: 'Share CAMS link' },
         { href: ROUTES.REFERRAL, label: 'Referrals' },
       ],
     },
