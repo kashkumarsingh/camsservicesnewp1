@@ -11,6 +11,7 @@ import { BOOKING_VALIDATION_MESSAGES, getMessageForDateReason, meetsMinimumDurat
 import { getDateBookingStatus, getEarliestBookableDate, isTomorrowBookable } from '@/dashboard/utils/bookingCutoffRules';
 import { useActivities } from '@/interfaces/web/hooks/activities/useActivities';
 import { USE_REMAINING_HOURS_COPY } from '@/marketing/content/membership-subscriptions';
+import { MIN_DURATION_HOURS } from '@/dashboard/utils/bookingConstants';
 import { ListRowsSkeleton } from '@/components/ui/Skeleton';
 import { SKELETON_COUNTS } from '@/shared/utils/skeletonConstants';
 import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';

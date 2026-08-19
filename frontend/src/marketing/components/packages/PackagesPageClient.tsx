@@ -34,6 +34,7 @@ import {
 import { mapPackageFaqs, type FaqApiItem } from "@/marketing/lib/faq-api-mappers";
 import { useCanViewPackagePricing } from "@/marketing/hooks/useCanViewPackagePricing";
 import { MembershipSubscriptionsSection } from "@/marketing/components/packages/MembershipSubscriptionsSection";
+import { ROUTES } from "@/shared/utils/routes";
 
 function ComparisonCell({
   emphasized,

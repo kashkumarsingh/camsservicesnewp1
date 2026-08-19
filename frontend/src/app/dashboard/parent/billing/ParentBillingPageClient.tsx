@@ -18,6 +18,7 @@ import {
 } from '@/shared/utils/appConstants';
 import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 import { ExternalLink } from 'lucide-react';
+import { getPaymentStatusBadgeClasses } from '@/dashboard/utils/statusBadgeHelpers';
 import { MembershipAccountPanel } from '@/components/dashboard/parent/MembershipAccountPanel';
 
 type FlatPayment = {
