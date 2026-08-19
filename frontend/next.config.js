@@ -22,6 +22,16 @@ const nextConfig = {
     if (!backendBase.endsWith("/api/v1")) {
       backendBase = `${backendBase}/api/v1`;
     }
+
+    // Next.js 16 compiles /_next/data routes from rewrite destinations. An absolute
+    // API_URL (https://... on Vercel) becomes an invalid source:
+    // /:nextData(...)/https://:path*  → "Missing parameter name"
+    // The browser already calls Railway via NEXT_PUBLIC_API_URL, so this proxy is
+    // only for same-origin relative destinations (Docker / local path proxies).
+    if (/^https?:\/\//i.test(backendBase)) {
+      return [];
+    }
+
     return [
       {
         source: "/api/v1/:path*",
