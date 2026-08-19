@@ -84,7 +84,7 @@ export const PACKAGES_INDEX_SEO_PROSE: PageSeoIntroContent = {
   title: 'CAMS intervention packages',
   titleAs: 'h2',
   paragraphs: [
-    'CAMS services offers eight graduated intervention packages, from a short Mercury assessment block through to our Neptune flagship programme. Each tier combines structured one-to-one mentoring, activity-based engagement, and clear reporting so families, schools, and local authorities can match hours and intensity to the young person’s needs.',
+    'CAMS services offers a Membership plus monthly Support Subscription. Mercury, Venus, Earth and Jupiter set 3, 6, 9 or 12 hours for the current month at £75, £145, £210 or £270. Membership can stay active when paid support is paused. Hours expire at the end of the subscription period and do not roll over.',
     'Packages include DBS-checked mentors, transport for session travel where required, refreshments during activities, and written updates for parents and referrers. Following an initial consultation we recommend the most appropriate tier and provide a personalised quotation aligned with your safeguarding and placement requirements.',
   ],
   links: [

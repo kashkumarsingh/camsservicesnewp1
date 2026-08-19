@@ -61,25 +61,23 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
   {
     id: "mercury",
     name: "Mercury",
-    homeBadge: "Assessment & Planning Package",
+    homeBadge: "£75 per month · 3 hours",
     featured: false,
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
-    programmeSubtitle: "Designed to identify strengths, challenges and recommended support pathways before intervention begins.",
-    frequencyLine: "3 Hours",
-    homeDurationLine: "3 Hours",
+    programmeSubtitle: "Occasional CAMS Chaperone, Mentor, activity or community engagement support.",
+    frequencyLine: "3 hours per month",
+    homeDurationLine: "3 hours per month",
     features: [
-      "Structured initial assessment session",
-      "Engagement and behaviour overview",
-      "Trust-building first contact",
-      "Clear support pathway and recommendations",
-      "Feedback to parent/referrer",
-      "Transport costs included for all sessions",
-      "Refreshments and snacks included for all sessions",
-      "DBS checked mentor"
+      "£75 monthly Support Subscription",
+      "3 hours of eligible CAMS support per subscription month",
+      "CAMS Membership stays active if paid support is paused",
+      "Book CAMS Chaperone, Mentor or activity support",
+      "Family account and Member Portal access",
+      "Subject to assessment, safeguarding and staff availability"
     ],
-    bestFor: "Best for understanding needs before starting structured support.",
-    packagesPageCtaLabel: "Request a Consultation",
+    bestFor: "Best for occasional Chaperone, Mentor, activity or community engagement support.",
+    packagesPageCtaLabel: "Choose Membership",
     packagesPageCtaHref: "/contact",
     homeCtaLabel: "View packages",
     homeCtaHref: "/packages",
@@ -88,25 +86,23 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
   {
     id: "venus",
     name: "Venus",
-    homeBadge: "Early engagement",
+    homeBadge: "£145 per month · 6 hours",
     featured: false,
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
-    programmeSubtitle: "Early Engagement",
-    frequencyLine: "6 Hours",
-    homeDurationLine: "6 Hours",
+    programmeSubtitle: "Additional planned CAMS support throughout the month.",
+    frequencyLine: "6 hours per month",
+    homeDurationLine: "6 hours per month",
     features: [
-      "Structured 1:1 mentoring sessions",
-      "Activity-based engagement to build trust and confidence",
-      "Goal setting (2-3 clear targets)",
-      "Early progress tracking",
-      "Written summary with next steps",
-      "Transport costs included for all sessions",
-      "Refreshments and snacks included for all sessions",
-      "DBS checked mentor"
+      "£145 monthly Support Subscription",
+      "6 hours of eligible CAMS support per subscription month",
+      "CAMS Membership stays active if paid support is paused",
+      "Book CAMS Chaperone, Mentor or activity support",
+      "Family account and Member Portal access",
+      "Subject to assessment, safeguarding and staff availability"
     ],
-    bestFor: "Best for building early engagement and quick wins.",
-    packagesPageCtaLabel: "Request a Consultation",
+    bestFor: "Best for families needing additional planned CAMS support through the month.",
+    packagesPageCtaLabel: "Choose Membership",
     packagesPageCtaHref: "/contact",
     homeCtaLabel: "View packages",
     homeCtaHref: "/packages",
@@ -115,27 +111,23 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
   {
     id: "earth",
     name: "Earth",
-    homeBadge: "Most Popular",
+    homeBadge: "£210 per month · 9 hours",
     featured: true,
     packagesPageBadge: "Most Popular",
     packagesPageBadgeStyle: "gradient",
-    programmeSubtitle: "Core Intervention",
-    frequencyLine: "9 Hours",
-    homeDurationLine: "9 Hours",
+    programmeSubtitle: "Regular Chaperone, Mentor, activity or community support.",
+    frequencyLine: "9 hours per month",
+    homeDurationLine: "9 hours per month",
     features: [
-      "Structured 1:1 mentoring sessions",
-      "Activity-based engagement to build trust and confidence",
-      "Personalised support plan based on initial assessment",
-      "Progress tracking against agreed goals",
-      "Behaviour, engagement, and attitude monitoring",
-      "Mid-point check-in with parent/referrer",
-      "End-of-programme written report with outcomes and next steps",
-      "Transport costs included for all sessions",
-      "Refreshments and snacks included for all sessions",
-      "DBS checked mentor"
+      "£210 monthly Support Subscription",
+      "9 hours of eligible CAMS support per subscription month",
+      "CAMS Membership stays active if paid support is paused",
+      "Regular CAMS Chaperone, Mentor, activity or community support",
+      "Family account and Member Portal access",
+      "Subject to assessment, safeguarding and staff availability"
     ],
-    bestFor: "Best for consistent support and measurable progress.",
-    packagesPageCtaLabel: "Request a Consultation",
+    bestFor: "Best for families needing regular Chaperone, Mentor, activity or community support.",
+    packagesPageCtaLabel: "Choose Membership",
     packagesPageCtaHref: "/contact",
     homeCtaLabel: "Select Package",
     homeCtaHref: "/packages",
@@ -173,28 +165,23 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
   {
     id: "jupiter",
     name: "Jupiter",
-    homeBadge: "High impact",
+    homeBadge: "£270 per month · 12 hours",
     featured: false,
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
-    programmeSubtitle: "High Impact Mentoring",
-    frequencyLine: "15 Hours",
-    homeDurationLine: "15 Hours",
+    programmeSubtitle: "Highest standard monthly allocation of CAMS support.",
+    frequencyLine: "12 hours per month",
+    homeDurationLine: "12 hours per month",
     features: [
-      "Structured 1:1 mentoring sessions",
-      "Activity-based engagement to build trust and confidence",
-      "Personalised intervention plan based on assessment",
-      "Behaviour, engagement, and resilience development",
-      "Structured progress tracking and review points",
-      "Coordination with school or professionals (if agreed)",
-      "Mid-programme report",
-      "End-of-programme written report with outcomes and next steps",
-      "Transport costs included for all sessions",
-      "Refreshments and snacks included for all sessions",
-      "DBS checked mentor"
+      "£270 monthly Support Subscription",
+      "12 hours of eligible CAMS support per subscription month",
+      "CAMS Membership stays active if paid support is paused",
+      "Highest standard monthly CAMS Chaperone, Mentor and activity allocation",
+      "Family account and Member Portal access",
+      "Subject to assessment, safeguarding and staff availability"
     ],
-    bestFor: "Best for higher-risk cases needing stronger structure and coordination.",
-    packagesPageCtaLabel: "Request a Consultation",
+    bestFor: "Best for families wanting the highest standard monthly allocation of CAMS support.",
+    packagesPageCtaLabel: "Choose Membership",
     packagesPageCtaHref: "/contact",
     homeCtaLabel: "View packages",
     homeCtaHref: "/packages",
@@ -295,11 +282,11 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
 ];
 
 export const PACKAGE_STARTING_PRICES: Readonly<Record<InterventionPackageId, string>> = {
-  mercury: "From £225",
-  venus: "From £390",
-  earth: "From £585",
+  mercury: "£75 per month",
+  venus: "£145 per month",
+  earth: "£210 per month",
   mars: "From £780",
-  jupiter: "From £975",
+  jupiter: "£270 per month",
   saturn: "From £1,170",
   uranus: "From £1,365",
   neptune: "From £1,560"
@@ -319,7 +306,7 @@ export const PACKAGE_COMPARISON_ROWS: readonly PackageComparisonRow[] = [
       venus: { text: "6" },
       earth: { text: "9", emphasized: true },
       mars: { text: "12" },
-      jupiter: { text: "15" },
+      jupiter: { text: "12", emphasized: true },
       saturn: { text: "18" },
       uranus: { text: "21" },
       neptune: { text: "24" }
@@ -500,12 +487,12 @@ export type PackageFaqItem = { readonly q: string; readonly a: string };
 
 export const PACKAGE_FAQ_ITEMS: readonly PackageFaqItem[] = [
   {
-    q: "Which package should I choose?",
-    a: "Tiers are named in solar-system order from Mercury (initial assessment) through Neptune (our flagship programme). Earth is our most popular core intervention (9 hours). Saturn suits deeper, ongoing behavioural needs. Choose based on hours, support intensity, and reporting depth; we can advise on a call."
+    q: "Which membership should I choose?",
+    a: "CAMS Membership and Support Subscription are separate. Choose Mercury (£75, 3 hours), Venus (£145, 6 hours), Earth (£210, 9 hours) or Jupiter (£270, 12 hours) for the current month. You can upgrade during a month, choose a lower tier from the next period, or pause paid support while remaining a CAMS Member."
   },
   {
-    q: "Can I extend a package?",
-    a: "Yes. Packages can be extended with additional hours. We recommend reviewing progress at the end of each package and agreeing next steps together."
+    q: "Can I pause or change my subscription?",
+    a: "Yes. Keep, upgrade, downgrade from the next period, pause paid support, or restart later. Unused hours expire at the end of the subscription period and do not roll over. Ending CAMS Membership is separate from pausing a Support Subscription."
   },
   {
     q: "What if my circumstances change?",
@@ -517,7 +504,7 @@ export const PACKAGE_FAQ_ITEMS: readonly PackageFaqItem[] = [
   },
   {
     q: "How do payment terms work?",
-    a: "Single sessions are paid in full. Block bookings (packages) are due within 14 days of invoice. We offer flexible payment arrangements for specific circumstances."
+    a: "You purchase a recurring CAMS Support Subscription after creating CAMS Membership. Payment can be collected by Direct Debit or recurring card payment. Unused monthly hours expire at the end of that subscription period. A 14-day cancellation period may apply under the Consumer Contracts Regulations 2013."
   },
   {
     q: "What happens after a package ends?",

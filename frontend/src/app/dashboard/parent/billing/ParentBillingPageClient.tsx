@@ -18,7 +18,7 @@ import {
 } from '@/shared/utils/appConstants';
 import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
 import { ExternalLink } from 'lucide-react';
-import { getPaymentStatusBadgeClasses } from '@/dashboard/utils/statusBadgeHelpers';
+import { MembershipAccountPanel } from '@/components/dashboard/parent/MembershipAccountPanel';
 
 type FlatPayment = {
   bookingReference: string;
@@ -56,6 +56,16 @@ export default function ParentBillingPageClient() {
   const flatPayments = useMemo(() => flattenCompletedPayments(bookings), [bookings]);
   const hasPayments = flatPayments.length > 0;
 
+  const totalRemaining = bookings.reduce((sum, b) => sum + (b.remainingHours ?? 0), 0);
+  const hasActiveHours = totalRemaining > 0;
+  const membershipPanel = (
+    <MembershipAccountPanel
+      membershipStatus="ACTIVE"
+      supportSubscriptionStatus={hasActiveHours ? 'ACTIVE' : 'PAUSED'}
+      availableSupportHours={totalRemaining}
+    />
+  );
+
   if (loading) {
     return (
       <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden">
@@ -82,33 +92,41 @@ export default function ParentBillingPageClient() {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 text-center">
-        <p className="text-sm text-slate-600 dark:text-slate-400">{error}</p>
+      <div className="space-y-4">
+        {membershipPanel}
+        <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 text-center">
+          <p className="text-sm text-slate-600 dark:text-slate-400">{error}</p>
+        </div>
       </div>
     );
   }
 
   if (!hasPayments) {
     return (
-      <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden">
-        <EmptyState
-          title={EMPTY_STATE.NO_INVOICES_YET.title}
-          message={EMPTY_STATE.NO_INVOICES_YET.message}
-          action={
-            <Link
-              href={ROUTES.DASHBOARD_PARENT_BOOKINGS}
-              className="text-sm font-medium text-primary-blue hover:underline focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 rounded"
-            >
-              View bookings
-            </Link>
-          }
-        />
+      <div className="space-y-4">
+        {membershipPanel}
+        <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden">
+          <EmptyState
+            title={EMPTY_STATE.NO_INVOICES_YET.title}
+            message={EMPTY_STATE.NO_INVOICES_YET.message}
+            action={
+              <Link
+                href={ROUTES.DASHBOARD_PARENT_BOOKINGS}
+                className="text-sm font-medium text-primary-blue hover:underline focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 rounded"
+              >
+                View bookings
+              </Link>
+            }
+          />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden">
+    <div className="space-y-4">
+      {membershipPanel}
+      <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-left text-slate-700 dark:text-slate-200">
           <thead className="text-2xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
@@ -187,6 +205,7 @@ export default function ParentBillingPageClient() {
           </tbody>
         </table>
       </div>
+    </div>
     </div>
   );
 }

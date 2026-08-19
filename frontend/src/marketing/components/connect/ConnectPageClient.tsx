@@ -61,11 +61,15 @@ export function ConnectPageClient({ intro }: ConnectPageClientProps): ReactEleme
         </p>
         <h1 className="mt-3 font-heading text-3xl font-bold tracking-tight sm:text-4xl">CAMS Services</h1>
         <p className="mt-2 text-sm font-semibold text-white/80">Chaperone Activity Mentor Support</p>
-        <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-white/80 sm:text-base">
-          Structured chaperone, mentoring, activity, community engagement and family support for
-          children and young people aged 8 and above. One link for families, foster carers, schools,
-          children’s homes and local staff.
-        </p>
+                <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-white/80 sm:text-base">
+                  Structured chaperone, mentoring, activity, community engagement and family support for
+                  children and young people aged 8 and above. One link for families, foster carers, schools,
+                  children’s homes and local staff.
+                </p>
+                <p className="mx-auto mt-3 max-w-xl text-sm text-white/75">
+                  Your CAMS Membership stays with you. Your Support Subscription can change as your family’s
+                  needs change.
+                </p>
         <p className="mt-5 text-sm font-semibold text-cams-secondary">Connect first. Then support change.</p>
       </header>
 

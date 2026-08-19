@@ -35,18 +35,19 @@ export function HomePageClient(): ReactElement {
           <header>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cams-secondary">Packages</p>
             <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-cams-ink md:text-5xl">
-              Transparent tiers. Clear expectations.
+              Transparent monthly membership. Flexible support hours.
             </h2>
             <p className="mt-4 max-w-2xl text-lg text-cams-ink-secondary">
-              Choose the intensity that matches risk, attendance, and the outcomes you are working towards, then scale
-              as confidence grows.
+              CAMS Membership creates the relationship. Your Support Subscription sets hours for the current month. Pause paid support without losing membership.
             </p>
           </header>
 
           <div className="mt-10 rounded-3xl border border-slate-200/90 bg-gradient-to-br from-cams-soft/50 to-white p-6 shadow-sm md:mt-14 md:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cams-secondary">Hours by tier</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cams-secondary">Monthly membership</p>
             <ul className="mt-5 divide-y divide-slate-200/90">
-              {INTERVENTION_PACKAGES.map((pkg) => (
+              {INTERVENTION_PACKAGES.filter((pkg) =>
+                pkg.id === "mercury" || pkg.id === "venus" || pkg.id === "earth" || pkg.id === "jupiter"
+              ).map((pkg) => (
                 <li
                   key={pkg.id}
                   className="flex items-center gap-3 py-4 first:pt-0 last:pb-0 sm:gap-4"
@@ -69,7 +70,7 @@ export function HomePageClient(): ReactElement {
                       </p>
                     </div>
                     <p className="font-heading text-sm font-bold tracking-tight text-cams-primary md:text-base">
-                      <span>{pkg.frequencyLine}</span>
+                      <span>{pkg.homeBadge}</span>
                       {pkg.homeDurationLine !== pkg.frequencyLine ? (
                         <span className="block font-medium text-cams-ink-secondary sm:inline">
                           <span className="hidden sm:inline" aria-hidden>

@@ -33,7 +33,7 @@ import {
 } from "@/marketing/lib/package-api-mappers";
 import { mapPackageFaqs, type FaqApiItem } from "@/marketing/lib/faq-api-mappers";
 import { useCanViewPackagePricing } from "@/marketing/hooks/useCanViewPackagePricing";
-import { ROUTES } from "@/shared/utils/routes";
+import { MembershipSubscriptionsSection } from "@/marketing/components/packages/MembershipSubscriptionsSection";
 
 function ComparisonCell({
   emphasized,
@@ -91,13 +91,15 @@ export function PackagesPageClient({ intro }: { intro?: ReactNode }): ReactEleme
       <PageHeroBand
         title={
           <>
-            Intervention <span className="text-cams-primary">Packages</span>
+            Intervention <span className="text-cams-primary">Membership</span>
           </>
         }
-        description="Eight solar-system tiers, from a short Mercury entry block through our Neptune flagship, so you can match hours, intensity, and reporting to your young person."
+        description="CAMS Membership plus a monthly Support Subscription. Mercury, Venus, Earth and Jupiter set your hours for the current month. Membership can stay active when paid support is paused."
       />
 
       {intro}
+
+      <MembershipSubscriptionsSection />
 
       <section className={`bg-cams-soft ${PAGE_LAYOUT.sectionPadding}`}>
         <div className={PAGE_LAYOUT.container}>
@@ -223,11 +225,13 @@ export function PackagesPageClient({ intro }: { intro?: ReactNode }): ReactEleme
                 <PackageBestForCallout variant="packages">{pkg.bestFor}</PackageBestForCallout>
                 <div className="mt-4">
                   <Button
-                    href="/contact"
+                    href={["mercury", "venus", "earth", "jupiter"].includes(pkg.id) ? ROUTES.REGISTER : "/contact"}
                     variant="ghost"
                     className="mt-8 w-full rounded-[10px] border border-slate-200 bg-white py-4 text-base font-semibold text-cams-dark hover:border-cams-primary hover:bg-cams-primary/10 hover:text-cams-dark"
                   >
-                    Request a Consultation
+                    {["mercury", "venus", "earth", "jupiter"].includes(pkg.id)
+                      ? "Choose Membership"
+                      : "Request a Consultation"}
                   </Button>
                 </div>
                 <div className="mt-2">

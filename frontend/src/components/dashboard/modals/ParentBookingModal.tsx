@@ -10,7 +10,7 @@ import { BaseModal } from '@/components/ui/Modal';
 import { BOOKING_VALIDATION_MESSAGES, getMessageForDateReason, meetsMinimumDuration, formatDurationDisplay, getHoursNeededForMinimum } from '@/dashboard/utils/bookingValidationMessages';
 import { getDateBookingStatus, getEarliestBookableDate, isTomorrowBookable } from '@/dashboard/utils/bookingCutoffRules';
 import { useActivities } from '@/interfaces/web/hooks/activities/useActivities';
-import { MIN_DURATION_HOURS } from '@/dashboard/utils/bookingConstants';
+import { USE_REMAINING_HOURS_COPY } from '@/marketing/content/membership-subscriptions';
 import { ListRowsSkeleton } from '@/components/ui/Skeleton';
 import { SKELETON_COUNTS } from '@/shared/utils/skeletonConstants';
 import { EMPTY_STATE } from '@/dashboard/utils/emptyStateConstants';
@@ -231,6 +231,7 @@ export default function ParentBookingModal({
   // - 'all_trainer' → Trainer specifies everything (no activity selection required)
   type SelectionMode = 'all_parent' | 'all_trainer';
   const [selectionMode, setSelectionMode] = useState<SelectionMode>('all_trainer');
+  const [useAllRemainingHours, setUseAllRemainingHours] = useState(false);
   
   // Fetch activities from database (activities table)
   const { activities: databaseActivities, loading: loadingActivities, error: activitiesError } = useActivities();
@@ -1819,6 +1820,37 @@ export default function ParentBookingModal({
                 <div className="text-sm font-medium text-gray-900 mb-1">Trainer&apos;s choice</div>
                 <p className="text-2xs text-gray-600 mb-2">Choose session length; trainer selects activities.</p>
                 <div className="mt-2">
+                  <p className="mb-3 text-xs leading-5 text-gray-600">{USE_REMAINING_HOURS_COPY}</p>
+                  <fieldset className="mb-3 space-y-2">
+                    <legend className="sr-only">How many hours to use</legend>
+                    <label className="flex items-start gap-2 text-sm text-gray-800">
+                      <input
+                        type="radio"
+                        name="hours-mode"
+                        className="mt-1"
+                        checked={!useAllRemainingHours}
+                        onChange={() => setUseAllRemainingHours(false)}
+                      />
+                      Use selected number of hours
+                    </label>
+                    <label className="flex items-start gap-2 text-sm text-gray-800">
+                      <input
+                        type="radio"
+                        name="hours-mode"
+                        className="mt-1"
+                        checked={useAllRemainingHours}
+                        onChange={() => {
+                          setUseAllRemainingHours(true);
+                          const hours = Math.max(
+                            MIN_DURATION_HOURS,
+                            Math.floor(selectedChildRemainingHours)
+                          );
+                          setFormData((prev) => ({ ...prev, duration: hours }));
+                        }}
+                      />
+                      Use all remaining hours ({selectedChildRemainingHours.toFixed(1)}h available)
+                    </label>
+                  </fieldset>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     Session Duration <span className="text-red-500">*</span>
                   </label>
@@ -1833,6 +1865,7 @@ export default function ParentBookingModal({
                         duration: parseInt(e.target.value, 10),
                       }))
                     }
+                    disabled={useAllRemainingHours}
                     className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     {(() => {

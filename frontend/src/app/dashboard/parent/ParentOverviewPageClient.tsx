@@ -47,7 +47,7 @@ import SessionNotesModal from "@/components/dashboard/modals/SessionNotesModal";
 import SafeguardingConcernModal, { type SafeguardingConcernFormData } from "@/components/dashboard/modals/SafeguardingConcernModal";
 import { useLiveRefresh } from "@/core/liveRefresh/LiveRefreshContext";
 import { LIVE_REFRESH_ENABLED } from "@/dashboard/utils/liveRefreshConstants";
-import { ACTIVE_BOOKING_STATUSES, BOOKING_STATUS, PAYMENT_STATUS } from "@/dashboard/utils/dashboardConstants";
+import { MembershipAccountPanel } from "@/components/dashboard/parent/MembershipAccountPanel";
 
 const MIN_DURATION_HOURS = 3;
 
@@ -930,6 +930,12 @@ export default function ParentOverviewPageClient() {
           </div>
         </div>
       </header>
+
+      <MembershipAccountPanel
+        membershipStatus="ACTIVE"
+        supportSubscriptionStatus={(hoursSummaryStats?.totalRemaining ?? 0) > 0 ? "ACTIVE" : "PAUSED"}
+        availableSupportHours={hoursSummaryStats?.totalRemaining ?? 0}
+      />
 
       {/* At a glance – next session first, then schedule/hours/children */}
       <section
