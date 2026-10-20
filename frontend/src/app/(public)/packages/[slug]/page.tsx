@@ -71,15 +71,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     console.warn(`[PackageDetail] Failed to fetch package "${slug}" for metadata.`, error);
   }
 
-  if (!pkg) {
+    if (!pkg) {
     const intervention = getInterventionPackageBySlug(slug);
     if (intervention) {
       pkg = interventionPackageToFallbackDTO(intervention);
     } else {
-      return {
-        title: 'Package Not Found | CAMS services',
-        description: 'The requested package could not be found.',
-      };
+      notFound();
     }
   }
 

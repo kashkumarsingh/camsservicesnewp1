@@ -100,6 +100,24 @@ export function buildServiceLocationPageContent(
     `Typical ${place} outcomes include ${featureSummary}. Referrers receive feasibility confirmation, safeguarding questions and a named practitioner pathway within one working day.`
   );
 
+  if (area.notes) {
+    localityParagraphs.push(
+      `${place} context for ${keyword.label.toLowerCase()}: ${area.notes} Neighbourhood planning covers ${neighbourhoods}.`
+    );
+  }
+
+  if (serviceSlug === 'sen') {
+    localityParagraphs.push(
+      `When school attendance in ${place} breaks down because of anxiety or SEMH needs, pair SEND support with [school transport support](/blog/school-transport-support-semh) so the morning handover and the in-school plan use the same brief.`
+    );
+  }
+
+  if (serviceSlug === 'sports-support-programme') {
+    localityParagraphs.push(
+      `Sports mentoring in ${place} is one-to-one and risk-assessed, using parks, leisure centres or school sites around ${neighbourhoods}. It sits alongside the national [sports support programme](${ROUTES.SERVICE_BY_SLUG('sports-support-programme')}) when a commissioner wants activity used as the engagement method rather than a desk session.`
+    );
+  }
+
   return {
     metaTitle: `${primaryPhrase} ${place} | ${programme.title}`,
     metaDescription: `${keyword.label} in ${place} (${neighbourhoods}). DBS-checked CAMS practitioners for schools, local authorities and families. Refer online.`,
