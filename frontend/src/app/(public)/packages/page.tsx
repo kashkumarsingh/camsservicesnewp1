@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
     {
       title: 'CAMS Membership and monthly Support Subscriptions',
       description:
-        'Mercury, Venus, Earth and Jupiter monthly membership from £75 to £270. 3 to 12 support hours. Pause paid support without losing CAMS Membership.',
+        'Mercury, Venus, Earth and Jupiter monthly membership from £95 to £350. 3 to 12 support hours. Pause paid support without losing CAMS Membership.',
       path: ROUTES.PACKAGES,
       imageAlt: 'CAMS Intervention Packages',
     },

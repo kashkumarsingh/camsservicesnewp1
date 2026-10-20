@@ -35,8 +35,8 @@ export const MEMBERSHIP_PLANS: readonly MembershipPlan[] = [
   {
     id: 'mercury',
     name: 'Mercury Membership',
-    monthlyPriceGbp: 75,
-    monthlyPriceLabel: '£75 per month',
+    monthlyPriceGbp: 95,
+    monthlyPriceLabel: '£95 per month',
     hours: 3,
     hoursLabel: '3 hours',
     shortDescription:
@@ -52,8 +52,8 @@ export const MEMBERSHIP_PLANS: readonly MembershipPlan[] = [
   {
     id: 'venus',
     name: 'Venus Membership',
-    monthlyPriceGbp: 145,
-    monthlyPriceLabel: '£145 per month',
+    monthlyPriceGbp: 185,
+    monthlyPriceLabel: '£185 per month',
     hours: 6,
     hoursLabel: '6 hours',
     shortDescription:
@@ -69,8 +69,8 @@ export const MEMBERSHIP_PLANS: readonly MembershipPlan[] = [
   {
     id: 'earth',
     name: 'Earth Membership',
-    monthlyPriceGbp: 210,
-    monthlyPriceLabel: '£210 per month',
+    monthlyPriceGbp: 270,
+    monthlyPriceLabel: '£270 per month',
     hours: 9,
     hoursLabel: '9 hours',
     shortDescription:
@@ -86,8 +86,8 @@ export const MEMBERSHIP_PLANS: readonly MembershipPlan[] = [
   {
     id: 'jupiter',
     name: 'Jupiter Membership',
-    monthlyPriceGbp: 270,
-    monthlyPriceLabel: '£270 per month',
+    monthlyPriceGbp: 350,
+    monthlyPriceLabel: '£350 per month',
     hours: 12,
     hoursLabel: '12 hours',
     shortDescription:
@@ -103,10 +103,10 @@ export const MEMBERSHIP_PLANS: readonly MembershipPlan[] = [
 ];
 
 export const MEMBERSHIP_PRICE_LABELS: Readonly<Record<MembershipTierId, string>> = {
-  mercury: '£75 per month',
-  venus: '£145 per month',
-  earth: '£210 per month',
-  jupiter: '£270 per month',
+  mercury: '£95 per month',
+  venus: '£185 per month',
+  earth: '£270 per month',
+  jupiter: '£350 per month',
 };
 
 export const MEMBERSHIP_STAYS_COPY =
@@ -130,15 +130,15 @@ export const FLEXIBLE_SUPPORT_FOOTER =
   'A CAMS Member does not have to purchase support every month to retain eligible membership and portal access.';
 
 export const FLEXIBILITY_EXAMPLE = [
-  { month: 'September', plan: 'Jupiter Membership', price: '£270', hours: '12 hours' },
-  { month: 'October', plan: 'Earth Membership', price: '£210', hours: '9 hours' },
+  { month: 'September', plan: 'Jupiter Membership', price: '£350', hours: '12 hours' },
+  { month: 'October', plan: 'Earth Membership', price: '£270', hours: '9 hours' },
   {
     month: 'November',
     plan: 'Support Subscription paused',
     price: '£0 Support Subscription payment',
     hours: '0 support hours — CAMS Membership remains active',
   },
-  { month: 'December', plan: 'Venus Membership', price: '£145', hours: '6 hours' },
+  { month: 'December', plan: 'Venus Membership', price: '£185', hours: '6 hours' },
 ] as const;
 
 export const USE_REMAINING_HOURS_COPY =
@@ -193,12 +193,12 @@ export type SubscriptionUpgrade = {
 };
 
 export const SUBSCRIPTION_UPGRADES: readonly SubscriptionUpgrade[] = [
-  { from: 'mercury', to: 'venus', extraGbp: 70, hoursFrom: 3, hoursTo: 6 },
-  { from: 'mercury', to: 'earth', extraGbp: 135, hoursFrom: 3, hoursTo: 9 },
-  { from: 'mercury', to: 'jupiter', extraGbp: 195, hoursFrom: 3, hoursTo: 12 },
-  { from: 'venus', to: 'earth', extraGbp: 65, hoursFrom: 6, hoursTo: 9 },
-  { from: 'venus', to: 'jupiter', extraGbp: 125, hoursFrom: 6, hoursTo: 12 },
-  { from: 'earth', to: 'jupiter', extraGbp: 60, hoursFrom: 9, hoursTo: 12 },
+  { from: 'mercury', to: 'venus', extraGbp: 90, hoursFrom: 3, hoursTo: 6 },
+  { from: 'mercury', to: 'earth', extraGbp: 175, hoursFrom: 3, hoursTo: 9 },
+  { from: 'mercury', to: 'jupiter', extraGbp: 255, hoursFrom: 3, hoursTo: 12 },
+  { from: 'venus', to: 'earth', extraGbp: 85, hoursFrom: 6, hoursTo: 9 },
+  { from: 'venus', to: 'jupiter', extraGbp: 165, hoursFrom: 6, hoursTo: 12 },
+  { from: 'earth', to: 'jupiter', extraGbp: 80, hoursFrom: 9, hoursTo: 12 },
 ];
 
 export const CHECKOUT_DISCLOSURES = [

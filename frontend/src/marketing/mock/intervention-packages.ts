@@ -61,7 +61,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
   {
     id: "mercury",
     name: "Mercury",
-    homeBadge: "£75 per month · 3 hours",
+    homeBadge: "£95 per month · 3 hours",
     featured: false,
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
@@ -69,7 +69,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     frequencyLine: "3 hours per month",
     homeDurationLine: "3 hours per month",
     features: [
-      "£75 monthly Support Subscription",
+      "£95 monthly Support Subscription",
       "3 hours of eligible CAMS support per subscription month",
       "CAMS Membership stays active if paid support is paused",
       "Book CAMS Chaperone, Mentor or activity support",
@@ -86,7 +86,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
   {
     id: "venus",
     name: "Venus",
-    homeBadge: "£145 per month · 6 hours",
+    homeBadge: "£185 per month · 6 hours",
     featured: false,
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
@@ -94,7 +94,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     frequencyLine: "6 hours per month",
     homeDurationLine: "6 hours per month",
     features: [
-      "£145 monthly Support Subscription",
+      "£185 monthly Support Subscription",
       "6 hours of eligible CAMS support per subscription month",
       "CAMS Membership stays active if paid support is paused",
       "Book CAMS Chaperone, Mentor or activity support",
@@ -111,7 +111,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
   {
     id: "earth",
     name: "Earth",
-    homeBadge: "£210 per month · 9 hours",
+    homeBadge: "£270 per month · 9 hours",
     featured: true,
     packagesPageBadge: "Most Popular",
     packagesPageBadgeStyle: "gradient",
@@ -119,7 +119,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     frequencyLine: "9 hours per month",
     homeDurationLine: "9 hours per month",
     features: [
-      "£210 monthly Support Subscription",
+      "£270 monthly Support Subscription",
       "9 hours of eligible CAMS support per subscription month",
       "CAMS Membership stays active if paid support is paused",
       "Regular CAMS Chaperone, Mentor, activity or community support",
@@ -165,7 +165,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
   {
     id: "jupiter",
     name: "Jupiter",
-    homeBadge: "£270 per month · 12 hours",
+    homeBadge: "£350 per month · 12 hours",
     featured: false,
     packagesPageBadge: null,
     packagesPageBadgeStyle: null,
@@ -173,7 +173,7 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
     frequencyLine: "12 hours per month",
     homeDurationLine: "12 hours per month",
     features: [
-      "£270 monthly Support Subscription",
+      "£350 monthly Support Subscription",
       "12 hours of eligible CAMS support per subscription month",
       "CAMS Membership stays active if paid support is paused",
       "Highest standard monthly CAMS Chaperone, Mentor and activity allocation",
@@ -282,11 +282,11 @@ export const INTERVENTION_PACKAGES: readonly InterventionPackage[] = [
 ];
 
 export const PACKAGE_STARTING_PRICES: Readonly<Record<InterventionPackageId, string>> = {
-  mercury: "£75 per month",
-  venus: "£145 per month",
-  earth: "£210 per month",
+  mercury: "£95 per month",
+  venus: "£185 per month",
+  earth: "£270 per month",
   mars: "From £780",
-  jupiter: "£270 per month",
+  jupiter: "£350 per month",
   saturn: "From £1,170",
   uranus: "From £1,365",
   neptune: "From £1,560"
@@ -488,7 +488,7 @@ export type PackageFaqItem = { readonly q: string; readonly a: string };
 export const PACKAGE_FAQ_ITEMS: readonly PackageFaqItem[] = [
   {
     q: "Which membership should I choose?",
-    a: "CAMS Membership and Support Subscription are separate. Choose Mercury (£75, 3 hours), Venus (£145, 6 hours), Earth (£210, 9 hours) or Jupiter (£270, 12 hours) for the current month. You can upgrade during a month, choose a lower tier from the next period, or pause paid support while remaining a CAMS Member."
+    a: "CAMS Membership and Support Subscription are separate. Choose Mercury (£95, 3 hours), Venus (£185, 6 hours), Earth (£270, 9 hours) or Jupiter (£350, 12 hours) for the current month. You can upgrade during a month, choose a lower tier from the next period, or pause paid support while remaining a CAMS Member."
   },
   {
     q: "Can I pause or change my subscription?",
